@@ -25,6 +25,7 @@ Next steps:
 
 - **Sources are complete.** Boroon uploaded the whole research folder as a zip. Every file was checked by checksum against the repo, duplicates were skipped, and the rest were added. The other session ("Overnight AI software factory", id `session_019bVvHWrUECf7G5YiXU3fKW`) is no longer needed for sources and can be deleted.
 - **Not read in full.** The files added from the zip were saved but not read in this session: the reports V1 and V2, the runtime and costs note, the eight GitHub and Azure notes, the five Power Platform notes and the one-pager. The five workshop slide images were saved but not viewed. The plan condenses most of them. Read one only when a task needs its detail.
+- **Second pstack transcript missing.** Boroon said two more podcast transcripts were coming. Only the first arrived (a YouTube review of pstack, saved as `transcript-pstack-skills-review.md`). The second was not in the message. Ask Boroon for it.
 - The Pocock v1.3 transcript ends mid-sentence at 14:28. The zip copy is the same, so the source itself is cut off.
 - The credit ruling (spike 0.1) has not been sent to Partner Center. The question text is in plan section 9.1.
 - Spike 0.9 has a hard date. Audit for unmanaged developer environments before 15 November 2026.
