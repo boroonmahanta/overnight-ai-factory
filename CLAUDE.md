@@ -40,7 +40,7 @@ End:
 | `docs/sources/transcript-tan-pocock-podcast.md` | Matt Pocock's podcast with Lauren Tan ("poteto"): trust ladder, verification, outer and inner loop, Michelin Kitchen. 1,238 lines. Cited in the plan as [Tan podcast mm:ss] |
 | `docs/sources/transcript-pocock-skills-v1.3.md` | Matt Pocock on version 1.3 of his skills: implement spec, PR skill, glossary rename, retro. 796 lines. Cut off at 14:28, mid-sentence. Cited in the plan as [Pocock v1.3 mm:ss] |
 | `docs/analysis/skills-comparison.md` | Our own analysis, 1 November 2026. Compares the skill packs of Addy Osmani, Matt Pocock and Lauren Tan: full list of every skill, overlaps, which fit GET AI, where they conflict with the 19 rules. Verdicts are proposals. 428 lines |
-| `docs/analysis/tshirt-sizing.md` | Our own analysis, 1 November 2026. A proposed T-shirt size approach (XS, S, M, L, XL) that sets ceremony by risk, mapped to the plan's Merge Danger bands and to the skills to use at each size. A proposal, not decided. 52 lines |
+| `docs/analysis/tshirt-sizing.md` | Our own analysis, 1 November 2026. The T-shirt size approach (XS, S, M, L, XL) that sets ceremony by risk, mapped to the plan's Merge Danger bands and to the skills to use at each size. The sizes and the largest-answer rule were approved by Boroon on 1 November 2026. The skills per size and the next steps are still proposals. 52 lines |
 | `docs/sources/transcript-skills-comparison-addy-pocock-tan.md` | A YouTube video comparing the three skill packs (https://www.youtube.com/watch?v=sU9MW8Ycq2M). Source for the effort-level idea behind the T-shirt sizes. 744 lines. Added 1 November 2026 |
 | `docs/sources/transcript-pstack-skills-review.md` | A YouTube review of Lauren Tan's pstack skills (https://www.youtube.com/watch?v=lUhXa8GiXns; skills at https://github.com/cursor/plugins/tree/main/pstack). 769 lines. Not cited in the plan. Added 1 November 2026. Covers potato mode, arena, swarm, why, recall, interrogate, create and maintain verification, unslop and bro |
 | `docs/sources/transcript-pocock-skills-v1.1.md` | Matt Pocock on version 1.1 of his skills: renames to spec and tickets, grilling fixes (facts versus decisions, confirmation gate), implement and code review (two axes, Fowler smells), Wayfinder, research, prototype, TDD at seams. 856 lines. Cited in the plan as [Pocock v1.1 mm:ss] |
@@ -160,6 +160,20 @@ Wayfinder discovery maps, overnight research tickets, gardening scans that feed 
 - **`lcp-verify`**: skill plus CLI with commands `app`, `query`, `flow`, `agent`, `smoke`. The builder uses a lane copy. The gate uses a trusted copy.
 - **Michelin Kitchen**: the uploaded plan's metaphor. Humans are executive chefs reviewing agent sous-chefs.
 - **Evidence markers in the plan**: no marker means read in full. `[secondary]`, `[snippet]`, `[inference]`, `[untested]`, `[unverified]`, `[user-supplied transcript]`.
+
+## Work sizes (approved 1 November 2026)
+
+Ceremony matches the stakes. Detail and the skills per size are in `docs/analysis/tshirt-sizing.md`.
+
+| Size | Looks like | Merge Danger floor |
+|---|---|---|
+| XS | Wording, label, colour or view-column tweak. No logic | 0 to 1 |
+| S | One additive change in one app or flow. Clear outcome | 0 to 2 |
+| M | Flow logic, Copilot Studio topic or tool, shared table, new connection reference, any user-facing UI | 3 to 5 |
+| L | One-way door: dropped data, security role, money logic, deploy settings | 6 to 10 |
+| XL | Too big or foggy for one session. Wayfinder map first, then split into S, M and L stories | Each child story gets its own |
+
+The size is the largest answer across reversibility, blast radius, clarity, verifiability, effort, and residency. It is not an average. The spec owner proposes it at intake. The gate can raise it, never lower it.
 
 ## Dates that force action
 

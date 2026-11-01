@@ -1,6 +1,6 @@
 # T-shirt sizing for GET AI
 
-Status: a proposal for Boroon's review, 1 November 2026. Nothing here is decided or built.
+Status: the five sizes (XS, S, M, L and XL) and the rule that the largest answer wins were approved by Boroon on 1 November 2026. Everything else here is still a proposal: the skills named for each size, the ADO field, the router skill and the next steps. Nothing is built.
 
 Purpose: match the ceremony to the stakes. This takes the effort-level idea from the video (`docs/sources/transcript-skills-comparison-addy-pocock-tan.md`) and the skills worth using from the three packs, and fits them to the GET AI plan (`docs/sources/plan-v3.1.md`).
 
@@ -37,7 +37,7 @@ Cost comes mostly from verifiers and human minutes, not from the executor. In th
 
 ## 4. Proposed next steps
 
-1. **Decide the sizes.** Agree on XS, S, M, L and XL and the rule that the largest answer wins.
+1. **Sizes: approved** by Boroon on 1 November 2026. XS, S, M, L and XL, and the rule that the largest answer wins.
 2. **Read the shortlist in full**, as plan section 8.3 requires. Suggested first batch: Addy `constraint-driven-development`, `doubt-driven-development`, `source-driven-development`; Tan `create-verification-skill`, `maintain-verification-skill`, `blast-radius`, `show-me-your-work`, `correct`, `how`, `why`; Pocock `triage`, `wizard`, `to-questionnaire`, `ask-matt`; plus the Benny triage and repro skills.
 3. **Write the GET AI set**, named `lcp-*`, adapted for Power Platform. Keep it small. A router skill that routes by size comes first.
 4. **Seed `coding-standards.md`** from the 13 adopted principles.
@@ -46,7 +46,7 @@ Cost comes mostly from verifiers and human minutes, not from the executor. In th
 
 ## 5. Limits
 
-- The sizes and the sizing rule are proposals. The rule extends the plan's Merge Danger design. The plan does not say it today.
+- The sizes and the sizing rule are approved, but the plan does not say them yet. The rule extends the plan's Merge Danger design. Step 5 above would add it to the plan.
 - The skills named for each size are the shortlist from `skills-comparison.md` section 5. Most were judged from their descriptions and have not been read in full.
 - The cost figures are the plan's modelled figures (section 10.4), not measurements.
 - The Merge Danger floors quoted come from plan Appendix B.

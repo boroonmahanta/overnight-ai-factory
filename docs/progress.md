@@ -20,12 +20,13 @@ Next steps:
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
 - Nothing from the plan has been built or tested. Every item marked `[untested]` in the plan is still untested.
 - Boroon said more context will be added in later sessions.
+- Work is sized with T-shirt sizes (XS to XL), approved on 1 November 2026. See `CLAUDE.md`.
 
 ## Open items
 
 - **Sources are complete.** Boroon uploaded the whole research folder as a zip. Every file was checked by checksum against the repo, duplicates were skipped, and the rest were added. The other session ("Overnight AI software factory", id `session_019bVvHWrUECf7G5YiXU3fKW`) is no longer needed for sources and can be deleted.
 - **Not read in full.** The files added from the zip were saved but not read in this session: the reports V1 and V2, the runtime and costs note, the eight GitHub and Azure notes, the five Power Platform notes and the one-pager. The five workshop slide images were saved but not viewed. The plan condenses most of them. Read one only when a task needs its detail.
-- **Decisions waiting on Boroon** (from `docs/analysis/tshirt-sizing.md`): agree the five sizes and the rule that the largest answer wins; approve the shortlist of skills to read in full before any are adopted (plan section 8.3); decide whether to add a work-size field to ADO (Appendix D); decide whether to write a GET AI router skill that routes by size.
+- **Decisions still waiting on Boroon** (from `docs/analysis/tshirt-sizing.md`): approve the shortlist of skills to read in full before any are adopted (plan section 8.3); decide whether to add a work-size field to ADO (Appendix D); decide whether to write a GET AI router skill that routes by size. The sizes themselves are approved.
 - The Pocock v1.3 transcript ends mid-sentence at 14:28. The zip copy is the same, so the source itself is cut off.
 - The credit ruling (spike 0.1) has not been sent to Partner Center. The question text is in plan section 9.1.
 - Spike 0.9 has a hard date. Audit for unmanaged developer environments before 15 November 2026.
@@ -49,6 +50,7 @@ Done:
 Decisions:
 - Sessions stay under about 200K tokens. The context file is a short map. Full sources are read on demand by line range.
 - Skills live in the repo under `.claude/skills/`, not in a user-level folder.
+- **T-shirt sizes approved by Boroon on 1 November 2026:** XS, S, M, L and XL, with the rule that the size is the largest answer across reversibility, blast radius, clarity, verifiability, effort and residency. Summary in `CLAUDE.md`, detail in `docs/analysis/tshirt-sizing.md`. Not yet approved: the skills named for each size, the work-size ADO field, the router skill, and adding the sizes to the plan itself.
 
 Files changed:
 - `.claude/skills/bro/SKILL.md`, `CLAUDE.md`, `docs/progress.md`
@@ -60,5 +62,6 @@ Open items: see above.
 
 Next steps:
 1. Boroon adds more context in the next session. Record it here and in `CLAUDE.md` if it changes a decision.
-2. Recover the missing sources from the other session (see Open items).
-3. Decide the first real build task. The plan's stage 0 and stage 1 are the starting point.
+2. Read the shortlist of skills in full, starting with the first batch in `docs/analysis/tshirt-sizing.md` step 2, once Boroon approves it.
+3. Decide the work-size ADO field and the router skill, then add the sizes to the plan if Boroon agrees.
+4. Decide the first real build task. The plan's stage 0 and stage 1 are the starting point.
