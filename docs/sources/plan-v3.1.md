@@ -1257,7 +1257,7 @@ V2.1's tables stay: `dim_project`, `dim_price`, `fact_run`, `fact_usage`, `fact_
 | Table | Change |
 |---|---|
 | `dim_project` | Add `ado_project`, `residency_tier` (T1 to T4), `platform_tenant` (getai or client), `billing_identity` (org_token or machine_account) |
-| `fact_run` | Add `profile` (`code`, `lcp`), `lane_env` (`fl1` to `fl3`, `test`), `ado_id`, `park_type`, `fast_check_loops`, `import_minutes`, `gate_minutes`. Roles add `executor`, `lcp_evaluator`, `lcp_reviewer`, `test_import`, `reset`, and in V3.1 `lcp_verifier`, `triage`, `researcher`, `gardener`. New columns `verifier_focus` (acceptance, exploratory, regression) and `review_axis` (standards, spec) |
+| `fact_run` | Add `profile` (`pcp`, `lcp`, `lane_a`), `work_size`, `work_mode`, `lane_env` (`fl1` to `fl3`, `test`), `ado_id`, `park_type`, `fast_check_loops`, `import_minutes`, `gate_minutes`. Roles add `executor`, `lcp_evaluator`, `lcp_reviewer`, `test_import`, `reset`, and in V3.1 `lcp_verifier`, `triage`, `researcher`, `gardener`. New columns `verifier_focus` (acceptance, exploratory, regression) and `review_axis` (standards, spec) |
 | `fact_usage` | Add `tool_name` and `tool_result_chars` from `execute_tool` spans, so the retro can rank tools by token waste [inference: content capture on for factory runs only] |
 | `fact_outcome` | Add `merge_danger_floor`, `merge_danger_final`, `one_way_door`, `auto_merged`, `drift_detected`, `heldout_pass_rate`, and in V3.1 `change_class`, `trust_rung`, `sampled`, `sampled_defect` |
 | New `fact_triage` | Report source, group ID, outcome (`reproduced`, `not_reproduced`, `fixed_in_integration`), minutes to draft bug, human decision, cost |
@@ -2478,7 +2478,7 @@ Process: inherited "Agile build v1". Reference names are suggestions.
 |---|---|---|---|---|
 | Factory Eligible | `Custom.FactoryEligible` | Boolean | Human; orchestrator validates | Criteria complete and locked scenarios exist (section 6.4) |
 | Locked Scenarios Ref | `Custom.LockedScenariosRef` | String | Orchestrator | Paths and SHA-256 of the locked set at approval |
-| Lane Profile | `Custom.LaneProfile` | Picklist: code, lcp | Spec gate | Routing |
+| Lane Profile | `Custom.LaneProfile` | Picklist: lcp, pcp, lane_a (changed 1 November 2026: `code` is now `pcp`; `lane_a` added so every story has a lane) | Story Planner proposes; spec gate confirms | Routing, and cost per lane |
 | Residency Tier | `Custom.ResidencyTier` | Picklist: T1 to T4 | Spec owner | Engine choice (section 9.4) |
 | Factory Lane | `Custom.FactoryLane` | String | Orchestrator | `fl1` to `fl3` |
 | Night Id | `Custom.NightId` | Date | Orchestrator | Night the story ran |
@@ -2495,7 +2495,12 @@ Process: inherited "Agile build v1". Reference names are suggestions.
 | AI Credits | `Custom.AiCredits` | Decimal | Ledger | Measured credits, all runs on the story |
 | Cost List USD | `Custom.CostListUsd` | Decimal | Ledger | Fully loaded at list |
 | Cost Cash USD | `Custom.CostCashUsd` | Decimal | Ledger | Cash after credits |
-| Human Minutes | `Custom.HumanMinutes` | Decimal | Reviewers, through the digest | Review and PARK minutes |
+| Human Minutes | `Custom.HumanMinutes` | Decimal | Orchestrator, as the sum of the five phase fields below | All human minutes on the story (changed 1 November 2026: was review and PARK only) |
+| Human Minutes Spec | `Custom.HumanMinutesSpec` | Decimal | Humans, through the digest | Intake, grilling, Wayfinder, prototype reaction, Story Planner review |
+| Human Minutes Scenarios | `Custom.HumanMinutesScenarios` | Decimal | Humans, through the digest | Writing and locking acceptance scenarios and the held-out set |
+| Human Minutes Review | `Custom.HumanMinutesReview` | Decimal | Humans, through the digest | Morning review and approval |
+| Human Minutes Park | `Custom.HumanMinutesPark` | Decimal | Humans, through the digest | Doing PARK steps and answering decisions |
+| Human Minutes Triage | `Custom.HumanMinutesTriage` | Decimal | Humans, through the digest | BAU triage decisions (section 4.5) |
 | Change Class | `Custom.ChangeClass` | String | Orchestrator, from the gate | Class from `trust.yml` (section 5.10) |
 | Auto Merged | `Custom.AutoMerged` | Boolean | Orchestrator | Merged at L2 or L3 without a human approval |
 | Sampled For Review | `Custom.SampledForReview` | Boolean | Orchestrator | In the L2 review sample |
@@ -2506,8 +2511,12 @@ Process: inherited "Agile build v1". Reference names are suggestions.
 | Triage Outcome | `Custom.TriageOutcome` | Picklist: reproduced, not_reproduced, fixed_in_integration | Orchestrator, from `triage.json` | Repro result on the latest `integration` build |
 | Finding Rule | `Custom.FindingRule` | String | Orchestrator, from a scan | The gardening rule that fired (section 7.4) |
 | Finding Count | `Custom.FindingCount` | Integer | Orchestrator, from a scan | Occurrences this week |
+| Work Size | `Custom.WorkSize` | Picklist: XS, S, M, L, XL | Story Planner proposes; spec owner confirms; the gate can raise it, never lower it | T-shirt size (added 1 November 2026). Cost and effort compare by size |
+| Work Mode | `Custom.WorkMode` | Picklist: build, prototype, bau | Story Planner proposes; spec owner confirms | Prototype is a mode and BAU is an on-ramp, not sizes (added 1 November 2026) |
+| Story Origin | `Custom.StoryOrigin` | Picklist: story_planner, human | Orchestrator | Who drafted the story. The Story Planner is the default. A human-written story is allowed but flagged (added 1 November 2026) |
+| Overhead Class | `Custom.OverheadClass` | Picklist: triage, gardening, retro, skill_review, factory_build, other | Orchestrator | Only on standing overhead items (section D.4) |
 
-Tags: `factory-eligible`, `discovery-map` (Wayfinder parent), `triage-inbox` (raw report), `garden-finding`.
+Tags: `factory-eligible`, `discovery-map` (Wayfinder parent), `triage-inbox` (raw report), `garden-finding`, `overhead` (standing overhead item).
 
 ### D.2 States and categories
 
@@ -2523,6 +2532,16 @@ Triaged bugs use the same states: the orchestrator files a draft bug in New with
 ### D.3 Events
 
 The orchestrator Function maps GHE.com webhook events to the transitions in section 5.11: `create` (agent branch), `pull_request` (opened, merged into `integration` or `main`), `check_run` (gate finished), `workflow_run` (execution finished, including a PARK report) and `deployment_status` (`uat`, `prod`). V3.1 adds intake events: service desk or ITSM webhooks, the Teams flow, Azure Monitor action groups and ADO service hooks, each filed as a `triage-inbox` item (section 4.5).
+
+### D.4 Story first: every cost has a work item (added 1 November 2026, proposal)
+
+Boroon's rule: all effort and cost, human minutes and tokens, is tracked. So every unit of work is an ADO story, in every lane, mode and size. This extends rule 13.
+
+- **Every unit of work starts as a story.** That includes prototypes, research tickets, BAU fixes, XS tweaks and Lane A builds. The Story Planner drafts it by default, with the size, mode and lane proposed. A human reviews and confirms. A human may write a story instead. The orchestrator then sets `Custom.StoryOrigin = human`. The Story Planner writes what and why only, never technical step lists (section 6.5).
+- **Every ledger row carries an `ado_id`.** That includes day-phase AI sessions such as grilling, Wayfinder and prototypes. A run with no work item does not start.
+- **Roll-up.** A Wayfinder map, an Epic or a triage group sums the cost and human minutes of its children.
+- **Standing overhead items.** Work with no natural story gets one standing item per lane per quarter, tagged `overhead`, with `Custom.OverheadClass`. Examples: the weekly gardening scan, the human-led retro, reading skills in full under rule 19, and building the factory itself. One triage run that covers many reports charges the draft bug of each group in equal shares. Any remainder goes to the triage overhead item.
+- **Human minutes** are reported by phase, through the morning digest or time entry. The five phase fields add up to `Custom.HumanMinutes`. The cost model's 50 minutes per story (section 10.4) splits as about 30 for spec and scenarios, 15 for review and 5 for PARK.
 
 ## Appendix E: Sources and transcripts used
 
