@@ -40,13 +40,15 @@ In this plan, "Power Platform" means the current product family: Power Apps (can
 | Thing | Product-neutral identifier | Never |
 |---|---|---|
 | The lane profile | `lcp` (low-code platform), as in `profile:lcp` | `pp`, `powerplatform` |
+| The lane profile for code repos (added 1 November 2026) | `pcp` (pro-code platform), as in `profile:pcp` | |
+| GET AI skills and agents (added 1 November 2026) | `lcp-*`, `pcp-*` | |
 | Factory environments | `factory-lane-1`, `factory-lane-2`, `factory-lane-3`, `factory-test` | `pp-dev-1` |
 | Lane codes in branches and identities | `fl1`, `fl2`, `fl3` | |
 | Entra apps and application users | `getai-fl1-exec`, `getai-fl1-verify`, `getai-<proj>-test`, `getai-<proj>-deploy` | `ppf-lane1-exec` |
 | Labels, custom properties | `lane:fl1`, `profile:lcp`, `factory=enabled` | |
 | Gate workflow and scripts | `factory-gates/.github/workflows/lcp-gate.yml`, `gate/lcp/*` | |
 | Spec Kit preset | `getai-lcp` | |
-| ADO tags and fields | `factory-eligible`, `Custom.LaneProfile = lcp` | |
+| ADO tags and fields | `factory-eligible`, `Custom.LaneProfile = lcp` or `pcp` | |
 
 So a rename touches prose only. Re-check names in the week after Ignite.
 

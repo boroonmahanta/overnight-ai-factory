@@ -41,7 +41,7 @@ End:
 | `docs/sources/transcript-pocock-skills-v1.3.md` | Matt Pocock on version 1.3 of his skills: implement spec, PR skill, glossary rename, retro. 796 lines. Cut off at 14:28, mid-sentence. Cited in the plan as [Pocock v1.3 mm:ss] |
 | `docs/analysis/skills-comparison.md` | Our own analysis, 1 November 2026. Compares the skill packs of Addy Osmani, Matt Pocock and Lauren Tan: full list of every skill, overlaps, which fit GET AI, where they conflict with the 19 rules. Verdicts are proposals. 428 lines |
 | `docs/analysis/tshirt-sizing.md` | Our own analysis, 1 November 2026. The T-shirt size approach (XS, S, M, L, XL) that sets ceremony by risk, mapped to the plan's Merge Danger bands and to the skills to use at each size. The sizes and the largest-answer rule were approved by Boroon on 1 November 2026. The skills per size and the next steps are still proposals. 52 lines |
-| `docs/analysis/skills-by-lane-and-size.md` | Our own analysis, 1 November 2026. Redoes the skills proposal as a matrix: Greenfield Lane A, Lane B `lcp`, Lane B `pcp` against Prototype, XS, S, M, L, XL and BAU Managed Services. Replaces the skills-per-size column in `tshirt-sizing.md`. A proposal, not approved |
+| `docs/analysis/skills-by-lane-and-size.md` | Our own analysis, 1 November 2026. Redoes the skills proposal as a matrix: Greenfield Lane A, Lane B `lcp`, Lane B `pcp` against Prototype, XS, S, M, L, XL and BAU Managed Services. Replaces the skills-per-size column in `tshirt-sizing.md`. Boroon accepted the matrix on 1 November 2026, except where Wayfinder and the Story Planner apply (open). The read-in-full batches are not yet approved |
 | `docs/sources/transcript-skills-comparison-addy-pocock-tan.md` | A YouTube video comparing the three skill packs (https://www.youtube.com/watch?v=sU9MW8Ycq2M). Source for the effort-level idea behind the T-shirt sizes. 744 lines. Added 1 November 2026 |
 | `docs/sources/transcript-pstack-skills-review.md` | A YouTube review of Lauren Tan's pstack skills (https://www.youtube.com/watch?v=lUhXa8GiXns; skills at https://github.com/cursor/plugins/tree/main/pstack). 769 lines. Not cited in the plan. Added 1 November 2026. Covers potato mode, arena, swarm, why, recall, interrogate, create and maintain verification, unslop and bro |
 | `docs/sources/transcript-pocock-skills-v1.1.md` | Matt Pocock on version 1.1 of his skills: renames to spec and tickets, grilling fixes (facts versus decisions, confirmation gate), implement and code review (two axes, Fowler smells), Wayfinder, research, prototype, TDD at seams. 856 lines. Cited in the plan as [Pocock v1.1 mm:ss] |
@@ -106,7 +106,7 @@ Auto-merge is a rung on a trust ladder (L0 to L3), earned per change class on ev
 
 Lanes:
 - **Lane A**: greenfield and feature-sized code builds. One long Copilot SDK session.
-- **Lane B, code profile**: issue-sized changes in existing code, via the cloud agent.
+- **Lane B, code profile** (`pcp`, pro-code platform): issue-sized changes in existing code, via the cloud agent.
 - **Lane B, Power Platform profile** (focus): story-sized changes to Power Platform solutions, via Copilot CLI on a runner.
 - **Day work**: canvas app authoring, new-harness Copilot Studio agents, environment creation, anything needing an admin login.
 
@@ -142,13 +142,15 @@ Wayfinder discovery maps, overnight research tickets, gardening scans that feed 
 | Thing | Use | Never |
 |---|---|---|
 | Lane profile | `lcp` (low-code platform), `profile:lcp` | `pp`, `powerplatform` |
+| Lane profile, code repos | `pcp` (pro-code platform), `profile:pcp`. Added 1 November 2026 | |
+| GET AI skills and agents | `lcp-*`, `pcp-*` | |
 | Environments | `factory-lane-1` to `-3`, `factory-test` | `pp-dev-1` |
 | Lane codes | `fl1`, `fl2`, `fl3` | |
 | Entra apps | `getai-fl1-exec`, `getai-fl1-verify`, `getai-<proj>-test`, `getai-<proj>-deploy` | `ppf-lane1-exec` |
 | Labels | `lane:fl1`, `profile:lcp`, `factory=enabled` | |
 | Gate files | `factory-gates/.github/workflows/lcp-gate.yml`, `gate/lcp/*` | |
 | Spec Kit preset | `getai-lcp` | |
-| ADO | tag `factory-eligible`, field `Custom.LaneProfile = lcp` | |
+| ADO | tag `factory-eligible`, field `Custom.LaneProfile = lcp` or `pcp` | |
 
 ## Terms
 

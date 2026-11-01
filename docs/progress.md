@@ -39,21 +39,25 @@ Done:
 - Read `docs/progress.md`, then redid the skills proposal as a matrix by lane and size, as Boroon asked. New file: `docs/analysis/skills-by-lane-and-size.md`. Rows: Greenfield Lane A, Lane B `lcp`, Lane B `pcp`. Columns: Prototype, XS, S, M, L, XL, BAU Managed Services. Added a base row for skills common to all lanes.
 - Listed the skills that moved (section 5 of the new file), what GET AI must write itself (section 6) and a read-in-full order tied to build stages (section 7).
 
-Decisions:
-- None approved yet. Everything in the new file is a proposal.
+Decisions (Boroon, 1 November 2026):
+- `pcp` means pro-code platform. It is the plan's "Lane B, code profile". Added to the `CLAUDE.md` naming table and plan section 1.1, with `profile:pcp`, `Custom.LaneProfile = pcp` and skill prefix `pcp-`.
+- Lane A has no XS or S.
+- Prototype is a mode and BAU Managed Services is an on-ramp. Neither is a size.
+- The matrix is accepted, except where Wayfinder and the Story Planner apply.
+- Open: Boroon wants Wayfinder and the Story Planner in all lanes and modes, not only at XL. Claude's proposed wording: a map is a trigger, not a default step. If the clarity test fails at any size (no locked scenarios can be written today), escalate to a Wayfinder map. The Story Planner applies wherever one request can become more than one story (M and up, Lane A, BAU clusters). XS and S stay light. Prototype is a Wayfinder child type, so the map wraps the prototype. Waiting on Boroon's answer before the matrix is changed.
+- Not yet said: approval of the three read-in-full skill batches.
 
 Files changed:
-- `docs/analysis/skills-by-lane-and-size.md` (new), `docs/analysis/tshirt-sizing.md` (pointer added), `CLAUDE.md` (map row added), `docs/progress.md`
+- `docs/analysis/skills-by-lane-and-size.md` (new), `docs/analysis/tshirt-sizing.md` (pointer added), `CLAUDE.md` (map row, naming table, lane list), `docs/sources/plan-v3.1.md` (section 1.1 naming table only), `docs/progress.md`
 
 Open items:
-- Is `pcp` the plan's "Lane B, code profile"? If yes, add it to the naming rule. `CLAUDE.md` defines `lcp` as "low-code platform"; the new file keeps "platform".
-- Lane A has no XS or S in the matrix. Prototype is treated as a mode and BAU as an on-ramp, not sizes. All three need Boroon's yes or no.
+- Where Wayfinder and the Story Planner apply in the matrix (see Decisions).
 - Approve the three read-in-full batches. Still open from Session 1: the work-size ADO field and the router skill.
+- Other places that still say only "code profile" may need `pcp` added: plan sections 4.2 and 4.4, and the one-pager. Not changed.
 
 Next steps:
-1. Boroon answers section 8 of the new file.
+1. Boroon answers the Wayfinder and Story Planner question. Then update the matrix.
 2. Read batch 1 of the skills in full (the `lcp` set), then write `lcp-verify` and the router skill.
-3. If `pcp` is confirmed, add it to the naming rule in `CLAUDE.md` and plan section 1.1.
 
 ## Session 1, 2026-11-01, branch `claude/jolly-albattani-818i8e`
 
