@@ -33,6 +33,7 @@ End:
 | `CLAUDE.md` | This map |
 | `docs/progress.md` | Running log and next steps. Read second, update last |
 | `docs/sources/plan-v3.1.md` | The main plan, "Lock the Gate, Pool the Lanes, Merge by Day", V3.1, 1 November 2026. 2,543 lines |
+| `docs/sources/plan-v3.md` | The previous version, V3, 1 November 2026. 1,976 lines. Superseded by V3.1. Kept only to see what changed. V3 differs from V3.1 in: Wayfinder named the planning agent (now Story Planner); auto-merge framed as "Phase 4" (now the trust ladder L0 to L3); one evaluator per PR (now one to three verifiers); one review pass (now two); no `lcp-verify`, outer loop, gardening or prototypes; cost USD 11 per story and USD 144 accepted (now about 15 and 150); a Test queue of 30 minutes per PR (now about 36) |
 | `docs/sources/uploaded-plan-software-factory.md` | Boroon's original plan (also as `.docx`). Part A: "End-to-End Specification: The GET AI Microsoft Software Factory". Part B: "Copilot Studio Agents & App Builds". 320 lines. Section 14.1 of the main plan lists every change made to it |
 | `docs/sources/transcript-anthropic-agents-run-for-hours.md` | Anthropic workshop, "How to Build Agents That Run for Hours". 1,213 lines |
 | `docs/sources/transcript-spec-kit-part-2.md` | GitHub, "Open Source Friday: Spec Kit Part 2", 16 October 2026. 1,159 lines |
@@ -42,11 +43,11 @@ End:
 | `docs/sources/report-grill-the-spec-lock-the-tests.md` | The first report, "Grill the Spec, Lock the Tests". 195 lines. Original evidence base: what each harness resource teaches, the verifier-is-the-weak-point research, the grill gate, Claude Code facts, first design and stages |
 | `.claude/skills/bro/SKILL.md` | The `/bro` skill |
 
-The main plan supersedes both earlier reports. Read them for detail the plan condenses, not for current decisions. If they conflict, the main plan wins.
+The main plan (V3.1) supersedes both earlier reports and V3. Read them for detail the plan condenses, not for current decisions. If they conflict, the main plan wins.
 
 Timestamps in the plan's citations, such as [Tan podcast 16:21 to 16:53], match the leading timestamps in these transcript files. Search for the start time, for example `grep -n '^16:21' docs/sources/transcript-tan-pocock-podcast.md`.
 
-Not in the repo yet: the Pocock v1.1 transcript, the research notes, the V3.1 changes brief, and the earlier reports V1, V2 and the V3 snapshot (`plan-v3.md`).
+Not in the repo yet: the Pocock v1.1 transcript, the research notes, the V3.1 changes brief, and the earlier reports V1 and V2.
 They sit in another session's scratchpad (session "Overnight AI software factory"). See `docs/progress.md`.
 
 ## Where to find what in the main plan
