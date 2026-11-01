@@ -33,6 +33,28 @@ Next steps:
 
 ## Log
 
+## Session 2, 2026-11-01, branch `claude/sharp-wright-1muptp`
+
+Done:
+- Read `docs/progress.md`, then redid the skills proposal as a matrix by lane and size, as Boroon asked. New file: `docs/analysis/skills-by-lane-and-size.md`. Rows: Greenfield Lane A, Lane B `lcp`, Lane B `pcp`. Columns: Prototype, XS, S, M, L, XL, BAU Managed Services. Added a base row for skills common to all lanes.
+- Listed the skills that moved (section 5 of the new file), what GET AI must write itself (section 6) and a read-in-full order tied to build stages (section 7).
+
+Decisions:
+- None approved yet. Everything in the new file is a proposal.
+
+Files changed:
+- `docs/analysis/skills-by-lane-and-size.md` (new), `docs/analysis/tshirt-sizing.md` (pointer added), `CLAUDE.md` (map row added), `docs/progress.md`
+
+Open items:
+- Is `pcp` the plan's "Lane B, code profile"? If yes, add it to the naming rule. `CLAUDE.md` defines `lcp` as "low-code platform"; the new file keeps "platform".
+- Lane A has no XS or S in the matrix. Prototype is treated as a mode and BAU as an on-ramp, not sizes. All three need Boroon's yes or no.
+- Approve the three read-in-full batches. Still open from Session 1: the work-size ADO field and the router skill.
+
+Next steps:
+1. Boroon answers section 8 of the new file.
+2. Read batch 1 of the skills in full (the `lcp` set), then write `lcp-verify` and the router skill.
+3. If `pcp` is confirmed, add it to the naming rule in `CLAUDE.md` and plan section 1.1.
+
 ## Session 1, 2026-11-01, branch `claude/jolly-albattani-818i8e`
 
 Done:

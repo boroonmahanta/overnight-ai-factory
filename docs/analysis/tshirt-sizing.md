@@ -2,6 +2,8 @@
 
 Status: the five sizes (XS, S, M, L and XL) and the rule that the largest answer wins were approved by Boroon on 1 November 2026. Everything else here is still a proposal: the skills named for each size, the ADO field, the router skill and the next steps. Nothing is built.
 
+Update, 1 November 2026: the "Skills to use" column below is superseded by `skills-by-lane-and-size.md`, which splits the skills by lane and adds Prototype and BAU Managed Services columns. The sizes themselves are unchanged.
+
 Purpose: match the ceremony to the stakes. This takes the effort-level idea from the video (`docs/sources/transcript-skills-comparison-addy-pocock-tan.md`) and the skills worth using from the three packs, and fits them to the GET AI plan (`docs/sources/plan-v3.1.md`).
 
 Companion file: `skills-comparison.md` lists every skill in the three packs, the overlaps, and which skills fit GET AI.
