@@ -39,6 +39,8 @@ End:
 | `docs/sources/transcript-spec-kit-part-2.md` | GitHub, "Open Source Friday: Spec Kit Part 2", 16 October 2026. 1,159 lines |
 | `docs/sources/transcript-tan-pocock-podcast.md` | Matt Pocock's podcast with Lauren Tan ("poteto"): trust ladder, verification, outer and inner loop, Michelin Kitchen. 1,238 lines. Cited in the plan as [Tan podcast mm:ss] |
 | `docs/sources/transcript-pocock-skills-v1.3.md` | Matt Pocock on version 1.3 of his skills: implement spec, PR skill, glossary rename, retro. 796 lines. Cut off at 14:28, mid-sentence. Cited in the plan as [Pocock v1.3 mm:ss] |
+| `docs/sources/transcript-pocock-skills-v1.1.md` | Matt Pocock on version 1.1 of his skills: renames to spec and tickets, grilling fixes (facts versus decisions, confirmation gate), implement and code review (two axes, Fowler smells), Wayfinder, research, prototype, TDD at seams. 856 lines. Cited in the plan as [Pocock v1.1 mm:ss] |
+| `docs/sources/research-notes/` | Five of the original research notes behind the plan, saved verbatim: `anthropic_long_running_harnesses.md`, `evals_quality_gates_metrics.md`, `harness_engineering_practitioner_lessons.md`, `orchestration_patterns_durable_engines.md`, `spec_driven_development_requirements.md`. Dated 24 October 2026. Each has takeaways, cited findings, inferences and gaps per question. Use them to check the evidence behind plan section 3 |
 | `docs/sources/report-v2.1-two-lanes-one-gate.md` | Earlier report V2.1, "Two Lanes, One Gate, Priced at List". 925 lines. The GitHub and Azure design the main plan builds on: two lanes, harness parity, Spec Kit day gate, traces, credits, ledger schema, Lane A and B cost models, 8-stage plan. Still the best source for Lane A, ACA jobs, the ledger SQL schema and GitHub-side limits |
 | `docs/sources/report-grill-the-spec-lock-the-tests.md` | The first report, "Grill the Spec, Lock the Tests". 195 lines. Original evidence base: what each harness resource teaches, the verifier-is-the-weak-point research, the grill gate, Claude Code facts, first design and stages |
 | `.claude/skills/bro/SKILL.md` | The `/bro` skill |
@@ -47,7 +49,7 @@ The main plan (V3.1) supersedes both earlier reports and V3. Read them for detai
 
 Timestamps in the plan's citations, such as [Tan podcast 16:21 to 16:53], match the leading timestamps in these transcript files. Search for the start time, for example `grep -n '^16:21' docs/sources/transcript-tan-pocock-podcast.md`.
 
-Not in the repo yet: the Pocock v1.1 transcript, the research notes, the V3.1 changes brief, and the earlier reports V1 and V2.
+Not in the repo yet: the sixth "Overnight AI software factory" research note (runtime and costs), the eight GitHub and Azure research notes, the six Power Platform research notes, the V3.1 changes brief, and the earlier reports V1 and V2.
 They sit in another session's scratchpad (session "Overnight AI software factory"). See `docs/progress.md`.
 
 ## Where to find what in the main plan
