@@ -45,6 +45,7 @@ Decisions (Boroon, 1 November 2026):
 - Prototype is a mode and BAU Managed Services is an on-ramp. Neither is a size.
 - The matrix is accepted, except where Wayfinder and the Story Planner apply.
 - Open: Boroon wants Wayfinder and the Story Planner in all lanes and modes, not only at XL. Claude's proposed wording: a map is a trigger, not a default step. If the clarity test fails at any size (no locked scenarios can be written today), escalate to a Wayfinder map. The Story Planner applies wherever one request can become more than one story (M and up, Lane A, BAU clusters). XS and S stay light. Prototype is a Wayfinder child type, so the map wraps the prototype. Waiting on Boroon's answer before the matrix is changed.
+- Boroon: all effort and cost (human minutes and tokens) must be tracked, so a user story in ADO is required for every unit of work in every lane, mode and size. Not negotiable. Claude's refinement, awaiting a yes: the story is always required; the Story Planner agent need not run for XS and S (a human can use a template). Gaps found in the plan: `Custom.HumanMinutes` covers review and PARK only, not day-phase spec and scenario time (about 30 of the 50 modelled minutes); day-phase AI sessions need `ado_id`; triage, gardening, retro and skill reading need standing overhead items; `Custom.WorkSize` and a mode field are now needed. Plan Appendix D not yet changed.
 - Not yet said: approval of the three read-in-full skill batches.
 
 Files changed:
