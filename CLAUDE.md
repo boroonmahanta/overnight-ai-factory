@@ -36,9 +36,13 @@ End:
 | `docs/sources/uploaded-plan-software-factory.md` | Boroon's original plan (also as `.docx`). Part A: "End-to-End Specification: The GET AI Microsoft Software Factory". Part B: "Copilot Studio Agents & App Builds". 320 lines. Section 14.1 of the main plan lists every change made to it |
 | `docs/sources/transcript-anthropic-agents-run-for-hours.md` | Anthropic workshop, "How to Build Agents That Run for Hours". 1,213 lines |
 | `docs/sources/transcript-spec-kit-part-2.md` | GitHub, "Open Source Friday: Spec Kit Part 2", 16 October 2026. 1,159 lines |
+| `docs/sources/transcript-tan-pocock-podcast.md` | Matt Pocock's podcast with Lauren Tan ("poteto"): trust ladder, verification, outer and inner loop, Michelin Kitchen. 1,238 lines. Cited in the plan as [Tan podcast mm:ss] |
+| `docs/sources/transcript-pocock-skills-v1.3.md` | Matt Pocock on version 1.3 of his skills: implement spec, PR skill, glossary rename, retro. 796 lines. Cut off at 14:28, mid-sentence. Cited in the plan as [Pocock v1.3 mm:ss] |
 | `.claude/skills/bro/SKILL.md` | The `/bro` skill |
 
-Not in the repo yet: the Tan and Pocock transcripts, the research notes, and the earlier plans V1 to V3.
+Timestamps in the plan's citations, such as [Tan podcast 16:21 to 16:53], match the leading timestamps in these transcript files. Search for the start time, for example `grep -n '^16:21' docs/sources/transcript-tan-pocock-podcast.md`.
+
+Not in the repo yet: the Pocock v1.1 transcript, the research notes, and the earlier plans V1 to V3.
 They sit in another session's scratchpad (session "Overnight AI software factory"). See `docs/progress.md`.
 
 ## Where to find what in the main plan
