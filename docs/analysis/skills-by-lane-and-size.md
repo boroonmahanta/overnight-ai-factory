@@ -91,7 +91,7 @@ Still open:
 5. **Story Planner: decided.** It applies in all lanes, modes and sizes, as the default way a story is made. Done in this file and in plan Appendix D.4.
 6. **Wayfinder: still open.** Trigger when the clarity test fails (proposed), or always? See the progress log.
 7. **Work-size ADO field: decided.** Added as `Custom.WorkSize`, with `Custom.WorkMode`. The router skill is still open.
-8. The plan still calls the Story Planner "optional" in places (the intake front door in section 6.5, and elsewhere). Those sentences now conflict with Appendix D.4 and need a pass.
+8. **Plan wording: done.** Plan section 6.5 was rewritten on 1 November 2026. The Copilot Studio front door is the default, and other customer requirements can feed the Story Planner and Wayfinder directly. The other "optional" mentions (sections 1.2, 2, 4.x table, 8 and the decision log) were fixed to match.
 
 ## 9. Limits
 

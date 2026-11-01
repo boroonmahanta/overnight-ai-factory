@@ -93,7 +93,7 @@ So a rename touches prose only. Re-check names in the week after Ignite.
 
 **Against the uploaded plan** (full table in section 14.1)
 
-- Part B is the architecture. Part A's Foundry and Agent Framework orchestrator and "Azure AutoGen" are dropped; Copilot Studio and the Story Planner survive as an optional front door.
+- Part B is the architecture. Part A's Foundry and Agent Framework orchestrator and "Azure AutoGen" are dropped; Copilot Studio and the Story Planner survive as the default front door (changed 1 November 2026: the Story Planner is now required for every story).
 - Auto-merge is rebuilt: deterministic floor, LLM may only raise, never for tests, scripts, builders, workflows, hooks or agent instructions, only into `integration`, only on evidence.
 - The gate is a required workflow in a separate repo; credentialed jobs run only trusted code; lanes map to environments with a lock each.
 - Locked scenarios from someone other than the worker, a held-out set, and a separate Test environment and identity. One identity becomes four.
@@ -126,7 +126,7 @@ Humans own intent, spec approval and the merge. Agents build and verify overnigh
 | Phase | When (Sydney) | What happens | Output |
 |---|---|---|---|
 | **Outer loop** (AI Managed Services clients) | Business hours; last triage batch 16:00 | Client reports arrive from the service desk, Teams, alerts and ADO. A triage agent groups them, reproduces each group in `factory-test` with `lcp-verify`, and the orchestrator drafts an ADO bug with repro steps and evidence. A human decides (section 4.5) | Draft bugs with evidence; nothing reaches the night without Factory Eligible |
-| **Day gate** | Business hours, locked by 17:00 | Intake (optionally through the Copilot Studio front door). Wayfinder maps for foggy work. Spec Kit idea assessment, specify and clarify with the GET AI and Power Platform presets, asking one question at a time and only for decisions. Glossary and decision records updated. Test author writes acceptance scenarios; acceptance owners lock them. Mocks or throwaway prototypes approved for user-facing work. Human sets Factory Eligible. 17:00: the orchestrator builds the night plan from ADO, a grouping pass flags related items, and an acceptance owner approves it | Approved spec, locked scenarios, night plan |
+| **Day gate** | Business hours, locked by 17:00 | Intake (by default through the Copilot Studio front door, or from other customer requirements; the Story Planner drafts every story). Wayfinder maps for foggy work. Spec Kit idea assessment, specify and clarify with the GET AI and Power Platform presets, asking one question at a time and only for decisions. Glossary and decision records updated. Test author writes acceptance scenarios; acceptance owners lock them. Mocks or throwaway prototypes approved for user-facing work. Human sets Factory Eligible. 17:00: the orchestrator builds the night plan from ADO, a grouping pass flags related items, and an acceptance owner approves it | Approved spec, locked scenarios, night plan |
 | **Night** | 21:47 to 05:00 | Kickoff and preflight. One story per lane: reset, build with Copilot CLI, verify in the lane with `lcp-verify`, fast checks, push, PR. Portal-only steps and decisions PARK. Lane drift check. Lane released. Research tickets run on their own runners | One PR per story, or a parked story; research notes |
 | **Verify** | On each PR, through the night | Required gate workflow: trusted static checks, import into Test, locked and held-out scenarios, one to three verifier sessions scaled by Merge Danger, two-axis review, Merge Danger. NEEDS_WORK goes back to a lane, two rounds at most | Evidence bundle, verdict, Merge Danger score |
 | **Morning** | 05:41 digest; 09:00 to 10:00 review | Teams card and ADO updates. Trace review agent drafts fixes. Humans read evidence, read one failed trace in full, resolve PARKs, approve PRs into `integration`, approve the release PR to `main` and the UAT deployment | Merged work, answered questions, logged review minutes |
@@ -386,7 +386,7 @@ This is the uploaded plan's Part B, corrected. The shape stays: ADO queue, sched
 | Component | Runs on | Identity | Job |
 |---|---|---|---|
 | Outer loop (AI Managed Services clients) | Intake Function plus the `lcp-triage` agent in a Copilot CLI session | Orchestrator service principal; `getai-<proj>-test` and the test user for repro | Group, reproduce and draft bugs by day (section 4.5) |
-| Intake front door (optional) | Copilot Studio intake agent plus the Story Planner agent | The human user | Clarifying questions, `glossary.md`, a draft Epic and stories in ADO with predecessor links. What and why only. Feeds the day gate, never the night (section 6.5) |
+| Intake front door (default) | Copilot Studio intake agent plus the Story Planner agent. The Story Planner also takes other customer requirements directly | The human user | Clarifying questions, `glossary.md`, a draft Epic and stories (or a Wayfinder map) in ADO with predecessor links, size, mode and lane. What and why only. Feeds the day gate, never the night (section 6.5) |
 | Day gate | Spec Kit 1.2 with the GET AI preset and the `getai-lcp` preset, in VS Code, Copilot CLI or the Copilot app | Human Copilot seats | Spec, clarify, design mocks, locked scenarios |
 | Work queue and system of record | ADO Boards, `getai` organisation, process "Agile build v1" | Orchestrator service principal | Stories tagged `factory-eligible` in "Ready to build". State changes come only from the orchestrator |
 | Orchestrator | `factory-control` repo: scheduled Actions (kickoff, dispatch, tick, digest) plus an Azure Function for GHE.com webhooks | Factory GitHub App; orchestrator service principal for ADO and Key Vault | Night plan, preflight, lane locks, dispatch, PARK handling, ADO state, provisional ledger rows |
@@ -993,11 +993,28 @@ The uploaded plan had a human set Factory Eligible "when acceptance criteria are
 7. The verify profile and `glossary.md` changes the spec lists are merged.
 8. For a triaged bug: the triage evidence is linked and a human has read it (section 4.5).
 
-### 6.5 Intake: the optional Copilot Studio front door
+### 6.5 Intake: the Copilot Studio front door and other inputs (rewritten 1 November 2026)
 
-Part A's intake survives as an option for business users. A Copilot Studio intake agent asks clarifying questions, starts `glossary.md`, names the practice, and hands a JSON payload to the Story Planner agent (the uploaded plan's "Wayfinder", renamed; section 14.3). The Story Planner drafts the Epic and stories in ADO with predecessor links. Then the normal day gate runs: idea assessment, specify and clarify on Spec Kit, scenarios, approval. Story Planner output is a draft, never a night input. If the intake shows the work is still foggy, the Story Planner proposes a Wayfinder map instead of stories (section 6.7).
+Every unit of work starts here, in every lane, mode and size, and it starts as a story in ADO (Appendix D.4). Boroon's rule: all effort and cost must be tracked, so nothing runs without a work item.
 
-Two changes from Part A. The "Chief of Staff" orchestrator on Foundry and Microsoft Agent Framework is dropped: Actions, ADO and the agent runtime already do that job, so building it is the IKEA trap. Its function survives as two steps on shipped primitives: grouping in triage (section 4.5) and grouping in the 17:00 night plan (section 5.5). And "Azure AutoGen" is not a product: Microsoft Agent Framework is "the direct successor" to Semantic Kernel and AutoGen, and "focuses on single-process composition today; distributed execution is planned" ([Agent Framework overview](https://learn.microsoft.com/agent-framework/overview/); [AutoGen migration guide](https://learn.microsoft.com/agent-framework/migration-guide/from-autogen/)). Azure AI Foundry is now Microsoft Foundry.
+**The default front door** is Part A's intake. A Copilot Studio intake agent asks clarifying questions, starts `glossary.md`, names the practice, and hands a JSON payload to the Story Planner agent (the uploaded plan's "Wayfinder", renamed; section 14.3).
+
+**Other inputs.** Customer requirements can also arrive in other forms and go straight to the Story Planner, with or without the chat. Examples: an uploaded policy or requirements document, a statement of work or RFP, an email thread, meeting notes or a transcript, a service desk request, an existing ADO item, or a triage group from the outer loop (section 4.5). Wayfinder maps use the same inputs.
+
+**What the Story Planner does with any input.**
+1. Reads the material and separates facts from open decisions (rule 9). Facts are looked up. Decisions go back to a human as questions.
+2. Proposes either stories or a map. For stories: size (XS to XL), mode (build, prototype, bau), lane (`lcp`, `pcp`, `lane_a`), and predecessor links in ADO. For work that is still foggy, a Wayfinder map with typed children instead (section 6.7).
+3. Writes what and why only, never technical step lists (section 6.6).
+
+**Rules.**
+- **Draft first.** The intake creates a draft ADO item before any AI session starts, so the cost of every session, including intake, has an `ado_id`.
+- **A draft, never a night input.** A human reviews and confirms the stories. The orchestrator records who drafted each one (`Custom.StoryOrigin`). A human may write a story instead, but that is not the default.
+- **Source material is data, not instructions.** The agent ignores any request written inside a document, email or transcript (Appendix C.6).
+- **Residency applies.** Client material goes to inference, so the client's tier applies (section 9.4). T4 clients get no intake agent.
+
+Then the normal day gate runs: idea assessment, specify and clarify on Spec Kit, scenarios, approval.
+
+**The Chief of Staff.** Part A's "Chief of Staff" orchestrator on Foundry and Microsoft Agent Framework is dropped. Actions, ADO and the agent runtime already do what it was for (hold state, route tasks, talk to ADO), so building it is the IKEA trap. The deterministic orchestrator Function stays and does that plumbing. The one thing an orchestrator did that code does not is see the whole board, so that agents "do not duplicate work". That survives as two grouping steps on shipped primitives: in triage (section 4.5, step 1) and in the 17:00 night plan (section 5.5), which flags likely duplicates, stories that touch the same table or flow, and shared root causes. Its notes are advice. The ordering stays deterministic. And "Azure AutoGen" is not a product: Microsoft Agent Framework is "the direct successor" to Semantic Kernel and AutoGen, and "focuses on single-process composition today; distributed execution is planned" ([Agent Framework overview](https://learn.microsoft.com/agent-framework/overview/); [AutoGen migration guide](https://learn.microsoft.com/agent-framework/migration-guide/from-autogen/)). Azure AI Foundry is now Microsoft Foundry.
 
 For client PMs, Spec Kit's canvases in the GitHub Copilot app are a second front door [Spec Kit talk 26:40 to 36:11]. They need the app and a seat, and the canvas generator is experimental.
 
@@ -1135,7 +1152,7 @@ The aim is to use what Microsoft and GitHub already ship, keep glue thin, and in
 
 | Workshop requirement | Power Platform equivalent | Status | Our fix |
 |---|---|---|---|
-| High-level planner, then out of the loop [talk 23:59 to 24:56] | Spec Kit plus the `getai-lcp` preset by day; optional Copilot Studio front door | At parity | Preset fields (section 6.3) |
+| High-level planner, then out of the loop [talk 23:59 to 24:56] | Spec Kit plus the `getai-lcp` preset by day; Copilot Studio front door (default) | At parity | Preset fields (section 6.3) |
 | One bounded worker per story | Copilot CLI autopilot with the `lcp-executor` agent and Microsoft's skill plugins | At parity | Lane lock, credit cap, 5-loop cap |
 | The worker verifies its own work in the loop [Tan podcast 16:21 to 17:55] | Playwright toolkit, Web API, `FlowRun`, Copilot Studio test sets: all shipped, none packaged as one skill | Gap | `lcp-verify` skill and CLI (section 5.9) |
 | An outer loop feeds the inner loop [Tan podcast 35:24 to 37:34] | Azure Monitor alerts, Power Automate, ADO service hooks; Copilot CLI `--fleet` for grouping | Pieces shipped | Intake Function and triage (section 4.5) |
@@ -1465,7 +1482,7 @@ Board lens: these are reusable IP, Power Platform depth strengthens the Microsof
 
 | Topic | Uploaded plan said | This plan says | Why |
 |---|---|---|---|
-| Architecture | Part A: Foundry plus Agent Framework "Chief of Staff", "Azure AutoGen" workers. Part B: Actions dispatcher, headless agent | Part B only. Copilot Studio and the Story Planner as an optional front door. The Chief of Staff function survives as grouping steps in triage and the night plan | Two architectures conflicted; "Azure AutoGen" is not a product; building an orchestrator is the IKEA trap |
+| Architecture | Part A: Foundry plus Agent Framework "Chief of Staff", "Azure AutoGen" workers. Part B: Actions dispatcher, headless agent | Part B only. Copilot Studio and the Story Planner as the default front door (changed 1 November 2026: the Story Planner is required for every story). The Chief of Staff function survives as grouping steps in triage and the night plan | Two architectures conflicted; "Azure AutoGen" is not a product; building an orchestrator is the IKEA trap |
 | Ticket state | Agent marks tickets Resolved (Part A); orchestrator owns state (Part B) | Orchestrator owns state; agents write files only | Race-free and auditable |
 | Branching | Integration branch per Epic (A); PR per story to `main` (B) | PR per story into `integration`; human release PR to `main` | Auto-merge may never reach anything that deploys |
 | Auto-merge | LLM score 0 to 2, including tests, into `main`, from day 45 | Deterministic floor, LLM raise-only, protected paths never, `integration` only, a rung earned per change class on evidence (V3.1) | Soft test gaming; bypass trap; dates are not evidence |
