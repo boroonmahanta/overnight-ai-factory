@@ -23,15 +23,9 @@ Next steps:
 
 ## Open items
 
-- **Missing sources.** These are cited in the plan but are not in this repo. They sit in another Claude session's scratchpad, on a different repo (session "Overnight AI software factory", id `session_019bVvHWrUECf7G5YiXU3fKW`):
-  - the sixth note of the first research folder (runtime and costs), the eight GitHub and Azure research notes, the six Power Platform research notes, and the V3.1 changes brief
-  - the earlier reports V1 ("Overnight factory on GitHub and Azure") and V2
-
-  The plan's own digests of them (sections 3.5, 3.6, 3.9) are in the repo. The raw files are not.
-  Boroon can download them from that session and upload them to a new session, which should commit them under `docs/sources/`.
-  Already recovered and saved: the Tan and Pocock podcast, the Pocock v1.3 transcript, the first report "Grill the Spec, Lock the Tests", report V2.1, the V3 plan snapshot, the Pocock v1.1 transcript and five of the original research notes.
-- The Pocock v1.3 transcript ends mid-sentence at 14:28. The upload was cut off. Ask for the full file if the ending matters.
-- Do not delete that other session until those files are saved.
+- **Sources are complete.** Boroon uploaded the whole research folder as a zip. Every file was checked by checksum against the repo, duplicates were skipped, and the rest were added. The other session ("Overnight AI software factory", id `session_019bVvHWrUECf7G5YiXU3fKW`) is no longer needed for sources and can be deleted.
+- **Not read in full.** The files added from the zip were saved but not read in this session: the reports V1 and V2, the runtime and costs note, the eight GitHub and Azure notes, the five Power Platform notes and the one-pager. The five workshop slide images were saved but not viewed. The plan condenses most of them. Read one only when a task needs its detail.
+- The Pocock v1.3 transcript ends mid-sentence at 14:28. The zip copy is the same, so the source itself is cut off.
 - The credit ruling (spike 0.1) has not been sent to Partner Center. The question text is in plan section 9.1.
 - Spike 0.9 has a hard date. Audit for unmanaged developer environments before 15 November 2026.
 
@@ -48,6 +42,7 @@ Done:
 - Boroon then uploaded two earlier reports, "Grill the Spec, Lock the Tests" and V2.1. Both were read in full and saved verbatim. The main plan supersedes them. They are kept for detail the plan condenses.
 - Boroon then uploaded "plan_V3.1_latest" and "plan_V3". The V3.1 file was byte-identical to the copy already saved, so it was skipped. V3 is new. V3.1 is an in-place edit of V3, so a line comparison showed everything unique to V3 is older wording that V3.1 replaced. V3 was saved as a superseded snapshot.
 - Boroon then uploaded the Pocock v1.1 transcript, a second copy of the Pocock v1.3 transcript and the Tan podcast (both byte-identical to saved files, skipped), and five research notes. The v1.1 transcript and the notes were saved verbatim under `docs/sources/` and `docs/sources/research-notes/`.
+- Boroon finally uploaded the full research folder as a zip. Of 43 files, 22 were already in the repo and were skipped, plus two extra copies of the original plan (`uploaded_plan_pandoc.md`, `uploaded_plan_yaml.txt`) whose text matches the version already saved. The new files were added: reports V1 and V2, the runtime and costs note, eight GitHub and Azure notes, five Power Platform notes (including the V3.1 changes brief and the review of the uploaded plan), five workshop slide images, and the engineer one-pager.
 
 Decisions:
 - Sessions stay under about 200K tokens. The context file is a short map. Full sources are read on demand by line range.
@@ -55,7 +50,8 @@ Decisions:
 
 Files changed:
 - `.claude/skills/bro/SKILL.md`, `CLAUDE.md`, `docs/progress.md`
-- `docs/sources/plan-v3.1.md`, `uploaded-plan-software-factory.md` and `.docx`, `transcript-anthropic-agents-run-for-hours.md`, `transcript-spec-kit-part-2.md`, `transcript-tan-pocock-podcast.md`, `transcript-pocock-skills-v1.3.md`, `report-grill-the-spec-lock-the-tests.md`, `report-v2.1-two-lanes-one-gate.md`, `plan-v3.md`, `transcript-pocock-skills-v1.1.md`, `research-notes/` (five files)
+- `docs/sources/plan-v3.1.md`, `uploaded-plan-software-factory.md` and `.docx`, `transcript-anthropic-agents-run-for-hours.md`, `transcript-spec-kit-part-2.md`, `transcript-tan-pocock-podcast.md`, `transcript-pocock-skills-v1.3.md`, `report-grill-the-spec-lock-the-tests.md`, `report-v2.1-two-lanes-one-gate.md`, `plan-v3.md`, `transcript-pocock-skills-v1.1.md`, `report-v1-fund-nights-on-credits.md`, `report-v2-two-lanes-one-gate.md`, `research-notes/` (19 files in three folders), `workshop-slides/` (five images)
+- `docs/one-pager/` (the engineer one-pager as HTML and Markdown)
 
 Open items: see above.
 
