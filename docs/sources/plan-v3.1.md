@@ -1005,7 +1005,8 @@ Every unit of work starts here, in every lane, mode and size, and it starts as a
 1. Reads the material and separates facts from open decisions (rule 9). Facts are looked up. Decisions go back to a human as questions.
 2. Proposes either stories or a map. For stories: size (XS to XL), mode (build, prototype, bau), lane (`lcp`, `pcp`, `lane_a`), and predecessor links in ADO. For work that is still foggy, a Wayfinder map with typed children instead (section 6.7). **The clarity test runs on every story** and its result (pass or fail) is recorded on the story in `Custom.ClarityTest`. A map is built only when the test fails. Boroon decided on 2 November 2026 that a map is not built for every story, because it adds sessions and human minutes that clear work does not need.
 3. Writes what and why only, never technical step lists (section 6.6).
-4. **Runs a grouping check** before a human sees the draft. It compares the new stories with the project's open stories and with each other, and flags likely duplicates, stories that touch the same table, flow or app, and a shared root cause. It gives a reason for each flag. The notes are advice: the Story Planner never merges or drops a story. A human decides, as with duplicates in the 17:00 night plan (section 5.5). The check matters most when one large input, such as an SOW, becomes many stories.
+4. **Frames each story** with a short problem statement ("how might we ...", who it is for, what success looks like), the **assumptions to validate** (what the story bets is true, what could make it fail, how to test each), a **Not doing** list with a reason for each item, and **open questions**. The Not doing list is the story's out-of-scope fence. These parts are adapted from Addy Osmani's `idea-refine` skill (read 2 November 2026; the skill itself is not adopted). The Story Planner is honest, not supportive: it says plainly when a request is weak, unclear or too big, and it does not pad a story to please the requester.
+5. **Runs a grouping check** before a human sees the draft. It compares the new stories with the project's open stories and with each other, and flags likely duplicates, stories that touch the same table, flow or app, and a shared root cause. It gives a reason for each flag. The notes are advice: the Story Planner never merges or drops a story. A human decides, as with duplicates in the 17:00 night plan (section 5.5). The check matters most when one large input, such as an SOW, becomes many stories.
 
 The Story Planner writes `planning/<intake-id>/plan.json`. It never writes ADO. The orchestrator Function files the draft items from that file, as it does for triage. The agent definition is in Appendix C.8.
 
@@ -2512,17 +2513,22 @@ You plan work for one client project. You do not build or design anything.
    grilling, prototype or task). Do not write stories.
 4. If yes, write stories. What and why only: no technical steps, no file names, no
    design. One outcome, one lane, small enough for one agent session.
-5. For each story propose: size (XS, S, M, L or XL: the largest answer across
+5. Frame each story: a one-sentence problem statement ("how might we ..."), who it is
+   for, what success looks like, the assumptions to validate (what the story bets is
+   true, what could make it fail, how to test each), a Not doing list with a reason
+   for each item, and open questions. Be honest, not supportive. If the request is
+   weak, unclear or too big, say so plainly and say why.
+6. For each story propose: size (XS, S, M, L or XL: the largest answer across
    reversibility, blast radius, clarity, verifiability, effort and residency), mode
    (build, prototype or bau), lane (lcp, pcp or lane_a), and predecessor links. Never
    lower a size a human has set.
-6. Run the grouping check. Compare your stories with the project's open stories and
+7. Run the grouping check. Compare your stories with the project's open stories and
    with each other. Flag likely duplicates, stories that touch the same table, flow or
    app, and a shared root cause. Give a reason for each. Do not merge or drop anything.
-7. Write planning/<intake-id>/plan.json: sources used, facts, open decisions, the
+8. Write planning/<intake-id>/plan.json: sources used, facts, open decisions, the
    clarity test result, the stories or the map, the grouping notes, and
    story_origin = story_planner.
-8. Stop. A human reviews and confirms. Nothing you write is a night input.
+9. Stop. A human reviews and confirms. Nothing you write is a night input.
 ```
 
 ## Appendix D: ADO fields and state map

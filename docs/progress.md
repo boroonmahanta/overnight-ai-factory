@@ -52,7 +52,8 @@ Decisions (Boroon):
 - 1 November: story first. A story is required for every unit of work in every lane, mode and size. The Story Planner drafts it by default. Human-written stories are allowed but not the default and are flagged.
 - 2 November: Wayfinder is not run for every story. The clarity test runs on every story and is recorded; a map is built only when it fails.
 - 2 November: a router skill is wanted. It maps size, mode and lane to the skills to use. Write it after batch 1 is read.
-- 2 November: skills are read in batches. Batch 1 is approved now. Batches 2 and 3 are read later. `idea-refine` is proposed for removal from batch 3; not yet confirmed.
+- 2 November: skills are read in batches. Batch 1 is approved now. Batches 2 and 3 are read later.
+- 2 November: `idea-refine` is dropped from batch 3 (batch 3 is now about 21K tokens). Its useful parts went into the Story Planner (plan section 6.5 step 4 and Appendix C.8): a problem statement, assumptions to validate, a Not doing list, open questions and an honest tone. Not taken: the 5 to 8 idea variations, `AskUserQuestion`, and saving to `docs/ideas/`.
 
 Files changed:
 - New: `docs/analysis/skills-by-lane-and-size.md`.
@@ -64,7 +65,7 @@ Next steps:
 1. New session: read skill batch 1 in full. For each skill report keep, rewrite for GET AI, or drop, and quote anything risky. Install nothing.
 2. Write the router skill.
 3. Build the Story Planner and `lcp-verify` in stage 2.
-4. Confirm whether to drop `idea-refine` from batch 3.
+4. Review the Story Planner's new framing (plan Appendix C.8) when it is built in stage 2.
 
 ## Session 1, 2026-11-01, branch `claude/jolly-albattani-818i8e`
 
