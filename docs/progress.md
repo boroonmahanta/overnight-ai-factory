@@ -58,17 +58,23 @@ Then (Session 4, fourth request), decisions by Boroon:
 Then (Session 4, fifth request), decisions by Boroon:
 - **`security-and-hardening` read in full and shelved.** Copied unchanged to `skills/addy/security-and-hardening/` (pinned `301b02b`), with its shared checklist at `skills/references/security-checklist.md`. Not adopted. Differs from the other session's review ("rewrite"). Three items raised, none yet decided: (1) the skill's "ask first" list as a Merge Danger and PARK rubric for code repos (plan Appendix B, a plan edit); (2) supply-chain checks (dependency scripts blocked, lockfile audit) as gate steps for code repos; (3) prompt injection, which a keyword search found no mention of in the plan. Open question: the gate (Appendix A) shows only the solution checker SARIF as a security check, so code repos have none planned. Settle before Stage 5 (day 46).
 
+Then (Session 4, sixth request), decisions by Boroon:
+- **`bug-fix` dropped for now**, and its dependency "Opening a PR" read and dropped too (it conflicts with rule 7, stacked PRs). Both are playbooks already on the shelf inside `poteto-mode`, so nothing was copied. Five `bug-fix` ideas and four PR-body ideas (Scope, Tradeoffs, blast radius if main is red, one-minute briefing) are recorded in the notes for later.
+- **Open item noted: no live skill takes a confirmed bug from repro to fix.** Pieces exist, nothing joins them, and nothing covers Power Platform bugs. Cheapest fix: a short `pcp-fix` skill (about 1 to 2 KB) sequencing the existing skills, plus an `lcp` version using `lcp-verify`. Revisit before Stage 5 (day 46), or with `diagnosing-bugs` for BAU Managed Services.
+- `debugging-and-error-recovery` read in full; verdict pending Boroon (see chat). Not yet shelved.
+
 Files changed: `docs/sources/plan-v3.1.md` (one paragraph in 5.11), `docs/progress.md`, `docs/analysis/skills-reading-notes-skill-batches.md` (new), `skills/pocock/diagnosing-bugs/` (new, 3 files), `skills/README.md`, `CLAUDE.md`. Also `skills/addy/code-simplification/` (new, 1 file) `skills/addy/deprecation-and-migration/` (new, 1 file), `skills/addy/security-and-hardening/` (new, 2 files) and `skills/references/security-checklist.md` (new).
 
 Open items:
 - The review file is not on `main`. Where it differs from what is live: it says drop `wizard` (we have `getai-wizard`), drop `principle-model-the-domain` (adopted), and rewrite the four skills adopted unchanged. Boroon decides each. Not changed.
-- Still untouched, read before use: batch 2 `bug-fix`, `debugging-and-error-recovery`, `codebase-design`, `improve-codebase-architecture`. Batch 3: `frontend-ui-engineering`, `api-and-interface-design`, `ci-cd-and-automation`, `observability-and-instrumentation`, `shipping-and-launch`, `architect`, `arena`.
+- Still untouched, read before use: batch 2 `codebase-design`, `improve-codebase-architecture`. Batch 3: `frontend-ui-engineering`, `api-and-interface-design`, `ci-cd-and-automation`, `observability-and-instrumentation`, `shipping-and-launch`, `architect`, `arena`.
+- **No bug-fix workflow** (see the sixth request above). Decide before Stage 5.
 - Add to the Stage 3 driver spec: the non-PARK stop checkpoint, and where the transcript lives for the decision-log audit.
 - Not started: spike 0.1 (credit ruling) and spike 0.9 (environment audit, before 15 November 2026).
 
 Next steps:
 1. Boroon rules on the review's differences, then the review file goes to `main` by a fresh branch and pull request.
-2. Read the rest of batch 2 by need date (day 46), then batch 3 (day 60). `diagnosing-bugs` and `code-simplification` are done and shelved. Next in the table: `bug-fix`.
+2. Read the rest of batch 2 by need date (day 46), then batch 3 (day 60). `diagnosing-bugs` and `code-simplification` are done and shelved. `bug-fix` is dropped. Next in the table: `codebase-design`.
 3. Send the credit ruling and start the environment audit.
 
 ## Session 3, 2026-11-02, branch `claude/exciting-babbage-4u2zp4`

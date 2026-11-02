@@ -133,3 +133,34 @@ Files read in full: `SKILL.md` (17.6 KB), `references/hardening-patterns.md` (13
 **Plan gap to confirm.** The only security-type check found in the gate (Appendix A) is the solution checker SARIF, which is Power Platform. No secret scan, dependency audit or code scanning for code repos turned up in a keyword search. To be settled before Stage 5 (day 46, Lane B for code repos). A plan question, not a skill question.
 
 **Verdict (proposal): shelve.** Record the three items above as open items. Not adopted, not edited, nothing written to `.claude/skills/`.
+
+## `bug-fix` playbook and "Opening a PR" (Tan), read 2 November 2026
+
+Files read in full: `skills/tan/poteto-mode/playbooks/bug-fix.md` (2.4 KB) and `opening-a-pr.md` (5.6 KB), which `bug-fix` ends with and the other session's review marked as unread. Both are playbooks inside `poteto-mode`, already on the shelf and byte-identical to the pinned `cursor/plugins` commit `ae5650f`. Nothing was copied.
+
+**`bug-fix` verdict: dropped for now (Boroon, 2 November 2026).** Wired to Cursor (the `Task` tool, `/loop`, a "control skill", and an other-vendor model slug that clashes with the residency tiers). The lead agent owns the verdict, which breaks rule 2. It leans on `architect`, `interrogate` and `tdd`, which we have not adopted.
+
+Ideas worth lifting later (the review listed three; these are five):
+1. Every shipped line traces to runtime evidence. "Belt-and-suspenders that might help is a hypothesis, not a fix." A good standards-reviewer check.
+2. Revert what a refuted hypothesis motivated.
+3. "Inconclusive" or wrong-surface is not a pass (rule 2, `principle-prove-it-works`).
+4. The failing repro lands before the fix in git history. The gate can check this deterministically and put it in the PR evidence. It extends "red before green" in plan 5.12.
+5. The reply pastes failing-then-passing output verbatim, which fits the before/after table in the PR template (plan C.7).
+
+For bugs the repro should come from `pcp-triage`, written by someone other than the builder and locked before the night (rule 3). The builder's own repro stays a `tests/dev/` check, not acceptance evidence.
+
+**"Opening a PR" verdict: dropped.** It conflicts with rule 7: it prefers five narrow stacked PRs, each child targeting its parent branch. It uses Cursor's `/deslop`, `/no-comments` and `/technical-writing`, and Origin and Graphite. Our driver opens the PR from `pr.md`, not the agent.
+
+Worth lifting into the planned `pr-body` skill (plan C.7), whose template already has what and why, a diagram, a before/after table and refactor candidates:
+- a **Scope** section: what the PR deliberately leaves out;
+- a **Tradeoffs** section: rejected alternatives a reviewer would ask about, only when there was a real choice;
+- "if main is red, state the cost of leaving it red" in the blast radius;
+- the PR body is a one-minute briefing, with full SHAs and long verdicts in a linked artifact.
+
+Conventional Commit titles may not match client repo conventions. Skills follow the project's own conventions.
+
+## Open item: no live skill takes a confirmed bug from repro to fix
+
+Checked 2 November 2026 against the live descriptions. Pieces exist: `getai-intake`, `pcp-triage` and `lcp-triage` (read-only, no fix), `pcp-how`, `pcp-why`, `pcp-blast-radius` and `lcp-blast-radius`, `getai-decision-log`, and the principles `fix-root-causes`, `sequence-verifiable-units`, `prove-it-works` and `test-behavior-not-implementation`. Nothing joins them from a locked repro to a fix and evidence, and nothing covers Power Platform bugs. `diagnosing-bugs` is shelved for BAU Managed Services.
+
+Known and decided, not an oversight: bugs go to Lane B (code) at Stage 5 (day 46), and `pcp-triage` stops before the fix because of rule 3. Cheapest fix when needed: a short `pcp-fix` skill of about 1 to 2 KB that sequences the existing pieces (start from the locked repro in `triage.json`, commit the failing check before the fix, make the smallest change the evidence justifies, run `pcp-blast-radius`, put failing-then-passing output in the PR body), with the five `bug-fix` ideas above folded in. An `lcp` version would use `lcp-verify` as the loop. Revisit before Stage 5, or with `diagnosing-bugs` for BAU Managed Services.
