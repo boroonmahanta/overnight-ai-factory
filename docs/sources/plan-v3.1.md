@@ -1255,7 +1255,7 @@ V2.1's tables stay: `dim_project`, `dim_price`, `fact_run`, `fact_usage`, `fact_
 | Table | Change |
 |---|---|
 | `dim_project` | Add `ado_project`, `residency_tier` (T1 to T4), `platform_tenant` (getai or client), `billing_identity` (org_token or machine_account) |
-| `fact_run` | Add `profile` (`code`, `lcp`), `lane_env` (`fl1` to `fl3`, `test`), `ado_id`, `park_type`, `fast_check_loops`, `import_minutes`, `gate_minutes`. Roles add `executor`, `lcp_evaluator`, `lcp_reviewer`, `test_import`, `reset`, and in V3.1 `lcp_verifier`, `triage`, `researcher`, `gardener`. New columns `verifier_focus` (acceptance, exploratory, regression) and `review_axis` (standards, spec) |
+| `fact_run` | Add `profile` (`pro-code`, `lcp`), `lane_env` (`fl1` to `fl3`, `test`), `ado_id`, `park_type`, `fast_check_loops`, `import_minutes`, `gate_minutes`. Roles add `executor`, `lcp_evaluator`, `lcp_reviewer`, `test_import`, `reset`, and in V3.1 `lcp_verifier`, `triage`, `researcher`, `gardener`. New columns `verifier_focus` (acceptance, exploratory, regression) and `review_axis` (standards, spec) |
 | `fact_usage` | Add `tool_name` and `tool_result_chars` from `execute_tool` spans, so the retro can rank tools by token waste [inference: content capture on for factory runs only] |
 | `fact_outcome` | Add `merge_danger_floor`, `merge_danger_final`, `one_way_door`, `auto_merged`, `drift_detected`, `heldout_pass_rate`, and in V3.1 `change_class`, `trust_rung`, `sampled`, `sampled_defect` |
 | New `fact_triage` | Report source, group ID, outcome (`reproduced`, `not_reproduced`, `fixed_in_integration`), minutes to draft bug, human decision, cost |
@@ -2476,7 +2476,7 @@ Process: inherited "Agile build v1". Reference names are suggestions.
 |---|---|---|---|---|
 | Factory Eligible | `Custom.FactoryEligible` | Boolean | Human; orchestrator validates | Criteria complete and locked scenarios exist (section 6.4) |
 | Locked Scenarios Ref | `Custom.LockedScenariosRef` | String | Orchestrator | Paths and SHA-256 of the locked set at approval |
-| Lane Profile | `Custom.LaneProfile` | Picklist: code, lcp | Spec gate | Routing |
+| Lane Profile | `Custom.LaneProfile` | Picklist: pro-code, lcp | Spec gate | Routing |
 | Residency Tier | `Custom.ResidencyTier` | Picklist: T1 to T4 | Spec owner | Engine choice (section 9.4) |
 | Factory Lane | `Custom.FactoryLane` | String | Orchestrator | `fl1` to `fl3` |
 | Night Id | `Custom.NightId` | Date | Orchestrator | Night the story ran |

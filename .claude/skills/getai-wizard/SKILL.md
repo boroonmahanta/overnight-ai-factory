@@ -1,5 +1,5 @@
 ---
-name: lcp-wizard
+name: getai-wizard
 description: Write an interactive bash script that walks a human through steps only they can do (portal clicks, consent, admin logins, Entra apps, secrets), captures the values and saves them. Use for stage 1 and 2 set-up and for PARK items of type portal_step. Not for steps an agent can do.
 disable-model-invocation: true
 ---
@@ -35,4 +35,4 @@ If the agent can do the step itself with `pac`, `az`, `gh` or an API, it should.
 - **No client production data or credentials** in a wizard (rule 15). Never write a secret into the repo. `.env` stays out of git.
 - **Four identity roles stay separate** (rule 6): execute, verify, review, merge. Do not reuse one app for two roles. None in any bypass list.
 - **Wizards are ephemeral by default.** Save to a scratch path and delete when done. Commit one only for a repeatable set-up, and then it is a reviewed daytime PR (rule 17).
-- Log each wizard run in `decisions-<run_id>.tsv` (`lcp-decision-log`) so there is a trail of who did what and when. Never log a secret value.
+- Log each wizard run in `decisions-<run_id>.tsv` (`getai-decision-log`) so there is a trail of who did what and when. Never log a secret value.

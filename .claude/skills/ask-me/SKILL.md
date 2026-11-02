@@ -12,7 +12,7 @@ Plain language. Australian English. No em-dashes. Ask Boroon at most one questio
 
 Before you say what a skill does, check the status tag below. Do not point at a skill that is not live. Say it is on the shelf or planned, and give the manual step instead.
 
-Status tags: **live** (in `.claude/skills/`), **shelf** (in `skills/`, read, not adopted), **planned** (named in the plan or `tshirt-sizing.md`, not written). `lcp-*` skills are GET AI versions adapted from the shelf originals.
+Status tags: **live** (in `.claude/skills/`), **shelf** (in `skills/`, read, not adopted), **planned** (named in the plan or `tshirt-sizing.md`, not written). `getai-*` skills work for any profile. `lcp-*` skills are for the Power Platform profile. `pcp-*` skills are for the pro-code profile (Lane B code repos and Lane A).
 
 ## Step 1. Where are we?
 
@@ -50,7 +50,7 @@ Then: write the size on the story, get **Factory Eligible** set by a human only 
 
 ## The day flow (idea to Factory Eligible)
 
-0. **Intake.** A raw request or draft bug: `lcp-intake` (live) verifies the claim, proposes the size and writes the brief.
+0. **Intake.** A raw request or draft bug: `getai-intake` (live) verifies the claim, proposes the size and writes the brief.
 1. **Grill the idea.** Facts are looked up. Decisions are asked. Clarify by day only. Status: planned as a GET AI grilling skill; until then follow the grilling rules in plan section 6.
 2. **Need to see it?** User-facing change needs an approved mock or throwaway prototype (rule 10). Prototypes are never promoted. Keep the answer, not the code.
 3. **Write and lock the scenarios.** Someone other than the builder (rule 3). Put the held-out set where the worker cannot read it (rule 4).
@@ -63,29 +63,29 @@ Do not try to run this from a day session. The night shift follows the plan: one
 
 ## When you are stuck
 
-- **Need an answer from someone else** (acceptance owner, client IT, Partner Center for spike 0.1): `lcp-questionnaire` (live). It writes a short questionnaire.
-- **Only a human can do the step** (portal click, consent, admin login, Entra app, secrets): this is a PARK at night. By day use `lcp-wizard` (live) to script it for a person.
+- **Need an answer from someone else** (acceptance owner, client IT, Partner Center for spike 0.1): `getai-questionnaire` (live). It writes a short questionnaire.
+- **Only a human can do the step** (portal click, consent, admin login, Entra app, secrets): this is a PARK at night. By day use `getai-wizard` (live) to script it for a person.
 - **Foggy and too big for one session:** Wayfinder map in ADO (plan section 6). Pocock's `wayfinder` skill is not on the shelf yet, so run the map by hand from the plan.
-- **Lost the thread of a client solution:** `lcp-how` for what it does and `lcp-why` for why it is shaped that way (both live).
+- **Lost the thread of a client solution:** `lcp-how` for what it does and `lcp-why` for why it is shaped that way (both live). For a code repo use `pcp-how` and `pcp-why` (live).
 
 ## Checking work
 
-- **Is the change safe?** `lcp-blast-radius` (live). Prove the one fact it is safe because of by running something. An AI writeup can raise the Merge Danger score, never lower it (rule 11).
+- **Is the change safe?** `lcp-blast-radius` (live) for Power Platform, `pcp-blast-radius` (live) for code repos. Prove the one fact it is safe because of by running something. An AI writeup can raise the Merge Danger score, never lower it (rule 11).
 - **Is my reasoning sound?** `doubt-driven-development` (live, adopted as is). A fresh reviewer sees the artifact and the contract, not your claim. Stop after 3 cycles. It cannot run from inside a subagent.
 - **Is the quality bar being lowered?** `constraint-driven-development` (live, adopted as is), especially its diff check for new suppressions, skipped tests, moved thresholds and new exceptions.
 - **Does a feature really work?** `lcp-verify` (planned, stage 2). Use `create-verification-skill` and `maintain-verification-skill` (live, adopted as is) as the pattern. Both write to `.cursor/skills/`; tell them to use `.claude/skills/` and the name `lcp-verify`.
 - **Is it grounded in current docs?** `source-driven-development` (live, adopted as is). Prefer Microsoft Learn and note the doc date.
-- **Where is the trail?** `lcp-decision-log` (live). One decision per row, evidence is a pointer. Transcripts and traces reach Blob within the night, tagged with `run_id` (rule 16).
+- **Where is the trail?** `getai-decision-log` (live). One decision per row, evidence is a pointer. Transcripts and traces reach Blob within the night, tagged with `run_id` (rule 16).
 
 ## Client reports (the outer loop)
 
-AI Managed Services reports arrive raw. Triage first, never build straight from a report. `lcp-triage` (live, untested) groups, dedupes and reproduces in `factory-test`, then writes `triage.json`. It never fixes. A human then uses `lcp-intake` (live) to set the size and write the story brief. Which ITSM tools clients use is still an open question.
+AI Managed Services reports arrive raw. Triage first, never build straight from a report. `lcp-triage` (live, untested) groups, dedupes and reproduces in `factory-test`, then writes `triage.json`. It never fixes. `pcp-triage` (live, untested, no workflow yet) is the same for code repos. A human then uses `getai-intake` (live) to set the size and write the story brief. Which ITSM tools clients use is still an open question.
 
 ## Changing the factory
 
 Prompts, rubrics, agents, skills, hooks, gate scripts, `lcp-verify`, `glossary.md`, decision records and coding standards change **only by a reviewed daytime PR** (rule 17).
 
-- **Same mistake keeps happening:** `lcp-correct` (live). Fix it as high as it goes: design, then types, then lint, then tests, docs last.
+- **Same mistake keeps happening:** `getai-correct` (live). Fix it as high as it goes: design, then types, then lint, then tests, docs last.
 - **Adopting a third-party skill:** read every file, pin the commit, record it in `skills/README.md` (rule 19). Then Boroon approves. Then it moves to `.claude/skills/`, adapted and renamed `lcp-*` where it touches Power Platform.
 - **Machine-read names** stay product-neutral (rule 18). Use `lcp`, `fl1`, `factory-test` and so on, never `pp` or `powerplatform`.
 

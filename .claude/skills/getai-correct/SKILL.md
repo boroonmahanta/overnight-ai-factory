@@ -1,5 +1,5 @@
 ---
-name: lcp-correct
+name: getai-correct
 description: Find the mistakes agents keep repeating in a repo and make each one impossible, highest level first. Use for the weekly retro, after a bad week, or when a human keeps correcting the same thing.
 disable-model-invocation: true
 ---

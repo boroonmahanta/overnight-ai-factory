@@ -1,5 +1,5 @@
 ---
-name: lcp-decision-log
+name: getai-decision-log
 description: Keep a reviewable decision trail for any long or unattended run: a TSV with one row per decision, kept in the evidence bundle. Use for night runs, multi-phase day work, or anything a human reviews after stepping away.
 disable-model-invocation: true
 ---

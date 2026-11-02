@@ -1,5 +1,5 @@
 ---
-name: lcp-questionnaire
+name: getai-questionnaire
 description: Turn a decision or fact you cannot get alone into a short questionnaire for someone else to fill in. Use for acceptance owners, client IT, Microsoft or Partner Center, or any PARK that needs an answer from another person.
 disable-model-invocation: true
 ---
@@ -38,5 +38,5 @@ Grill the **send**, not the subject. The person asking can always answer questio
 
 - **No client production data** in the questionnaire. Use synthetic examples (rule 15).
 - Plain language, no jargon. The reader may not know our terms.
-- Whatever comes back goes to `lcp-intake` or the Spec Kit step. Record the decision and who made it.
+- Whatever comes back goes to `getai-intake` or the Spec Kit step. Record the decision and who made it.
 - A human sends it. The agent does not email a client.

@@ -1,5 +1,5 @@
 ---
-name: lcp-intake
+name: getai-intake
 description: Day-time human-led intake of raw requests and draft bugs in ADO. Verify the claim, grill if needed, set the size, and write a durable story brief. Use when something arrives raw and has to become Factory Eligible, or be closed with a reason.
 disable-model-invocation: true
 ---
@@ -30,7 +30,7 @@ Every comment you post in ADO starts with:
 4. **Grill if needed.** If it needs fleshing out, ask one question at a time. Facts are looked up, decisions are asked, by day only (rule 9). Update `glossary.md` terms and decision records as decisions land.
 5. **Apply the outcome.**
    - **Ready to build:** write the brief (below) and hand to the human to set Factory Eligible once locked scenarios, held-out set, mocks and prerequisites exist.
-   - **Needs a person:** write what we know and the exact questions (`lcp-questionnaire` if the answer sits with someone else). State Refining.
+   - **Needs a person:** write what we know and the exact questions (`getai-questionnaire` if the answer sits with someone else). State Refining.
    - **Foggy or too big (XL):** open a Wayfinder map, do not split by guessing.
    - **Close:** say why. Already built: point to where. Rejected change: write an out-of-scope record. Duplicate: link and merge.
 
