@@ -36,6 +36,13 @@ Next steps:
 
 ## Log
 
+## Session 2 addendum, 2026-11-02
+
+- Boroon asked to read the skills in each batch and list them in tables. Three agents read all 36 skills (batch 1: 13, batch 2: 16, batch 3: 7 after `idea-refine` was dropped) in full from fresh clones. Result saved in `docs/analysis/skill-batches-review.md`. In all: 6 Keep as is, 19 Rewrite for GET AI, 11 Drop.
+- Verdicts are proposals. The matrix (`skills-by-lane-and-size.md`) names 11 skills that the review would drop. It has not been changed. Waiting on Boroon.
+- The reads were done by agents. Spot-check a skill before rewriting it. Nothing is pinned or installed.
+- Open: Boroon to accept or change the verdicts. Then update the matrix, and write the router skill from it.
+
 ## Session 2, 2026-11-01 and 2026-11-02, branch `claude/sharp-wright-1muptp`
 
 Done:
