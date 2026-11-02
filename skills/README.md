@@ -2,7 +2,7 @@
 
 This folder is a shelf, not a live install. Nothing here auto-loads. Claude Code only loads skills from `.claude/skills/`. Moving a skill there is the act of adopting it, and plan section 8.3 and rule 19 say that needs Boroon's approval after a full read and a pin.
 
-All 16 skills in the first reading batch were copied unchanged on 2 November 2026 and read in full (every file, including scripts and references). Reading is done. Adoption is not approved for any of them yet.
+All 16 skills in the first reading batch were copied unchanged on 2 November 2026 and read in full (every file, including scripts and references). Reading is done.
 
 ## Where each came from (pinned)
 
@@ -16,3 +16,27 @@ All 16 skills in the first reading batch were copied unchanged on 2 November 202
 Files are byte-for-byte copies of the upstream folders. Do not edit them here. A GET AI version is a new skill (named `lcp-*`) written in `.claude/skills/`, with a note of what it was adapted from.
 
 What we think of each one is in `docs/analysis/skills-reading-notes.md`.
+
+## What happened to each (2 November 2026, Boroon's decision)
+
+Boroon said: adopt the first five, adapt the rest. The shelf copies here stay as the pinned originals. Live versions are in `.claude/skills/`.
+
+| Original | Result | Live skill |
+|---|---|---|
+| `addy/constraint-driven-development` | Adopted unchanged | `constraint-driven-development` |
+| `addy/doubt-driven-development` | Adopted unchanged | `doubt-driven-development` |
+| `addy/source-driven-development` | Adopted unchanged | `source-driven-development` |
+| `tan/create-verification-skill` | Adopted unchanged. Writes to `.cursor/skills/`, so tell it to use `.claude/skills/` and the name `lcp-verify` | `create-verification-skill` |
+| `tan/maintain-verification-skill` | Adopted unchanged. Same path note | `maintain-verification-skill` |
+| `tan/blast-radius` | Adapted | `lcp-blast-radius` |
+| `tan/show-me-your-work` | Adapted (script and header copied unchanged) | `lcp-decision-log` |
+| `tan/correct` | Adapted | `lcp-correct` |
+| `tan/how` | Adapted | `lcp-how` |
+| `tan/why` | Adapted | `lcp-why` |
+| `pocock/triage` | Adapted | `lcp-intake` |
+| `pocock/wizard` | Adapted (`template.sh` copied unchanged) | `lcp-wizard` |
+| `pocock/to-questionnaire` | Adapted | `lcp-questionnaire` |
+| `pocock/ask-matt` | Adapted | `ask-me` |
+| `benny/triage-issue-reports` and `benny/reproduce-and-fix-issues` | Adapted and merged. Fixing and PRs removed | `lcp-triage` |
+
+Every adapted skill names its source and pinned commit in its first lines. Adapted skills have not been tested.
