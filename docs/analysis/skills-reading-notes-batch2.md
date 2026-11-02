@@ -77,6 +77,8 @@ Companion: `skills-reading-notes.md` (batch 1).
 2. Grilling asks at most five questions a round, most blocking first, the rest held. Done in `getai-grilling`, and plan 6.2 now says so.
 3. `principle-never-block-on-the-human`, `principle-outcome-oriented-execution` and `principle-migrate-callers-then-delete-legacy-apis` stay on the shelf. Revisit when an issue calls for them. Cases to watch: a night agent stalling on a reversible choice (the first), a planned multi-phase migration or XL work (the second), an internal-only API change (the third).
 
+4. Adopt `unslop` and the 21 principles my notes proposed, including the pro-code ones, `subtract-before-you-add`, `exhaust-the-design-space` and `guard-the-context-window` (which Boroon likes). Done. Each carries a GET AI note. `unslop` gained rule 34, Australian English.
+
 ## `poteto-mode`, read 2 November 2026
 
 **What was read.** `SKILL.md` (150 lines), all 22 playbooks, `references/bugbot-triage.md`, `bootstrap.ts`, `package.json`, the start of `check-plan.mjs` and `worktree-audit.sh`, and a search of the `watch-pr` TypeScript for network, shell and path use. **Not read line by line:** the `watch-pr` code and its tests (about 3,800 lines). Read them before any adoption (rule 19). The agent file `agents/poteto-agent.md` and the plugin readme and Claude Code adapter (`docs/harness/claude-code.md`) were also read.

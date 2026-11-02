@@ -81,6 +81,12 @@ Then (Session 3, third request), decisions by Boroon:
 - **Four poteto habits lifted into `ask-me`:** open with the goal, label claims, classify a question before asking, fix/dismiss/ask on review comments. Not lifted: the 22 playbooks and the performance mantras. `ask-me` also now says the verification skills write to `.claude/skills/lcp-verify/`.
 - Rule 17: `ask-me` change needs Boroon's review by PR.
 
+Then (Session 3, fourth request), decisions by Boroon:
+- **Adopted into `.claude/skills/`:** `unslop` and 21 `principle-*` skills (list in `skills/README.md`). Names unchanged so their links hold. A dated GET AI note sits at the top of each, and `unslop` has a new rule 34 (Australian English). `principle-guard-the-context-window` is adopted because Boroon likes it, with a note tying it to the 200K session limit.
+- `ask-me` has a new "Principles to reach for" section. The three conflicting principles are listed there as shelved.
+- Known gap: `principle-explain-the-number` links to `benchmark-checklist`, which we do not have. `principle-type-system-discipline` names `typescript-best-practices`, also not adopted. Notes in both skills.
+- Batch 2 is finished except for review (rule 17) and testing. Nothing adopted has been run.
+
 ## Session 2, 2026-11-02, branch `claude/hopeful-mccarthy-znxbf8`
 
 Done:

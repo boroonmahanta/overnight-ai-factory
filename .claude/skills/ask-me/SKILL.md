@@ -98,6 +98,22 @@ Prompts, rubrics, agents, skills, hooks, gate scripts, `lcp-verify`, `glossary.m
 - **Adopting a third-party skill:** read every file, pin the commit, record it in `skills/README.md` (rule 19). Then Boroon approves. Then it moves to `.claude/skills/`, adapted and renamed `lcp-*` where it touches Power Platform.
 - **Machine-read names** stay product-neutral (rule 18). Use `lcp`, `fl1`, `factory-test` and so on, never `pp` or `powerplatform`.
 
+## Principles to reach for (all live, call by name)
+
+Each is a short card, run only when called. They link to each other, so keep the folders together.
+
+- **A fix failed twice:** `principle-attack-the-premise`, then `principle-fix-root-causes`.
+- **Retries, crashes, locks, imports:** `principle-make-operations-idempotent`, `principle-separate-before-serializing-shared-state`.
+- **Before saying done:** `principle-prove-it-works`, `principle-test-behavior-not-implementation`, `principle-sequence-verifiable-units`.
+- **Before trusting a number** (pass rate, cost, speed): `principle-explain-the-number`.
+- **Repeated mistake or repeated instruction:** `principle-encode-lessons-in-structure`, `principle-build-the-lever`.
+- **New requirement on an existing design:** `principle-redesign-from-first-principles`.
+- **Design choices by day:** `principle-experience-first`, `principle-exhaust-the-design-space`, `principle-subtract-before-you-add` (removal from a managed solution is size L).
+- **Context filling up:** `principle-guard-the-context-window`.
+- **Pro-code repos (`pcp`):** `principle-boundary-discipline`, `principle-foundational-thinking`, `principle-laziness-protocol`, `principle-minimize-reader-load`, `principle-model-the-domain`, `principle-type-system-discipline`.
+- **Writing:** `unslop` on any prose that leaves the session.
+- **On the shelf, by decision:** `principle-never-block-on-the-human`, `principle-outcome-oriented-execution`, `principle-migrate-callers-then-delete-legacy-apis`.
+
 ## Where the session ends
 
 At a phase boundary (grilling done, build done, review done), take the first yes:
