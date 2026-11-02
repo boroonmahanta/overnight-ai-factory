@@ -71,17 +71,39 @@ Companion: `skills-reading-notes.md` (batch 1).
 3. **Pro-code only (`pcp`):** `boundary-discipline`, `foundational-thinking`, `laziness-protocol`, `minimize-reader-load`, `model-the-domain`, `type-system-discipline`.
 4. **The glossary case is a real defect** if `domain-modeling` is adopted unchanged: capitalised names miss the protected paths.
 
-## `poteto-mode` (not read, to discuss)
+## Decisions by Boroon (2 November 2026)
 
-What the listing shows, from the file list and the first 40 lines of `SKILL.md` only:
+1. Glossary files are lowercase (`glossary.md`, `glossary-map.md`). Done in `getai-domain-modeling`.
+2. Grilling asks at most five questions a round, most blocking first, the rest held. Done in `getai-grilling`, and plan 6.2 now says so.
+3. `principle-never-block-on-the-human`, `principle-outcome-oriented-execution` and `principle-migrate-callers-then-delete-legacy-apis` stay on the shelf. Revisit when an issue calls for them. Cases to watch: a night agent stalling on a reversible choice (the first), a planned multi-phase migration or XL work (the second), an internal-only API change (the third).
 
-- 43 files and 5,232 lines. Most of the weight is TypeScript in `scripts/watch-pr/` (about 3,800 lines of code and tests) that watches a GitHub PR. There is also `check-plan.mjs`, `worktree-audit.sh`, `bootstrap.ts`, 22 short playbooks and a bugbot triage reference.
-- It is a router skill. It lists triggers that send the agent to other skills (`how`, `architect`, `swarm`, `arena`, `interrogate`, `unslop`, `technical-writing`, `no-comments`, `show-me-your-work`, `benchmark-checklist`) and the 24 principles. It also names Cursor-only things: `AskQuestion`, `cursor-team-kit`, `control-cli`, `control-ui`, Bugbot.
-- It tells the agent to restate the user's goal and the smallest change before starting, and to name which principles shaped each decision.
+## `poteto-mode`, read 2 November 2026
 
-Questions for the discussion (nothing decided):
+**What was read.** `SKILL.md` (150 lines), all 22 playbooks, `references/bugbot-triage.md`, `bootstrap.ts`, `package.json`, the start of `check-plan.mjs` and `worktree-audit.sh`, and a search of the `watch-pr` TypeScript for network, shell and path use. **Not read line by line:** the `watch-pr` code and its tests (about 3,800 lines). Read them before any adoption (rule 19). The agent file `agents/poteto-agent.md` and the plugin readme and Claude Code adapter (`docs/harness/claude-code.md`) were also read.
 
-1. Do we want it at all? Our own `ask-me` router already routes by T-shirt size. `poteto-mode` routes by trigger and drags in about 15 skills we have not read.
-2. If we want the ideas, the cheap route is to lift two: the "state the goal and smallest change first" opener, and the "name the principle that shaped each decision" habit. Both could go into `ask-me` or a short `getai-*` skill.
-3. The `watch-pr` scripts are code that would run. Rule 19 means reading all 3,800 lines before adoption. The code is not needed for the night shift, which uses its own gate.
-4. Several principles above only make sense if `poteto-mode` is the thing that calls them. Without it they are reference cards a person invokes.
+**What it is.** A style and router skill for Lauren Tan's pstack plugin. It sends the agent through 22 playbooks (feature, bug fix, babysit, shipping, autopilot, orchestrate and so on) and a 24-principle index. Autopilot and orchestrate run a fleet of owner and verifier subagents, a one-hour audit loop and (in Autopilot-full) merge PRs.
+
+**Is it harness agnostic? No.** It is a Cursor plugin first.
+- Cursor-only names throughout: `Task`, `AskQuestion`, `cursor-team-kit` skills (`control-ui`, `control-cli`, `deslop`), Bugbot, Cursor cloud agents and Automations, Origin (`origin pr`), `/loop`, `.cursor/` paths, and model slugs such as `grok-4.7-xhigh-fast`.
+- **Claude Code is supported, with a translation layer.** The plugin ships an official adapter and a generated Claude Code copy (`.claude-plugin`, `harness/pstack/claude-code`). The adapter maps `Task` to `Agent`, `AskQuestion` to `AskUserQuestion`, cloud agents to worktrees, Cursor paths to `.claude/`, and skips Cursor-only steps with a one-line note. So it runs in Claude Code with gaps, and the Cursor skills it names (`control-ui`, `deslop`) stay missing.
+- **GitHub Copilot and VS Code: no support found.** A search of pstack for Copilot, VS Code and Codex found nothing. The plan (section 8, line 858) says Copilot CLI reads skills from `.github/skills`, `.claude/skills` or `.agents/skills`, so the `SKILL.md` text would load. The machinery would not: the `poteto-agent` file is a Cursor agent file, not a Copilot `.agent.md`; the per-role model and effort choices, background subagents, `/loop` and the ten-lane swarm have no tested Copilot equivalent. Not tested by us.
+- The scripts are portable. `watch-pr` needs Bun and the `gh` CLI (GitHub.com; GHE.com untested). `check-plan.mjs` needs Node. `worktree-audit.sh` reads Cursor transcript folders.
+
+**Safety read.** No hidden network calls found. `watch-pr` shells out to `gh` only. `bootstrap.ts` runs `bun install --frozen-lockfile`, which pulls `commander` 14.0.0 from npm. The dev dependencies `bun-types` and `typescript` are set to `latest`, though the lockfile pins them. `worktree-audit.sh` is read-only. The worktree-cleanup playbook deletes worktrees by hand-run commands, behind its own gates.
+
+**Conflicts with the 19 rules.**
+- **Rule 1 and rule 12.** Autopilot-full has owner agents merge PRs. We merge to `main` by human only, and auto-merge only into `integration` by trust rung.
+- **Rule 9.** "Never block on the human" and "Under a full-autonomy grant, decide and report" cut across PARK on decisions.
+- **Rule 6.** "Just do it. Use any MCP tool... external actions (ticket updates, team chat)" would let an agent write ADO and chat. Plan 4.5 says no agent writes ADO.
+- **Rule 2.** The root agent that "owns the verdict" is the same session that spawned the builders. Our gate is a separate required workflow in another repo.
+- **Rule 17.** It tells the agent to fix a broken skill "in its own PR, don't block". Skills change only by reviewed daytime PR, which a PR does satisfy, but an agent must never write to protected paths at night.
+
+**Verdict (proposal).** Do not adopt. It is a human's interactive style for Cursor, and its engine (fleet, loops, merge) is what our gate replaces. The pieces worth keeping are small and already ours or cheap to lift:
+- The opener: say the goal, the problem and the smallest change before starting. Could go in `ask-me` or the day skills.
+- The rule that every claim carries its evidence or label (measured, inferred, guess). Matches the plan's evidence markers.
+- The "classify the question" test before asking a human: if running something answers it, run it. Matches rule 9.
+- The `bugbot-triage` fix, dismiss, ask rubric and its "ask by default" list (security, data, migration, concurrency). A good seed for the standards reviewer pass. It is for Bugbot, which we do not have, but Copilot code review comments are similar.
+- The 22 playbooks as a pattern for naming a step list per task type. Our T-shirt sizes already do this job.
+- `perf-issue`'s seven mantras (don't do it, don't repeat it, do it less, later, unseen, concurrently, cheaper) are a handy cost-control order for the cost envelope.
+
+The shelf copy is at `skills/tan/poteto-mode/`. Copied, not adopted.

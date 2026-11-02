@@ -51,7 +51,7 @@ Then: write the size on the story, get **Factory Eligible** set by a human only 
 ## The day flow (idea to Factory Eligible)
 
 0. **Intake.** A raw request or draft bug: `getai-intake` (live) verifies the claim, proposes the size and writes the brief.
-1. **Grill the idea.** Facts are looked up. Decisions are asked. Clarify by day only. Status: planned as a GET AI grilling skill; until then follow the grilling rules in plan section 6.
+1. **Grill the idea.** Facts are looked up. Decisions are asked. Clarify by day only. Status: live as `getai-grilling` (at most five questions a round). Terms and decisions go through `getai-domain-modeling`. Both untested.
 2. **Need to see it?** User-facing change needs an approved mock or throwaway prototype (rule 10). Prototypes are never promoted. Keep the answer, not the code.
 3. **Write and lock the scenarios.** Someone other than the builder (rule 3). Put the held-out set where the worker cannot read it (rule 4).
 4. **Set the size and Merge Danger floor.** Section above.

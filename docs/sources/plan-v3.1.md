@@ -948,7 +948,7 @@ A constitution (tests and docs for every change, locked acceptance tests, eviden
 
 **Grilling rules,** added to the preset's clarify and specify overrides, from Pocock's grilling skill [Pocock v1.1 2:35 to 4:07]:
 
-- **One question at a time, and say why.** "Asking multiple questions at once is bewildering." Each question states what it decides.
+- **A few questions at a time, and say why.** At most five per round, most blocking first, the rest held for the next round (Boroon, 2 November 2026; the skill is `getai-grilling`). Pocock's v1.1 video said one at a time because "asking multiple questions at once is bewildering", and a long list is the thing to avoid. Each question states what it decides.
 - **Facts versus decisions.** The agent finds facts itself: the codebase, Dataverse metadata through MCP or the Web API, ADO history, `glossary.md` and `docs/adr/`. It asks the owner only for decisions. Tan's test: can the agent answer its own question with real data? [Tan podcast 38:13 to 38:19]
 - **Confirmation gate.** "Do not enact the plan until I confirm we've reached a shared understanding." The owner confirms in writing before specify or plan runs.
 

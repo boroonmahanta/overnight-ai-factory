@@ -9,7 +9,7 @@ All 16 skills in the first reading batch were copied unchanged on 2 November 202
 | Folder | Skills | Source | Commit | Licence |
 |---|---|---|---|---|
 | `addy/` | `constraint-driven-development`, `doubt-driven-development`, `source-driven-development` | https://github.com/addyosmani/agent-skills, `skills/` | `301b02b12bff98e4688e6984af6556802322bbde` | MIT, Addy Osmani |
-| `tan/` | `blast-radius`, `correct`, `create-verification-skill`, `how`, `maintain-verification-skill`, `show-me-your-work`, `why`, and (batch 2) `unslop` and the 24 `principle-*` skills | https://github.com/cursor/plugins, `pstack/skills/` | `ae5650febf4320793844c12c4adaa937f417f8da` | MIT, Lauren Tan |
+| `tan/` | `blast-radius`, `correct`, `create-verification-skill`, `how`, `maintain-verification-skill`, `show-me-your-work`, `why`, and (batch 2) `unslop`, the 24 `principle-*` skills and `poteto-mode` | https://github.com/cursor/plugins, `pstack/skills/` | `ae5650febf4320793844c12c4adaa937f417f8da` | MIT, Lauren Tan |
 | `pocock/` | `ask-matt`, `to-questionnaire`, `triage`, `wizard`, and (batch 2) `grilling`, `domain-modeling` | https://github.com/mattpocock/skills, `skills/engineering/` and `skills/productivity/` | `4ae2317ddb22b046e26455e4f9c9b3aaaf62212d` | MIT, Matt Pocock |
 | `benny/` | `reproduce-and-fix-issues`, `triage-issue-reports` | https://github.com/cursor/plugins, `pstack/automations/benny/skills/` | `ae5650febf4320793844c12c4adaa937f417f8da` | MIT, Lauren Tan |
 
@@ -37,6 +37,8 @@ Boroon said: adopt the first five, adapt the rest. The shelf copies here stay as
 | `pocock/wizard` | Adapted (`template.sh` copied unchanged) | `getai-wizard` |
 | `pocock/to-questionnaire` | Adapted | `getai-questionnaire` |
 | `pocock/ask-matt` | Adapted | `ask-me` |
+| `pocock/grilling` | Adapted: five questions a round, day only | `getai-grilling` |
+| `pocock/domain-modeling` | Adapted: lowercase files, Schema line per term, day only | `getai-domain-modeling` |
 | `benny/triage-issue-reports` and `benny/reproduce-and-fix-issues` | Adapted and merged. Fixing and PRs removed | `lcp-triage` |
 | `tan/blast-radius`, `tan/how`, `tan/why`, and the two Benny skills again | Second adaptation for the pro-code profile | `pcp-blast-radius`, `pcp-how`, `pcp-why`, `pcp-triage` |
 
@@ -44,4 +46,4 @@ Every adapted skill names its source and pinned commit in its first lines. Adapt
 
 ## Batch 2 (2 November 2026)
 
-Boroon asked to read `unslop`, the `principle-*` skills, `grilling` and `domain-modeling`, but not `poteto-mode` (to discuss first). All 27 were copied unchanged to the shelf at the same pinned commits and read in full. Notes and verdicts: `docs/analysis/skills-reading-notes-batch2.md`. **None is adopted yet.** Two need plan decisions first (glossary naming and grilling rounds). `poteto-mode` is not copied or read.
+Boroon asked to read `unslop`, the `principle-*` skills, `grilling` and `domain-modeling`, but not `poteto-mode` (to discuss first). All 27 were copied unchanged to the shelf at the same pinned commits and read in full. Notes and verdicts: `docs/analysis/skills-reading-notes-batch2.md`. Decided by Boroon the same day: `grilling` became `getai-grilling` (five questions a round at most) and `domain-modeling` became `getai-domain-modeling` (lowercase `glossary.md`, a Schema line per term), both in `.claude/skills/`, day only, untested. `unslop` and the `principle-*` skills are not adopted yet. Boroon chose to leave `principle-never-block-on-the-human`, `principle-outcome-oriented-execution` and `principle-migrate-callers-then-delete-legacy-apis` on the shelf and to revisit them when an issue calls for them. `poteto-mode` was copied to `skills/tan/poteto-mode/` and read; verdict in the batch 2 notes: not adopted.
