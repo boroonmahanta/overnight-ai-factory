@@ -8,7 +8,7 @@ All 16 skills in the first reading batch were copied unchanged on 2 November 202
 
 | Folder | Skills | Source | Commit | Licence |
 |---|---|---|---|---|
-| `addy/` | `constraint-driven-development`, `doubt-driven-development`, `source-driven-development` | https://github.com/addyosmani/agent-skills, `skills/` | `301b02b12bff98e4688e6984af6556802322bbde` | MIT, Addy Osmani |
+| `addy/` | `constraint-driven-development`, `doubt-driven-development`, `source-driven-development`, and (three-batch plan) `code-simplification` | https://github.com/addyosmani/agent-skills, `skills/` | `301b02b12bff98e4688e6984af6556802322bbde` | MIT, Addy Osmani |
 | `tan/` | `blast-radius`, `correct`, `create-verification-skill`, `how`, `maintain-verification-skill`, `show-me-your-work`, `why`, and (batch 2) `unslop`, the 24 `principle-*` skills and `poteto-mode` | https://github.com/cursor/plugins, `pstack/skills/` | `ae5650febf4320793844c12c4adaa937f417f8da` | MIT, Lauren Tan |
 | `pocock/` | `ask-matt`, `to-questionnaire`, `triage`, `wizard`, and (batch 2) `grilling`, `domain-modeling`, and (three-batch plan) `diagnosing-bugs` | https://github.com/mattpocock/skills, `skills/engineering/` and `skills/productivity/` | `4ae2317ddb22b046e26455e4f9c9b3aaaf62212d` | MIT, Matt Pocock |
 | `benny/` | `reproduce-and-fix-issues`, `triage-issue-reports` | https://github.com/cursor/plugins, `pstack/automations/benny/skills/` | `ae5650febf4320793844c12c4adaa937f417f8da` | MIT, Lauren Tan |
@@ -39,6 +39,7 @@ Boroon said: adopt the first five, adapt the rest. The shelf copies here stay as
 | `pocock/ask-matt` | Adapted | `ask-me` |
 | `pocock/grilling` | Adapted: five questions a round, day only | `getai-grilling` |
 | `pocock/domain-modeling` | Adapted: lowercase files, Schema line per term, day only | `getai-domain-modeling` |
+| `addy/code-simplification` | Shelved 2 November 2026, read in full, not adopted. Conflicts with plan 5.12 (refactoring belongs to review, not the build loop). Keep the signal tables for the standards reviewer rubric. Notes in `docs/analysis/skills-reading-notes-skill-batches.md` | none |
 | `pocock/diagnosing-bugs` | Shelved 2 November 2026, read in full, not adopted. Revisit for the BAU Managed Services mode. Proposal: rewrite as `pcp-diagnose`. Notes in `docs/analysis/skills-reading-notes-skill-batches.md` | none |
 | `benny/triage-issue-reports` and `benny/reproduce-and-fix-issues` | Adapted and merged. Fixing and PRs removed | `lcp-triage` |
 | `tan/blast-radius`, `tan/how`, `tan/why`, and the two Benny skills again | Second adaptation for the pro-code profile | `pcp-blast-radius`, `pcp-how`, `pcp-why`, `pcp-triage` |

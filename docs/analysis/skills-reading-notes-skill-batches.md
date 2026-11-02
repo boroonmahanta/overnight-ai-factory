@@ -65,3 +65,24 @@ Files read in full: `SKILL.md` (8.7 KB), `scripts/hitl-loop.template.sh` (1.3 KB
 - Does it run after `pcp-triage` returns `reproduced`, on the same lane, or as its own story?
 
 Not adopted. Not edited. Nothing written to `.claude/skills/`.
+
+## `code-simplification` (Addy), read 2 November 2026
+
+Files read in full: `skills/code-simplification/SKILL.md` (13.7 KB). Also read, as background only and not copied: Addy's eval case JSON and its config-parser test fixture, which are test material for his own evals. Copied unchanged to `skills/addy/code-simplification/`. Pinned `addyosmani/agent-skills` commit `301b02b`, MIT.
+
+**What it does.** Simplifies working code without changing behaviour. Four steps: understand first (Chesterton's Fence, git blame), scan three signal tables (structural, naming, redundancy), change one thing at a time and run the tests after each, then compare before and after and revert if it is harder to follow. Five principles: preserve behaviour, follow project conventions, prefer clarity over cleverness, keep balance, scope to what changed. A "Rule of 500" says to use codemods past 500 lines. Examples in TypeScript, JavaScript, Python and React.
+
+**Safety read.** No scripts, no network calls, nothing aimed at a reviewer. The one external link credits the Claude Code simplifier plugin. Frontmatter is `name` and `description` only, and the description invites self-triggering, even on pasted code.
+
+**Why it is shelved, not rewritten** (the other session's review said "rewrite, cut to about 3 KB, add: tests are not edited").
+1. **It conflicts with the plan.** Plan lines 877 and 2259: "No refactoring outside the ticket"; the executor lists candidates under "Refactor candidates" in `pr.md`, because "refactoring belongs to review, not the build loop" (Pocock v1.1). A skill that tells the builder to simplify is the wrong tool for the night loop.
+2. **"Tests are not edited" is already in it.** The skill requires tests to pass "without modification" and lists editing tests as a red flag. Tests are also protected paths at Merge Danger 10 (plan line 764), so the gate enforces it.
+3. **It is already headless.** Its "ask before every change" questions are self-checks, not questions to a person, so the PARK rewrite the review expects is not needed.
+4. **The generic parts are covered.** Chesterton's Fence and git blame overlap `pcp-why`. Subtraction and laziness overlap `principle-subtract-before-you-add` and `principle-laziness-protocol`. Reader load overlaps `principle-minimize-reader-load`.
+5. **Stack coverage.** Examples are TypeScript, JavaScript, Python and React. The stacks of the AI Managed Services client repos are not known.
+
+**Worth keeping.**
+- **The three signal tables** (nesting of 3 or more levels, functions over 50 lines, boolean flag parameters, "what" comments against "why" comments, and so on). They could seed the standards reviewer's smell list (plan line 2352) when Appendix B and C.9 are next edited.
+- **A possible later use as its own story.** A behaviour-preserving refactor is the easiest change to verify: locked tests unchanged and passing is the proof (rule 3 fits). It could be a refactor-only night story fed from the "Refactor candidates" list or the weekly gardening findings. That ties to BAU Managed Services. It would be a `pcp-simplify`, written only if Boroon wants it.
+
+**Verdict (proposal): shelve.** Not adopted, not edited, nothing written to `.claude/skills/`. Revisit when the standards reviewer rubric is edited, or for the BAU Managed Services mode.
