@@ -54,7 +54,7 @@ End:
 | `docs/sources/report-v2.1-two-lanes-one-gate.md` | Earlier report V2.1, "Two Lanes, One Gate, Priced at List". 925 lines. The GitHub and Azure design the main plan builds on: two lanes, harness parity, Spec Kit day gate, traces, credits, ledger schema, Lane A and B cost models, 8-stage plan. Still the best source for Lane A, ACA jobs, the ledger SQL schema and GitHub-side limits |
 | `docs/sources/report-grill-the-spec-lock-the-tests.md` | The first report, "Grill the Spec, Lock the Tests". 195 lines. Original evidence base: what each harness resource teaches, the verifier-is-the-weak-point research, the grill gate, Claude Code facts, first design and stages |
 | `.claude/skills/bro/SKILL.md` | The `/bro` skill |
-| `.claude/skills/` | Live skills. `bro`. `ask-me` (router by size, adapted from `ask-matt`). Adopted unchanged: `constraint-driven-development`, `doubt-driven-development`, `source-driven-development`, `create-verification-skill`, `maintain-verification-skill`. Adapted for GET AI, all untested: `lcp-blast-radius`, `getai-decision-log`, `getai-correct`, `lcp-how`, `lcp-why`, `getai-intake`, `getai-wizard`, `getai-questionnaire`, `lcp-triage`. Decided by Boroon on 2 November 2026. Not yet reviewed in full by him (rule 17) |
+| `.claude/skills/` | Live skills. `bro`. `ask-me` (router by size, adapted from `ask-matt`). Adopted unchanged: `constraint-driven-development`, `doubt-driven-development`, `source-driven-development`, `create-verification-skill`, `maintain-verification-skill`. Adapted for GET AI, all untested: `lcp-blast-radius`, `getai-decision-log`, `getai-correct`, `lcp-how`, `lcp-why`, `getai-intake`, `getai-wizard`, `getai-questionnaire`, `lcp-triage`. Pro-code versions, all untested: `pcp-blast-radius`, `pcp-how`, `pcp-why`, `pcp-triage` (the plan has no code-repo triage workflow yet). Decided by Boroon on 2 November 2026. The first batch was reviewed by him and merged (PR 1). The rename and the `pcp-*` skills are not yet reviewed (rule 17) |
 | `skills/` | Third-party skills, the pinned originals of the first 16 (Addy 3, Tan 7, Pocock 4, Benny 2). A shelf: it does not auto-load, only `.claude/skills/` does. Provenance, commits and what became of each are in `skills/README.md` |
 | `docs/analysis/skills-reading-notes.md` | Our notes from reading those 16: safety read, what each assumes that we lack, one line each with how to adapt, findings. Proposals only |
 
@@ -150,9 +150,9 @@ Wayfinder discovery maps, overnight research tickets, gardening scans that feed 
 | Labels | `lane:fl1`, `profile:lcp`, `factory=enabled` | |
 | Gate files | `factory-gates/.github/workflows/lcp-gate.yml`, `gate/lcp/*` | |
 | Spec Kit preset | `getai-lcp` | |
-| Pro-code profile (proposed 2 November 2026, not in the plan yet) | `pcp` (pro-code platform), `profile:pcp`, skills `pcp-*`. The plan's field value is `code`; changing it needs a plan edit | `code` in skill names |
+| Pro-code profile (agreed 2 November 2026, edited into plan Appendix D) | `pcp` (pro-code platform), `profile:pcp`, skills `pcp-*`. ADO field `Custom.LaneProfile = pro-code` | `code` as a field value, `code` in skill names |
 | Skills that work for any profile | `getai-*` | `lcp-` or `pcp-` on a general skill |
-| ADO | tag `factory-eligible`, field `Custom.LaneProfile = lcp` | |
+| ADO | tag `factory-eligible`, field `Custom.LaneProfile = lcp` or `pro-code` | |
 
 ## Terms
 
