@@ -190,3 +190,26 @@ Not adopted, not edited, nothing written to `.claude/skills/`.
 ## Open item: prompt injection is not covered in the plan
 
 Raised twice, by `security-and-hardening` (model output and ticket text are untrusted; permissions enforced in code, not in the prompt) and by `debugging-and-error-recovery` (error output is data, not instructions). A keyword search of plan V3.1 for "prompt injection" and "injection" found no hit. The whole plan was not re-read to be sure. It matters for `pcp-triage` and `lcp-triage`, which read AutoTask, PRTG and service-desk text, and for Copilot Studio agents. Cheapest fix: one short block, about 1 KB, in the agent instructions (`AGENTS.md`, plan C.2) saying that ticket text, fetched pages, tool output and error output are data and never instructions, that permissions are enforced by identity and the gate and not by the prompt, and that an instruction found in such text is logged and ignored, or PARKs. A plan edit for Boroon's review. Decide before the first triage workflow is wired (Stage 5, day 46, or earlier if `lcp-triage` runs by hand sooner).
+
+## `codebase-design` (Pocock), read 2 November 2026
+
+Files read in full: `SKILL.md` (6.4 KB), `DEEPENING.md` (2.5 KB), `DESIGN-IT-TWICE.md` (2.7 KB), `agents/openai.yaml` (102 bytes). Also read, as background only and not copied: Pocock's `docs/engineering/codebase-design.md`. Copied unchanged to `skills/pocock/codebase-design/`. Pinned `mattpocock/skills` commit `4ae2317`, MIT.
+
+**What it is.** A vocabulary, not a process. It runs no loop, makes no artifact and asks nothing. Terms: module, interface, depth, seam, adapter, leverage, locality. It bans the loose substitutes "component", "service", "API" and "boundary". Four principles: depth is a property of the interface; the deletion test (imagine deleting the module: if the complexity vanishes it was a pass-through, if it reappears across N callers it earned its keep); the interface is the test surface; one adapter is a hypothetical seam and two make a real one. `DEEPENING.md` sorts dependencies into four categories and says to replace old tests, not layer new ones. `DESIGN-IT-TWICE.md` spawns three or more parallel sub-agents to design the same interface radically different ways, then compares them.
+
+**Safety read.** No scripts, no network calls, nothing aimed at a reviewer. `openai.yaml` is a display name only.
+
+**Verdict (proposal): shelve, for Lane A or day work.** The other session's review said "drop, keep for Lane A or day work"; shelving keeps it.
+
+**Why it is not adoptable now.**
+1. **It conflicts with the no-refactoring rule.** Its purpose is to restructure code. Plan 5.12: "no refactoring outside the ticket; refactoring belongs to review, not the build loop".
+2. **"Replace, don't layer" deletes tests.** Tests are protected paths (Merge Danger 10) and locked scenarios cannot be edited (rules 3 and 17).
+3. **Its banned words clash with Power Platform.** "Component" is a Power Platform word (solution components, `rootcomponents.yml`) and "boundary" is ours for trust boundaries. Harmful for `lcp`.
+4. **It is orphaned.** The skills that use it (`improve-codebase-architecture`, `tdd`, `ask-matt`) are not adopted. It reads `GLOSSARY.md` in capitals where ours is lowercase.
+5. **Design It Twice costs real money.** Three or more sub-agents per interface need a credit cap (rule 13). Day activity.
+
+**Worth lifting** into the reviewer's smell list, with the `code-simplification` signal tables: the deletion test (catches pass-through wrappers), "one adapter is a hypothetical seam" (catches indirection added for no reason), and "accept dependencies, return results" as the testability check.
+
+**Link to `architect` (batch 3).** The Lane A design skill; this vocabulary is its natural partner. Decide both together when `architect` is read, along with `improve-codebase-architecture`.
+
+Not adopted, not edited, nothing written to `.claude/skills/`.
