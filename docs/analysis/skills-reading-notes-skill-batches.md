@@ -258,3 +258,54 @@ All proposals. Items 1 to 7 are plan edits needing Boroon's review (rule 17). No
 - `ci-cd-and-automation`: the worker must not write its own gate, and the skill has an "auto-merge" line.
 - `shipping-and-launch`: production release is a human step.
 - `arena`: needs other-vendor models, with no credit cap (rule 13).
+
+## Batch 3 (Lane A) reads, 2 November 2026
+
+Four skills read in full: `frontend-ui-engineering`, `api-and-interface-design` and `observability-and-instrumentation` (Addy, pinned `addyosmani/agent-skills` commit `301b02b`, MIT), and `architect` (Tan, pinned `cursor/plugins` commit `ae5650f`, MIT). All four are copied unchanged to the shelf, with the two Addy checklists they link to from outside their folders at `skills/references/accessibility-checklist.md` and `skills/references/observability-checklist.md`. None has scripts or network calls, and nothing in any of them is aimed at a reviewer. The `npx axe` and `npx pa11y` lines in the accessibility checklist are examples only. All four are stack-flavoured (React and Tailwind, Express and REST, Node and Prometheus), and none is Power Platform. The other three batch 3 skills (`ci-cd-and-automation`, `shipping-and-launch`, `arena`) are dropped, not read in full by us (see above).
+
+**Boroon's decision (2 November 2026): Lane A's architecture sketch gets a day approval.** The architect's Phase C checkpoint is on by default, not opt-in, for Lane A and for size L work. Today plan section 4 and 5 have Lane A's generator write `plan.md` and `tasks.md` at night with no human step, so this is a change to the plan. Not edited yet. **Revisit in Stage 6 (Lane A, from day 60).**
+
+### `frontend-ui-engineering` (Addy, 11.7 KB + 5.3 KB checklist)
+
+- **Does:** component structure, a state ladder, "avoid the AI aesthetic", WCAG 2.1 AA, responsive design, loading, empty and error states, and a reference-led step (study reference screens, then write a short design contract).
+- **Fit:** code apps (React or Vue) in the Power Platform profile, and Lane A web builds. Canvas and model-driven apps, the bulk of the work, do not use it.
+- **Plan overlap:** the plan already has three accessibility layers for Power Platform (checker SARIF, locked axe-core Playwright pass, keyboard-only journey). Rule 10: the builder follows an approved mock, so "avoid the AI look" is a reviewer check, not a builder instruction. It ends with "a final UI-specific finish-gate review" that it never defines.
+- **Worth lifting:** the design-contract list (the screen's job, primary action, required states, responsive rules, patterns to reject) as the mock-approval template; required states (loading, empty, error, success, permission) as locked scenarios; viewports 320, 768, 1024 and 1440 as a Playwright matrix; the checklist's contrast and touch-target thresholds for `rubric-lcp-app`.
+- **Verdict (proposal): shelve.** The other session's review said "rewrite".
+
+### `api-and-interface-design` (Addy, 14.9 KB)
+
+- **Does:** Hyrum's Law, the one-version rule, contract first, one error format, validate at the edges, additive-only changes, REST naming, and a long section on honouring an idempotency key (derive it from the intent, claim it atomically, guard the payload, decide what an in-flight duplicate gets, set retention from the longest retry chain). Every call has three outcomes: success, failure and unknown.
+- **Fit:** Lane A APIs and client code repos. The idempotency section is the valuable part: retries are where Power Automate flows and the factory's own driver go wrong. "Unknown" matches our `INCONCLUSIVE`. It deepens the adopted `principle-make-operations-idempotent`.
+- **Overlap:** contract first overlaps Spec Kit. REST naming should defer to the project's own conventions. It refers to the shelved `deprecation-and-migration`.
+- **Worth lifting:** a breaking change to a public interface means PARK and a raised Merge Danger score (joins roll-up item 3); the idempotency section as a retry-safe check for the flow and pcp rubrics; its note that third-party responses can carry "instruction-like text" is a third voice for the prompt-injection open item.
+- **Verdict (proposal): shelve.**
+
+### `observability-and-instrumentation` (Addy, 13.9 KB + 5.1 KB checklist)
+
+- **Does:** write 2 to 4 on-call questions first, pick the signal (log, metric or trace), structured logs with a correlation ID, RED and USE metrics, a cardinality rule, OpenTelemetry, symptom-based alerts, three-line runbooks, and verify the telemetry.
+- **Fit:** the product's own telemetry, a deliverable for Lane A and client code. The factory's own traces already use OpenTelemetry to Application Insights, tagged with `run_id`.
+- **Worth lifting:** an **entry-point field stamped next to the correlation ID** (the same story can be reached by the night driver, a morning rerun or a gardening scan, and the lines look alike), as a small addition to the `run_id` tagging in plan 7.2; "on-call questions first" as a spec-preset item for any feature that runs in production; "no secrets or PII in logs", which backs rule 15.
+- **Verdict (proposal): shelve.**
+
+### `architect` (Tan, 5.5 KB + 9 KB of references)
+
+- **Does:** five phases: ground, sketch, agree, implement, scrap. Sketch types and `not implemented` signatures first, require at least two structurally distinct designs, and scrap the sketch when workarounds start to repeat.
+- **Valuable:** `references/design-red-flags.md` (3 KB, eight checks, four written for agents: split ownership, two ways to do one task, importable internals, hand-synced lists) and the one-page `rationale-template.md` (tradeoffs accepted, alternatives considered, open questions phrased as questions).
+- **Problems:** it runs the `arena` skill (other-vendor models, no credit cap, rules 13 and 15; we dropped `arena`); Phase C, the human checkpoint, is off by default; it leans on the shelved `outcome-oriented-execution` principle and the unadopted `interrogate`; it uses Cursor names (`pstack-models.mdc`, a todolist).
+- **Correction to the review:** it said the missing checkpoint breaks rule 10. Rule 10 is about user-facing mocks. The real conflict is rule 9: a structural decision with no human is a decision made at night. Resolved by Boroon's decision above.
+- **Worth lifting:** the red flags into the reviewer rubric and `coding-standards.md`; the rationale template as a one-page design note for Lane A and size M or L stories.
+- **Verdict (proposal): shelve**, paired with `codebase-design`, for Lane A at Stage 6.
+
+### Roll-up, continued (items 9 to 13)
+
+| # | Possible addition | Where it would go | From |
+|---|---|---|---|
+| 9 | Eight design red flags, four of them agent-specific | Reviewer rubric and `coding-standards.md` | `architect` |
+| 10 | One-page design note template | Spec preset (Lane A, size M or L) | `architect` |
+| 11 | Design contract, required states, viewport matrix, accessibility thresholds | Mock approval, locked scenarios, `rubric-lcp-app` | `frontend-ui-engineering` |
+| 12 | Idempotency section; "success, failure or unknown" | `rubric-lcp-flow`, pcp rubric | `api-and-interface-design` |
+| 13 | `entry_point` next to `run_id`; "on-call questions first" | Plan 7.2 traces; spec preset | `observability-and-instrumentation` |
+| 14 | Day approval of the Lane A architecture sketch (Boroon's decision) | Plan section 4 and 5, Lane A flow | `architect` |
+
+Items 1 to 7 and 9 to 14 are plan edits needing Boroon's review (rule 17). Nothing is made yet. Reading for all three batches is now finished except the three dropped skills.
