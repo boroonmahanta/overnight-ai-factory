@@ -33,6 +33,32 @@ Next steps:
 
 ## Log
 
+## Session 2, 2026-11-02, branch `claude/hopeful-mccarthy-znxbf8`
+
+Done:
+- Started step 1 of `docs/analysis/tshirt-sizing.md` section 4 (read the shortlist in full). Boroon said to use a top-level `skills/` folder that does not auto-load.
+- Cloned the three public repos to scratch space, found the 16 skills in the first batch, and copied them unchanged into `skills/addy/` (3), `skills/tan/` (7), `skills/pocock/` (4) and `skills/benny/` (2). 49 files.
+- Read every file of all 16 in full, including the four scripts.
+- Wrote `skills/README.md` (sources, pinned commits, MIT licences) and `docs/analysis/skills-reading-notes.md` (safety read, assumptions we lack, one line each, findings).
+
+Decisions:
+- None approved by Boroon yet. "Read in full" is done. "Adopt" is not.
+- Proposed only: nothing found that blocks adoption. Most skills need adapting (Cursor tools, Slack, Linear, Notion). `create-verification-skill` and `maintain-verification-skill` look like the template for `lcp-verify`. The Benny pair is the best built example of the outer loop.
+
+Files changed:
+- New: `skills/` (49 copied files plus `skills/README.md`), `docs/analysis/skills-reading-notes.md`
+- Edited: `CLAUDE.md` (two rows added to the map), `docs/progress.md`
+
+Open items:
+- Which of the 16 to adopt, adapt or leave on the shelf (Boroon).
+- Several of the 16 lean on skills we have not read: `unslop`, the `principle-*` skills, `poteto-mode`, `grilling`, `domain-modeling`. Decide if they are next.
+- The Benny skills need a control adapter and a configured triage identity before they could run. Not buildable until `lcp-verify` and the ITSM tool are known.
+
+Next steps:
+1. Boroon reads `docs/analysis/skills-reading-notes.md` and picks adopt, adapt or shelf for each of the 16.
+2. Write the GET AI router skill by size (tshirt-sizing step 3), then the first `lcp-*` skills.
+3. Update the "Not yet approved" lines in `docs/analysis/tshirt-sizing.md` once Boroon decides.
+
 ## Session 1, 2026-11-01, branch `claude/jolly-albattani-818i8e`
 
 Done:
