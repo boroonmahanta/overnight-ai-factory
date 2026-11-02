@@ -198,7 +198,7 @@ The size is the largest answer across reversibility, blast radius, clarity, veri
 
 ## Biggest risks
 
-1. **Credits may not fund client work.** Partner credits are "internal-use-rights". Run client work at cash until Microsoft answers in writing (spike 0.1).
+1. **Credits for client work: answered yes (Boroon, 2 November 2026).** Partner Center support told him builds for customers can be made on credits, and he decided to take that as a yes. The written answer is not yet on file (spike 0.1 exit test), so if the copy says otherwise, go back to cash. Rules 13 and 14 still hold: ledger at list and cash, price from the list column.
 2. Auto-merge letting soft test gaming through. Answer: deterministic floor, rungs earned on evidence.
 3. Unmanaged developer environments retiring (dates above).
 4. Client code leaving Australia for inference. Copilot residency covers only the US and EU. BYOK to Azure OpenAI in Australia East is the only in-country path found. Each client gets a tier T1 to T4.
@@ -231,7 +231,7 @@ The 45 days build the factory. They move no project up a trust rung. Do not star
 
 ## Open questions (owner)
 
-- Can partner credits fund client delivery? (Boroon, spike 0.1)
+- ~~Can partner credits fund client delivery?~~ Answered yes by Partner Center support (Boroon, 2 November 2026). File the written answer (spike 0.1).
 - Does `pac --githubFederated` work on GHE.com and in ruleset workflows? (Platform team, spike 0.2)
 - Which Copilot features work on GHE.com, and which billing identity for the CLI? (Platform team and Boroon, spike 0.6)
 - Does Dataverse MCP accept an app-only token? (spike 0.3)
