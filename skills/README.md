@@ -29,13 +29,13 @@ Boroon said: adopt the first five, adapt the rest. The shelf copies here stay as
 | `tan/create-verification-skill` | Adopted unchanged. Writes to `.cursor/skills/`, so tell it to use `.claude/skills/` and the name `lcp-verify` | `create-verification-skill` |
 | `tan/maintain-verification-skill` | Adopted unchanged. Same path note | `maintain-verification-skill` |
 | `tan/blast-radius` | Adapted | `lcp-blast-radius` |
-| `tan/show-me-your-work` | Adapted (script and header copied unchanged) | `lcp-decision-log` |
-| `tan/correct` | Adapted | `lcp-correct` |
+| `tan/show-me-your-work` | Adapted (script and header copied unchanged) | `getai-decision-log` |
+| `tan/correct` | Adapted | `getai-correct` |
 | `tan/how` | Adapted | `lcp-how` |
 | `tan/why` | Adapted | `lcp-why` |
-| `pocock/triage` | Adapted | `lcp-intake` |
-| `pocock/wizard` | Adapted (`template.sh` copied unchanged) | `lcp-wizard` |
-| `pocock/to-questionnaire` | Adapted | `lcp-questionnaire` |
+| `pocock/triage` | Adapted | `getai-intake` |
+| `pocock/wizard` | Adapted (`template.sh` copied unchanged) | `getai-wizard` |
+| `pocock/to-questionnaire` | Adapted | `getai-questionnaire` |
 | `pocock/ask-matt` | Adapted | `ask-me` |
 | `benny/triage-issue-reports` and `benny/reproduce-and-fix-issues` | Adapted and merged. Fixing and PRs removed | `lcp-triage` |
 

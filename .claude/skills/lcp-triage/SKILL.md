@@ -18,7 +18,7 @@ Untested. Nothing here has run. It needs the triage workflow, a Test credential 
 - **Residency tier applies.** A T4 client gets no triage agent. Check `Custom.ResidencyTier` first.
 - **Caps:** 20 groups a day per client, and a credit cap per session. Over the cap, leave reports in the inbox.
 - **Prefer no draft bug over a guessed one.** If you are not sure it is a bug, say so in `triage.json`.
-- Every run has a `run_id`. Keep `decisions-<run_id>.tsv` with `lcp-decision-log`, and let the evidence reach Blob (rules 13 and 16).
+- Every run has a `run_id`. Keep `decisions-<run_id>.tsv` with `getai-decision-log`, and let the evidence reach Blob (rules 13 and 16).
 
 ## Steps
 
@@ -37,7 +37,7 @@ Untested. Nothing here has run. It needs the triage workflow, a Test credential 
    - If it does not reproduce within the budget, say `not_reproduced` (likely the user's setup or data). If a needed capability is missing, say `blocked` and what was missing. Never pass off a unit test or a reading of the source as a repro.
 7. **Check against the latest code.** The latest code is the `integration` build that `factory-test` holds by day. If a fix is already in `integration` or in an open PR, run the same path on the old and new builds and say `fixed_in_integration` only if it shows twice before and gone twice after. Do not edit or compete with an existing fix.
 8. **Write `triage.json`:** grouped report IDs, classification, suspected area (hypotheses labelled as hypotheses), repro steps, evidence paths, outcome (`reproduced`, `not_reproduced`, `fixed_in_integration`, `blocked`), duplicate links, size suggestion and the facts you checked. Do not put a guessed root cause in a title.
-9. **Stop.** A person in AI Managed Services reads the evidence and decides: close, merge into an existing bug, or send it through the day gate (`lcp-intake`) where Spec Kit's bug workflow runs and a human sets Factory Eligible.
+9. **Stop.** A person in AI Managed Services reads the evidence and decides: close, merge into an existing bug, or send it through the day gate (`getai-intake`) where Spec Kit's bug workflow runs and a human sets Factory Eligible.
 
 ## What this skill does not do
 
