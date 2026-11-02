@@ -17,7 +17,7 @@ Basis: the same two files, plus plan sections 4.1 to 4.6 (lanes, routing, outer 
 - The lane rows list only what is **added** on top of the base. A plus sign (+) means "base and this".
 - **Prototype** and **BAU** are not sizes. Prototype is a mode: throwaway work, never promoted (rule 10). BAU is an on-ramp: a client report is triaged and reproduced first, then the fix still gets a size from XS to L.
 - **Story first (Boroon, 1 November 2026, not negotiable).** Every cell below starts with a story in ADO, drafted by the Story Planner. This holds for every lane, mode and size. The reason is cost tracking: every token and every human minute needs a work item to be charged to. A human reviews and confirms the story. A human may write it instead, but that is not the default, and the story is then flagged `Custom.StoryOrigin = human`. The Story Planner writes what and why only. Plan Appendix D.4 has the fields.
-- **Wayfinder (proposal, waiting on Boroon).** Used as a trigger, not a default step: if the clarity test fails at any size, build a map before the story is made Factory Eligible.
+- **Wayfinder (decided by Boroon, 2 November 2026).** The clarity test runs on every story and is recorded in `Custom.ClarityTest`. A map is built only when the test fails, at any size, before the story is made Factory Eligible. No map for every story.
 - Skills run only when invoked. The executor prompt names them. Do not install skills that trigger themselves (`skills-comparison.md` section 5.5).
 - Names starting `lcp-` or `pcp-` are GET AI skills still to be written. Names in backticks without a prefix come from the three packs.
 
@@ -87,10 +87,10 @@ Answered by Boroon on 1 November 2026:
 
 Still open:
 
-4. Approve the three read-in-full batches in section 7.
+4. **Read-in-full batches: decided on 2 November 2026.** Batch 1 is approved now. Batches 2 and 3 are approved in principle and will be read nearer their stages (5 and 6). In batch 3, `idea-refine` is proposed for removal (41 KB, least needed). Rough reading sizes: batch 1 about 39K tokens, batch 2 about 29K, batch 3 about 31K.
 5. **Story Planner: decided.** It applies in all lanes, modes and sizes, as the default way a story is made. Done in this file and in plan Appendix D.4.
-6. **Wayfinder: still open.** Trigger when the clarity test fails (proposed), or always? See the progress log.
-7. **Work-size ADO field: decided.** Added as `Custom.WorkSize`, with `Custom.WorkMode`. The router skill is still open.
+6. **Wayfinder: decided.** Clarity test on every story, map only on a fail (see section 2).
+7. **Work-size ADO field: decided.** Added as `Custom.WorkSize`, with `Custom.WorkMode`. **Router skill: approved on 2 November 2026.** It reads a story's size, mode and lane and lists the skills to use, as a lookup table built from the matrix. Write it after batch 1 is read.
 8. **Plan wording: done.** Plan section 6.5 was rewritten on 1 November 2026. The Copilot Studio front door is the default, and other customer requirements can feed the Story Planner and Wayfinder directly. The other "optional" mentions (sections 1.2, 2, 4.x table, 8 and the decision log) were fixed to match.
 
 ## 9. Limits

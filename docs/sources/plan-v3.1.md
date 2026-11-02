@@ -1003,7 +1003,7 @@ Every unit of work starts here, in every lane, mode and size, and it starts as a
 
 **What the Story Planner does with any input.**
 1. Reads the material and separates facts from open decisions (rule 9). Facts are looked up. Decisions go back to a human as questions.
-2. Proposes either stories or a map. For stories: size (XS to XL), mode (build, prototype, bau), lane (`lcp`, `pcp`, `lane_a`), and predecessor links in ADO. For work that is still foggy, a Wayfinder map with typed children instead (section 6.7).
+2. Proposes either stories or a map. For stories: size (XS to XL), mode (build, prototype, bau), lane (`lcp`, `pcp`, `lane_a`), and predecessor links in ADO. For work that is still foggy, a Wayfinder map with typed children instead (section 6.7). **The clarity test runs on every story** and its result (pass or fail) is recorded on the story in `Custom.ClarityTest`. A map is built only when the test fails. Boroon decided on 2 November 2026 that a map is not built for every story, because it adds sessions and human minutes that clear work does not need.
 3. Writes what and why only, never technical step lists (section 6.6).
 4. **Runs a grouping check** before a human sees the draft. It compares the new stories with the project's open stories and with each other, and flags likely duplicates, stories that touch the same table, flow or app, and a shared root cause. It gives a reason for each flag. The notes are advice: the Story Planner never merges or drops a story. A human decides, as with duplicates in the 17:00 night plan (section 5.5). The check matters most when one large input, such as an SOW, becomes many stories.
 
@@ -2571,6 +2571,7 @@ Process: inherited "Agile build v1". Reference names are suggestions.
 | Work Size | `Custom.WorkSize` | Picklist: XS, S, M, L, XL | Story Planner proposes; spec owner confirms; the gate can raise it, never lower it | T-shirt size (added 1 November 2026). Cost and effort compare by size |
 | Work Mode | `Custom.WorkMode` | Picklist: build, prototype, bau | Story Planner proposes; spec owner confirms | Prototype is a mode and BAU is an on-ramp, not sizes (added 1 November 2026) |
 | Story Origin | `Custom.StoryOrigin` | Picklist: story_planner, human | Orchestrator | Who drafted the story. The Story Planner is the default. A human-written story is allowed but flagged (added 1 November 2026) |
+| Clarity Test | `Custom.ClarityTest` | Picklist: pass, fail | Story Planner proposes; spec owner confirms | Could every behaviour be written as a locked scenario today? A fail means a Wayfinder map first (section 6.5; added 2 November 2026) |
 | Overhead Class | `Custom.OverheadClass` | Picklist: triage, gardening, retro, skill_review, factory_build, other | Orchestrator | Only on standing overhead items (section D.4) |
 
 Tags: `factory-eligible`, `discovery-map` (Wayfinder parent), `triage-inbox` (raw report), `garden-finding`, `overhead` (standing overhead item).

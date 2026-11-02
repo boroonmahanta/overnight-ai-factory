@@ -50,13 +50,17 @@ Decisions (Boroon, 1 November 2026):
 - **Done:** plan section 6.5 rewritten. The Copilot Studio front door is the default. Other customer requirements (documents, SOW or RFP, emails, meeting notes, service desk requests, ADO items, triage groups) can feed the Story Planner and Wayfinder directly. Draft ADO item first, so intake cost has an `ado_id`. Five other "optional front door" mentions fixed. The Chief of Staff paragraph now says why it was dropped and where its function survives (triage grouping and the 17:00 night plan grouping pass).
 - **Done (2 November 2026):** the Story Planner now runs a grouping check (duplicates, same table or flow or app, shared root cause), added to plan section 6.5 as step 4. The Chief of Staff paragraph now lists three grouping steps: intake, triage and the 17:00 night plan. New plan Appendix C.8 holds the Story Planner agent definition (`story-planner`, read-only, writes `planning/<intake-id>/plan.json`, the orchestrator files the ADO items). Untested.
 - **Measured sizes (rough, bytes divided by 4):** Wayfinder `SKILL.md` is 12.4 KB, about 3,100 tokens, and runs only when invoked. Reading all of batch 1 in full is about 39K tokens, batch 2 about 29K, batch 3 about 31K. Biggest single skills: `idea-refine` 41 KB, `constraint-driven-development` 33 KB, `security-and-hardening` 31 KB, `reproduce-and-fix-issues` 29 KB. Clones were in scratch space only.
-- Still open: Wayfinder as a trigger (clarity test fails) or always (Claude's advice: always run the clarity test inside the Story Planner, build a map only when it fails). The router skill, yes or no. Approval of the three read-in-full skill batches.
+- **Decided (Boroon, 2 November 2026):**
+  1. Wayfinder is not run for every story. The Story Planner runs the clarity test on every story and records it in the new field `Custom.ClarityTest`. A map is built only when the test fails. Plan section 6.5 and Appendix D updated.
+  2. A router skill is wanted. It maps size, mode and lane to the skills to use. Write it after batch 1 is read.
+  3. Skills are read in batches. Batch 1 (`lcp`, 13 skills, about 39K tokens) is approved. Batches 2 (`pcp`) and 3 (Lane A) are read nearer stages 5 and 6. `idea-refine` is proposed for removal from batch 3.
+- Still open: nothing from this thread. Next session: read batch 1 in full, then write the router skill.
 
 Files changed:
 - `docs/analysis/skills-by-lane-and-size.md` (new), `docs/analysis/tshirt-sizing.md` (pointer added), `CLAUDE.md` (map row, naming table, lane list), `docs/sources/plan-v3.1.md` (section 1.1 naming table, ledger schema line, Appendix D and new D.4), `docs/progress.md`
 
 Open items:
-- Wayfinder as trigger or always (see Decisions).
+- Read batch 1 in full (13 skills, listed in `docs/analysis/skills-by-lane-and-size.md` section 7), then write the router skill.
 - Approve the three read-in-full batches. Still open from Session 1: the work-size ADO field and the router skill.
 - Other places that still say only "code profile" may need `pcp` added: plan sections 4.2 and 4.4, and the one-pager. Not changed.
 
