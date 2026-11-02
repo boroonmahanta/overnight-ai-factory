@@ -61,17 +61,27 @@ What the reading showed (for the later `lcp-*` rewrite, not decisions):
 - `source-driven-development` says cite official docs only. Fits the Microsoft Learn rule for Power Platform work.
 - Several skills call other skills not in batch 1 (`unslop`, `interview-me`, `grilling`, `domain-modeling`, `poteto-mode`, the `principle-*` skills). Those would need reading before the dependants are adopted.
 
+Later in session 2 (Boroon's instructions, nothing built yet):
+- Boroon asked for: a work-size field in ADO (Appendix D) on all work item types, rolling up programmatically to features and epics; a router skill that routes by size; and to adopt and adapt all 16 batch 1 skills ("every one of them is important", order does not matter).
+- Boroon asked whether create-verification-skill and maintain-verification-skill apply to all lanes (Lane A, Lane B code, Lane B lcp). Answer given: yes. They are generators, so each lane gets its own verify skill: `lcp-verify` for Lane B lcp, one generated per repo for Lane B code, one for the Lane A app. Each has a builder copy and a trusted gate copy (rule 5). The upkeep skill runs weekly per lane, fixes by daytime PR only (rule 17). The name is `lcp`, never `pcp` or `pp`.
+- Proposed design, awaiting Boroon's go-ahead:
+  - ADO fields on Story, Task, Bug, Feature and Epic: `Custom.WorkSizeProposed` (spec owner, at intake), `Custom.WorkSizeGate` (gate only, can raise never lower), `Custom.WorkSize` (the larger of the two, the one everything reads). A parent gets `Custom.WorkSizeRollup` = largest child size, set by a service-hook-triggered job. The job goes into Appendix D as untested YAML.
+  - Router skill `getai-size-router` (lane-neutral name). Input: size, lane, Merge Danger band. Output: skills to load, verifier count, human gate, refusal for XL (Wayfinder first). Routes live in `size-routes.yml` so changes are a reviewed PR. Modelled on `ask-matt` and `tshirt-sizing.md`.
+  - Order: (1) read the skills the batch 1 skills call (`unslop`, `interview-me`, `grilling`, `domain-modeling`, `poteto-mode`, `tdd`, `pr`, the `principle-*` skills), (2) Appendix D, a sizing section in plan section 5, and `CLAUDE.md`, (3) pin the 16 originals with commit, licence and review note (rule 19), (4) write the adapted versions plus the per-lane verification generators, (5) write the router, (6) log. About three sessions.
+- Confirmed with Boroon: the 16 were read in full. Caveats: the `harness/` copies of the Tan skills were not read; the dependants above were not read; `why`, `triage-issue-reports`, `reproduce-and-fix-issues` and `show-me-your-work` are tied to other tools, so only their patterns carry over.
+
 Files changed:
 - `docs/progress.md` only.
 
 Open items:
+- **Decision for Boroon:** where adapted skills live. Proposal: a top-level `skills/` folder that does not auto-load, keeping only `/bro` in `.claude/skills/`, because `.claude/skills/` loads descriptions into every session. Also still needs a go-ahead to start step 1.
 - Batch 1 is read. The rest of the section 5 shortlist in `skills-comparison.md` is not.
 - Still waiting on Boroon: which of the 16 to adapt first, the work-size ADO field, and the router skill.
 
 Next steps:
-1. Boroon picks which batch 1 skills to adapt into `lcp-*`. My suggestion: `constraint-driven-development` floor guard, `create-verification-skill` shape (for `lcp-verify`), and `triage` agent brief rules.
+1. Boroon confirms the skills folder location and says go.
 2. Read the dependants named above before adopting anything that calls them.
-3. Pin any adopted skill to its commit before copying it into `.claude/skills/`.
+3. Do the ADO field, plan section and `CLAUDE.md`, then pin, adapt and write the router, in the order above.
 
 ## Session 1, 2026-11-01, branch `claude/jolly-albattani-818i8e`
 
