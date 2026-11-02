@@ -344,6 +344,7 @@ V3 started all work at the day gate. For clients on AI Managed Services, much of
 | Source | How it arrives |
 |---|---|
 | Client service desk or ITSM tool | The tool's webhook or an ADO service hook [inference: varies by tool] |
+| AutoTask tickets and PRTG alerts (code repos, agreed 2 November 2026) | Read through their APIs or an MCP server [untested]. Manual run by day first |
 | Teams support channel | A Power Automate flow on new channel messages posts to the Function |
 | Application Insights alerts (flow failures, app errors) | Azure Monitor alert rule with a webhook action group |
 | Dataverse errors (plug-in trace logs, failed system jobs) | A scheduled query in the same Application Insights resource [untested] |
@@ -2499,7 +2500,7 @@ Process: inherited "Agile build v1". Reference names are suggestions.
 | Sampled For Review | `Custom.SampledForReview` | Boolean | Orchestrator | In the L2 review sample |
 | Sampled Defect | `Custom.SampledDefect` | Boolean | Reviewer | The sample review found a defect a human would have blocked |
 | Discovery Type | `Custom.DiscoveryType` | Picklist: research, grilling, prototype, task | Spec owner | Child of a Wayfinder map (section 6.7) |
-| Triage Source | `Custom.TriageSource` | Picklist: service desk, Teams, alert, ADO | Orchestrator | Where the report came from (section 4.5) |
+| Triage Source | `Custom.TriageSource` | Picklist: service desk, Teams, alert, ADO, AutoTask, PRTG | Orchestrator | Where the report came from (section 4.5) |
 | Triage Group | `Custom.TriageGroup` | String | Orchestrator, from `triage.json` | Reports that share a suspected cause |
 | Triage Outcome | `Custom.TriageOutcome` | Picklist: reproduced, not_reproduced, fixed_in_integration | Orchestrator, from `triage.json` | Repro result on the latest `integration` build |
 | Finding Rule | `Custom.FindingRule` | String | Orchestrator, from a scan | The gardening rule that fired (section 7.4) |
