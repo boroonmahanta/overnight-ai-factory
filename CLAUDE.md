@@ -235,7 +235,7 @@ The 45 days build the factory. They move no project up a trust rung. Do not star
 - Lanes in the client's tenant or ours, per client? (Boroon)
 - Power Platform licence, capacity and meter prices in AUD. (Commercial)
 - What did GitHub Universe and Ignite change? Is there a rename? (Boroon)
-- Which ITSM tools do AI Managed Services clients use? (AI Managed Services)
+- Which ITSM tools do AI Managed Services clients use? (AI Managed Services). For code repos so far: AutoTask tickets, PRTG alerts, ADO service hooks and service desk webhooks. Power Platform clients not yet known
 - Which change classes go in `trust.yml`, and is a 20% random sample at L2 right? (Boroon)
 
 The full list is in plan section 15.1.

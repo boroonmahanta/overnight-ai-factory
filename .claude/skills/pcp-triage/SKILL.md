@@ -8,7 +8,27 @@ disable-model-invocation: true
 
 Adapted from the Benny skills `triage-issue-reports` and `reproduce-and-fix-issues` by Lauren Tan (MIT, pinned at `cursor/plugins` commit `ae5650febf4320793844c12c4adaa937f417f8da`, originals in `skills/benny/`). The Power Platform version is `lcp-triage`, which follows plan section 4.5. Changed: the repro runs in a repo sandbox, not `factory-test`. No fixing and no PR (Boroon, 2 November 2026: may be added later when trust is built).
 
-**Status: untested, and the plan has no triage workflow for code repos.** Plan 4.5 defines triage for the Power Platform profile only. This is a proposal that follows the same shape. A person must decide how it is triggered, where it runs and which credential it uses before it can run.
+**Status: untested. Starts as a manual run by day (Boroon, 2 November 2026).** Plan 4.5 defines triage for the Power Platform profile only. For code repos nothing exists to automate yet, so a person starts each run by hand during business hours. Automation comes later, once the manual runs show what is worth automating.
+
+## Where reports come from
+
+Reports for code repos arrive from several places:
+
+| Source | What it is | Notes |
+|---|---|---|
+| AutoTask tickets | Client service desk tickets | Free text from users. Often names, emails and phone numbers |
+| PRTG alerts | Monitoring alerts | Often point at servers, networks or sensors, not code. Many will be a reroute. Group alerts by sensor and time before you read each one |
+| ADO service hook | Bugs raised in ADO | Tag `triage-inbox` |
+| Service desk webhook | Other service desks | Later, once a webhook exists |
+| Manual run by day | A person pastes or points at reports | **The only mode in use for now** |
+
+## Running it by hand
+
+1. A person picks the reports and gathers them into one folder or one message. They can export from AutoTask or PRTG, or copy from ADO.
+2. **The person removes names, emails, phone numbers and record IDs first.** No Function does this yet (plan 4.5 uses one). If personal data is still in the text, say so and stop. Do not repeat it.
+3. The person says which client, which repo and the client's residency tier. Missing tier means stop and ask.
+4. Run the steps below. The agent writes `triage.json` and evidence. The person reads it and files or updates the ADO bug by hand. The agent never writes ADO.
+5. Note in `decisions-<run_id>.tsv` which source each report came from, so later runs show which sources are worth automating.
 
 ## Hard rules
 
