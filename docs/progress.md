@@ -29,14 +29,14 @@ Next steps:
 - **Not read in full.** The files added from the zip were saved but not read in this session: the reports V1 and V2, the runtime and costs note, the eight GitHub and Azure notes, the five Power Platform notes and the one-pager. The five workshop slide images were saved but not viewed. The plan condenses most of them. Read one only when a task needs its detail.
 - **Decisions still waiting on Boroon** (from `docs/analysis/tshirt-sizing.md`): approve the shortlist of skills to read in full before any are adopted (plan section 8.3); decide whether to add a work-size field to ADO (Appendix D); decide whether to write a GET AI router skill that routes by size. The sizes themselves are approved.
 - The Pocock v1.3 transcript ends mid-sentence at 14:28. The zip copy is the same, so the source itself is cut off.
-- **Credit ruling (spike 0.1): answered yes by Partner Center support, per Boroon, 2 November 2026.** Builds for customers can be made on credits. The written answer is not yet on file, so the spike's exit test is still open (file the answer, then check the next invoice shows "Azure credits applied" against GitHub lines).
+- **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 - Spike 0.9 has a hard date. Audit for unmanaged developer environments before 15 November 2026.
 
 ## Log
 
 ## Session 4, 2026-11-02, branch `claude/wizardly-planck-8i7543`
 
-After PR 9 merged (decision by Boroon, 2 November 2026): **partner credits can fund client builds.** He checked with Partner Center support, who said builds for customers can be made on credits, and told me to take it as a yes. Recorded in `CLAUDE.md` (biggest risk 1 and the open questions) and in the plan: section 9.1 note, spike 0.1 row, risk 1 row, section 15.1 open question and a new decision log section 14.4. Caveats written down: the answer came from support, not a written ruling filed here, so spike 0.1's exit test stays open until he files it; which credit type and designation it covers was not stated; rules 13 and 14 are unchanged (ledger at list and cash, price from list). If the written copy contradicts this, client work goes back to cash. Files changed: `docs/sources/plan-v3.1.md`, `CLAUDE.md`, `docs/progress.md`.
+After PR 9 merged (decision by Boroon, 2 November 2026): **credit funding for client builds is accepted and settled.** Not to be raised again. Recorded in `CLAUDE.md` (biggest risk 1, open questions) and in the plan (section 9.1, spike 0.1 row, risk 1 row, section 15.1, new decision log section 14.4). Files changed: `docs/sources/plan-v3.1.md`, `CLAUDE.md`, `docs/progress.md`.
 
 Done:
 - Boroon gave the three-batch skills plan from the chat "Planning the skills to use": batch 1 `lcp` (13 skills, needed before Stage 2, day 15), batch 2 `pcp` (16, before Stage 5, day 46), batch 3 Lane A (8, before Stage 6, day 60). Another session read all 36 and wrote `docs/analysis/skill-batches-review.md`. That file is only on branch `claude/sharp-wright-1muptp` (commit `c3a1c72`), not on `main`. Its verdicts are proposals, and its reads were done by agents, not line by line.
@@ -95,12 +95,11 @@ Open items:
 - All 36 skills in the three-batch plan are now read (or, for `ci-cd-and-automation`, `shipping-and-launch` and `arena`, dropped on the other session's tags without our own full read). Nothing new is adopted. Decide the 14 roll-up additions together, then make the plan edits (rule 17).
 - **No bug-fix workflow** (see the sixth request above). Decide before Stage 5.
 - Add to the Stage 3 driver spec: the non-PARK stop checkpoint, and where the transcript lives for the decision-log audit.
-- Not started: spike 0.9 (environment audit, before 15 November 2026). Spike 0.1 is answered but the written copy is not filed.
+- Not started: spike 0.9 (environment audit, before 15 November 2026).
 
 Next steps:
 1. Boroon merges PR 9. Then branch the next session from `main`.
 2. Spike 0.9: audit for unmanaged developer environments before 15 November 2026 (hard date).
-3. Spike 0.1: file the written Partner Center answer (ticket reference or email), then check the next invoice for "Azure credits applied".
 4. Decide the 14 roll-up additions with Boroon (end of `docs/analysis/skills-reading-notes-skill-batches.md`), starting with items 1 and 2 (prompt injection, code-repo security checks), then make the plan edits for his review (rule 17). Includes the day approval of the Lane A sketch.
 5. Boroon rules on where the other session's review differs from what is live. The review file (`docs/analysis/skill-batches-review.md`) is still only on branch `claude/sharp-wright-1muptp`.
 6. Reading is finished. Revisit the shelved Lane A skills at Stage 6 and `diagnosing-bugs` for BAU Managed Services.
