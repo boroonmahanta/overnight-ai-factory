@@ -851,6 +851,8 @@ The digest shows both, with the gate's part first.
 4. The execution workflow reports the PARK to the orchestrator, which sets ADO to "Awaiting business", copies the instruction into Blocked Reason, links the branch, releases the lane and dispatches the next story.
 5. In the morning a human does the step, records it in the work item, and sets the story back to "Ready to build". The next night resumes from the branch and the handoff files.
 
+**Stops that are not a PARK.** A timeout, an exhausted credit or iteration cap, or a killed replica ends a run with no `park.json`. The driver, not the agent, makes the stop safe: it commits any uncommitted work as one `wip:` commit (one line in the body if the tree is broken), pushes the branch without opening a PR, appends a decision-log row with result `INCONCLUSIVE` and the `run_id`, and leaves `state.md` and `learnings.json` as they are so the next run resumes from them. ADO moves by the state table above (caps exhausted goes to Needs rework). Idea from Lauren Tan's `pause-safely` playbook, moved into the driver because a night run cannot rely on the agent to stop itself. `[untested]`; check it in the Stage 3 driver spec and spike 0.8 (killed replica).
+
 Lane faults are different: a failed preflight marks the lane Offline and raises an ADO bug against the lane, not the story.
 
 ### 5.12 Agent instructions

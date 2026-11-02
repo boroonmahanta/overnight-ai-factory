@@ -33,6 +33,31 @@ Next steps:
 
 ## Log
 
+## Session 4, 2026-11-02, branch `claude/wizardly-planck-8i7543`
+
+Done:
+- Boroon gave the three-batch skills plan from the chat "Planning the skills to use": batch 1 `lcp` (13 skills, needed before Stage 2, day 15), batch 2 `pcp` (16, before Stage 5, day 46), batch 3 Lane A (8, before Stage 6, day 60). Another session read all 36 and wrote `docs/analysis/skill-batches-review.md`. That file is only on branch `claude/sharp-wright-1muptp` (commit `c3a1c72`), not on `main`. Its verdicts are proposals, and its reads were done by agents, not line by line.
+- Checked the 36 skills against this repo: 19 live (4 unchanged, the rest adapted, including `show-me-your-work` as `getai-decision-log`), 1 on the shelf (`principle-migrate-callers-then-delete-legacy-apis`), 16 untouched. This corrects the 18 / 2 / 16 count I gave in chat. Batch 3 is entirely untouched. `idea-refine` was already dropped from batch 3 and folded into the Story Planner.
+- Read `show-me-your-work` and `pause-safely` in full (rule 19), from the pinned commit `ae5650f`.
+
+Decisions (Boroon, 2 November 2026):
+- **`show-me-your-work`: keep as `getai-decision-log`.** It was already adapted and merged (I wrongly called it shelved in chat). Needs a test, not a rewrite. Gaps: the transcript audit assumes a transcript in the evidence bundle, which the plan does not yet say; nothing checks that the log reached Blob.
+- **`pause-safely`: drop.** A 12-line playbook inside `poteto-mode`, not a skill. PARK, `park.json` and the handoff files cover it. Its one useful idea (a `wip:` checkpoint on a non-PARK stop) went into the plan.
+- **Plan edit:** section 5.11 has a new paragraph, "Stops that are not a PARK". On a timeout, exhausted cap or killed replica, the driver commits a `wip:` commit, pushes with no PR, logs `INCONCLUSIVE` and leaves the handoff files. Marked `[untested]`.
+
+Files changed: `docs/sources/plan-v3.1.md` (one paragraph in 5.11), `docs/progress.md`.
+
+Open items:
+- The review file is not on `main`. Where it differs from what is live: it says drop `wizard` (we have `getai-wizard`), drop `principle-model-the-domain` (adopted), and rewrite the four skills adopted unchanged. Boroon decides each. Not changed.
+- Still untouched, read before use: batch 2 `bug-fix`, `debugging-and-error-recovery`, `code-simplification`, `deprecation-and-migration`, `security-and-hardening`, `diagnosing-bugs` (rated best), `codebase-design`, `improve-codebase-architecture`. Batch 3: `frontend-ui-engineering`, `api-and-interface-design`, `ci-cd-and-automation`, `observability-and-instrumentation`, `shipping-and-launch`, `architect`, `arena`.
+- Add to the Stage 3 driver spec: the non-PARK stop checkpoint, and where the transcript lives for the decision-log audit.
+- Not started: spike 0.1 (credit ruling) and spike 0.9 (environment audit, before 15 November 2026).
+
+Next steps:
+1. Boroon rules on the review's differences, then the review file goes to `main` by a fresh branch and pull request.
+2. Read batch 2's `diagnosing-bugs` first, then the rest by need date.
+3. Send the credit ruling and start the environment audit.
+
 ## Session 3, 2026-11-02, branch `claude/exciting-babbage-4u2zp4`
 
 Boroon answered the five open items from Session 2.
