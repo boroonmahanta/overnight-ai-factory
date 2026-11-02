@@ -33,6 +33,43 @@ Next steps:
 
 ## Log
 
+## Session 2, 2026-11-02, branch `claude/hopeful-mccarthy-znxbf8`
+
+Done:
+- Started step 1 of `docs/analysis/tshirt-sizing.md` section 4 (read the shortlist in full). Boroon said to use a top-level `skills/` folder that does not auto-load.
+- Cloned the three public repos to scratch space, found the 16 skills in the first batch, and copied them unchanged into `skills/addy/` (3), `skills/tan/` (7), `skills/pocock/` (4) and `skills/benny/` (2). 49 files.
+- Read every file of all 16 in full, including the four scripts.
+- Wrote `skills/README.md` (sources, pinned commits, MIT licences) and `docs/analysis/skills-reading-notes.md` (safety read, assumptions we lack, one line each, findings).
+
+Decisions:
+- None approved by Boroon yet. "Read in full" is done. "Adopt" is not.
+- Proposed only: nothing found that blocks adoption. Most skills need adapting (Cursor tools, Slack, Linear, Notion). `create-verification-skill` and `maintain-verification-skill` look like the template for `lcp-verify`. The Benny pair is the best built example of the outer loop.
+
+Files changed:
+- New: `skills/` (49 copied files plus `skills/README.md`), `docs/analysis/skills-reading-notes.md`
+- Edited: `CLAUDE.md` (two rows added to the map), `docs/progress.md`
+
+Open items:
+- Which of the 16 to adopt, adapt or leave on the shelf (Boroon).
+- Several of the 16 lean on skills we have not read: `unslop`, the `principle-*` skills, `poteto-mode`, `grilling`, `domain-modeling`. Decide if they are next.
+- The Benny skills need a control adapter and a configured triage identity before they could run. Not buildable until `lcp-verify` and the ITSM tool are known.
+
+Also done (later in Session 2): Boroon asked to adapt `ask-matt` into "ask-me". Written as `.claude/skills/ask-me/SKILL.md` (live, only runs when invoked). It routes by T-shirt size, day or night, and tags each skill live, shelf or planned. Credits Matt Pocock and the pinned commit. Not yet reviewed by Boroon. Tan, Pocock and Addy skills it names are still shelf, so it tells the user to adopt first or do the step by hand. Update its tags when a skill is adopted or an `lcp-*` skill is written.
+
+Then (Session 2, third request): Boroon said "adopt the first five skills and adapt the rest". Read "first five" as the first five in the reading notes table. Done:
+- Adopted unchanged into `.claude/skills/`: `constraint-driven-development`, `doubt-driven-development`, `source-driven-development`, `create-verification-skill`, `maintain-verification-skill`.
+- Adapted into `.claude/skills/`: `lcp-blast-radius`, `lcp-decision-log`, `lcp-correct`, `lcp-how`, `lcp-why`, `lcp-intake` (from Pocock `triage`), `lcp-wizard`, `lcp-questionnaire`, `lcp-triage` (the two Benny skills merged, to match the `lcp-triage` agent in plan 4.5). `ask-me` was already adapted from `ask-matt`.
+- `ask-me` tags updated. `skills/README.md` records what became of each skill. Shelf copies kept as pinned originals.
+- Decisions made by me, for Boroon to confirm: `lcp-triage` has no fixing and no PR, because the plan has a human decide and rule 3 needs scenarios from someone else. Pocock `triage` became `lcp-intake`, the human day step. Adopted skills were left unchanged as asked, so the two verification skills still write to `.cursor/skills/`.
+- Nothing adapted has been run. The adopted five were read in full before adoption (rule 19) and pinned.
+
+Open items added: review the nine `lcp-*` skills (rule 17 says reviewed daytime PR). The adopted constraint skill's examples are JavaScript, not Power Platform. `lcp-triage` needs the triage workflow, `lcp-verify` and a Test credential before it can run. Only `create-verification-skill` can build `lcp-verify`.
+
+Next steps:
+1. Boroon reads `docs/analysis/skills-reading-notes.md` and picks adopt, adapt or shelf for each of the 16.
+2. Write the GET AI router skill by size (tshirt-sizing step 3), then the first `lcp-*` skills.
+3. Update the "Not yet approved" lines in `docs/analysis/tshirt-sizing.md` once Boroon decides.
+
 ## Session 1, 2026-11-01, branch `claude/jolly-albattani-818i8e`
 
 Done:
