@@ -45,17 +45,21 @@ Decisions (Boroon, 2 November 2026):
 - **`pause-safely`: drop.** A 12-line playbook inside `poteto-mode`, not a skill. PARK, `park.json` and the handoff files cover it. Its one useful idea (a `wip:` checkpoint on a non-PARK stop) went into the plan.
 - **Plan edit:** section 5.11 has a new paragraph, "Stops that are not a PARK". On a timeout, exhausted cap or killed replica, the driver commits a `wip:` commit, pushes with no PR, logs `INCONCLUSIVE` and leaves the handoff files. Marked `[untested]`.
 
-Files changed: `docs/sources/plan-v3.1.md` (one paragraph in 5.11), `docs/progress.md`.
+Then (Session 4, second request), decisions by Boroon:
+- **`diagnosing-bugs` read in full and shelved.** Copied unchanged to `skills/pocock/diagnosing-bugs/` (pinned `4ae2317`). Not adopted. **Revisit for the BAU Managed Services mode.** Proposal: rewrite as `pcp-diagnose`, with interactive steps turned into PARKs, model invocation off, the builder's regression test labelled its own check, and lowercase `glossary.md`. Open question for then: may a night agent run all six phases, or only reproduce and minimise (as `pcp-triage` does)?
+- Notes for all three reads (`show-me-your-work`, `pause-safely`, `diagnosing-bugs`) are in the new `docs/analysis/skills-reading-notes-skill-batches.md`. `skills/README.md` and `CLAUDE.md` updated.
+
+Files changed: `docs/sources/plan-v3.1.md` (one paragraph in 5.11), `docs/progress.md`, `docs/analysis/skills-reading-notes-skill-batches.md` (new), `skills/pocock/diagnosing-bugs/` (new, 3 files), `skills/README.md`, `CLAUDE.md`.
 
 Open items:
 - The review file is not on `main`. Where it differs from what is live: it says drop `wizard` (we have `getai-wizard`), drop `principle-model-the-domain` (adopted), and rewrite the four skills adopted unchanged. Boroon decides each. Not changed.
-- Still untouched, read before use: batch 2 `bug-fix`, `debugging-and-error-recovery`, `code-simplification`, `deprecation-and-migration`, `security-and-hardening`, `diagnosing-bugs` (rated best), `codebase-design`, `improve-codebase-architecture`. Batch 3: `frontend-ui-engineering`, `api-and-interface-design`, `ci-cd-and-automation`, `observability-and-instrumentation`, `shipping-and-launch`, `architect`, `arena`.
+- Still untouched, read before use: batch 2 `bug-fix`, `debugging-and-error-recovery`, `code-simplification`, `deprecation-and-migration`, `security-and-hardening`, `codebase-design`, `improve-codebase-architecture`. Batch 3: `frontend-ui-engineering`, `api-and-interface-design`, `ci-cd-and-automation`, `observability-and-instrumentation`, `shipping-and-launch`, `architect`, `arena`.
 - Add to the Stage 3 driver spec: the non-PARK stop checkpoint, and where the transcript lives for the decision-log audit.
 - Not started: spike 0.1 (credit ruling) and spike 0.9 (environment audit, before 15 November 2026).
 
 Next steps:
 1. Boroon rules on the review's differences, then the review file goes to `main` by a fresh branch and pull request.
-2. Read batch 2's `diagnosing-bugs` first, then the rest by need date.
+2. Read the rest of batch 2 by need date (day 46), then batch 3 (day 60). `diagnosing-bugs` is done and shelved.
 3. Send the credit ruling and start the environment audit.
 
 ## Session 3, 2026-11-02, branch `claude/exciting-babbage-4u2zp4`
