@@ -86,3 +86,27 @@ Files read in full: `skills/code-simplification/SKILL.md` (13.7 KB). Also read, 
 - **A possible later use as its own story.** A behaviour-preserving refactor is the easiest change to verify: locked tests unchanged and passing is the proof (rule 3 fits). It could be a refactor-only night story fed from the "Refactor candidates" list or the weekly gardening findings. That ties to BAU Managed Services. It would be a `pcp-simplify`, written only if Boroon wants it.
 
 **Verdict (proposal): shelve.** Not adopted, not edited, nothing written to `.claude/skills/`. Revisit when the standards reviewer rubric is edited, or for the BAU Managed Services mode.
+
+## `deprecation-and-migration` (Addy), read 2 November 2026
+
+Files read in full: `skills/deprecation-and-migration/SKILL.md` (12.8 KB). Also read, as background only and not copied: Addy's eval case JSON and an API inventory fixture, which are test material for his own evals. Copied unchanged to `skills/addy/deprecation-and-migration/`. Pinned `addyosmani/agent-skills` commit `301b02b`, MIT.
+
+**What it does.** Treats removal as a discipline: code is a liability, Hyrum's Law (with enough users every observable behaviour is depended on), plan deprecation at design time. A five-question deprecation decision, advisory against compulsory deprecation, a four-step migration (build the replacement, announce, migrate one consumer at a time, remove), three patterns (strangler, adapter, feature flag), a database section on expand/contract with a worked column rename, zombie code, rationalisations, red flags and a verification list.
+
+**Safety read.** No scripts, no network calls, nothing aimed at a reviewer. `npx migrate-check` is only an example inside a sample notice. It refers to `incremental-implementation`, a skill we do not have. The description is broad enough to self-trigger.
+
+**Why it is shelved, not rewritten** (the other session's review said "rewrite, keep only expand/contract, plus never drop or rename, PARK").
+1. **Most of it is a human decision.** Whether to deprecate, advisory or compulsory, consumer notice periods and removal dates are intent and client-contract questions (rules 1 and 9). A night agent should never run the removal step.
+2. **It pushes toward deletion.** "Code is a liability" and "if it is needed later, rebuild it" clash with the one-way-door rule. Plan 5.x scores column drops at 8 and table drops at 9, and `create_schema.py --plan` flags them. Adopted `principle-subtract-before-you-add` already scores removal from a managed solution as size L.
+3. **It supports leaving `principle-migrate-callers-then-delete-legacy-apis` on the shelf.** That principle changes callers and deletes the old API in one wave. This skill says migrate one consumer at a time and remove only after zero usage, which is the safer rule.
+4. **The patterns need what we do not have.** Strangler, adapter and feature-flag migration need production traffic and flags. Client production is human work (rule 15). Examples are TypeScript and Postgres.
+
+**Worth keeping: expand/contract.** It fits Power Platform because a Dataverse column's logical name cannot be renamed, so a "rename" is already add a new column, dual-write, backfill, switch reads, drop later. Rules that carry over:
+- additive first, destructive last and alone;
+- a drop or rename ships as its own change, after nothing references the old shape;
+- backfill in batches;
+- test the way back.
+
+Each phase would be its own story (rule 7). The contract step is size L, so a human approves it. For Power Platform the way back is restoring from the Test baseline, because dropped data cannot be reverted by a redeploy.
+
+**Verdict (proposal): shelve.** Lift the expand/contract steps into a block of about 1 KB in the spec preset or the agent instructions, with "a drop or rename means PARK `one_way_door`". That is a plan edit needing Boroon's review (rule 17), to be made when Appendix C is next edited or for BAU Managed Services, where client schema changes are the likely trigger. Not adopted, not edited, nothing written to `.claude/skills/`.
