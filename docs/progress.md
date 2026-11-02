@@ -33,6 +33,46 @@ Next steps:
 
 ## Log
 
+## Session 2, 2026-11-02, branch `claude/admiring-lovelace-jf49ez`
+
+Done:
+- Read in full the 16 skills of "batch 1", the first batch listed in `docs/analysis/tshirt-sizing.md` section 4, step 2. Read from fresh clones kept in scratch space only (not saved in the repo). Every file inside each skill folder was read, including references, scripts and templates.
+- Commits read: `addyosmani/agent-skills` 301b02b, `mattpocock/skills` 4ae2317, `cursor/plugins` ae5650f (the same commits the comparison used).
+- Addy Osmani: `constraint-driven-development` (with `references/floor-guard.md` and `scripts/quality-gate.mjs`), `doubt-driven-development`, `source-driven-development`.
+- Lauren Tan (pstack): `create-verification-skill` (with its feature-map example), `maintain-verification-skill`, `blast-radius`, `show-me-your-work` (with `log.sh` and the TSV template), `correct`, `how` (with both prompts), `why` (with epistemics, investigator and synthesizer prompts, and all source playbooks).
+- Matt Pocock: `triage` (with `AGENT-BRIEF.md` and `OUT-OF-SCOPE.md`), `wizard` (with `template.sh`), `to-questionnaire`, `ask-matt` (with `PHASE-BOUNDARIES.md`).
+- Benny (Tan, under `pstack/automations/benny/skills`): `triage-issue-reports` and `reproduce-and-fix-issues`, with all their references.
+- Not read: the `harness/pstack/claude-code/` copies of the Tan skills. They are near-identical variants (sizes differ by a few hundred bytes). Read the `pstack/skills/` originals only.
+
+Decisions:
+- None. Nothing is adopted. Plan rule 19 (read in full, then pin) is now met for batch 1, but pinning and adaptation are still open and need Boroon's go-ahead.
+
+What the reading showed (for the later `lcp-*` rewrite, not decisions):
+- Most useful for the gate: `constraint-driven-development` floor guard (diff scan for lowered thresholds, skipped tests, new suppressions, exit code 2 when it cannot run). Fits rule 11 (deterministic floor) and the "gate can raise, never lower" size rule. It is JavaScript and git based, so it needs an `lcp` version for solution files and flows.
+- `create-verification-skill` and `maintain-verification-skill` give the shape for `lcp-verify`: Launch, Doctor, Drive, Evidence, Cleanup, plus a feature map with fixed headings. Its proof standard (real user path, evidence survives cleanup, never weaken a journey to pass) matches plan rules 2 to 4.
+- `reproduce-and-fix-issues` needs a control adapter with seven capabilities, a symptom seen twice through the real UI, and before and after proof. Compare with plan section 4.5 (outer loop). It is Slack and Cursor specific, so only the pattern carries over.
+- `triage-issue-reports` freezes source coordinates, posts one verdict, and fails closed on tickets. Useful for the outer loop. Slack specific.
+- `triage` (Pocock) has the agent brief rules: describe behaviour not file paths, testable acceptance criteria, explicit out of scope. Close to what a Factory Eligible story needs.
+- `blast-radius` and `doubt-driven-development` both say: prove the one fact it is safe because of, and send only artifact plus contract (never the claim) to the reviewer. Matches the fresh verifier sessions.
+- `why` and `how` need many MCP sources (Linear, Notion, Slack, Datadog, Sentry, Databricks) and sub-agent model settings from a Cursor rule file. Heavy for GET AI. Likely adapt `how` only, or use ADO and git as the sources for `why`.
+- `show-me-your-work` is a decision log in TSV. Overlaps plan section 7 traces and the ledger. Its cross-model review step needs a second model family.
+- `wizard`, `to-questionnaire` and `ask-matt` fit day work (human-only steps, questions for a client, routing). `wizard` matches rule 8 (PARK on portal-only steps).
+- `correct` turns repeated mistakes into architecture, types, lint, tests, then docs last. Fits rule 17 and `coding-standards.md`.
+- `source-driven-development` says cite official docs only. Fits the Microsoft Learn rule for Power Platform work.
+- Several skills call other skills not in batch 1 (`unslop`, `interview-me`, `grilling`, `domain-modeling`, `poteto-mode`, the `principle-*` skills). Those would need reading before the dependants are adopted.
+
+Files changed:
+- `docs/progress.md` only.
+
+Open items:
+- Batch 1 is read. The rest of the section 5 shortlist in `skills-comparison.md` is not.
+- Still waiting on Boroon: which of the 16 to adapt first, the work-size ADO field, and the router skill.
+
+Next steps:
+1. Boroon picks which batch 1 skills to adapt into `lcp-*`. My suggestion: `constraint-driven-development` floor guard, `create-verification-skill` shape (for `lcp-verify`), and `triage` agent brief rules.
+2. Read the dependants named above before adopting anything that calls them.
+3. Pin any adopted skill to its commit before copying it into `.claude/skills/`.
+
 ## Session 1, 2026-11-01, branch `claude/jolly-albattani-818i8e`
 
 Done:
