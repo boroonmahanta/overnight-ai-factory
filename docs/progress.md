@@ -94,6 +94,8 @@ Then (Session 3, merges and `main`), done at Boroon's request:
 - From now on, session branches start from `main`, and merge into `main` by pull request with Boroon's go.
 - This closes the open items "real `main` branch" and "switch the default and protect it".
 
+Then (Session 3, merge rule), decision by Boroon: **he merges every pull request into `main` by hand, to stay compliant with rule 1.** I open the pull request and stop. Noted in `CLAUDE.md`. PR 6 (log of the merges and `main` as default) was merged by him.
+
 ## Session 2, 2026-11-02, branch `claude/hopeful-mccarthy-znxbf8`
 
 Done:
