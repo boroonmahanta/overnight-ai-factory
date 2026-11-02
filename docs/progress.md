@@ -17,56 +17,54 @@ Next steps:
 ## Current state
 
 - Documents only. No code, no pipelines, no environments exist yet.
-- The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
+- The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`. It was edited in Session 2 (see below). Every addition is marked with its date.
 - Nothing from the plan has been built or tested. Every item marked `[untested]` in the plan is still untested.
-- Boroon said more context will be added in later sessions.
 - Work is sized with T-shirt sizes (XS to XL), approved on 1 November 2026. See `CLAUDE.md`.
+- The skills proposal is a matrix by lane and size: `docs/analysis/skills-by-lane-and-size.md`. Boroon accepted it.
+- Rule from Boroon: story first. Every unit of work, in every lane, mode and size, is an ADO story drafted by the Story Planner, so all effort and cost can be tracked.
 
 ## Open items
 
-- **Sources are complete.** Boroon uploaded the whole research folder as a zip. Every file was checked by checksum against the repo, duplicates were skipped, and the rest were added. The other session ("Overnight AI software factory", id `session_019bVvHWrUECf7G5YiXU3fKW`) is no longer needed for sources and can be deleted.
-- **Not read in full.** The files added from the zip were saved but not read in this session: the reports V1 and V2, the runtime and costs note, the eight GitHub and Azure notes, the five Power Platform notes and the one-pager. The five workshop slide images were saved but not viewed. The plan condenses most of them. Read one only when a task needs its detail.
-- **Decisions still waiting on Boroon** (from `docs/analysis/tshirt-sizing.md`): approve the shortlist of skills to read in full before any are adopted (plan section 8.3); decide whether to add a work-size field to ADO (Appendix D); decide whether to write a GET AI router skill that routes by size. The sizes themselves are approved.
-- The Pocock v1.3 transcript ends mid-sentence at 14:28. The zip copy is the same, so the source itself is cut off.
+- **Next work: read skill batch 1 in full** (13 skills for `lcp`, about 39K tokens; list in `skills-by-lane-and-size.md` section 7). Then write the router skill. Batches 2 (`pcp`) and 3 (Lane A) wait until nearer stages 5 and 6.
+- **Story Planner agent** is defined in plan Appendix C.8 but untested. It needs a build in stage 2.
+- **Plan wording that may still say "code profile" only**, without `pcp`: plan sections 4.2 and 4.4, and the one-pager. Not changed.
+- **Not read in full.** Files added from the zip were saved but not read: reports V1 and V2, the runtime and costs note, the eight GitHub and Azure notes, the five Power Platform notes and the one-pager. The five workshop slide images were saved but not viewed. The plan condenses most of them. Read one only when a task needs its detail.
+- **Other session** ("Overnight AI software factory", id `session_019bVvHWrUECf7G5YiXU3fKW`) is no longer needed and can be deleted.
+- The Pocock v1.3 transcript ends mid-sentence at 14:28. The source itself is cut off.
 - The credit ruling (spike 0.1) has not been sent to Partner Center. The question text is in plan section 9.1.
 - Spike 0.9 has a hard date. Audit for unmanaged developer environments before 15 November 2026.
 
 ## Log
 
-## Session 2, 2026-11-01, branch `claude/sharp-wright-1muptp`
+## Session 2, 2026-11-01 and 2026-11-02, branch `claude/sharp-wright-1muptp`
 
 Done:
-- Read `docs/progress.md`, then redid the skills proposal as a matrix by lane and size, as Boroon asked. New file: `docs/analysis/skills-by-lane-and-size.md`. Rows: Greenfield Lane A, Lane B `lcp`, Lane B `pcp`. Columns: Prototype, XS, S, M, L, XL, BAU Managed Services. Added a base row for skills common to all lanes.
-- Listed the skills that moved (section 5 of the new file), what GET AI must write itself (section 6) and a read-in-full order tied to build stages (section 7).
+- Redid the skills proposal as a matrix: `docs/analysis/skills-by-lane-and-size.md`. Rows: Greenfield Lane A, Lane B `lcp`, Lane B `pcp`, plus an "All lanes" base row. Columns: Prototype, XS, S, M, L, XL, BAU Managed Services. It also lists the skills that moved, what GET AI must write itself, and a read-in-full order tied to build stages.
+- Added `pcp` (pro-code platform) to the naming rule in `CLAUDE.md` and plan section 1.1.
+- Extended plan Appendix D: human minutes split into five phase fields, `Custom.WorkSize`, `Custom.WorkMode`, `Custom.StoryOrigin`, `Custom.OverheadClass`, `Custom.ClarityTest`, the `overhead` tag, `pcp` and `lane_a` in the Lane Profile picklist, and a new section D.4 "Story first". The ledger schema line in section 10.2 got the same profile values plus `work_size` and `work_mode`.
+- Rewrote plan section 6.5: the Copilot Studio front door is the default. Other customer requirements (documents, SOW or RFP, emails, meeting notes, service desk requests, ADO items, triage groups) can feed the Story Planner and Wayfinder directly. A draft ADO item is made first, so intake cost has an `ado_id`. The Story Planner runs a grouping check (duplicates, same table or flow or app, shared root cause). The Chief of Staff paragraph explains why it was dropped and lists three grouping steps that keep its function: intake, triage and the 17:00 night plan. Five other "optional front door" mentions were fixed.
+- Added plan Appendix C.8: the `story-planner` agent definition (read-only, writes `planning/<intake-id>/plan.json`, the orchestrator files the ADO items). Untested.
+- Measured skill sizes from clones in scratch space (rough, bytes divided by 4): Wayfinder `SKILL.md` is 12.4 KB, about 3,100 tokens, and runs only when invoked. Reading batch 1 in full is about 39K tokens, batch 2 about 29K, batch 3 about 31K. Largest single skills: `idea-refine` 41 KB, `constraint-driven-development` 33 KB, `security-and-hardening` 31 KB, `reproduce-and-fix-issues` 29 KB.
 
-Decisions (Boroon, 1 November 2026):
-- `pcp` means pro-code platform. It is the plan's "Lane B, code profile". Added to the `CLAUDE.md` naming table and plan section 1.1, with `profile:pcp`, `Custom.LaneProfile = pcp` and skill prefix `pcp-`.
-- Lane A has no XS or S.
-- Prototype is a mode and BAU Managed Services is an on-ramp. Neither is a size.
-- The matrix is accepted, except where Wayfinder and the Story Planner apply.
-- Open: Boroon wants Wayfinder and the Story Planner in all lanes and modes, not only at XL. Claude's proposed wording: a map is a trigger, not a default step. If the clarity test fails at any size (no locked scenarios can be written today), escalate to a Wayfinder map. The Story Planner applies wherever one request can become more than one story (M and up, Lane A, BAU clusters). XS and S stay light. Prototype is a Wayfinder child type, so the map wraps the prototype. Waiting on Boroon's answer before the matrix is changed.
-- Boroon: all effort and cost (human minutes and tokens) must be tracked, so a user story in ADO is required for every unit of work in every lane, mode and size. Not negotiable. Claude's refinement, awaiting a yes: the story is always required; the Story Planner agent need not run for XS and S (a human can use a template). Gaps found in the plan: `Custom.HumanMinutes` covers review and PARK only, not day-phase spec and scenario time (about 30 of the 50 modelled minutes); day-phase AI sessions need `ado_id`; triage, gardening, retro and skill reading need standing overhead items; `Custom.WorkSize` and a mode field are now needed. Plan Appendix D not yet changed.
-- **Decided (Boroon, later in the session):** story first applies in every lane, mode and size. The Story Planner drafts the story by default in all of them. No human story writing as the default, though it is allowed. Done: plan Appendix D now has the human-minutes split (five phase fields), `Custom.WorkSize`, `Custom.WorkMode`, `Custom.StoryOrigin`, `Custom.OverheadClass`, `overhead` tag, `pcp` and `lane_a` in the Lane Profile picklist, and a new D.4 "Story first". The ledger schema line (plan section 10.2) now has `profile` values `pcp`, `lcp`, `lane_a` and new `work_size` and `work_mode` columns. The matrix says "Story first" in every column of the base row.
-- **Done:** plan section 6.5 rewritten. The Copilot Studio front door is the default. Other customer requirements (documents, SOW or RFP, emails, meeting notes, service desk requests, ADO items, triage groups) can feed the Story Planner and Wayfinder directly. Draft ADO item first, so intake cost has an `ado_id`. Five other "optional front door" mentions fixed. The Chief of Staff paragraph now says why it was dropped and where its function survives (triage grouping and the 17:00 night plan grouping pass).
-- **Done (2 November 2026):** the Story Planner now runs a grouping check (duplicates, same table or flow or app, shared root cause), added to plan section 6.5 as step 4. The Chief of Staff paragraph now lists three grouping steps: intake, triage and the 17:00 night plan. New plan Appendix C.8 holds the Story Planner agent definition (`story-planner`, read-only, writes `planning/<intake-id>/plan.json`, the orchestrator files the ADO items). Untested.
-- **Measured sizes (rough, bytes divided by 4):** Wayfinder `SKILL.md` is 12.4 KB, about 3,100 tokens, and runs only when invoked. Reading all of batch 1 in full is about 39K tokens, batch 2 about 29K, batch 3 about 31K. Biggest single skills: `idea-refine` 41 KB, `constraint-driven-development` 33 KB, `security-and-hardening` 31 KB, `reproduce-and-fix-issues` 29 KB. Clones were in scratch space only.
-- **Decided (Boroon, 2 November 2026):**
-  1. Wayfinder is not run for every story. The Story Planner runs the clarity test on every story and records it in the new field `Custom.ClarityTest`. A map is built only when the test fails. Plan section 6.5 and Appendix D updated.
-  2. A router skill is wanted. It maps size, mode and lane to the skills to use. Write it after batch 1 is read.
-  3. Skills are read in batches. Batch 1 (`lcp`, 13 skills, about 39K tokens) is approved. Batches 2 (`pcp`) and 3 (Lane A) are read nearer stages 5 and 6. `idea-refine` is proposed for removal from batch 3.
-- Still open: nothing from this thread. Next session: read batch 1 in full, then write the router skill.
+Decisions (Boroon):
+- 1 November: `pcp` means pro-code platform, the plan's "Lane B, code profile".
+- 1 November: Lane A has no XS or S. Prototype is a mode and BAU is an on-ramp. Neither is a size. The matrix is accepted.
+- 1 November: story first. A story is required for every unit of work in every lane, mode and size. The Story Planner drafts it by default. Human-written stories are allowed but not the default and are flagged.
+- 2 November: Wayfinder is not run for every story. The clarity test runs on every story and is recorded; a map is built only when it fails.
+- 2 November: a router skill is wanted. It maps size, mode and lane to the skills to use. Write it after batch 1 is read.
+- 2 November: skills are read in batches. Batch 1 is approved now. Batches 2 and 3 are read later. `idea-refine` is proposed for removal from batch 3; not yet confirmed.
 
 Files changed:
-- `docs/analysis/skills-by-lane-and-size.md` (new), `docs/analysis/tshirt-sizing.md` (pointer added), `CLAUDE.md` (map row, naming table, lane list), `docs/sources/plan-v3.1.md` (section 1.1 naming table, ledger schema line, Appendix D and new D.4), `docs/progress.md`
+- New: `docs/analysis/skills-by-lane-and-size.md`.
+- Edited: `CLAUDE.md` (map row, naming table, lane list, Story first term), `docs/analysis/tshirt-sizing.md` (pointer), `docs/sources/plan-v3.1.md` (sections 1.1, 1.2, 2, 4, 6.5, 8, 10.2, decision log, Appendix C.8, Appendix D and D.4), `docs/progress.md`.
 
-Open items:
-- Read batch 1 in full (13 skills, listed in `docs/analysis/skills-by-lane-and-size.md` section 7), then write the router skill.
-- Approve the three read-in-full batches. Still open from Session 1: the work-size ADO field and the router skill.
-- Other places that still say only "code profile" may need `pcp` added: plan sections 4.2 and 4.4, and the one-pager. Not changed.
+Open items: see the top of this file.
 
 Next steps:
-1. Boroon answers the Wayfinder and Story Planner question. Then update the matrix.
-2. Read batch 1 of the skills in full (the `lcp` set), then write `lcp-verify` and the router skill.
+1. New session: read skill batch 1 in full. For each skill report keep, rewrite for GET AI, or drop, and quote anything risky. Install nothing.
+2. Write the router skill.
+3. Build the Story Planner and `lcp-verify` in stage 2.
+4. Confirm whether to drop `idea-refine` from batch 3.
 
 ## Session 1, 2026-11-01, branch `claude/jolly-albattani-818i8e`
 
