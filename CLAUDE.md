@@ -18,6 +18,7 @@ End:
 1. Add an entry to `docs/progress.md`: decisions, files changed, open items, next steps.
 2. If a decision changes this file, update this file too.
 3. Commit and push to the session's working branch. Do not open a pull request unless asked.
+4. `main` is the default branch and is protected by a ruleset. Start session branches from `main`. Merge into `main` only by pull request, and only when Boroon says so (rule 1).
 
 ## How Boroon likes to work
 

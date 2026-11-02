@@ -87,6 +87,13 @@ Then (Session 3, fourth request), decisions by Boroon:
 - Known gap: `principle-explain-the-number` links to `benchmark-checklist`, which we do not have. `principle-type-system-discipline` names `typescript-best-practices`, also not adopted. Notes in both skills.
 - Batch 2 is finished except for review (rule 17) and testing. Nothing adopted has been run.
 
+Then (Session 3, merges and `main`), done at Boroon's request:
+- PR 3 (https://github.com/boroonmahanta/overnight-ai-factory/pull/3) merged the batch 2 work into the old default branch `claude/jolly-albattani-818i8e` (merge commit `9c8b91a`). Rule 17 review met for the batch.
+- PR 4 (https://github.com/boroonmahanta/overnight-ai-factory/pull/4) merged that branch into `main` (merge commit `79eb828`), at Boroon's direction (rule 1: a human decides every merge to `main`).
+- **`main` is now the GitHub default branch** (Boroon switched it). A ruleset `protect-main` guards it: pull request required, no force pushes, no deletions, all merge methods allowed, Boroon on the bypass list. `claude/jolly-albattani-818i8e` is retired and can be deleted once Boroon is happy.
+- From now on, session branches start from `main`, and merge into `main` by pull request with Boroon's go.
+- This closes the open items "real `main` branch" and "switch the default and protect it".
+
 ## Session 2, 2026-11-02, branch `claude/hopeful-mccarthy-znxbf8`
 
 Done:
