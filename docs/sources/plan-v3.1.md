@@ -642,7 +642,7 @@ Trusted scripts from the uploaded plan move into the gate repo: `run_workflow.py
 
 - **`main-gate`**: empty bypass list; no deletions or force pushes; linear history; at least 1 approval, stale approvals dismissed, code owner review, approval of the most recent push; pinned checks; merge queue.
 - **`integration-gate`**: 1 approval at rungs L0 and L1; pinned checks `lcp-gate` and `lane/drift`; merge queue. Rung L2 changes in section 5.10.
-- **`protected-paths`** (push ruleset): `tests/acceptance/**` (including the verify profiles in `tests/acceptance/verify/`), `tests/scenarios/**`, `specs/*/spec.md`, `specs/*/checklists/**`, `glossary.md`, `docs/adr/**`, `coding-standards.md`, `.specify/**`, `.github/**` (including the vendored `lcp-verify` skill), `AGENTS.md`, `CLAUDE.md`, `.claude/**`, `.mcp/**`, `scripts/**`, `builders/lib/**`, `deploy/**`. Bypass: `@acceptance-owners` and the platform team only.
+- **`protected-paths`** (push ruleset): `tests/acceptance/**` (including the verify profiles in `tests/acceptance/verify/`), `tests/scenarios/**`, `specs/*/spec.md`, `specs/*/checklists/**`, `glossary.md`, `docs/adr/**`, `coding-standards.md`, `.specify/**`, `.github/**`, `AGENTS.md`, `CLAUDE.md`, `.claude/**` (skills, including the vendored `lcp-verify`), `.mcp/**`, `scripts/**`, `builders/lib/**`, `deploy/**`. Bypass: `@acceptance-owners` and the platform team only.
 - **`factory-required-workflows`** (organisation) as above. A nightly audit fails the kickoff if any App, machine account, the write role or Copilot appears in a bypass list. GitHub's docs suggest adding Copilot as a bypass actor when a ruleset blocks it: that is the trap.
 
 **A refinement of the review's fix.** The review listed `workflows/build/` among the push-protected paths. In the uploaded repo those are the per-component builders: the agent must edit them to change any flow. So this plan protects the shared builder library (`builders/lib/**`) and every check script, and leaves per-component builders writable. Every builder change gets a Merge Danger floor of at least 3, so a human always merges it. The intent of the fix holds: the agent cannot edit any check it is judged by, because the builder check proves only that generated files match their builders.
@@ -700,7 +700,7 @@ Appendix A has the YAML. It is a starting point and untested.
 
 Every command writes `evidence.json`: command, inputs, result, screenshot and trace paths, run tag, and the build it ran against.
 
-- **Two copies, two jobs.** The executor uses the copy vendored into `.github/skills/lcp-verify/` (protected), in its own lane, as the lane identity and a lane test user (`factory-fl<n>-<proj>@<tenant>`, certificate sign-in, business role, premium licence). Its results feed the PR body. They are claims, not a verdict. Verifiers and triage use the trusted copy from `factory-gates`, hash-checked like every gate script. The commands are the same, so a failure seen in the lane reproduces in Test.
+- **Two copies, two jobs.** The executor uses the copy vendored into `.claude/skills/lcp-verify/` (protected), in its own lane, as the lane identity and a lane test user (`factory-fl<n>-<proj>@<tenant>`, certificate sign-in, business role, premium licence). Its results feed the PR body. They are claims, not a verdict. Verifiers and triage use the trusted copy from `factory-gates`, hash-checked like every gate script. The commands are the same, so a failure seen in the lane reproduces in Test.
 - **The verify profile.** One per solution, in `tests/acceptance/verify/<solution>.profile.yml` (Appendix C.5): app routes, key journeys, key flows and triggers, test sets. The test author keeps it current in the day gate (section 6.3). It is protected, so an agent cannot shrink what the verifiers check.
 - **Kept up to date, as infrastructure.** `lcp-verify smoke` runs in preflight, and a failure marks the lane Offline. The weekly routine reviews profile coverage. Changes go by reviewed PR to `factory-gates` and reach projects as a pinned version bump. **[untested]**: nobody has built it; stage 2 proves it.
 - **It is how a project climbs.** Power Platform is less verifiable than pure code (section 5.10). Each journey, flow and test set the profile covers widens what can earn auto-merge.
@@ -855,7 +855,7 @@ Lane faults are different: a failed preflight marks the lane Offline and raises 
 
 ### 5.12 Agent instructions
 
-The uploaded plan's prompts become custom agents plus `AGENTS.md` and skills, so Copilot CLI and Claude Code share them. Copilot reads `AGENTS.md` and `CLAUDE.md`, custom agents from `.github/agents/*.agent.md`, and skills from `.github/skills`, `.claude/skills` or `.agents/skills` ([custom agents](https://docs.github.com/en/copilot/reference/custom-agents-configuration); [cheat sheet](https://docs.github.com/en/copilot/reference/customization-cheat-sheet)). Agent definitions for the evaluator and reviewer load from the gate repo, not the project repo.
+The uploaded plan's prompts become custom agents plus `AGENTS.md` and skills, so Copilot CLI and Claude Code share them. Copilot reads `AGENTS.md` and `CLAUDE.md`, custom agents from `.github/agents/*.agent.md`, and skills from `.github/skills`, `.claude/skills` or `.agents/skills` ([custom agents](https://docs.github.com/en/copilot/reference/custom-agents-configuration); [cheat sheet](https://docs.github.com/en/copilot/reference/customization-cheat-sheet)). Agent definitions for the evaluator and reviewer load from the gate repo, not the project repo. Skills live in `.claude/skills/` only, so one folder serves both tools (Boroon, 2 November 2026).
 
 | File | Holds |
 |---|---|
@@ -863,7 +863,7 @@ The uploaded plan's prompts become custom agents plus `AGENTS.md` and skills, so
 | `.github/agents/lcp-executor.agent.md` | The execution rules (below) |
 | `factory-gates/.github/agents/lcp-evaluator.agent.md` | Harsh grading, evidence for every claim, verdict JSON |
 | `factory-gates/.github/agents/lcp-reviewer.agent.md` | Raise-only scoring, builder correspondence, blast radius |
-| `.github/skills/` | `builder-pattern`, `dataverse-safe-api` (backoff, batching, run tags), `park-protocol`, `lcp-verify`, `pr-body`, `rubric-lcp-app`, `rubric-lcp-flow`, `rubric-copilot-agent`, plus Microsoft's vendored plugins |
+| `.claude/skills/` | `builder-pattern`, `dataverse-safe-api` (backoff, batching, run tags), `park-protocol`, `lcp-verify`, `pr-body`, `rubric-lcp-app`, `rubric-lcp-flow`, `rubric-copilot-agent`, plus Microsoft's vendored plugins |
 | `coding-standards.md`, `glossary.md`, `docs/adr/` | Practice standards for the reviewer; domain terms mapped to schema names; decisions on the non-obvious (sections 6.2 and 7.1). Kept out of `AGENTS.md` |
 
 The uploaded plan's execution rules all survive in `lcp-executor` (Appendix C.1): code over click-ops with PARK on portal-only steps; never inject identity, rely on `x-ms-object-id`; design first, halting without an approved mock; one branch, now pushed by the driver; and update `state.md` and `docs/lessons-learned.md`. New rules: edit builder inputs, never generated output; never touch protected paths; use the backoff helper; poll Entra changes; stop at the credit cap; look facts up and PARK only on decisions and one-way doors. The review prompt's rules survive in `lcp-reviewer` (Appendix C.3).
@@ -2082,7 +2082,7 @@ The floor comes from `gate/lcp/danger-rules.yml`, run by a trusted script. Final
 | Money, allowance or pricing logic (paths listed per project) | 8 | Never |
 | Pipeline and deployment settings (`deploy/**`) | 9 | Never, and protected |
 | Credentials, secrets, connection secrets | 10 | Never, and protected |
-| `tests/acceptance/**` (locked, including verify profiles), `tests/scenarios/**`, `scripts/**`, `.github/**` (workflows, hooks, agents, skills including `lcp-verify`, instructions), `AGENTS.md`, `CLAUDE.md`, `glossary.md`, `docs/adr/**`, `coding-standards.md`, `.specify/**`, `.claude/**`, `.mcp/**`, `builders/lib/**` | 10 | Never, and protected |
+| `tests/acceptance/**` (locked, including verify profiles), `tests/scenarios/**`, `scripts/**`, `.github/**` (workflows, hooks, agents, instructions), `AGENTS.md`, `CLAUDE.md`, `glossary.md`, `docs/adr/**`, `coding-standards.md`, `.specify/**`, `.claude/**`, `.mcp/**`, `builders/lib/**` | 10 | Never, and protected |
 
 ### B.2 Plan rules (from `--plan` against the Test baseline)
 
@@ -2358,7 +2358,7 @@ request review.
 
 About 100 lines, and a map, not a manual: the repo layout (`src/` generated, `workflows/build/` editable, `builders/lib/`, `tests/acceptance/` and `tests/scenarios/` protected, `tests/dev/` yours, `agents/`, `apps/`, `plugins/`, `handoff/<ado-id>/`); where the glossary, decision records and coding standards live, without copying them in; which skill covers which job (`builder-pattern`, `dataverse-safe-api`, `park-protocol`, `lcp-verify`, `pr-body`, the vendored Microsoft plugins); and one line on done: "The gate passes and the merge policy allows it. Not before, and never by you." The `trace-reviewer` agent (V2.1) is unchanged, with parked stories, drift detections, evaluator disagreements and sampled L2 defects added to its reading list.
 
-### C.5 The `lcp-verify` skill (`factory-gates/lcp/verify/`, vendored to `.github/skills/lcp-verify/`)
+### C.5 The `lcp-verify` skill (`factory-gates/lcp/verify/`, vendored to `.claude/skills/lcp-verify/`)
 
 **Status: untested.** Stage 2 builds it. The CLI wraps Microsoft's Playwright toolkit, the Web API helper, the flow trigger and poller, and the Copilot Studio runners already in the gate.
 
@@ -2435,7 +2435,7 @@ You triage reports for one client project. You do not fix anything.
 6. Stop. A human decides what happens next.
 ```
 
-### C.7 The PR body template (`.github/skills/pr-body/`, every lane)
+### C.7 The PR body template (`.claude/skills/pr-body/`, every lane)
 
 The executor fills the first four sections in `handoff/<ado-id>/pr.md`. The gate's check run carries the rest. Adapted from Pocock's PR skill [Pocock v1.3 4:54 to 8:11].
 
