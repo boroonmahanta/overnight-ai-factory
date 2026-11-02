@@ -110,3 +110,26 @@ Files read in full: `skills/deprecation-and-migration/SKILL.md` (12.8 KB). Also 
 Each phase would be its own story (rule 7). The contract step is size L, so a human approves it. For Power Platform the way back is restoring from the Test baseline, because dropped data cannot be reverted by a redeploy.
 
 **Verdict (proposal): shelve.** Lift the expand/contract steps into a block of about 1 KB in the spec preset or the agent instructions, with "a drop or rename means PARK `one_way_door`". That is a plan edit needing Boroon's review (rule 17), to be made when Appendix C is next edited or for BAU Managed Services, where client schema changes are the likely trigger. Not adopted, not edited, nothing written to `.claude/skills/`.
+
+## `security-and-hardening` (Addy), read 2 November 2026
+
+Files read in full: `SKILL.md` (17.6 KB), `references/hardening-patterns.md` (13.4 KB), and the shared `references/security-checklist.md` (14.5 KB) that the skill links to from outside its own folder. About 45 KB in all, not the 30 KB the other session's review gave. Also read, as background only and not copied: Addy's eval case and a deliberately vulnerable webhook fixture. Copied unchanged to `skills/addy/security-and-hardening/`, with the shared checklist at `skills/references/security-checklist.md` so the skill's relative links resolve on our layout (upstream they point at the repo root). Pinned `addyosmani/agent-skills` commit `301b02b`, MIT.
+
+**What it does.** Web-app security for agents. Threat model first (trust boundaries, assets, STRIDE, abuse cases). A three-tier rule list: always do, ask first (human approval), never do. Controls for injection, XSS, access control, sessions, headers and CORS, validation and uploads, SSRF, destructive operations on derived paths, rate limiting and secrets. A supply-chain section (install-script gate, audit against the committed lockfile, reachability triage). Privacy (classify, minimise, retain, delete). An AI/LLM section (OWASP LLM Top 10). Rationalisations, red flags and a checklist.
+
+**Safety read.** No scripts, no network calls, nothing aimed at a reviewer. The only commands are read-only, such as `git diff --cached ... --name-only` for a secret check. `npm audit fix --force` is named only to forbid it. The long description would self-trigger on anything touching auth, input, dependencies or personal data.
+
+**Why it is shelved as a whole** (the other session's review said "rewrite, too big and Express-flavoured, keep always/ask/never").
+1. **Wrong shape.** Node and Express flavoured (helmet, bcrypt, express-rate-limit, zod, npm/pnpm/Yarn). Nothing for C#, .NET, Python or Power Platform. Client stacks are not known yet.
+2. **The builder would grade itself (rule 2).** The checklist is self-reported. Security checks need to be deterministic gate steps and reviewer rubric items.
+3. **Its human steps become PARKs.** "Ask first (requires human approval)" and "audit before every release" are PARKs or human steps (rules 1 and 9).
+4. **Size.** About 45 KB across three files, mostly irrelevant to a given story.
+
+**Three things worth acting on.**
+1. **The "ask first" list is a ready-made Merge Danger and PARK list for code repos.** New auth flows, new categories of sensitive data, new external integrations, CORS, file uploads, rate limiting, elevated roles. Plan Appendix B already scores a security role at 7. For pro-code these become path and change-class rules that raise the score or PARK for design approval. A plan edit for Boroon's review (rule 17).
+2. **Rule 5 has a concrete form in the supply-chain section.** An `npm install` runs other people's code. Blocking dependency scripts before first execution and auditing the committed lockfile belong in the gate (deterministic), not in the builder's instructions.
+3. **Prompt injection looks unaddressed in the plan.** A search of the plan for "prompt injection" and "injection" found no hit. The whole plan was not re-read to be sure. The skill's point is that model output and any text in the context (a ticket, a fetched page) is untrusted, and permissions are enforced in code, not in the prompt. It matters for `pcp-triage`, which reads AutoTask and PRTG ticket text, and for Copilot Studio agents.
+
+**Plan gap to confirm.** The only security-type check found in the gate (Appendix A) is the solution checker SARIF, which is Power Platform. No secret scan, dependency audit or code scanning for code repos turned up in a keyword search. To be settled before Stage 5 (day 46, Lane B for code repos). A plan question, not a skill question.
+
+**Verdict (proposal): shelve.** Record the three items above as open items. Not adopted, not edited, nothing written to `.claude/skills/`.

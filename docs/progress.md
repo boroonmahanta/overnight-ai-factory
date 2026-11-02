@@ -55,17 +55,20 @@ Then (Session 4, third request), decisions by Boroon:
 Then (Session 4, fourth request), decisions by Boroon:
 - **`deprecation-and-migration` read in full and shelved.** Copied unchanged to `skills/addy/deprecation-and-migration/` (pinned `301b02b`). Not adopted. Mostly human decisions (rules 1 and 9) and it pushes toward deletion. Keep expand/contract (a Dataverse column cannot be renamed, so it is already how a rename works): a block of about 1 KB in the spec preset or agent instructions, drop or rename means PARK `one_way_door`. A plan edit, not yet made. It also supports leaving `principle-migrate-callers-then-delete-legacy-apis` on the shelf. Differs from the other session's review ("rewrite").
 
-Files changed: `docs/sources/plan-v3.1.md` (one paragraph in 5.11), `docs/progress.md`, `docs/analysis/skills-reading-notes-skill-batches.md` (new), `skills/pocock/diagnosing-bugs/` (new, 3 files), `skills/README.md`, `CLAUDE.md`. Also `skills/addy/code-simplification/` (new, 1 file) and `skills/addy/deprecation-and-migration/` (new, 1 file).
+Then (Session 4, fifth request), decisions by Boroon:
+- **`security-and-hardening` read in full and shelved.** Copied unchanged to `skills/addy/security-and-hardening/` (pinned `301b02b`), with its shared checklist at `skills/references/security-checklist.md`. Not adopted. Differs from the other session's review ("rewrite"). Three items raised, none yet decided: (1) the skill's "ask first" list as a Merge Danger and PARK rubric for code repos (plan Appendix B, a plan edit); (2) supply-chain checks (dependency scripts blocked, lockfile audit) as gate steps for code repos; (3) prompt injection, which a keyword search found no mention of in the plan. Open question: the gate (Appendix A) shows only the solution checker SARIF as a security check, so code repos have none planned. Settle before Stage 5 (day 46).
+
+Files changed: `docs/sources/plan-v3.1.md` (one paragraph in 5.11), `docs/progress.md`, `docs/analysis/skills-reading-notes-skill-batches.md` (new), `skills/pocock/diagnosing-bugs/` (new, 3 files), `skills/README.md`, `CLAUDE.md`. Also `skills/addy/code-simplification/` (new, 1 file) `skills/addy/deprecation-and-migration/` (new, 1 file), `skills/addy/security-and-hardening/` (new, 2 files) and `skills/references/security-checklist.md` (new).
 
 Open items:
 - The review file is not on `main`. Where it differs from what is live: it says drop `wizard` (we have `getai-wizard`), drop `principle-model-the-domain` (adopted), and rewrite the four skills adopted unchanged. Boroon decides each. Not changed.
-- Still untouched, read before use: batch 2 `bug-fix`, `debugging-and-error-recovery`, `security-and-hardening`, `codebase-design`, `improve-codebase-architecture`. Batch 3: `frontend-ui-engineering`, `api-and-interface-design`, `ci-cd-and-automation`, `observability-and-instrumentation`, `shipping-and-launch`, `architect`, `arena`.
+- Still untouched, read before use: batch 2 `bug-fix`, `debugging-and-error-recovery`, `codebase-design`, `improve-codebase-architecture`. Batch 3: `frontend-ui-engineering`, `api-and-interface-design`, `ci-cd-and-automation`, `observability-and-instrumentation`, `shipping-and-launch`, `architect`, `arena`.
 - Add to the Stage 3 driver spec: the non-PARK stop checkpoint, and where the transcript lives for the decision-log audit.
 - Not started: spike 0.1 (credit ruling) and spike 0.9 (environment audit, before 15 November 2026).
 
 Next steps:
 1. Boroon rules on the review's differences, then the review file goes to `main` by a fresh branch and pull request.
-2. Read the rest of batch 2 by need date (day 46), then batch 3 (day 60). `diagnosing-bugs` and `code-simplification` are done and shelved. Next in the table: `security-and-hardening`.
+2. Read the rest of batch 2 by need date (day 46), then batch 3 (day 60). `diagnosing-bugs` and `code-simplification` are done and shelved. Next in the table: `bug-fix`.
 3. Send the credit ruling and start the environment audit.
 
 ## Session 3, 2026-11-02, branch `claude/exciting-babbage-4u2zp4`
