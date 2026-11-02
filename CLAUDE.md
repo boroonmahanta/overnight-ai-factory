@@ -54,6 +54,7 @@ End:
 | `docs/sources/report-v2.1-two-lanes-one-gate.md` | Earlier report V2.1, "Two Lanes, One Gate, Priced at List". 925 lines. The GitHub and Azure design the main plan builds on: two lanes, harness parity, Spec Kit day gate, traces, credits, ledger schema, Lane A and B cost models, 8-stage plan. Still the best source for Lane A, ACA jobs, the ledger SQL schema and GitHub-side limits |
 | `docs/sources/report-grill-the-spec-lock-the-tests.md` | The first report, "Grill the Spec, Lock the Tests". 195 lines. Original evidence base: what each harness resource teaches, the verifier-is-the-weak-point research, the grill gate, Claude Code facts, first design and stages |
 | `.claude/skills/bro/SKILL.md` | The `/bro` skill |
+| `.claude/skills/ask-me/SKILL.md` | The `/ask-me` skill. GET AI router adapted from Pocock's `ask-matt`. Picks the size first, then routes by size, day or night, with status tags (live, shelf, planned) so it never points at a skill that is not there. Written 2 November 2026, not yet reviewed by Boroon |
 | `skills/` | Third-party skills held for review. A shelf, not an install: it does not auto-load, only `.claude/skills/` does. Holds the first 16 (Addy 3, Tan 7, Pocock 4, Benny 2), copied unchanged and pinned. Read in full on 2 November 2026. Adoption not yet approved. Provenance and commits in `skills/README.md` |
 | `docs/analysis/skills-reading-notes.md` | Our notes from reading those 16: safety read, what each assumes that we lack, one line each with how to adapt, findings. Proposals only |
 
