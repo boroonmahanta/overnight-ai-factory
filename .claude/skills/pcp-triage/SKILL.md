@@ -16,15 +16,15 @@ Reports for code repos arrive from several places:
 
 | Source | What it is | Notes |
 |---|---|---|
-| AutoTask tickets | Client service desk tickets | Free text from users. Often names, emails and phone numbers |
-| PRTG alerts | Monitoring alerts | Often point at servers, networks or sensors, not code. Many will be a reroute. Group alerts by sensor and time before you read each one |
+| AutoTask tickets (API or MCP) | Client service desk tickets | Free text from users. Often names, emails and phone numbers |
+| PRTG alerts (API or MCP) | Monitoring alerts | Often point at servers, networks or sensors, not code. Many will be a reroute. Group alerts by sensor and time before you read each one |
 | ADO service hook | Bugs raised in ADO | Tag `triage-inbox` |
 | Service desk webhook | Other service desks | Later, once a webhook exists |
 | Manual run by day | A person pastes or points at reports | **The only mode in use for now** |
 
 ## Running it by hand
 
-1. A person picks the reports and gathers them into one folder or one message. They can export from AutoTask or PRTG, or copy from ADO.
+1. A person picks the reports and gathers them into one folder or one message. The route for AutoTask and PRTG is their APIs or an MCP server (decided 2 November 2026, not built or tested). Until that exists, copy by hand or use the tool's own export. Copy from ADO as needed.
 2. **The person removes names, emails, phone numbers and record IDs first.** No Function does this yet (plan 4.5 uses one). If personal data is still in the text, say so and stop. Do not repeat it.
 3. The person says which client, which repo and the client's residency tier. Missing tier means stop and ask.
 4. Run the steps below. The agent writes `triage.json` and evidence. The person reads it and files or updates the ADO bug by hand. The agent never writes ADO.

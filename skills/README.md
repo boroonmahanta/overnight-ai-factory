@@ -9,8 +9,8 @@ All 16 skills in the first reading batch were copied unchanged on 2 November 202
 | Folder | Skills | Source | Commit | Licence |
 |---|---|---|---|---|
 | `addy/` | `constraint-driven-development`, `doubt-driven-development`, `source-driven-development` | https://github.com/addyosmani/agent-skills, `skills/` | `301b02b12bff98e4688e6984af6556802322bbde` | MIT, Addy Osmani |
-| `tan/` | `blast-radius`, `correct`, `create-verification-skill`, `how`, `maintain-verification-skill`, `show-me-your-work`, `why` | https://github.com/cursor/plugins, `pstack/skills/` | `ae5650febf4320793844c12c4adaa937f417f8da` | MIT, Lauren Tan |
-| `pocock/` | `ask-matt`, `to-questionnaire`, `triage`, `wizard` | https://github.com/mattpocock/skills, `skills/engineering/` and `skills/productivity/` | `4ae2317ddb22b046e26455e4f9c9b3aaaf62212d` | MIT, Matt Pocock |
+| `tan/` | `blast-radius`, `correct`, `create-verification-skill`, `how`, `maintain-verification-skill`, `show-me-your-work`, `why`, and (batch 2) `unslop`, the 24 `principle-*` skills and `poteto-mode` | https://github.com/cursor/plugins, `pstack/skills/` | `ae5650febf4320793844c12c4adaa937f417f8da` | MIT, Lauren Tan |
+| `pocock/` | `ask-matt`, `to-questionnaire`, `triage`, `wizard`, and (batch 2) `grilling`, `domain-modeling` | https://github.com/mattpocock/skills, `skills/engineering/` and `skills/productivity/` | `4ae2317ddb22b046e26455e4f9c9b3aaaf62212d` | MIT, Matt Pocock |
 | `benny/` | `reproduce-and-fix-issues`, `triage-issue-reports` | https://github.com/cursor/plugins, `pstack/automations/benny/skills/` | `ae5650febf4320793844c12c4adaa937f417f8da` | MIT, Lauren Tan |
 
 Files are byte-for-byte copies of the upstream folders. Do not edit them here. A GET AI version is a new skill written in `.claude/skills/`: `getai-*` if it works for any profile, `lcp-*` for Power Platform, `pcp-*` for pro-code, with a note of what it was adapted from.
@@ -26,8 +26,8 @@ Boroon said: adopt the first five, adapt the rest. The shelf copies here stay as
 | `addy/constraint-driven-development` | Adopted unchanged | `constraint-driven-development` |
 | `addy/doubt-driven-development` | Adopted unchanged | `doubt-driven-development` |
 | `addy/source-driven-development` | Adopted unchanged | `source-driven-development` |
-| `tan/create-verification-skill` | Adopted unchanged. Writes to `.cursor/skills/`, so tell it to use `.claude/skills/` and the name `lcp-verify` | `create-verification-skill` |
-| `tan/maintain-verification-skill` | Adopted unchanged. Same path note | `maintain-verification-skill` |
+| `tan/create-verification-skill` | Adopted, then edited 2 November 2026: writes to `.claude/skills/lcp-verify/` (or `pcp-verify`), name `lcp-verify`. A note at the top says so | `create-verification-skill` |
+| `tan/maintain-verification-skill` | Adopted, then edited the same way: target is `.claude/skills/lcp-verify/` or `pcp-verify` | `maintain-verification-skill` |
 | `tan/blast-radius` | Adapted | `lcp-blast-radius` |
 | `tan/show-me-your-work` | Adapted (script and header copied unchanged) | `getai-decision-log` |
 | `tan/correct` | Adapted | `getai-correct` |
@@ -37,7 +37,25 @@ Boroon said: adopt the first five, adapt the rest. The shelf copies here stay as
 | `pocock/wizard` | Adapted (`template.sh` copied unchanged) | `getai-wizard` |
 | `pocock/to-questionnaire` | Adapted | `getai-questionnaire` |
 | `pocock/ask-matt` | Adapted | `ask-me` |
+| `pocock/grilling` | Adapted: five questions a round, day only | `getai-grilling` |
+| `pocock/domain-modeling` | Adapted: lowercase files, Schema line per term, day only | `getai-domain-modeling` |
 | `benny/triage-issue-reports` and `benny/reproduce-and-fix-issues` | Adapted and merged. Fixing and PRs removed | `lcp-triage` |
 | `tan/blast-radius`, `tan/how`, `tan/why`, and the two Benny skills again | Second adaptation for the pro-code profile | `pcp-blast-radius`, `pcp-how`, `pcp-why`, `pcp-triage` |
 
 Every adapted skill names its source and pinned commit in its first lines. Adapted skills have not been tested.
+
+## Batch 2 (2 November 2026)
+
+Boroon asked to read `unslop`, the `principle-*` skills, `grilling` and `domain-modeling`, but not `poteto-mode` (to discuss first). All 27 were copied unchanged to the shelf at the same pinned commits and read in full. Notes and verdicts: `docs/analysis/skills-reading-notes-batch2.md`. Decided by Boroon the same day: `grilling` became `getai-grilling` (five questions a round at most) and `domain-modeling` became `getai-domain-modeling` (lowercase `glossary.md`, a Schema line per term), both in `.claude/skills/`, day only, untested. `unslop` and 21 of the 24 `principle-*` skills were then adopted into `.claude/skills/` (see the end of this file). Boroon chose to leave `principle-never-block-on-the-human`, `principle-outcome-oriented-execution` and `principle-migrate-callers-then-delete-legacy-apis` on the shelf and to revisit them when an issue calls for them. `poteto-mode` was copied to `skills/tan/poteto-mode/` and read; verdict in the batch 2 notes: not adopted.
+
+Boroon decided on 2 November 2026 to lift four small habits from `poteto-mode` into `ask-me` (open with the goal, label claims, classify a question before asking, fix/dismiss/ask on review comments). The rest stays on the shelf. He also chose `.claude/skills/` as the single skills folder, for both Claude Code and Copilot.
+
+## Batch 2 adoption (2 November 2026, Boroon's decision)
+
+Adopted into `.claude/skills/`, names unchanged so the links between principles hold: `unslop` (plus rule 34, Australian English) and 21 principles. Each has a dated GET AI note at the top and is otherwise unchanged. All are `disable-model-invocation`, so they run only when called. Read in full and pinned (rule 19). Reviewed by Boroon: not yet (rule 17).
+
+- Strong set (12): `attack-the-premise`, `make-operations-idempotent`, `separate-before-serializing-shared-state`, `prove-it-works`, `test-behavior-not-implementation`, `explain-the-number`, `build-the-lever`, `fix-root-causes`, `encode-lessons-in-structure`, `sequence-verifiable-units`, `redesign-from-first-principles`, `experience-first`.
+- Pro-code leaning (6): `boundary-discipline`, `foundational-thinking`, `laziness-protocol`, `minimize-reader-load`, `model-the-domain`, `type-system-discipline`.
+- Others (3): `subtract-before-you-add` (note: removal from a managed solution is size L), `exhaust-the-design-space`, `guard-the-context-window`.
+- Left on the shelf: `never-block-on-the-human`, `outcome-oriented-execution`, `migrate-callers-then-delete-legacy-apis`.
+- Known gap: `explain-the-number` links to `benchmark-checklist`, which is not adopted. A note in the skill says so.
