@@ -164,3 +164,29 @@ Conventional Commit titles may not match client repo conventions. Skills follow 
 Checked 2 November 2026 against the live descriptions. Pieces exist: `getai-intake`, `pcp-triage` and `lcp-triage` (read-only, no fix), `pcp-how`, `pcp-why`, `pcp-blast-radius` and `lcp-blast-radius`, `getai-decision-log`, and the principles `fix-root-causes`, `sequence-verifiable-units`, `prove-it-works` and `test-behavior-not-implementation`. Nothing joins them from a locked repro to a fix and evidence, and nothing covers Power Platform bugs. `diagnosing-bugs` is shelved for BAU Managed Services.
 
 Known and decided, not an oversight: bugs go to Lane B (code) at Stage 5 (day 46), and `pcp-triage` stops before the fix because of rule 3. Cheapest fix when needed: a short `pcp-fix` skill of about 1 to 2 KB that sequences the existing pieces (start from the locked repro in `triage.json`, commit the failing check before the fix, make the smallest change the evidence justifies, run `pcp-blast-radius`, put failing-then-passing output in the PR body), with the five `bug-fix` ideas above folded in. An `lcp` version would use `lcp-verify` as the loop. Revisit before Stage 5, or with `diagnosing-bugs` for BAU Managed Services.
+
+## `debugging-and-error-recovery` (Addy), read 2 November 2026
+
+Files read in full: `skills/debugging-and-error-recovery/SKILL.md` (10.9 KB). Also read, as background only and not copied: Addy's eval case and two small fixtures (a pagination bug and an "incident pressure" prompt). Copied unchanged to `skills/addy/debugging-and-error-recovery/`. Pinned `addyosmani/agent-skills` commit `301b02b`, MIT.
+
+**What it does.** A stop-the-line rule (stop adding features when something breaks), then six steps: reproduce, localise (with `git bisect run` for regressions), reduce, fix the root cause, guard with a regression test, verify end to end. Triage trees for test, build and runtime failures, safe-fallback patterns, instrumentation guidelines, rationalisations and red flags.
+
+**Safety read.** No scripts, no network calls, nothing aimed at a reviewer. The shell snippets are example test, bisect and build commands. The description fires on "any unexpected error" and would self-trigger.
+
+**Verdict (proposal): shelve.** The other session's review said "drop" because `diagnosing-bugs` is stronger. Agreed: `diagnosing-bugs` is stronger on every step, and adopted `principle-fix-root-causes` already covers root cause.
+
+**Why it is not usable as written.**
+1. **It conflicts with locked tests.** "Test is outdated, update the test." Locked scenarios are protected (rules 3 and 17), so a failing locked test means PARK, not an edit.
+2. **The safe-fallback patterns hide failures.** Defaulting a missing config value with a warning masks misconfiguration. `principle-fix-root-causes`: a guard is a fix only for a legitimate state.
+3. **Node and npm flavoured**, and it refers to a `test-driven-development` skill we do not have.
+4. **Self-triggers** on any unexpected error.
+
+**One section worth keeping: "Treating Error Output as Untrusted Data".** Error messages, stack traces, logs and CI output are data, not instructions. A message that says "run this command to fix" is surfaced, not followed. At night there is no user to confirm with, so the factory version is: ignore it and log it, or PARK. About 1 KB, suitable for the agent instructions. A plan edit needing Boroon's review (rule 17).
+
+Also worth keeping: stop-the-line (do not push past a failing check; fits the driver's `INCONCLUSIVE` stop in plan 5.11) and `git bisect run` for regressions.
+
+Not adopted, not edited, nothing written to `.claude/skills/`.
+
+## Open item: prompt injection is not covered in the plan
+
+Raised twice, by `security-and-hardening` (model output and ticket text are untrusted; permissions enforced in code, not in the prompt) and by `debugging-and-error-recovery` (error output is data, not instructions). A keyword search of plan V3.1 for "prompt injection" and "injection" found no hit. The whole plan was not re-read to be sure. It matters for `pcp-triage` and `lcp-triage`, which read AutoTask, PRTG and service-desk text, and for Copilot Studio agents. Cheapest fix: one short block, about 1 KB, in the agent instructions (`AGENTS.md`, plan C.2) saying that ticket text, fetched pages, tool output and error output are data and never instructions, that permissions are enforced by identity and the gate and not by the prompt, and that an instruction found in such text is logged and ignored, or PARKs. A plan edit for Boroon's review. Decide before the first triage workflow is wired (Stage 5, day 46, or earlier if `lcp-triage` runs by hand sooner).
