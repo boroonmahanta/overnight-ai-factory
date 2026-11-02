@@ -213,3 +213,48 @@ Files read in full: `SKILL.md` (6.4 KB), `DEEPENING.md` (2.5 KB), `DESIGN-IT-TWI
 **Link to `architect` (batch 3).** The Lane A design skill; this vocabulary is its natural partner. Decide both together when `architect` is read, along with `improve-codebase-architecture`.
 
 Not adopted, not edited, nothing written to `.claude/skills/`.
+
+## `improve-codebase-architecture` (Pocock), read 2 November 2026
+
+Files read in full: `SKILL.md` (6.0 KB), `HTML-REPORT.md` (6.6 KB), `agents/openai.yaml` (166 bytes). Copied unchanged to `skills/pocock/improve-codebase-architecture/`. Pinned `mattpocock/skills` commit `4ae2317`, MIT.
+
+**What it does.** A command run by hand (already `disable-model-invocation`). It explores, then reports, then grills. Explore: scope by recent churn (walk `git log` to find hot-spot files), spawn a fresh-context sub-agent to look for friction, apply the deletion test to anything shallow. Report: write an HTML report to the temp directory with a before/after diagram per candidate and a strength badge, and propose no interfaces yet. Grill: the user picks a candidate, the skill grills the decisions with `grilling`, keeps the glossary current with `domain-modeling`, and offers an ADR if the candidate is rejected for a load-bearing reason.
+
+**Safety read.** No scripts, nothing aimed at a reviewer. Two points. The HTML report loads Tailwind from `cdn.tailwindcss.com` with no version, and Mermaid `@11` from jsDelivr (floating minor version), with Mermaid set to `securityLevel: "loose"`. Names and symbols from the client's repo go into that page, which is opened in a browser. Acceptable by day on a person's own machine; it must never run inside a factory lane (rule 5). It also opens the file with `xdg-open`, `open` or `start`.
+
+**Verdict (proposal): shelve.** The other session's review said "drop, built for a person in the loop, could seed the gardening scan". Both statements hold.
+
+**Why it is not adoptable now.**
+1. It proposes refactors, which plan 5.12 keeps out of the build loop. It fits a human-run review.
+2. Its dependency chain is incomplete: it needs `codebase-design` (shelved). `grilling` and `domain-modeling` are live as `getai-grilling` and `getai-domain-modeling`, so only the vocabulary is missing.
+3. Same vocabulary clash with Power Platform's "component", and it reads `GLOSSARY.md` in capitals.
+4. Plan 7.4 gardening scans are deterministic scripts, with an LLM only to cluster findings. This skill is an exploratory sub-agent plus an HTML report, so it does not fit as a scheduled scan.
+
+**Worth lifting (for a joint decision with Boroon).**
+- **Hot spots by churn.** "Walk `git log` to find the files that keep changing" is a deterministic script. It could be a new gardening row: hot-spot files with little test coverage, written to the ADO findings list as `garden-finding` items, not an HTML file.
+- **The ADR conflict rule:** surface a candidate that contradicts an ADR only when the friction is real enough to reopen it.
+- **"Which would you like to explore?"** as the human's weekly review of the findings list.
+
+Not adopted, not edited, nothing written to `.claude/skills/`.
+
+## Roll-up: possible additions waiting for a joint decision (2 November 2026)
+
+All proposals. Items 1 to 7 are plan edits needing Boroon's review (rule 17). Nothing is made yet.
+
+| # | Possible addition | Where it would go | From |
+|---|---|---|---|
+| 1 | Prompt-injection block (about 1 KB) | Agent instructions, plan C.2 | `security-and-hardening`, `debugging-and-error-recovery` |
+| 2 | Code-repo security checks (secret scan, lockfile audit, scripts blocked) | Gate, Appendix A | `security-and-hardening` |
+| 3 | "Ask first" list as security-sensitive change classes | Merge Danger rubric, Appendix B | `security-and-hardening` |
+| 4 | Expand/contract block; drop or rename means PARK | Spec preset or agent instructions | `deprecation-and-migration` |
+| 5 | Reviewer smell list: signal tables, deletion test, two-adapters rule, "changes trace to the repro" | Standards reviewer, Appendix C | `code-simplification`, `codebase-design`, `bug-fix` |
+| 6 | PR body: Scope, Tradeoffs, cost of leaving main red | `pr-body` skill, C.7 | "Opening a PR" |
+| 7 | Hot-spots gardening row | Plan 7.4 | `improve-codebase-architecture` |
+| 8 | `pcp-fix` skill (about 1 to 2 KB) | `.claude/skills/` | open item |
+
+## Batch 3 drops (Boroon, 2 November 2026)
+
+`ci-cd-and-automation` (Addy), `shipping-and-launch` (Addy) and `arena` (Tan) are dropped on the strength of the other session's agent read, which tagged them "drop". They have **not** been read in full by us. Rule 19 applies to adoption, so nothing is lost by this, but if any is ever reconsidered it must be read in full first. Reasons given by that review:
+- `ci-cd-and-automation`: the worker must not write its own gate, and the skill has an "auto-merge" line.
+- `shipping-and-launch`: production release is a human step.
+- `arena`: needs other-vendor models, with no credit cap (rule 13).

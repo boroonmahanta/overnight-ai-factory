@@ -69,18 +69,24 @@ Then (Session 4, seventh request), decisions by Boroon:
 - Boroon: anything worth adding from `improve-codebase-architecture` and the next skill is decided together.
 - Tidied the `CLAUDE.md` row for the skill-batches notes, which had lost its punctuation across edits.
 
+Then (Session 4, eighth request), decisions by Boroon:
+- **`improve-codebase-architecture` read in full and shelved.** Copied unchanged to `skills/pocock/improve-codebase-architecture/` (pinned `4ae2317`, 3 files). Not adopted. Batch 2 reading is finished.
+- **Batch 3 drops recorded:** `ci-cd-and-automation`, `shipping-and-launch` and `arena`, on the other session's tags. We have not read them in full. Reconsider only after a full read.
+- **Roll-up of 8 possible additions** written at the end of the notes file, for a joint decision with Boroon (nothing made yet).
+- Reading the remaining four batch 3 skills next: `frontend-ui-engineering`, `api-and-interface-design`, `observability-and-instrumentation`, `architect`.
+
 Files changed: `docs/sources/plan-v3.1.md` (one paragraph in 5.11), `docs/progress.md`, `docs/analysis/skills-reading-notes-skill-batches.md` (new), `skills/pocock/diagnosing-bugs/` (new, 3 files), `skills/README.md`, `CLAUDE.md`. Also `skills/addy/code-simplification/` (new, 1 file) `skills/addy/deprecation-and-migration/` (new, 1 file), `skills/addy/security-and-hardening/` (new, 2 files) and `skills/references/security-checklist.md` (new).
 
 Open items:
 - The review file is not on `main`. Where it differs from what is live: it says drop `wizard` (we have `getai-wizard`), drop `principle-model-the-domain` (adopted), and rewrite the four skills adopted unchanged. Boroon decides each. Not changed.
-- Still untouched, read before use: batch 2 `improve-codebase-architecture`. Batch 3: `frontend-ui-engineering`, `api-and-interface-design`, `ci-cd-and-automation`, `observability-and-instrumentation`, `shipping-and-launch`, `architect`, `arena`.
+- Still untouched, read before use: batch 3 `frontend-ui-engineering`, `api-and-interface-design`, `observability-and-instrumentation`, `architect` (being read). Dropped without our own full read: `ci-cd-and-automation`, `shipping-and-launch`, `arena`.
 - **No bug-fix workflow** (see the sixth request above). Decide before Stage 5.
 - Add to the Stage 3 driver spec: the non-PARK stop checkpoint, and where the transcript lives for the decision-log audit.
 - Not started: spike 0.1 (credit ruling) and spike 0.9 (environment audit, before 15 November 2026).
 
 Next steps:
 1. Boroon rules on the review's differences, then the review file goes to `main` by a fresh branch and pull request.
-2. Read the rest of batch 2 by need date (day 46), then batch 3 (day 60). `diagnosing-bugs` and `code-simplification` are done and shelved. `bug-fix`, `debugging-and-error-recovery` and `codebase-design` are done. Last in batch 2: `improve-codebase-architecture`.
+2. Read the rest of batch 2 by need date (day 46), then batch 3 (day 60). `diagnosing-bugs` and `code-simplification` are done and shelved. Batch 2 reading is finished.
 3. Send the credit ruling and start the environment audit.
 
 ## Session 3, 2026-11-02, branch `claude/exciting-babbage-4u2zp4`
