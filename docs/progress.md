@@ -20,7 +20,7 @@ Next steps:
 - **Build 1 is done** (Session 6). PR 11 merged into `main` on 3 November 2026.
 - **Build 2 is done** (Session 7). PR 12 merged into `main` on 3 November 2026.
 - **Build 3 is done** (Session 8). PR 13 merged into `main` on 3 November 2026.
-- **The move of `factory-gates/` to `AI-Business-Solutions/factory-gates` on `getai.ghe.com` is under way** (Session 9, decided 3 November 2026). The split is checked (tree ID `2651ffba…`), step 8 is ready as `docs/plans/factory-gates-move-step-8.patch`, and the rest is **paused while Boroon checks whether Claude's cloud sessions can connect to `getai.ghe.com`** (Git providers). If not, the move runs from his laptop. `factory-gates/` is still here, untouched.
+- **The move of `factory-gates/` to `AI-Business-Solutions/factory-gates` on `getai.ghe.com` is under way** (Session 9, decided 3 November 2026). The split is checked (tree ID `2651ffba…`), step 8 is ready as `docs/plans/factory-gates-move-step-8.patch`, and **the rest runs from Boroon's laptop**. The cloud route is closed: connecting `getai.ghe.com` as a Git provider needs a Claude Team or Enterprise plan, and he is on an individual plan (checked 3 November 2026). `factory-gates/` is still here, untouched.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
 - Nothing from the plan has been built or tested. Every item marked `[untested]` in the plan is still untested.
@@ -29,7 +29,7 @@ Next steps:
 
 ## Open items
 
-- **The move is paused on one check (3 November 2026).** Can a Claude org Owner connect `getai.ghe.com` under Organisation settings, Git providers? The docs cover GitHub Enterprise Server and say nothing about `*.ghe.com`. If yes, a new cloud session continues the move on the real repo. If no, the move is laptop work: a local Claude Code session, README steps 2 to 12. Either way the step 8 patch applies with `git am`.
+- **The move is laptop work (decided 3 November 2026).** The Git providers route needs a Claude Team or Enterprise plan and Boroon is on an individual plan, so it is closed. A local Claude Code session on his laptop, or a cloud session attached to a laptop folder by Remote Control, runs README steps 2 to 12. The step 8 patch applies with `git am`. The steps below are kept only in case a Team plan comes later (the docs cover GitHub Enterprise Server and say nothing about `*.ghe.com`).
   - **The steps** (from https://code.claude.com/docs/en/github-enterprise-server, read 3 November 2026; the page covers GitHub Enterprise Server and is silent on `*.ghe.com`). Needs the Owner or Primary Owner role in the Claude org (Team or Enterprise plan) and permission to create GitHub Apps on `getai.ghe.com`. (1) Create the empty private repo `AI-Business-Solutions/factory-gates` (move step 2). (2) claude.ai, Organization settings, Git providers (https://claude.ai/admin-settings/source-control#github-enterprise), GitHub Enterprise section, Connect, "Set up automatically": display name up to 20 characters, hostname `getai.ghe.com`, leave the CA field empty. (3) Continue to GitHub Enterprise, review the pre-filled app, Create GitHub App. (4) Install the app on `factory-gates` only. (5) On claude.ai/code connect your own GitHub Enterprise account from the repository picker, then start a new session with the repo. If the guided redirect is blocked, use "Add manually" (needs app ID, client ID, client secret, webhook secret, private key; copy the webhook URL Claude generates into the app).
   - **Likely trip points, my inference, untested:** the GHE.com API is at `api.getai.ghe.com`, not `/api/v3` as on Server (see `lcp/apply_rulesets.py`), and the page does not say Claude handles that; the app manifest has no Workflows permission, so a push touching `.github/workflows/` (the first push of the split, the step 8 patch) is refused until Workflows read and write is added in the app's settings and approved; an enterprise IP allow list needs Anthropic's outbound IPs; the cloud environment may need `getai.ghe.com` and `api.getai.ghe.com` under Allowed domains.
 - **Sources are complete.** Boroon uploaded the whole research folder as a zip. Every file was checked by checksum against the repo, duplicates were skipped, and the rest were added. The other session ("Overnight AI software factory", id `session_019bVvHWrUECf7G5YiXU3fKW`) is no longer needed for sources and can be deleted.
@@ -65,13 +65,13 @@ Findings:
 Files changed: `docs/progress.md`, `docs/plans/factory-gates-move-step-8.patch` (new), `CLAUDE.md`.
 
 Open items:
-- The Git providers check (Open items above).
+- None left on the Git providers check: closed, individual plan (see Open items).
 - Step 10 (what the gate workflow does on the gate repo's own pull requests) needs Boroon's choice at the time. The two options are in the README.
 - Step 12 (rulesets) and spike 0.9 (before 15 November 2026) unchanged.
 
 Next steps:
-1. Boroon tries Git providers in the Claude org settings for `getai.ghe.com`.
-2. If it connects: a new cloud session with the new repo attached does step 2 (he creates the empty repo), step 5 (push the split as `release`), then `git am docs/plans/factory-gates-move-step-8.patch` on a branch off `release` and open it as the first pull request (he merges), then steps 9 and 11. Steps 6 and 7 by hand. If it does not connect: the same from a local session on his laptop, starting with a fresh clone of `main` and a new split (check the tree ID again; it should still be `2651ffba…` if `factory-gates/` has not changed).
+1. A session on Boroon's laptop (local Claude Code, or Remote Control to a laptop folder) starts from this branch or from `main` once it is merged (the patch and notes are only on this branch until then). It does a fresh split and checks the tree ID is still `2651ffba…` (it is, unless `factory-gates/` has changed).
+2. Then README steps 2 to 12 in order: he creates the empty repo (step 2), the split is pushed as `release` (step 5), steps 6 and 7 are settings he does by hand, then `git am docs/plans/factory-gates-move-step-8.patch` on a branch off `release`, opened as the new repo's first pull request (he merges), then step 9 in a fresh clone of the new repo.
 3. Step 11 (delete `factory-gates/` here, by pull request) only after step 9 passes in a fresh clone of the new repo.
 4. Then the rulesets, from his laptop, once the three teams exist. `apply --yes` only when he says so.
 
