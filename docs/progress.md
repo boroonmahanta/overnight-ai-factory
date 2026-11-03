@@ -68,10 +68,10 @@ Decisions by Boroon, 3 November 2026:
 
 Choices of mine, all listed in `factory-gates/README.md` under "Rulesets and CODEOWNERS" for him to confirm or change:
 - All four rulesets at organisation level with the `factory = enabled` condition, not one copy per repo.
-- Placeholder IDs are `0` in `org.json` (three team IDs, the gate repo ID, the `lane/drift` check's App ID). `plan` and `apply` refuse a ruleset with a `0`, so nothing half-filled reaches the API. `15368` is the GitHub Actions App ID on github.com; `resolve` replaces it with the host's own.
+- Placeholder IDs are `0` in `org.json` (three team IDs, the gate repo ID; the `lane/drift` App ID stays `0` until stage 3, which keeps that check out). `plan` and `apply` refuse a ruleset with a `0`, so nothing half-filled reaches the API. `15368` is the GitHub Actions App ID on github.com; `resolve` replaces it with the host's own.
 - `integration-gate` leaves force pushes allowed (V2.1's evening reset of `integration` without a bypass entry). Confirm the reset is still wanted.
 - No `*` line in CODEOWNERS, so code owner review bites only on protected paths and will not block L2 auto-merge later.
-- Team handles are `@getai/<team>` because CODEOWNERS needs the org prefix.
+- Team handles carry the org prefix, now `@AI-Business-Solutions/<team>`, because CODEOWNERS needs it. The check reads the org from `org.json`.
 - The audit fails every repository role, not only write: the plan allows only the two teams.
 
 Files changed: `factory-gates/lcp/check_protected_paths.py`, `factory-gates/lcp/make_rulesets.py` (new), `factory-gates/lcp/audit_bypass.py` (new), `factory-gates/lcp/apply_rulesets.py` (new), `factory-gates/rulesets/` (`org.json` and four generated rulesets, all new), `factory-gates/templates/CODEOWNERS` (new), `factory-gates/tests/test_make_rulesets.py` (new), `factory-gates/tests/test_audit_bypass.py` (new), `factory-gates/tests/test_apply_rulesets.py` (new), `factory-gates/scripts.sha256`, `factory-gates/README.md`, `docs/plans/stage-1-gate-build-plan.md`, `CLAUDE.md`, `docs/progress.md`.
@@ -79,14 +79,16 @@ Files changed: `factory-gates/lcp/check_protected_paths.py`, `factory-gates/lcp/
 Open items:
 - The check context a required workflow reports on GHE.com (`lcp-gate` assumed). Confirm in stage 1.
 - GitHub's fnmatch may read `*` more loosely than the script. If so the ruleset blocks a little more, never less. Check when the push ruleset is first applied.
-- The online half of the bypass audit (team members against the identity register) waits for the org.
+- The online half of the bypass audit is written (`apply_rulesets.py audit`) but has only run against a fake GitHub. Checking team members against an identity register is not built; it lists members and fails on bots only.
 - Still open from Session 6: actionlint warnings in the untested jobs; Dependabot on GHE.com; spike 0.9 before 15 November 2026.
 
 Next steps:
 1. Boroon reviews and merges Build 2 (pull request opened at his request, 3 November 2026).
 2. Build 3, from `main`: the offline `build` job checks (`check_builders.py`, a fixture project, the `pac` pack wrapper). Regenerate the manifest.
 3. Then move `factory-gates/` to `AI-Business-Solutions/factory-gates` on GHE.com (decision above), create the three teams, run `resolve` and `plan` from Boroon's laptop, and only `apply --yes` when he says so. The seven steps are in the README.
-3. A separate planning session for the rest of Stage 1 (presets, templates, Playwright kit v0, mining sessions).
+4. A separate planning session for the rest of Stage 1 (presets, templates, Playwright kit v0, mining sessions).
+5. Boroon: create the three teams in `AI-Business-Solutions`, and allow `getai.ghe.com` and `api.getai.ghe.com` in the cloud environment's network access.
+6. Stage 3: put `lane/drift` back with a passing tick for human PRs, and edit the plan to close that gap.
 
 ## Session 6, 2026-11-03, branch `claude/brave-davinci-0d5ssc`
 
