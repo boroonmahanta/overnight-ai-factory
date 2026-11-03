@@ -2,7 +2,7 @@ import sys
 import unittest
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "gate" / "lcp"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lcp"))
 from lane_map import LaneError, map_branch  # noqa: E402
 
 ALLOWED = "fl1 fl2 fl3"

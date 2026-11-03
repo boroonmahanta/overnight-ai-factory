@@ -3,19 +3,23 @@
 
 Jobs that hold credentials run only scripts from this repo, after checking them
 against the manifest (lcp-gate.yml header rules). Format matches `sha256sum`:
-"<hex>  <relative path>". Paths are relative to the gate root, with forward slashes.
+"<hex>  <relative path>". Paths are relative to the gate repo root, with forward
+slashes. The workflow checks the gate repo out at `gate/` and runs
+`sha256sum --check --strict scripts.sha256` there, so a script listed as
+`lcp/x.py` is called as `gate/lcp/x.py`.
 
   manifest.py make   <root> > scripts.sha256
   manifest.py verify <root> scripts.sha256
 
-verify fails on a changed file, a missing file, or a file under <root>/gate that is
-not listed (an unlisted script is an unreviewed script).
+verify fails on a changed file, a missing file, or a file under <root>/lcp that is
+not listed (an unlisted script is an unreviewed script). sha256sum does not catch an
+unlisted file, so the committed-manifest test is what catches it before release.
 """
 import hashlib
 import sys
 from pathlib import Path
 
-SCAN_DIR = "gate"
+SCAN_DIR = "lcp"
 SKIP_SUFFIXES = {".pyc"}
 SKIP_PARTS = {"__pycache__"}
 

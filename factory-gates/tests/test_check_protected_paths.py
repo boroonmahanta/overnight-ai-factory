@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "gate" / "lcp"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lcp"))
 import check_protected_paths as cpp  # noqa: E402
 
 
