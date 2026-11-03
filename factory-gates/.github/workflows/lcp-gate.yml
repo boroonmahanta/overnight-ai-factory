@@ -15,6 +15,12 @@
 #   federated credential for getai-<proj>-test trusts only this workflow on
 #   refs/heads/release (job_workflow_ref in the subject).
 # - Ruleset workflows ignore branches, paths and types filters.
+# - This repo is checked out at gate/, so its lcp/<name>.py is called as
+#   gate/lcp/<name>.py. Every job that runs one verifies scripts.sha256 first.
+#
+# Build 1 (3 November 2026) changed map and locks to run the tested scripts
+# lane_map.py and check_protected_paths.py with the read-only gate token
+# (decision D1). Scripts not yet written are listed in pending-scripts.txt.
 
 name: lcp-gate
 
@@ -40,26 +46,36 @@ jobs:
       lane: ${{ steps.lane.outputs.lane }}
       story: ${{ steps.lane.outputs.story }}
     steps:
+      # Read-only gate token so this job can run the tested lane_map.py (decision D1,
+      # 3 November 2026). No PR code is checked out or run here.
+      - id: gate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.GATE_READER_APP_ID }}
+          private-key: ${{ secrets.GATE_READER_KEY }}
+          owner: getai
+          repositories: factory-gates
+      - uses: actions/checkout@v5
+        with:
+          repository: ${{ env.GATE_REPO }}
+          ref: release
+          token: ${{ steps.gate-token.outputs.token }}
+          path: gate
+          persist-credentials: false
+      - name: Verify trusted script hashes
+        working-directory: gate
+        run: sha256sum --check --strict scripts.sha256
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PY_VERSION }}
+      # Agent branches: agent/<lane>/<ado-id>-<attempt>, for example agent/fl2/48213-1.
+      # Anything else (human PR, release PR, merge queue) maps to lane "none".
+      # An agent branch on a lane not in LCP_LANES fails.
       - id: lane
         env:
           HEAD_REF: ${{ github.head_ref || github.event.merge_group.head_ref }}
           ALLOWED: ${{ vars.LCP_LANES }}        # for example "fl1 fl2 fl3"
-        run: |
-          set -euo pipefail
-          # Agent branches: agent/<lane>/<ado-id>-<attempt>, for example agent/fl2/48213-1
-          if [[ "$HEAD_REF" =~ ^agent/(fl[0-9]+)/([0-9]+)-([0-9]+)$ ]]; then
-            lane="${BASH_REMATCH[1]}"
-            story="${BASH_REMATCH[2]}"
-            if [[ " $ALLOWED " != *" $lane "* ]]; then
-              echo "Unknown lane: $lane"
-              exit 1
-            fi
-          else
-            lane="none"        # human PR, release PR or merge queue
-            story="none"
-          fi
-          echo "lane=$lane" >> "$GITHUB_OUTPUT"
-          echo "story=$story" >> "$GITHUB_OUTPUT"
+        run: python3 -I gate/lcp/lane_map.py
 
   locks:
     name: protected paths and locked scenarios
@@ -70,20 +86,39 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          path: pr
           fetch-depth: 0
           persist-credentials: false
+      # Read-only gate token so this job can run the tested check_protected_paths.py
+      # (decision D1, 3 November 2026). PR files are only read by git diff, never run.
+      - id: gate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.GATE_READER_APP_ID }}
+          private-key: ${{ secrets.GATE_READER_KEY }}
+          owner: getai
+          repositories: factory-gates
+      - uses: actions/checkout@v5
+        with:
+          repository: ${{ env.GATE_REPO }}
+          ref: release
+          token: ${{ steps.gate-token.outputs.token }}
+          path: gate
+          persist-credentials: false
+      - name: Verify trusted script hashes
+        working-directory: gate
+        run: sha256sum --check --strict scripts.sha256
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PY_VERSION }}
+      # Lists renames as a delete plus an add (--no-renames), so moving a locked file out
+      # of a protected folder is caught. Lane "none" (human PR) passes inside the script.
       - name: Protected paths and locked scenarios unchanged (second lock behind the push ruleset)
-        if: needs.map.outputs.lane != 'none'
+        working-directory: pr
         env:
+          LANE: ${{ needs.map.outputs.lane }}
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
-        run: |
-          set -euo pipefail
-          changed="$(git diff --name-only "$BASE_SHA"...HEAD)"
-          protected='^(tests/acceptance/|tests/scenarios/|specs/[^/]+/spec\.md|specs/[^/]+/checklists/|glossary\.md|docs/adr/|coding-standards\.md|\.specify/|\.github/|\.claude/|\.mcp/|AGENTS\.md|CLAUDE\.md|scripts/|builders/lib/|deploy/)'
-          if printf '%s\n' "$changed" | grep -E "$protected"; then
-            echo "An agent PR changed a protected path. Failing."
-            exit 1
-          fi
+        run: python3 -I ../gate/lcp/check_protected_paths.py --lane "$LANE" --base "$BASE_SHA"
 
   build:
     name: builders, drift and pack (PR code, no credentials)
@@ -178,6 +213,10 @@ jobs:
           python3 -I gate/lcp/trace_criteria.py --root pr           # every criterion maps to a locked scenario
           python3 -I gate/lcp/lint_no_prototype.py --root pr        # no solution with the proto publisher prefix
 
+  # UNTESTED, LEFT AS THE PLAN WROTE IT. Needs a tenant and GHE.com. Waits for the
+  # stage 0 spikes: 0.2 (OIDC with pac), 0.6 (Copilot CLI and billing identity),
+  # 0.10 (managed import to Test), 0.11 (test user certificate sign-in),
+  # 0.12 (Copilot Studio evaluation), 0.16 (parallel verifier sessions).
   verify-in-test:
     name: import into Test, locked and held-out scenarios, evaluator
     runs-on: ubuntu-latest            # or a self-hosted runner with browsers pre-baked
@@ -380,6 +419,9 @@ jobs:
       - name: Fail on a failing verdict or any failed locked or held-out case
         run: python3 -I gate/lcp/verdict_gate.py --dir evidence
 
+  # UNTESTED, LEFT AS THE PLAN WROTE IT. Waits for the stage 0 spikes 0.6 (Copilot
+  # CLI and billing identity) and 0.16 (parallel reviewer sessions), and for the
+  # Merge Danger scripts, which are not written yet (pending-scripts.txt).
   danger:
     name: merge danger (deterministic floor, review agent may only raise)
     runs-on: ubuntu-latest
