@@ -1,7 +1,7 @@
 # GET AI overnight software factory
 
 This repo holds the plan and the start of the build of GET AI's overnight software factory.
-Mostly documents. The first code is `factory-gates/` (stage 1, tested locally, not yet run on a real tenant).
+Mostly documents. The first code is `factory-gates/` (stage 1: slice 1 and Build 1, tested locally, not yet run on GHE.com or a real tenant).
 
 This file loads at the start of every session. It is a map, not the full plan.
 Keep it short. Detail lives in `docs/sources/`.
@@ -54,8 +54,8 @@ End:
 | `docs/one-pager/` | The engineer one-pager for plan V3.1, as `GET-AI-Overnight-Factory-one-pager.html` and `single-page-artefact.md`. A short summary for GET AI engineers |
 | `docs/sources/report-v2.1-two-lanes-one-gate.md` | Earlier report V2.1, "Two Lanes, One Gate, Priced at List". 925 lines. The GitHub and Azure design the main plan builds on: two lanes, harness parity, Spec Kit day gate, traces, credits, ledger schema, Lane A and B cost models, 8-stage plan. Still the best source for Lane A, ACA jobs, the ledger SQL schema and GitHub-side limits |
 | `docs/sources/report-grill-the-spec-lock-the-tests.md` | The first report, "Grill the Spec, Lock the Tests". 195 lines. Original evidence base: what each harness resource teaches, the verifier-is-the-weak-point research, the grill gate, Claude Code facts, first design and stages |
-| `docs/plans/stage-1-gate-build-plan.md` | The plan for the next three build sessions (workflow file, rulesets and CODEOWNERS, offline build checks). Read it at the start of any Stage 1 build session. D1 to D3 decided |
-| `factory-gates/` | Stage 1 build, staged here until the `getai/factory-gates` repo exists. First slice: `gate/lcp/lane_map.py`, `check_protected_paths.py` and `manifest.py`, `scripts.sha256`, 23 unit tests (`python3 -B -m unittest discover -s tests`). Not yet wired into the workflow YAML. Its README lists the next slices and a finding: the plan's inline `locks` check misses renames |
+| `docs/plans/stage-1-gate-build-plan.md` | The plan for three build sessions (workflow file, rulesets and CODEOWNERS, offline build checks). Read it at the start of any Stage 1 build session. D1 to D3 decided. Build 1 done 3 November 2026 |
+| `factory-gates/` | Stage 1 build, staged here until the `getai/factory-gates` repo exists; its root becomes the repo root. `.github/workflows/lcp-gate.yml` (Appendix A, with `map` and `locks` on the tested scripts), `lcp/lane_map.py`, `lcp/check_protected_paths.py`, `lcp/manifest.py`, `scripts.sha256`, `pending-scripts.txt` (20 unwritten scripts), `requirements-test.txt` (PyYAML, tests only). 43 tests: install with `pip install --require-hashes -r requirements-test.txt`, run `python3 -B -m unittest discover -s tests`. Scripts live in `lcp/` and the workflow calls them as `gate/lcp/`. Its README lists the findings (tag pins, actionlint warnings) and the next slices |
 | `.claude/skills/bro/SKILL.md` | The `/bro` skill |
 | `.claude/skills/` | Live skills. `bro`. `ask-me` (router by size, adapted from `ask-matt`). Adopted unchanged: `constraint-driven-development`, `doubt-driven-development`, `source-driven-development`, `create-verification-skill`, `maintain-verification-skill`. Adapted for GET AI, all untested: `lcp-blast-radius`, `getai-decision-log`, `getai-correct`, `lcp-how`, `lcp-why`, `getai-intake`, `getai-wizard`, `getai-questionnaire`, `getai-grilling`, `getai-domain-modeling`, `lcp-triage`. Also adopted 2 November 2026 with a GET AI note each: `unslop` and 21 `principle-*` skills (three conflicting ones stay on the shelf). Pro-code versions, all untested: `pcp-blast-radius`, `pcp-how`, `pcp-why`, `pcp-triage` (the plan has no code-repo triage workflow yet). Decided by Boroon on 2 November 2026. The two verification skills were then edited to write to `.claude/skills/lcp-verify/`. All of them reviewed by him and merged to the default branch (rule 17 met). Still untested |
 | `skills/` | Third-party skills, the pinned originals of the first 16 (Addy 3, Tan 7, Pocock 4, Benny 2). A shelf: it does not auto-load, only `.claude/skills/` does. Provenance, commits and what became of each are in `skills/README.md` |
@@ -71,8 +71,8 @@ Everything the plan cites is now in the repo. Boroon supplied the full research 
 
 ## Where to find what in the main plan
 
-Line numbers are as at 1 November 2026. If the file has changed, run `grep -n '^## ' docs/sources/plan-v3.1.md`.
-Read by line range, for example offset 378 and limit 200.
+Line numbers are as at 3 November 2026 (after Build 1). If the file has changed, run `grep -n '^## ' docs/sources/plan-v3.1.md`.
+Read by line range, for example offset 379 and limit 200.
 
 | Lines | Section |
 |---|---|
@@ -80,23 +80,23 @@ Read by line range, for example offset 378 and limit 200.
 | 30 to 117 | 1. Naming rule, how to read, what changed (V3.1 against V3, V2.1 and the uploaded plan), key dates |
 | 118 to 167 | 2. Operating model on one page: day phases, who owns what, the 19 rules |
 | 168 to 305 | 3. What the research teaches, including what each transcript added |
-| 306 to 377 | 4. Lanes and routing, the outer loop (triage), night and background workloads |
-| 378 to 922 | 5. Lane B for Power Platform in depth: engine, identities, environment pool, night timeline, code over click-ops, the gate, locked scenarios, `lcp-verify`, Merge Danger and trust ladder, ADO state machine, agent instructions, throttling, licensing, promotion, residency |
-| 923 to 1034 | 6. The day gate: Spec Kit presets, grilling rules, Factory Eligible, intake, Wayfinder maps, prototypes |
-| 1035 to 1127 | 7. Handoff files, traces, weekly routine, gardening |
-| 1128 to 1177 | 8. Harness parity, component register, third-party skills policy |
-| 1178 to 1242 | 9. Credits, billing modes, model choice, data residency tiers |
-| 1243 to 1363 | 10. Cost ledger, story cost model, cost envelope |
-| 1364 to 1406 | 11. Staged build plan, stage 0 spikes |
-| 1407 to 1443 | 12. Risks, most serious first (32) |
-| 1444 to 1459 | 13. Accelerator and IP |
-| 1460 to 1521 | 14. Decision log |
-| 1522 to 1559 | 15. Open questions and evidence quality |
-| 1560 to 2058 | Appendix A: gate workflow YAML (untested) |
-| 2059 to 2196 | Appendix B: Merge Danger rubric, verifier count, `trust.yml` |
-| 2197 to 2468 | Appendix C: agent definitions, `AGENTS.md`, `lcp-verify` skill, PR body template |
-| 2469 to 2524 | Appendix D: ADO fields and states |
-| 2525 to 2543 | Appendix E: sources used |
+| 306 to 378 | 4. Lanes and routing, the outer loop (triage), night and background workloads |
+| 379 to 925 | 5. Lane B for Power Platform in depth: engine, identities, environment pool, night timeline, code over click-ops, the gate (5.7 at 622), locked scenarios, `lcp-verify`, Merge Danger and trust ladder, ADO state machine, agent instructions, throttling, licensing, promotion, residency |
+| 926 to 1037 | 6. The day gate: Spec Kit presets, grilling rules, Factory Eligible, intake, Wayfinder maps, prototypes |
+| 1038 to 1130 | 7. Handoff files, traces, weekly routine, gardening |
+| 1131 to 1180 | 8. Harness parity, component register, third-party skills policy |
+| 1181 to 1245 | 9. Credits, billing modes, model choice, data residency tiers |
+| 1246 to 1366 | 10. Cost ledger, story cost model, cost envelope |
+| 1367 to 1409 | 11. Staged build plan, stage 0 spikes |
+| 1410 to 1446 | 12. Risks, most serious first (32) |
+| 1447 to 1462 | 13. Accelerator and IP |
+| 1463 to 1532 | 14. Decision log |
+| 1533 to 1570 | 15. Open questions and evidence quality |
+| 1571 to 2088 | Appendix A: gate workflow YAML (untested; `locks` job fixed 3 November 2026) |
+| 2089 to 2226 | Appendix B: Merge Danger rubric, verifier count, `trust.yml` |
+| 2227 to 2498 | Appendix C: agent definitions, `AGENTS.md`, `lcp-verify` skill, PR body template |
+| 2499 to 2554 | Appendix D: ADO fields and states |
+| 2555 to 2573 | Appendix E: sources used |
 
 The two transcripts are already digested in plan sections 3.5 (workshop) and 3.6 (Spec Kit). Read the full text only when quoting.
 
