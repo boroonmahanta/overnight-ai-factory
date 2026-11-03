@@ -1,0 +1,119 @@
+From b10344f55d43257e9e396bb737cbfc4cc93f4d72 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 3 Nov 2026 07:35:20 +0000
+Subject: [PATCH] Point the gate workflow at AI-Business-Solutions (move step
+ 8)
+
+The plan calls the gate repo getai/factory-gates. The real organisation on
+getai.ghe.com is AI-Business-Solutions. Set GATE_REPO, the six App token
+owner fields, the holdout checkout and the header comment to it, and the
+GATE_REPO assertion in tests/test_workflow.py. The workflow and tests are
+not hashed, so scripts.sha256 is unchanged.
+
+141 tests OK, manifest verify clean, rulesets check clean.
+
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01A9uxVEtbdaw7cznA4jDW61
+---
+ .github/workflows/lcp-gate.yml | 20 +++++++++++---------
+ tests/test_workflow.py         |  2 +-
+ 2 files changed, 12 insertions(+), 10 deletions(-)
+
+diff --git a/.github/workflows/lcp-gate.yml b/.github/workflows/lcp-gate.yml
+index 44c6fda..b317af6 100644
+--- a/.github/workflows/lcp-gate.yml
++++ b/.github/workflows/lcp-gate.yml
+@@ -1,6 +1,8 @@
+ # lcp-gate.yml
+ # Required workflow for the Lane B low-code platform profile (Power Platform today).
+-# Lives in getai/factory-gates on the protected "release" branch. Applied by the
++# Lives in AI-Business-Solutions/factory-gates on the protected "release" branch
++# (the plan says getai/factory-gates; the real organisation on getai.ghe.com is
++# AI-Business-Solutions). Applied by the
+ # organisation ruleset "factory-required-workflows" (Require workflows to pass
+ # before merging) to every repo with custom property factory=enabled.
+ #
+@@ -41,7 +43,7 @@ env:
+   GH_HOST: getai.ghe.com
+   PAC_VERSION: "2.4.1"          # pin pac; matches Microsoft's OIDC sample
+   PY_VERSION: "3.11"
+-  GATE_REPO: getai/factory-gates
++  GATE_REPO: AI-Business-Solutions/factory-gates
+ 
+ jobs:
+   map:
+@@ -60,7 +62,7 @@ jobs:
+         with:
+           app-id: ${{ vars.GATE_READER_APP_ID }}
+           private-key: ${{ secrets.GATE_READER_KEY }}
+-          owner: getai
++          owner: AI-Business-Solutions
+           repositories: factory-gates
+       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+         with:
+@@ -115,7 +117,7 @@ jobs:
+         with:
+           app-id: ${{ vars.GATE_READER_APP_ID }}
+           private-key: ${{ secrets.GATE_READER_KEY }}
+-          owner: getai
++          owner: AI-Business-Solutions
+           repositories: factory-gates
+       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+         with:
+@@ -197,7 +199,7 @@ jobs:
+         with:
+           app-id: ${{ vars.GATE_READER_APP_ID }}
+           private-key: ${{ secrets.GATE_READER_KEY }}
+-          owner: getai
++          owner: AI-Business-Solutions
+           repositories: factory-gates
+       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+         with:
+@@ -272,7 +274,7 @@ jobs:
+         with:
+           app-id: ${{ vars.GATE_READER_APP_ID }}
+           private-key: ${{ secrets.GATE_READER_KEY }}
+-          owner: getai
++          owner: AI-Business-Solutions
+           repositories: factory-gates
+       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+         with:
+@@ -356,11 +358,11 @@ jobs:
+         with:
+           app-id: ${{ vars.HOLDOUT_READER_APP_ID }}
+           private-key: ${{ secrets.HOLDOUT_READER_KEY }}
+-          owner: getai
++          owner: AI-Business-Solutions
+           repositories: factory-holdout
+       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+         with:
+-          repository: getai/factory-holdout
++          repository: AI-Business-Solutions/factory-holdout
+           token: ${{ steps.holdout-token.outputs.token }}
+           path: holdout
+           persist-credentials: false
+@@ -462,7 +464,7 @@ jobs:
+         with:
+           app-id: ${{ vars.GATE_READER_APP_ID }}
+           private-key: ${{ secrets.GATE_READER_KEY }}
+-          owner: getai
++          owner: AI-Business-Solutions
+           repositories: factory-gates
+       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+         with:
+diff --git a/tests/test_workflow.py b/tests/test_workflow.py
+index 8635757..86d290e 100644
+--- a/tests/test_workflow.py
++++ b/tests/test_workflow.py
+@@ -103,7 +103,7 @@ class WorkflowTests(unittest.TestCase):
+         self.assertEqual(
+             list(self.jobs), ["map", "locks", "build", "static", "verify-in-test", "danger"]
+         )
+-        self.assertEqual(self.wf["env"]["GATE_REPO"], "getai/factory-gates")
++        self.assertEqual(self.wf["env"]["GATE_REPO"], "AI-Business-Solutions/factory-gates")
+ 
+     def test_triggers_have_no_filters(self):
+         # Required workflows ignore branches, paths and types filters (plan 5.7). Do not add any.
+-- 
+2.43.0
+

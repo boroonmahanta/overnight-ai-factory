@@ -19,7 +19,8 @@ Next steps:
 - Mostly documents. First code: `factory-gates/` (stage 1 slice 1 and Builds 1 to 3, 141 tests passing locally). No pipelines or environments exist yet. Nothing has run on GHE.com or a tenant. The rulesets are files, not applied.
 - **Build 1 is done** (Session 6). PR 11 merged into `main` on 3 November 2026.
 - **Build 2 is done** (Session 7). PR 12 merged into `main` on 3 November 2026.
-- **Build 3 is done** (Session 8). PR 13 merged into `main` on 3 November 2026. **Next: the move.** `factory-gates/` moves to `AI-Business-Solutions/factory-gates` on `getai.ghe.com` (decided 3 November 2026) and leaves this repo.
+- **Build 3 is done** (Session 8). PR 13 merged into `main` on 3 November 2026.
+- **The move of `factory-gates/` to `AI-Business-Solutions/factory-gates` on `getai.ghe.com` is under way** (Session 9, decided 3 November 2026). The split is checked (tree ID `2651ffba…`), step 8 is ready as `docs/plans/factory-gates-move-step-8.patch`, and the rest is **paused while Boroon checks whether Claude's cloud sessions can connect to `getai.ghe.com`** (Git providers). If not, the move runs from his laptop. `factory-gates/` is still here, untouched.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
 - Nothing from the plan has been built or tested. Every item marked `[untested]` in the plan is still untested.
@@ -28,6 +29,7 @@ Next steps:
 
 ## Open items
 
+- **The move is paused on one check (3 November 2026).** Can a Claude org Owner connect `getai.ghe.com` under Organisation settings, Git providers? The docs cover GitHub Enterprise Server and say nothing about `*.ghe.com`. If yes, a new cloud session continues the move on the real repo. If no, the move is laptop work: a local Claude Code session, README steps 2 to 12. Either way the step 8 patch applies with `git am`.
 - **Sources are complete.** Boroon uploaded the whole research folder as a zip. Every file was checked by checksum against the repo, duplicates were skipped, and the rest were added. The other session ("Overnight AI software factory", id `session_019bVvHWrUECf7G5YiXU3fKW`) is no longer needed for sources and can be deleted.
 - **Not read in full.** The files added from the zip were saved but not read in this session: the reports V1 and V2, the runtime and costs note, the eight GitHub and Azure notes, the five Power Platform notes and the one-pager. The five workshop slide images were saved but not viewed. The plan condenses most of them. Read one only when a task needs its detail.
 - **Decisions still waiting on Boroon** (from `docs/analysis/tshirt-sizing.md`): approve the shortlist of skills to read in full before any are adopted (plan section 8.3); decide whether to add a work-size field to ADO (Appendix D); decide whether to write a GET AI router skill that routes by size. The sizes themselves are approved.
@@ -36,6 +38,40 @@ Next steps:
 - Spike 0.9 has a hard date. Audit for unmanaged developer environments before 15 November 2026.
 
 ## Log
+
+## Session 9, 2026-11-03, branch `claude/wonderful-lamport-vbdypu`
+
+The move of `factory-gates/` to GHE.com, from `main` (PR 13, Build 3, merged 3 November 2026). The 141 tests passed before any change. Boroon expected this session to run on his laptop. It ran in a cloud container that cannot reach `getai.ghe.com`: the network policy denies the host, there is no login for it, and SSO cannot run in a cloud session. So the move got as far as a cloud session can take it, then paused.
+
+Done:
+- `docs/progress.md`: Current state says PR 13 merged on 3 November 2026.
+- Move steps 1, 3 and 4, in a fresh clone of `main`: `git subtree split --prefix=factory-gates` gave 13 commits (first: slice 1; head: `f91750e`). The two tree IDs match: `git rev-parse main:factory-gates` and the split's tree are both `2651ffba434dcd658540a4a261cf47b51db0e024`. A plain clone of the split passes the 141 tests, `manifest.py verify` and `make_rulesets.py check`.
+- Step 8 prepared and tested, saved as `docs/plans/factory-gates-move-step-8.patch` (one commit on top of the split). `GATE_REPO`, the six `owner:` fields, the holdout checkout and the header comment now say `AI-Business-Solutions`; the `GATE_REPO` assertion in `tests/test_workflow.py` matches. On a fresh clone of the split, `git am` applies it cleanly and 141 tests, manifest and rulesets check all pass. `scripts.sha256` is unchanged (the workflow and tests are not hashed). The patch holds only the workflow and the test, so it cannot go stale.
+- `factory-gates/` itself is untouched, so a fresh split from `main` gives the same tree ID.
+- Nothing was pushed to `getai.ghe.com`. No repo was created anywhere.
+
+Decisions (Boroon, 3 November 2026):
+- A stand-in repo `github.com/boroonmahanta/factory-gates` was proposed, chosen, then dropped before anything was created. Reason: a personal github.com account cannot do any of stage 1's org-level work (the required-workflow ruleset, the `factory=enabled` property, teams, the two Apps, Australian runners, the federated credential, Copilot on GHE.com). It would serve one or two slices of file work and add a second host and a second set of identities. Do not reopen unless the Git providers check fails and the laptop is out of reach for long.
+- Pause the move while Boroon checks whether Claude's cloud can connect `getai.ghe.com` as a Git provider (see Open items).
+- Settled on the way: one gate repo for the whole org serves many teams and both profiles (`profile:lcp` now; `profile:pcp` with its own `pcp-gate.yml` at stage 5). Where it is staged changes nothing. Where it lives is what matters, and that is the org on `getai.ghe.com`.
+
+Findings:
+- A token route for the cloud exists in principle (a new environment with `getai.ghe.com` under Allowed domains and a token stored as an environment secret) but the docs route GitHub through their own proxy and say nothing about this for GitHub hosts. Untested. Steps 2, 6 and 7 are web settings by hand either way.
+- Local Claude Code on the laptop needs nothing special for GHE.com. It uses the laptop's own git and `gh`.
+- The README in the new repo will still say "(staging copy)" and "Not done yet". Fix that in the step 8 pull request with the real facts of the hop. It was left out of the patch on purpose.
+
+Files changed: `docs/progress.md`, `docs/plans/factory-gates-move-step-8.patch` (new), `CLAUDE.md`.
+
+Open items:
+- The Git providers check (Open items above).
+- Step 10 (what the gate workflow does on the gate repo's own pull requests) needs Boroon's choice at the time. The two options are in the README.
+- Step 12 (rulesets) and spike 0.9 (before 15 November 2026) unchanged.
+
+Next steps:
+1. Boroon tries Git providers in the Claude org settings for `getai.ghe.com`.
+2. If it connects: a new cloud session with the new repo attached does step 2 (he creates the empty repo), step 5 (push the split as `release`), then `git am docs/plans/factory-gates-move-step-8.patch` on a branch off `release` and open it as the first pull request (he merges), then steps 9 and 11. Steps 6 and 7 by hand. If it does not connect: the same from a local session on his laptop, starting with a fresh clone of `main` and a new split (check the tree ID again; it should still be `2651ffba…` if `factory-gates/` has not changed).
+3. Step 11 (delete `factory-gates/` here, by pull request) only after step 9 passes in a fresh clone of the new repo.
+4. Then the rulesets, from his laptop, once the three teams exist. `apply --yes` only when he says so.
 
 ## Session 8, 2026-11-03, branch `claude/elegant-wozniak-316hdv`
 
