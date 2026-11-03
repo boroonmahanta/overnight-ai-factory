@@ -573,7 +573,7 @@ Do not use native Dataverse Git integration for the factory yet. GitHub support 
 3. One builder owns version stamps, which otherwise live in several files at once [secondary] ([Flowline wiki](https://github.com/RemyDuijkeren/Flowline/wiki/11-Philosophy) [snippet]).
 4. Where Microsoft already has a generator, wrap it and drift-check its output: `pa app add data-source` and `pa app refresh data-source` for code apps ([pa CLI](https://learn.microsoft.com/power-apps/developer/code-apps/reference/cli)), `pac copilot pack` for agents, and the model-apps App Spec. Microsoft's own model-apps plugin follows this loop: spec, lint, dry-run, idempotent apply, verify, "downloads a deployed app back into an editable App Spec" ([model-apps README](https://github.com/microsoft/power-platform-skills/blob/main/plugins/model-apps/README.md)).
 
-The gate then runs, in order: every builder; `git diff --exit-code`; `pac solution pack`; **a manifest check**; the solution checker. The manifest check exists because pack can drop a component silently. If a component is in `rootcomponents.yml` but its files are missing, "The tool still succeeds (exit code 0) and produces a valid .zip file, but the declared component is omitted" ([SolutionPackager troubleshooting](https://learn.microsoft.com/power-platform/alm/solution-packager-tool#troubleshooting)). The check fails if any declared root component has no files, or if the packed zip's component list differs from the declared list.
+The gate then runs, in order: every builder; a drift check that fails on any change from the commit, including a new file a builder wrote (`git diff --exit-code` alone misses an output file that was never committed, and pack would then ship it unreviewed); `pac solution pack`; **a manifest check**; the solution checker. The manifest check exists because pack can drop a component silently. If a component is in `rootcomponents.yml` but its files are missing, "The tool still succeeds (exit code 0) and produces a valid .zip file, but the declared component is omitted" ([SolutionPackager troubleshooting](https://learn.microsoft.com/power-platform/alm/solution-packager-tool#troubleshooting)). The check fails if any declared root component has no files, or if the packed zip's component list differs from the declared list.
 
 **The lane drift check.** After the agent finishes, the lane-close job exports the lane's solution, unpacks it and compares it with the PR's source. Anything in the environment that is not in the repo is drift, and drift blocks the PR. This catches an agent that changed the environment through the Web API or MCP and skipped the builders. Dataverse re-serialises on export, so compare canonicalised files [secondary] ([DataverseDrift](https://www.nuget.org/packages/DataverseDrift) [snippet]). Run a weekly round-trip test on `integration` the same way.
 
@@ -629,14 +629,14 @@ The uploaded plan's PR checks ran the agent's own scripts from the PR branch, wi
 
 | Job | Runs PR code? | Credentials | Purpose |
 |---|---|---|---|
-| `map` | No | Read-only gate App token | Lane from the branch name `agent/fl<n>/<ado-id>-<attempt>`, validated against an allowed list. Trusted, hash-checked script |
+| `map` | No | Read-only gate App token | Lane from the branch name `agent/fl<n>/<ado-id>-<attempt>`, validated against an allowed list. Trusted, hash-checked script. Hands `build` its two hash-checked scripts as a one-day artifact |
 | `locks` | No | Read-only gate App token | Second lock on protected paths; locked scenarios and the spec unchanged against the base. Trusted, hash-checked script; a rename counts as a delete plus an add |
-| `build` | **Yes** (builders) | **None**: `contents: read`, no `id-token` | Builders, `git diff --exit-code`, offline `pac solution pack` and `pac copilot pack`. Uploads the zips |
+| `build` | **Yes** (builders) | **None**: `contents: read`, no `id-token` | Builders and the drift check against the commit, offline `pac solution pack` and `pac copilot pack`. Uploads the zips. Gets its two scripts from `map`, because it cannot check out the private gate repo without a token |
 | `static` | No | Read-only gate App token | Trusted scripts from the gate repo, hash-checked, read the PR files and zips as data: manifest check, lints, criteria trace |
 | `verify-in-test` | No (locked tests are proven unchanged by `locks`) | `getai-<proj>-test` over OIDC, pinned to the gate workflow; test user certificate | Plan against the Test baseline, solution checker SARIF, import, locked scenarios, Playwright, Copilot Studio conversations, held-out set, evaluator |
 | `danger` | No | Job token with `checks: write`; Copilot requests | Deterministic floor, raise-only review agent, merge policy |
 
-Trusted scripts from the uploaded plan move into the gate repo: `run_workflow.py`, `lint_logic_apps.py` (fails on an `if()` expression over 8,192 characters or unsafe substrings), `check_root_components.py`, `create_schema.py --plan`, `create_security.py --plan`, `sync_solutions.py` and `reset_environment.py`. New trusted scripts: the protected-paths check (`check_protected_paths.py`, run by `locks`), the manifest check, a static-results lint, a `.pa.yaml` schema lint against Microsoft's published schema ([canvas source](https://learn.microsoft.com/power-apps/maker/canvas-apps/power-apps-yaml)), an accessible-label lint, a criteria-to-scenario trace, a prototype lint, the Merge Danger floor and pre-floor, the verifier plan, the trusted `lcp-verify` CLI and the merge policy by rung. The gate verifies a `scripts.sha256` manifest before running any of them. The manifest covers every file in the gate repo that a job reads, not only scripts: prompts, rubrics, agent definitions, `danger-rules.yml`, `trust.yml` and project settings (decided 3 November 2026). Only tests, docs, test-only files and the workflow folder sit outside it.
+Trusted scripts from the uploaded plan move into the gate repo: `run_workflow.py`, `lint_logic_apps.py` (fails on an `if()` expression over 8,192 characters or unsafe substrings), `check_root_components.py`, `create_schema.py --plan`, `create_security.py --plan`, `sync_solutions.py` and `reset_environment.py`. New trusted scripts: the protected-paths check (`check_protected_paths.py`, run by `locks`), the builder drift check (`check_builders.py`) and the offline pack wrapper (`pack_offline.py`), both run by `build` and so only as trusted as that credential-free job, the manifest check, a static-results lint, a `.pa.yaml` schema lint against Microsoft's published schema ([canvas source](https://learn.microsoft.com/power-apps/maker/canvas-apps/power-apps-yaml)), an accessible-label lint, a criteria-to-scenario trace, a prototype lint, the Merge Danger floor and pre-floor, the verifier plan, the trusted `lcp-verify` CLI and the merge policy by rung. The gate verifies a `scripts.sha256` manifest before running any of them. The manifest covers every file in the gate repo that a job reads, not only scripts: prompts, rubrics, agent definitions, `danger-rules.yml`, `trust.yml` and project settings (decided 3 November 2026). Only tests, docs, test-only files and the workflow folder sit outside it.
 
 **3. Rulesets lock the paths, the branches and the bypass list,** following V2.1's stack ([available rules](https://docs.github.com/en/enterprise-cloud@latest/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)):
 
@@ -1531,6 +1531,7 @@ Board lens: these are reusable IP, Power Platform depth strengthens the Microsof
 | **Appendix A `map` and `locks` jobs** | Inline bash, no credentials | Both run trusted, hash-checked scripts (`lane_map.py`, `check_protected_paths.py`) with the read-only gate token (decision D1, Boroon, 3 November 2026; edited in Build 1) | The inline `locks` check missed renames: moving a locked scenario out of `tests/acceptance/` listed only the new path and passed. The script uses `--no-renames`, and a test proves it. `map` changed so its rule is tested, not copied |
 | **Action pins in the gate workflow** | Version tags such as `@v5` | Full commit IDs with the version as a comment, kept fresh by Dependabot pull requests (Boroon, 3 November 2026). `factory-gates` holds the IDs; this appendix keeps the tags for readability | A tag can be moved to other code. Two of these actions handle the gate App key and checkout tokens |
 | **Hash manifest scope** | Scripts only | Every file in the gate repo that a job reads: scripts, prompts, rubrics, agent definitions, `danger-rules.yml`, `trust.yml`, project settings. Not hashed: tests, docs, test-only files, the workflow folder (Boroon, 3 November 2026) | Rule 17 names prompts, rubrics and agents alongside gate scripts. The rules file sets the deterministic floor (rule 11) and `trust.yml` decides auto-merge (rule 12). A whole-repo scan means nothing added later is forgotten |
+| **Appendix A `build` and `map` jobs** | Inline bash in `build`: a loop over the builders, `git diff --exit-code`, two `pac solution pack` calls and a `pac copilot pack` loop | `build` runs the tested `check_builders.py` and `pack_offline.py`, with the PR checked out at `pr/`. `map` hands it those two hash-checked scripts as a one-day artifact. The drift check also fails on a new file a builder wrote that is not committed (Boroon, 3 November 2026; edited in Build 3) | `build` holds no credentials, so it cannot check out the private gate repo; an inline copy would have been a second copy of the logic. `git diff` ignores untracked files, so an output file the agent forgot to commit would be packed and shipped without review. The old loop also failed a project with no builders |
 
 ## 15. Open questions and evidence quality
 
@@ -1578,9 +1579,9 @@ What it does, job by job:
 
 | Job | Credentials | Runs |
 |---|---|---|
-| `map` | Read-only gate App token | Lane and story from the branch name by the trusted `lane_map.py`, validated against `vars.LCP_LANES`; hashes verified first |
+| `map` | Read-only gate App token | Lane and story from the branch name by the trusted `lane_map.py`, validated against `vars.LCP_LANES`; hashes verified first; then hands `check_builders.py` and `pack_offline.py` to `build` as a one-day artifact |
 | `locks` | Read-only gate App token | Second lock on protected paths, against the base commit, by the trusted `check_protected_paths.py` (a rename counts as a delete plus an add); hashes verified first |
-| `build` | None | PR builders, `git diff --exit-code`, offline `pac solution pack` and `pac copilot pack` |
+| `build` | None | PR builders and the drift check (`check_builders.py`: a changed, deleted or new file fails), offline `pac solution pack` and `pac copilot pack` (`pack_offline.py`). The PR sits at `pr/`, the scripts at `gate/lcp/` |
 | `static` | Read-only gate App token | Trusted manifest check, lints, criteria trace; hashes verified first |
 | `verify-in-test` | OIDC for `getai-<proj>-test` only; held-out reader App; Key Vault | Plan against the Test baseline, checker SARIF, import, locked scenarios, Playwright, Copilot Studio conversations, held-out set, pre-floor, one to three verifier sessions, evidence hashes to Blob |
 | `danger` | Job token with `checks: write` | Deterministic floor, two raise-only review passes, combined score, merge policy by rung |
@@ -1602,7 +1603,9 @@ Three things to know before using it:
 # format and path in stage 0 and stage 1 before relying on it.
 #
 # Rules this file follows:
-# - Jobs that run PR code hold no credentials.
+# - Jobs that run PR code hold no credentials. build is the only one; map hands
+#   it its two hash-checked scripts as an artifact, since it cannot check out
+#   this private repo.
 # - Jobs that hold credentials run only trusted scripts from this repo, checked
 #   against scripts.sha256, and treat PR files as data.
 # - Only the verify-in-test job can request an OIDC token, and the Entra
@@ -1660,6 +1663,18 @@ jobs:
       - name: Verify trusted script hashes
         working-directory: gate
         run: sha256sum --check --strict scripts.sha256
+      # build runs PR code, so it gets no gate token (rule 5) and cannot check out this
+      # private repo. It gets these two scripts, checked above, as an artifact instead.
+      # Nothing else from the gate repo leaves this job.
+      - name: Hand the checked build scripts to build
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate-build-scripts
+          path: |
+            gate/lcp/check_builders.py
+            gate/lcp/pack_offline.py
+          if-no-files-found: error
+          retention-days: 1
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PY_VERSION }}
@@ -1722,9 +1737,18 @@ jobs:
     permissions:
       contents: read
     steps:
+      # The PR goes in pr/, so nothing the gate adds (gate/, out/) is inside the tree
+      # the builder check compares.
       - uses: actions/checkout@v5
         with:
+          path: pr
           persist-credentials: false
+      # check_builders.py and pack_offline.py, hash-checked in map. Same run only: no
+      # token, run ID or repository input.
+      - uses: actions/download-artifact@v4
+        with:
+          name: gate-build-scripts
+          path: gate/lcp
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PY_VERSION }}
@@ -1733,27 +1757,15 @@ jobs:
           dotnet-version: 8.0.x
       - name: Install pinned pac
         run: dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version "$PAC_VERSION"
+      # Runs every workflows/build/*.py, then fails on any drift from the commit,
+      # including a generated file that was never committed.
       - name: Run every builder, then fail on any diff
-        run: |
-          set -euo pipefail
-          for builder in workflows/build/*.py; do
-            python3 "$builder"
-          done
-          git diff --exit-code || { echo "Generated files do not match builders"; exit 1; }
+        run: python3 -I gate/lcp/check_builders.py --root pr
       - name: Pack the solution offline (YAML source format)
-        run: |
-          set -euo pipefail
-          mkdir -p out
-          pac solution pack --zipfile out/solution_unmanaged.zip --folder src --packagetype Unmanaged
-          pac solution pack --zipfile out/solution_managed.zip --folder src --packagetype Managed
+        run: python3 -I gate/lcp/pack_offline.py solution --source pr/src --out out
+      # pac copilot pack is local and needs no sign-in. Confirm its flags in stage 1.
       - name: Pack Copilot Studio workspaces offline
-        run: |
-          set -euo pipefail
-          # pac copilot pack is local and needs no sign-in. Confirm its flags in stage 1.
-          for ws in agents/*/; do
-            [ -d "$ws" ] || continue
-            (cd "$ws" && pac copilot pack)
-          done
+        run: python3 -I gate/lcp/pack_offline.py agents --root pr/agents
       - uses: actions/upload-artifact@v4
         with:
           name: packed

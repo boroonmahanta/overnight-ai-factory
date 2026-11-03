@@ -116,10 +116,10 @@ Then `out/` is uploaded as `packed`, which `static` downloads, as before.
 
 **How the scripts reach a job with no credentials.** The gate repo is private, and checking it out needs the gate reader token, which `build` must not hold. So `map`, which already checks the gate repo out and verifies `scripts.sha256`, uploads just these two scripts as the artifact `gate-build-scripts` (one-day retention), and `build` downloads it from the same run into `gate/lcp/`. `build` does not re-check the hashes: the only manifest it could check against would arrive through the same artifact, so the check would prove nothing. The files are safe for another reason: the only job that runs PR code is `build`, and it downloads before it runs anything. The PR is checked out at `pr/`, so nothing the gate adds (`gate/`, `out/`) sits inside the tree the drift check compares.
 
-Choices of mine in Build 3, for Boroon to confirm or change:
+Build 3 choices. The first two were confirmed by Boroon on 3 November 2026; the rest are mine, for him to confirm or change:
 
-- **The artifact hand-off above.** The plan does not say how `build` gets a gate script. The other way is an inline copy of the logic in the YAML, which brings back two copies that can drift (the reason for D1). The two scripts become readable to anyone who can read a project repo's run artifacts for a day. They hold nothing secret.
-- **The drift check is stricter than the plan's `git diff --exit-code`.** It also fails on a new file a builder wrote that is not in the commit and not ignored, and it compares against the starting commit, so a builder that runs `git add` cannot hide its change. Without this, a generated file the agent forgot to commit would be packed and shipped without anyone reviewing it. A test proves the plan's command passes in that case.
+- **The artifact hand-off above (confirmed).** The plan does not say how `build` gets a gate script. The other way is an inline copy of the logic in the YAML, which brings back two copies that can drift (the reason for D1). The two scripts become readable to anyone who can read a project repo's run artifacts for a day. They hold nothing secret.
+- **The drift check is stricter than the plan's `git diff --exit-code` (confirmed).** It also fails on a new file a builder wrote that is not in the commit and not ignored, and it compares against the starting commit, so a builder that runs `git add` cannot hide its change. Without this, a generated file the agent forgot to commit would be packed and shipped without anyone reviewing it. A test proves the plan's command passes in that case.
 - **Builders run with `python -B` and `PYTHONDONTWRITEBYTECODE=1`**, so an imported helper leaves no `__pycache__` folder to trip the new-file check. Every builder runs even after one fails, so one run reports every problem. Each has a 600 second timeout.
 - **Every `*.py` directly in `workflows/build/` is run**, as the plan's loop does. Helper modules go in a subfolder or in `builders/lib/` (protected). No builders at all passes.
 - **The wrapper keeps the plan's `pac` flags exactly** and adds only checks around them. It does not check the `pac` version (the install step pins it) because the format of `pac`'s version output is not known here.
@@ -144,7 +144,7 @@ Choices of mine in Build 3, for Boroon to confirm or change:
 
 9. **`manifest.py` hashed a worktree's `.git` file (fixed).** In a git worktree or submodule, `.git` is a file, not a folder, so it slipped past the `.git/` exclusion. A manifest made there would list `.git`, and `sha256sum --check` would then fail in every gate job, where `.git` is a folder. Found rehearsing the move. `.git` is now never hashed, and a test proves it.
 
-The plan's Appendix A `build` and `map` jobs now differ from this copy. Editing the plan to match needs Boroon's approval, as in Build 1.
+The plan's Appendix A `build` and `map` jobs were edited to match this copy (approved by Boroon, 3 November 2026), with the job tables, the gate order in 5.6, the trusted-script list in 5.7 and a row in decision log 14.4. All six jobs now match, with the commit pins read as tags.
 
 ## Moving to GHE.com
 

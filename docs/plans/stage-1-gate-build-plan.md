@@ -84,7 +84,7 @@ Read: plan lines 1718 to 1762 (the `build` job, as at the end of Build 1), secti
 
 Done when: all tests pass. The `build` job still has no credentials (the Build 1 test proves it).
 
-How it went: all three done. One gap in this plan: a job with no credentials cannot check out the private gate repo, so `map` (which already holds the reader token and checks the hashes) uploads `check_builders.py` and `pack_offline.py` as a one-day artifact for `build`. The drift check also fails on an uncommitted new output file, which `git diff --exit-code` alone misses. Both are listed in `factory-gates/README.md` for Boroon to confirm.
+How it went: all three done. One gap in this plan: a job with no credentials cannot check out the private gate repo, so `map` (which already holds the reader token and checks the hashes) uploads `check_builders.py` and `pack_offline.py` as a one-day artifact for `build`. The drift check also fails on an uncommitted new output file, which `git diff --exit-code` alone misses. Boroon confirmed both on 3 November 2026, and the plan's Appendix A `build` and `map` jobs were edited to match.
 
 ## Not in these three sessions
 

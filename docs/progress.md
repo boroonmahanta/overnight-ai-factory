@@ -19,7 +19,7 @@ Next steps:
 - Mostly documents. First code: `factory-gates/` (stage 1 slice 1 and Builds 1 to 3, 141 tests passing locally). No pipelines or environments exist yet. Nothing has run on GHE.com or a tenant. The rulesets are files, not applied.
 - **Build 1 is done** (Session 6). PR 11 merged into `main` on 3 November 2026.
 - **Build 2 is done** (Session 7). PR 12 merged into `main` on 3 November 2026.
-- **Build 3 is done** (Session 8) on branch `claude/elegant-wozniak-316hdv`, not merged, no pull request yet. **Next: Boroon reviews it, then the move.** After Build 3, `factory-gates/` moves to `AI-Business-Solutions/factory-gates` on `getai.ghe.com` (decided 3 November 2026) and leaves this repo.
+- **Build 3 is done** (Session 8) on branch `claude/elegant-wozniak-316hdv`, pull request open at Boroon's request. **Next: Boroon reviews and merges it, then the move.** After Build 3, `factory-gates/` moves to `AI-Business-Solutions/factory-gates` on `getai.ghe.com` (decided 3 November 2026) and leaves this repo.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
 - Nothing from the plan has been built or tested. Every item marked `[untested]` in the plan is still untested.
@@ -53,7 +53,7 @@ Done:
 - **Rehearsed the move** on a scratch clone: `git subtree split` gave 11 commits, starting with slice 1 and Build 1's plain copy of Appendix A; the split tree ID equals the folder's (step 4); a plain clone of the split passes all tests, the manifest and the rulesets check (step 9).
 - **Bug found in that rehearsal, fixed:** in a git worktree `.git` is a file, and `manifest.py` hashed it. A manifest made in a worktree would list `.git`, and `sha256sum --check` would then fail in every gate job. Claude Code on a laptop often works in worktrees. `.git` is now never hashed; one new test (failed before the fix). `scripts.sha256` regenerated. 141 tests, `OK`.
 
-Choices of mine, in the README for Boroon to confirm or change:
+Choices of mine (the first two confirmed by Boroon later the same day, see below):
 - **How `build` gets a gate script.** The build plan did not say. `build` cannot check out the private gate repo without the reader token, which it must not hold (rule 5). Chosen: `map` hands the two checked scripts over as an artifact. The alternative is an inline copy in the YAML, which brings back two copies of the logic (the D1 trade-off).
 - **The drift check is stricter than the plan.** `git diff --exit-code` misses a generated file that was never committed, which pack would then ship unreviewed. A test shows the plan's command passing in that case.
 - No `pac` version check in the wrapper; the install step pins it.
@@ -63,13 +63,20 @@ Findings (README, Findings 5 to 9): the gap above; the uncommitted-output gap; t
 Files changed: `factory-gates/lcp/check_builders.py` (new), `factory-gates/lcp/pack_offline.py` (new), `factory-gates/tests/fixtures/builder-project/` (new, three files), `factory-gates/tests/test_check_builders.py` (new), `factory-gates/tests/test_pack_offline.py` (new), `factory-gates/tests/test_workflow.py`, `factory-gates/tests/test_manifest.py`, `factory-gates/lcp/manifest.py`, `factory-gates/.github/workflows/lcp-gate.yml`, `factory-gates/scripts.sha256`, `factory-gates/README.md`, `docs/plans/stage-1-gate-build-plan.md`, `CLAUDE.md`, `docs/progress.md`.
 
 Open items:
-- The plan's Appendix A `build` and `map` jobs now differ from `factory-gates`. Editing the plan to match needs Boroon's approval, as in Build 1.
 - Whether `pac solution pack` takes these flags for the YAML source format, and what `pac copilot pack` writes: stage 0 spike.
 - At the move: `lcp-gate.yml` will also run on `factory-gates`' own pull requests and fail there (README move step 10).
 - Still open: the check context name on GHE.com, actionlint warnings in the untested jobs, Dependabot on GHE.com, spike 0.9 before 15 November 2026.
 
+Second request (same day, same branch). Decisions by Boroon, 3 November 2026:
+- **`build` gets its two scripts from `map` as an artifact.** Confirmed.
+- **Keep the stricter drift check** (a new uncommitted file fails too). Confirmed.
+- **Edit the plan to match the `build` and `map` YAML.** Done: Appendix A `map` and `build` jobs copied from `factory-gates` by script, with the commit pins read back as tags; both job tables; the gate order in 5.6; the trusted-script list in 5.7; the YAML header rule; a new row in decision log 14.4. A parse of both files shows all six jobs and the top level match. `CLAUDE.md`'s line-number map updated (the plan is now 2,604 lines).
+- Open the pull request (he said "pull"; read as open the pull request). Opened. He merges it by hand.
+
+Files changed in the second request: `docs/sources/plan-v3.1.md`, `factory-gates/README.md`, `docs/plans/stage-1-gate-build-plan.md`, `CLAUDE.md`, `docs/progress.md`.
+
 Next steps:
-1. Boroon reviews Build 3 (pull request when he asks for one) and confirms or changes the two choices above.
+1. Boroon reviews and merges the Build 3 pull request.
 2. Move `factory-gates/` to `AI-Business-Solutions/factory-gates`, from his laptop: the twelve steps in `factory-gates/README.md`, "Moving to GHE.com".
 3. Then the rulesets, from his laptop, once the three teams exist. `apply --yes` only when he says so.
 4. A workflow in the gate repo that runs its own tests on every pull request.

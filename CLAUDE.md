@@ -33,7 +33,7 @@ End:
 |---|---|
 | `CLAUDE.md` | This map |
 | `docs/progress.md` | Running log and next steps. Read second, update last |
-| `docs/sources/plan-v3.1.md` | The main plan, "Lock the Gate, Pool the Lanes, Merge by Day", V3.1, 1 November 2026. 2,543 lines |
+| `docs/sources/plan-v3.1.md` | The main plan, "Lock the Gate, Pool the Lanes, Merge by Day", V3.1, 1 November 2026. 2,604 lines |
 | `docs/sources/plan-v3.md` | The previous version, V3, 1 November 2026. 1,976 lines. Superseded by V3.1. Kept only to see what changed. V3 differs from V3.1 in: Wayfinder named the planning agent (now Story Planner); auto-merge framed as "Phase 4" (now the trust ladder L0 to L3); one evaluator per PR (now one to three verifiers); one review pass (now two); no `lcp-verify`, outer loop, gardening or prototypes; cost USD 11 per story and USD 144 accepted (now about 15 and 150); a Test queue of 30 minutes per PR (now about 36) |
 | `docs/sources/uploaded-plan-software-factory.md` | Boroon's original plan (also as `.docx`). Part A: "End-to-End Specification: The GET AI Microsoft Software Factory". Part B: "Copilot Studio Agents & App Builds". 320 lines. Section 14.1 of the main plan lists every change made to it |
 | `docs/sources/transcript-anthropic-agents-run-for-hours.md` | Anthropic workshop, "How to Build Agents That Run for Hours". 1,213 lines |
@@ -71,7 +71,7 @@ Everything the plan cites is now in the repo. Boroon supplied the full research 
 
 ## Where to find what in the main plan
 
-Line numbers are as at 3 November 2026 (after Build 1). If the file has changed, run `grep -n '^## ' docs/sources/plan-v3.1.md`.
+Line numbers are as at 3 November 2026 (after Build 3). If the file has changed, run `grep -n '^## ' docs/sources/plan-v3.1.md`.
 Read by line range, for example offset 379 and limit 200.
 
 | Lines | Section |
@@ -90,13 +90,13 @@ Read by line range, for example offset 379 and limit 200.
 | 1367 to 1409 | 11. Staged build plan, stage 0 spikes |
 | 1410 to 1446 | 12. Risks, most serious first (32) |
 | 1447 to 1462 | 13. Accelerator and IP |
-| 1463 to 1534 | 14. Decision log (14.4 holds the decisions after V3.1) |
-| 1535 to 1572 | 15. Open questions and evidence quality |
-| 1573 to 2107 | Appendix A: gate workflow YAML (untested; `map` and `locks` jobs fixed 3 November 2026; tags shown, `factory-gates` holds commit pins) |
-| 2108 to 2245 | Appendix B: Merge Danger rubric, verifier count, `trust.yml` |
-| 2246 to 2517 | Appendix C: agent definitions, `AGENTS.md`, `lcp-verify` skill, PR body template |
-| 2518 to 2573 | Appendix D: ADO fields and states |
-| 2574 to 2592 | Appendix E: sources used |
+| 1463 to 1535 | 14. Decision log (14.4 holds the decisions after V3.1) |
+| 1536 to 1573 | 15. Open questions and evidence quality |
+| 1574 to 2119 | Appendix A: gate workflow YAML (untested; `map`, `locks` and `build` jobs match `factory-gates` as at Build 3, 3 November 2026; tags shown, `factory-gates` holds commit pins) |
+| 2120 to 2257 | Appendix B: Merge Danger rubric, verifier count, `trust.yml` |
+| 2258 to 2529 | Appendix C: agent definitions, `AGENTS.md`, `lcp-verify` skill, PR body template |
+| 2530 to 2585 | Appendix D: ADO fields and states |
+| 2586 to 2604 | Appendix E: sources used |
 
 The two transcripts are already digested in plan sections 3.5 (workshop) and 3.6 (Spec Kit). Read the full text only when quoting.
 
