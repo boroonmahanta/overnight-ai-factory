@@ -18,7 +18,7 @@ Status: **slice 1, Build 1 and Build 2 done, tested locally only.** Nothing here
 | `lcp/apply_rulesets.py` | For a human by day, with an org-admin token in `GH_TOKEN`: `resolve` fills the IDs in `org.json` from the org; `plan` is a dry run; `apply --yes` creates or updates the custom property and the rulesets; `audit` is the online half of the bypass audit (live rulesets, allowed teams, bot members). Nothing is sent without `--yes`. Untested against a real org | Section 5.7 part 3; stage 1 |
 | `rulesets/org.json` | The org name, host, gate repo, team IDs and App IDs, typed once. IDs are `0` until `resolve` fills them | |
 | `rulesets/` | The four rulesets in GitHub's REST format, all generated: `main-gate.json`, `integration-gate.json`, `protected-paths.json`, `factory-required-workflows.json`. Not applied anywhere | Section 5.7 part 3 |
-| `templates/CODEOWNERS` | CODEOWNERS for a project repo. Protected paths go to `@getai/acceptance-owners` or `@getai/platform-team` | Section 5.7; 5.10 for rung L2 |
+| `templates/CODEOWNERS` | CODEOWNERS for a project repo. Protected paths go to `@AI-Business-Solutions/acceptance-owners` or `@AI-Business-Solutions/platform-team` | Section 5.7; 5.10 for rung L2 |
 | `scripts.sha256` | The manifest, in `sha256sum` format, of every file a gate job reads. Today: the six scripts, `org.json`, the four rulesets and the CODEOWNERS template. Prompts, rubrics, agents, rules and project settings join it as they are written | |
 | `pending-scripts.txt` | The 20 scripts the workflow calls that are not written yet (decision D2). Delete a line when you write the script | |
 | `requirements-test.txt` | PyYAML 6.0.3, pinned by hash, for tests only (decision D3). The scripts in `lcp/` use the standard library only | |

@@ -268,7 +268,7 @@ class OrgJsonTests(unittest.TestCase):
         self.assertTrue(problems)
         self.assertTrue(all("@other/acceptance-owners or @other/platform-team" in p for p in problems))
         template = self.root / mr.CODEOWNERS_FILE
-        template.write_text(template.read_text().replace("@getai/", "@other/"))
+        template.write_text(template.read_text().replace(f"@{mr.load_org(ROOT)['org']}/", "@other/"))
         self.assertEqual(mr.check(self.root), [])
 
     def test_sample_paths(self):

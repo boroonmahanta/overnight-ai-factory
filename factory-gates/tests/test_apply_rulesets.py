@@ -12,11 +12,13 @@ sys.path.insert(0, str(ROOT / "lcp"))
 import apply_rulesets as ar  # noqa: E402
 import make_rulesets as mr  # noqa: E402
 
+ORG = mr.load_org(ROOT)["org"]
+
 
 class FakeGitHub:
     """Answers the handful of endpoints the tool uses. Records every write."""
 
-    def __init__(self, org="getai", teams=None, repos=None, apps=None, rulesets=None, members=None, property_exists=False):
+    def __init__(self, org=ORG, teams=None, repos=None, apps=None, rulesets=None, members=None, property_exists=False):
         self.org = org
         self.teams = teams or {}          # slug -> id
         self.repos = repos or {}          # name -> id
@@ -148,7 +150,7 @@ class PlanAndApplyTests(unittest.TestCase):
         done = ar.apply(api, self.org, self.local)
         self.assertEqual([a for _, a, _ in done], ["created"] * 5)
         self.assertEqual([m for m, _, _ in gh.writes], ["PUT", "POST", "POST", "POST", "POST"])
-        self.assertEqual(gh.writes[0][1], "/orgs/getai/properties/schema/factory")
+        self.assertEqual(gh.writes[0][1], f"/orgs/{ORG}/properties/schema/factory")
         self.assertEqual(gh.writes[0][2]["allowed_values"], ["enabled", "disabled"])
         self.assertEqual(gh.writes[1][2], self.local["main-gate"])
         gh.writes.clear()
@@ -163,7 +165,7 @@ class PlanAndApplyTests(unittest.TestCase):
         rows = ar.plan(api, self.org, self.local)
         self.assertEqual(rows[1], ("ruleset main-gate", "update", "id 42"))
         ar.apply(api, self.org, self.local)
-        self.assertEqual(gh.writes[0][:2], ("PUT", "/orgs/getai/rulesets/42"))
+        self.assertEqual(gh.writes[0][:2], ("PUT", f"/orgs/{ORG}/rulesets/42"))
         self.assertEqual(gh.rulesets[0]["bypass_actors"], [])
 
     def test_api_errors_are_raised_with_the_status(self):
@@ -269,7 +271,7 @@ class CommandLineTests(unittest.TestCase):
         gh = FakeGitHub()
         self.assertEqual(ar.main(["x", "apply", str(self.root), "--yes"], transport=gh), 0)
         self.assertEqual([(m, p) for m, p, _ in gh.writes],
-                         [("PUT", "/orgs/getai/properties/schema/factory"), ("POST", "/orgs/getai/rulesets")])
+                         [("PUT", f"/orgs/{ORG}/properties/schema/factory"), ("POST", f"/orgs/{ORG}/rulesets")])
         self.assertEqual(gh.writes[1][2]["name"], "main-gate")
 
     def test_audit_exit_codes(self):

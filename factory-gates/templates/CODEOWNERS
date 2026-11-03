@@ -1,11 +1,11 @@
 # CODEOWNERS template for a factory project repo. Copy to .github/CODEOWNERS.
 #
-# Team handles carry the organisation prefix. Change `getai` if the org on
-# GHE.com is named differently, and change ORG in lcp/make_rulesets.py to match.
+# Team handles carry the organisation prefix, the org on getai.ghe.com. Change
+# it here and in rulesets/org.json together.
 #
 # Checked by factory-gates: `python3 lcp/make_rulesets.py check .` fails if a
 # protected path (the list in lcp/check_protected_paths.py) is not owned by
-# @getai/acceptance-owners or @getai/platform-team, the only two teams the
+# @AI-Business-Solutions/acceptance-owners or @AI-Business-Solutions/platform-team, the only two teams the
 # protected-paths push ruleset lets through (plan 5.7). The last matching line
 # wins. Patterns start with / so they match at the repo root only.
 #
@@ -15,34 +15,34 @@
 # covered by the one-approval rule instead.
 
 # Locked tests and specs (rules 3 and 17): acceptance owners.
-/tests/acceptance/          @getai/acceptance-owners
-/tests/scenarios/           @getai/acceptance-owners
-/specs/*/spec.md            @getai/acceptance-owners
-/specs/*/checklists/        @getai/acceptance-owners
+/tests/acceptance/          @AI-Business-Solutions/acceptance-owners
+/tests/scenarios/           @AI-Business-Solutions/acceptance-owners
+/specs/*/spec.md            @AI-Business-Solutions/acceptance-owners
+/specs/*/checklists/        @AI-Business-Solutions/acceptance-owners
 
 # Shared words and standards (rule 17): either team may approve.
-/glossary.md                @getai/acceptance-owners @getai/platform-team
-/docs/adr/                  @getai/acceptance-owners @getai/platform-team
-/coding-standards.md        @getai/acceptance-owners @getai/platform-team
+/glossary.md                @AI-Business-Solutions/acceptance-owners @AI-Business-Solutions/platform-team
+/docs/adr/                  @AI-Business-Solutions/acceptance-owners @AI-Business-Solutions/platform-team
+/coding-standards.md        @AI-Business-Solutions/acceptance-owners @AI-Business-Solutions/platform-team
 
 # Harness, agent instructions, hooks, scripts and deploy settings (rule 17):
 # platform team.
-/.specify/                  @getai/platform-team
-/.github/                   @getai/platform-team
-/AGENTS.md                  @getai/platform-team
-/CLAUDE.md                  @getai/platform-team
-/.claude/                   @getai/platform-team
-/.mcp/                      @getai/platform-team
-/scripts/                   @getai/platform-team
-/builders/lib/              @getai/platform-team
-/deploy/                    @getai/platform-team
+/.specify/                  @AI-Business-Solutions/platform-team
+/.github/                   @AI-Business-Solutions/platform-team
+/AGENTS.md                  @AI-Business-Solutions/platform-team
+/CLAUDE.md                  @AI-Business-Solutions/platform-team
+/.claude/                   @AI-Business-Solutions/platform-team
+/.mcp/                      @AI-Business-Solutions/platform-team
+/scripts/                   @AI-Business-Solutions/platform-team
+/builders/lib/              @AI-Business-Solutions/platform-team
+/deploy/                    @AI-Business-Solutions/platform-team
 
 # Stage 7, rung L2 (plan 5.10 and Appendix B.1): when integration-gate drops to
 # zero approvals, every path with a Merge Danger floor of 3 or more goes to
-# @getai/factory-reviewers so the native code-owner rule still forces a human.
+# @AI-Business-Solutions/factory-reviewers so the native code-owner rule still forces a human.
 # Not needed before L2. Uncomment then, after the class is signed off.
-# /workflows/build/         @getai/factory-reviewers
-# /agents/                  @getai/factory-reviewers
-# /apps/                    @getai/factory-reviewers
-# /data/reference/          @getai/factory-reviewers
-# /plugins/                 @getai/factory-reviewers
+# /workflows/build/         @AI-Business-Solutions/factory-reviewers
+# /agents/                  @AI-Business-Solutions/factory-reviewers
+# /apps/                    @AI-Business-Solutions/factory-reviewers
+# /data/reference/          @AI-Business-Solutions/factory-reviewers
+# /plugins/                 @AI-Business-Solutions/factory-reviewers

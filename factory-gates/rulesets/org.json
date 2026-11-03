@@ -1,6 +1,6 @@
 {
-  "host": "github.com",
-  "org": "getai",
+  "host": "getai.ghe.com",
+  "org": "AI-Business-Solutions",
   "gate_repository": "factory-gates",
   "gate_repository_id": 0,
   "gate_workflow_ref": "refs/heads/release",
