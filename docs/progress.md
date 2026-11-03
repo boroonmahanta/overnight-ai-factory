@@ -17,6 +17,7 @@ Next steps:
 ## Current state
 
 - Mostly documents. First code: `factory-gates/` (stage 1 slice 1, 23 tests passing locally). No pipelines or environments exist yet.
+- **Next: Build 1**, per `docs/plans/stage-1-gate-build-plan.md`. Decisions D1 to D3 in that plan come first.
 - **Session 4 work is in PR 9** (https://github.com/boroonmahanta/overnight-ai-factory/pull/9), opened 2 November 2026 from `claude/wizardly-planck-8i7543`, rebased onto `main`. PR 8 had merged with only the first commit. Boroon merges PR 9 by hand. Once he has, nothing from Session 4 is outstanding on a branch.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
 - Nothing from the plan has been built or tested. Every item marked `[untested]` in the plan is still untested.
@@ -33,6 +34,32 @@ Next steps:
 - Spike 0.9 has a hard date. Audit for unmanaged developer environments before 15 November 2026.
 
 ## Log
+
+## Session 5, 2026-11-03, branch `claude/nice-brahmagupta-5641pb`
+
+Planning only. No build work, by Boroon's choice, to save context.
+
+Done:
+- Fast-forwarded this branch onto `claude/wizardly-planck-8i7543`, so it now holds slice 1 (`86e257a`, `7ea4ad0`, `183216d`). Re-ran the 23 tests: all pass.
+- Wrote `docs/plans/stage-1-gate-build-plan.md`: three build sessions (workflow file and plan fix; rulesets and CODEOWNERS; offline `build` job checks), with what to read, steps, tests and done tests for each.
+
+Decisions (Boroon, 3 November 2026):
+- Pull slice 1 into this branch: yes.
+- Fix the rename gap in the plan's Appendix A `locks` job too, not only in `factory-gates/`: yes. Done in Build 1, not yet.
+- Build in separate sessions, one per slice. This session is planning only.
+
+Files changed: `docs/plans/stage-1-gate-build-plan.md` (new), `docs/progress.md`, `CLAUDE.md`.
+
+Open items:
+- **Three decisions before Build 1** (detail in the plan): D1, how `map` and `locks` get the gate scripts when they hold no credentials (recommended: give them the read-only gate token); D2, how to handle the ~20 scripts the workflow calls that do not exist yet (recommended: a pending list checked by a test); D3, PyYAML pinned for tests only (recommended).
+- Finding to raise in Build 1: the plan pins actions to tags such as `@v5`, not commit SHAs.
+- Slice 1 and this plan are on this branch and `claude/wizardly-planck-8i7543`, not on `main`. No pull request yet.
+- The rest of Stage 1 (Spec Kit presets, glossary and ADR templates, Playwright kit, session mining) needs its own planning session.
+- Spike 0.9, the environment audit, is still due before 15 November 2026.
+
+Next steps:
+1. Boroon answers D1 to D3.
+2. Build 1, from this branch (or `main` once merged).
 
 ## Session 4, 2026-11-02, branch `claude/wizardly-planck-8i7543`
 
