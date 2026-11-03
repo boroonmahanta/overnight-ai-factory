@@ -55,7 +55,7 @@ End:
 | `docs/sources/report-v2.1-two-lanes-one-gate.md` | Earlier report V2.1, "Two Lanes, One Gate, Priced at List". 925 lines. The GitHub and Azure design the main plan builds on: two lanes, harness parity, Spec Kit day gate, traces, credits, ledger schema, Lane A and B cost models, 8-stage plan. Still the best source for Lane A, ACA jobs, the ledger SQL schema and GitHub-side limits |
 | `docs/sources/report-grill-the-spec-lock-the-tests.md` | The first report, "Grill the Spec, Lock the Tests". 195 lines. Original evidence base: what each harness resource teaches, the verifier-is-the-weak-point research, the grill gate, Claude Code facts, first design and stages |
 | `docs/plans/stage-1-gate-build-plan.md` | The plan for three build sessions (workflow file, rulesets and CODEOWNERS, offline build checks). Read it at the start of any Stage 1 build session. D1 to D3 decided. Build 1 done 3 November 2026 |
-| `factory-gates/` | Stage 1 build, staged here until the `getai/factory-gates` repo exists; its root becomes the repo root. `.github/workflows/lcp-gate.yml` (Appendix A, with `map` and `locks` on the tested scripts), `lcp/lane_map.py`, `lcp/check_protected_paths.py`, `lcp/manifest.py`, `scripts.sha256`, `pending-scripts.txt` (20 unwritten scripts), `requirements-test.txt` (PyYAML, tests only). 43 tests: install with `pip install --require-hashes -r requirements-test.txt`, run `python3 -B -m unittest discover -s tests`. Scripts live in `lcp/` and the workflow calls them as `gate/lcp/`. Its README lists the findings (tag pins, actionlint warnings) and the next slices |
+| `factory-gates/` | Stage 1 build, staged here until the `getai/factory-gates` repo exists; its root becomes the repo root. `.github/workflows/lcp-gate.yml` (Appendix A, with `map` and `locks` on the tested scripts; every action pinned to a full commit ID, Dependabot keeps them fresh), `lcp/lane_map.py`, `lcp/check_protected_paths.py`, `lcp/manifest.py`, `scripts.sha256` (hashes every file a gate job reads, not only scripts), `pending-scripts.txt` (20 unwritten scripts), `requirements-test.txt` (PyYAML, tests only). 47 tests: install with `pip install --require-hashes -r requirements-test.txt`, run `python3 -B -m unittest discover -s tests`. Scripts live in `lcp/` and the workflow calls them as `gate/lcp/`. Its README lists the findings (three actionlint warnings in the untested jobs) and the next slices |
 | `.claude/skills/bro/SKILL.md` | The `/bro` skill |
 | `.claude/skills/` | Live skills. `bro`. `ask-me` (router by size, adapted from `ask-matt`). Adopted unchanged: `constraint-driven-development`, `doubt-driven-development`, `source-driven-development`, `create-verification-skill`, `maintain-verification-skill`. Adapted for GET AI, all untested: `lcp-blast-radius`, `getai-decision-log`, `getai-correct`, `lcp-how`, `lcp-why`, `getai-intake`, `getai-wizard`, `getai-questionnaire`, `getai-grilling`, `getai-domain-modeling`, `lcp-triage`. Also adopted 2 November 2026 with a GET AI note each: `unslop` and 21 `principle-*` skills (three conflicting ones stay on the shelf). Pro-code versions, all untested: `pcp-blast-radius`, `pcp-how`, `pcp-why`, `pcp-triage` (the plan has no code-repo triage workflow yet). Decided by Boroon on 2 November 2026. The two verification skills were then edited to write to `.claude/skills/lcp-verify/`. All of them reviewed by him and merged to the default branch (rule 17 met). Still untested |
 | `skills/` | Third-party skills, the pinned originals of the first 16 (Addy 3, Tan 7, Pocock 4, Benny 2). A shelf: it does not auto-load, only `.claude/skills/` does. Provenance, commits and what became of each are in `skills/README.md` |
@@ -90,13 +90,13 @@ Read by line range, for example offset 379 and limit 200.
 | 1367 to 1409 | 11. Staged build plan, stage 0 spikes |
 | 1410 to 1446 | 12. Risks, most serious first (32) |
 | 1447 to 1462 | 13. Accelerator and IP |
-| 1463 to 1532 | 14. Decision log |
-| 1533 to 1570 | 15. Open questions and evidence quality |
-| 1571 to 2088 | Appendix A: gate workflow YAML (untested; `locks` job fixed 3 November 2026) |
-| 2089 to 2226 | Appendix B: Merge Danger rubric, verifier count, `trust.yml` |
-| 2227 to 2498 | Appendix C: agent definitions, `AGENTS.md`, `lcp-verify` skill, PR body template |
-| 2499 to 2554 | Appendix D: ADO fields and states |
-| 2555 to 2573 | Appendix E: sources used |
+| 1463 to 1534 | 14. Decision log (14.4 holds the decisions after V3.1) |
+| 1535 to 1572 | 15. Open questions and evidence quality |
+| 1573 to 2107 | Appendix A: gate workflow YAML (untested; `map` and `locks` jobs fixed 3 November 2026; tags shown, `factory-gates` holds commit pins) |
+| 2108 to 2245 | Appendix B: Merge Danger rubric, verifier count, `trust.yml` |
+| 2246 to 2517 | Appendix C: agent definitions, `AGENTS.md`, `lcp-verify` skill, PR body template |
+| 2518 to 2573 | Appendix D: ADO fields and states |
+| 2574 to 2592 | Appendix E: sources used |
 
 The two transcripts are already digested in plan sections 3.5 (workshop) and 3.6 (Spec Kit). Read the full text only when quoting.
 

@@ -16,7 +16,7 @@ Next steps:
 
 ## Current state
 
-- Mostly documents. First code: `factory-gates/` (stage 1 slice 1 and Build 1, 43 tests passing locally, one expected failure). No pipelines or environments exist yet. Nothing has run on GHE.com or a tenant.
+- Mostly documents. First code: `factory-gates/` (stage 1 slice 1 and Build 1, 47 tests passing locally). No pipelines or environments exist yet. Nothing has run on GHE.com or a tenant.
 - **Build 1 is done** on branch `claude/brave-davinci-0d5ssc` (Session 6). Not yet on `main`. **Next: Build 2** (rulesets and CODEOWNERS as files), per `docs/plans/stage-1-gate-build-plan.md`, once Boroon has merged Build 1.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
@@ -54,16 +54,24 @@ Decisions: none new from Boroon. Choices I made, for his review: the layout move
 
 Files changed: `factory-gates/` (workflow, `lcp/` moved, `scripts.sha256`, `pending-scripts.txt`, `requirements-test.txt`, `tests/test_workflow.py`, `tests/test_manifest.py`, other tests' import paths, `README.md`), `docs/sources/plan-v3.1.md`, `docs/plans/stage-1-gate-build-plan.md`, `CLAUDE.md`, `docs/progress.md`.
 
+Then (Session 6, second request), decisions by Boroon, 3 November 2026, all done on this branch:
+- **Keep `locks` running on every PR** with the human-PR exemption inside the script (one tested place, not two).
+- **Keep `sha256sum` as the hash check** in the workflow. A job only runs files the workflow names, and all are listed. The committed-manifest test catches an unlisted file before `release`.
+- **Pin every action to a full commit ID.** Nine actions. Each ID is what its major tag pointed to on 3 November 2026 (`git ls-remote`), with the matching release as a comment: checkout v5.1.0, setup-python v5.6.0, setup-dotnet v5.4.0, upload-artifact v4.6.2, create-github-app-token v2.2.2, download-artifact v4.3.0, setup-node v4.4.0, azure/login v2.3.1, codeql-action v3.39.1. `.github/dependabot.yml` added (weekly, Mondays, Sydney time) so pin updates arrive as reviewed PRs. The expected-failure test is now a normal test and also checks the version comment is on the same line. The plan's YAML keeps the tags for readability and says so in its header.
+- **The plan's `map` job now matches factory-gates** (gate token, hash check, `lane_map.py`). Both credential tables, "Five jobs hold" the gate key, and the 14.4 row updated.
+- **The hash manifest now covers every file a gate job reads**, not only `lcp/`: prompts, rubrics, `.github/agents/`, rules, `projects/`, the Playwright lockfile, and whatever is added later. Not hashed: `tests/`, docs, test-only files, the manifest itself, and `.github/` apart from `agents/`. `manifest.py` rewritten around an `is_hashed` rule; four scope tests added; plan 5.7 and the Appendix A header say so; a 14.4 row records it. Today the manifest still lists only the three scripts, because nothing else exists yet.
+- 47 tests, `OK`. actionlint still shows only the three known warnings. Checked the plan's six jobs against factory-gates with the pins mapped back to tags: all six match.
+
+Also answered in chat: a pro-code gate would most likely sit beside `lcp/` as `pcp/` with its own `pcp-gate.yml` in the same repo (V2.1 used one `factory-gates` repo for both lanes). Not decided. Three things to settle then: shared scripts between the two gates, the manifest covering both, and the custom-property value that routes code repos to `pcp-gate.yml`. Noted in the README.
+
 Open items:
-- **Finding for Boroon: actions are pinned to tags (`@v5`), not commit SHAs.** Not changed. Recorded as an expected-failure test.
 - **Finding: actionlint 1.7.12 flags `queue: max` and `copilot-requests: write` (twice)**, all in the untested jobs. Left as written. Check in spike 0.6 and stage 1.
-- **The plan's `map` job still has the inline bash.** Only `locks` was approved for the plan edit. Factory-gates `map` runs `lane_map.py`. Same logic, no known bug. Edit the plan to match? Boroon.
-- `pending-scripts.txt` does not track trusted non-script files (`danger-rules.yml`, prompts, rubrics, the Playwright kit, `projects/`, the `lcp-verify` CLI). The manifest covers only `lcp/`. Decide whether prompts and rubrics get hashed too, before Stage 2.
+- Dependabot on GHE.com for this org: untested. If it is not available, the pins go stale until someone re-runs the lookup by hand.
 - Spike 0.9, the environment audit, is still due before 15 November 2026.
 
 Next steps:
 1. Boroon reviews and merges Build 1 (pull request when he asks for one).
-2. Build 2, from `main`: rulesets and CODEOWNERS as files, `make_rulesets.py`, `audit_bypass.py`.
+2. Build 2, from `main`: rulesets and CODEOWNERS as files, `make_rulesets.py`, `audit_bypass.py`. Regenerate the manifest after adding `rulesets/` and `templates/`.
 3. Build 3: the offline `build` job checks.
 
 ## Session 5, 2026-11-03, branch `claude/nice-brahmagupta-5641pb`
