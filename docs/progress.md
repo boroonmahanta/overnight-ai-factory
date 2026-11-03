@@ -20,7 +20,7 @@ Next steps:
 - **Build 1 is done** (Session 6). PR 11 merged into `main` on 3 November 2026.
 - **Build 2 is done** (Session 7). PR 12 merged into `main` on 3 November 2026.
 - **Build 3 is done** (Session 8). PR 13 merged into `main` on 3 November 2026.
-- **The move is done** (Session 9, 3 November 2026): steps 1 to 11 of "Moving to GHE.com" (now in the new repo's README). `factory-gates/` is deleted from this repo on branch `claude/wonderful-lamport-vbdypu` (not yet merged to `main`). Step 12, applying the rulesets, is not started. `GetAI-IP` is the central org; four other orgs will use the gate. **Gate work runs from Boroon's laptop:** cloud sessions cannot reach `getai.ghe.com`.
+- **The move is done** (Session 9, 3 November 2026): steps 1 to 11 of "Moving to GHE.com" (now in the new repo's README). `factory-gates/` is deleted from this repo on branch `claude/wonderful-lamport-vbdypu`, **PR 14 open** at Boroon's request (3 November 2026); he merges it by hand. Step 12, applying the rulesets, is not started. `GetAI-IP` is the central org; four other orgs will use the gate. **Gate work runs from Boroon's laptop:** cloud sessions cannot reach `getai.ghe.com`.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
 - Nothing from the plan has been built or tested. Every item marked `[untested]` in the plan is still untested.
@@ -90,7 +90,7 @@ Files changed: `CLAUDE.md`, `docs/progress.md`, `docs/plans/stage-1-gate-build-p
 Open items: in the Open items section above (laptop-only gate work, the callers checks (a), (c), (d), the approver stopgaps, the Dependabot pull requests, the README follow-ups). Spike 0.9 before 15 November 2026, unchanged.
 
 Next steps:
-1. Boroon reviews this branch. I open its pull request when he asks; merging it removes `factory-gates/` from `main`.
+1. Boroon reviews and merges PR 14 (https://github.com/boroonmahanta/overnight-ai-factory/pull/14), opened at his request on 3 November 2026. Merging it removes `factory-gates/` from `main`.
 2. In `GetAI-IP/factory-gates`, by pull request there, from his laptop: the README step 9 fixes and the `dependabot.yml` comment, then next slice 2, the self-test workflow.
 3. Checks (a), (c), (d) on `getai.ghe.com`, then the callers build (next slice 6).
 4. Step 12, the rulesets, once the three teams exist and the approval stopgaps are undone. `apply --yes` only when Boroon says so.
