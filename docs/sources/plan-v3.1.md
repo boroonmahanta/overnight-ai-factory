@@ -629,14 +629,14 @@ The uploaded plan's PR checks ran the agent's own scripts from the PR branch, wi
 
 | Job | Runs PR code? | Credentials | Purpose |
 |---|---|---|---|
-| `map` | No | None | Lane from the branch name `agent/fl<n>/<ado-id>-<attempt>`, validated against an allowed list |
-| `locks` | No | None | Second lock on protected paths; locked scenarios and the spec unchanged against the base |
+| `map` | No | Read-only gate App token | Lane from the branch name `agent/fl<n>/<ado-id>-<attempt>`, validated against an allowed list. Trusted, hash-checked script |
+| `locks` | No | Read-only gate App token | Second lock on protected paths; locked scenarios and the spec unchanged against the base. Trusted, hash-checked script; a rename counts as a delete plus an add |
 | `build` | **Yes** (builders) | **None**: `contents: read`, no `id-token` | Builders, `git diff --exit-code`, offline `pac solution pack` and `pac copilot pack`. Uploads the zips |
 | `static` | No | Read-only gate App token | Trusted scripts from the gate repo, hash-checked, read the PR files and zips as data: manifest check, lints, criteria trace |
 | `verify-in-test` | No (locked tests are proven unchanged by `locks`) | `getai-<proj>-test` over OIDC, pinned to the gate workflow; test user certificate | Plan against the Test baseline, solution checker SARIF, import, locked scenarios, Playwright, Copilot Studio conversations, held-out set, evaluator |
 | `danger` | No | Job token with `checks: write`; Copilot requests | Deterministic floor, raise-only review agent, merge policy |
 
-Trusted scripts from the uploaded plan move into the gate repo: `run_workflow.py`, `lint_logic_apps.py` (fails on an `if()` expression over 8,192 characters or unsafe substrings), `check_root_components.py`, `create_schema.py --plan`, `create_security.py --plan`, `sync_solutions.py` and `reset_environment.py`. New trusted scripts: the manifest check, a static-results lint, a `.pa.yaml` schema lint against Microsoft's published schema ([canvas source](https://learn.microsoft.com/power-apps/maker/canvas-apps/power-apps-yaml)), an accessible-label lint, a criteria-to-scenario trace, a prototype lint, the Merge Danger floor and pre-floor, the verifier plan, the trusted `lcp-verify` CLI and the merge policy by rung. The gate verifies a `scripts.sha256` manifest before running any of them.
+Trusted scripts from the uploaded plan move into the gate repo: `run_workflow.py`, `lint_logic_apps.py` (fails on an `if()` expression over 8,192 characters or unsafe substrings), `check_root_components.py`, `create_schema.py --plan`, `create_security.py --plan`, `sync_solutions.py` and `reset_environment.py`. New trusted scripts: the protected-paths check (`check_protected_paths.py`, run by `locks`), the manifest check, a static-results lint, a `.pa.yaml` schema lint against Microsoft's published schema ([canvas source](https://learn.microsoft.com/power-apps/maker/canvas-apps/power-apps-yaml)), an accessible-label lint, a criteria-to-scenario trace, a prototype lint, the Merge Danger floor and pre-floor, the verifier plan, the trusted `lcp-verify` CLI and the merge policy by rung. The gate verifies a `scripts.sha256` manifest before running any of them. The manifest covers every file in the gate repo that a job reads, not only scripts: prompts, rubrics, agent definitions, `danger-rules.yml`, `trust.yml` and project settings (decided 3 November 2026). Only tests, docs, test-only files and the workflow folder sit outside it.
 
 **3. Rulesets lock the paths, the branches and the bypass list,** following V2.1's stack ([available rules](https://docs.github.com/en/enterprise-cloud@latest/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)):
 
@@ -1528,6 +1528,9 @@ Board lens: these are reusable IP, Power Platform depth strengthens the Microsof
 | Topic | Before | Now | Why |
 |---|---|---|---|
 | **Partner credits for client builds** | Treated as unknown; client work at cash until Microsoft answered in writing | Accepted by Boroon on 2 November 2026: builds for customers can be made on credits | Removes the biggest risk on the list. Rules 13 and 14 are unchanged |
+| **Appendix A `map` and `locks` jobs** | Inline bash, no credentials | Both run trusted, hash-checked scripts (`lane_map.py`, `check_protected_paths.py`) with the read-only gate token (decision D1, Boroon, 3 November 2026; edited in Build 1) | The inline `locks` check missed renames: moving a locked scenario out of `tests/acceptance/` listed only the new path and passed. The script uses `--no-renames`, and a test proves it. `map` changed so its rule is tested, not copied |
+| **Action pins in the gate workflow** | Version tags such as `@v5` | Full commit IDs with the version as a comment, kept fresh by Dependabot pull requests (Boroon, 3 November 2026). `factory-gates` holds the IDs; this appendix keeps the tags for readability | A tag can be moved to other code. Two of these actions handle the gate App key and checkout tokens |
+| **Hash manifest scope** | Scripts only | Every file in the gate repo that a job reads: scripts, prompts, rubrics, agent definitions, `danger-rules.yml`, `trust.yml`, project settings. Not hashed: tests, docs, test-only files, the workflow folder (Boroon, 3 November 2026) | Rule 17 names prompts, rubrics and agents alongside gate scripts. The rules file sets the deterministic floor (rule 11) and `trust.yml` decides auto-merge (rule 12). A whole-repo scan means nothing added later is forgotten |
 
 ## 15. Open questions and evidence quality
 
@@ -1575,8 +1578,8 @@ What it does, job by job:
 
 | Job | Credentials | Runs |
 |---|---|---|
-| `map` | None | Lane and story from the branch name, validated against `vars.LCP_LANES` |
-| `locks` | None | Second lock on protected paths, against the base commit |
+| `map` | Read-only gate App token | Lane and story from the branch name by the trusted `lane_map.py`, validated against `vars.LCP_LANES`; hashes verified first |
+| `locks` | Read-only gate App token | Second lock on protected paths, against the base commit, by the trusted `check_protected_paths.py` (a rename counts as a delete plus an add); hashes verified first |
 | `build` | None | PR builders, `git diff --exit-code`, offline `pac solution pack` and `pac copilot pack` |
 | `static` | Read-only gate App token | Trusted manifest check, lints, criteria trace; hashes verified first |
 | `verify-in-test` | OIDC for `getai-<proj>-test` only; held-out reader App; Key Vault | Plan against the Test baseline, checker SARIF, import, locked scenarios, Playwright, Copilot Studio conversations, held-out set, pre-floor, one to three verifier sessions, evidence hashes to Blob |
@@ -1584,7 +1587,7 @@ What it does, job by job:
 
 Three things to know before using it:
 
-- **The gate reader keys are secrets.** Three jobs hold a GitHub App key that can read `factory-gates`, and one also holds a key for `factory-holdout`. None of them runs PR code. The push ruleset on `.github/**` stops an agent adding a workflow that could read them. Rotate both keys quarterly.
+- **The gate reader keys are secrets.** Five jobs hold a GitHub App key that can read `factory-gates`, and one also holds a key for `factory-holdout`. None of them runs PR code. The push ruleset on `.github/**` stops an agent adding a workflow that could read them. Rotate both keys quarterly.
 - **The lane lock is not here.** Concurrency groups are per repository, so the lane lock and the lane drift check live in the execution workflow in `factory-control`. That workflow posts `lane/drift` as a check run through the factory App, and `integration-gate` requires it.
 - **The Test lock is here.** `verify-in-test` holds `lcp-test-<repo>` for import, tests and the evaluator together, so another PR cannot import between this PR's tests and its evaluation.
 
@@ -1606,6 +1609,13 @@ Three things to know before using it:
 #   federated credential for getai-<proj>-test trusts only this workflow on
 #   refs/heads/release (job_workflow_ref in the subject).
 # - Ruleset workflows ignore branches, paths and types filters.
+# - This repo is checked out at gate/, so its lcp/<name>.py is called as
+#   gate/lcp/<name>.py. Every job that runs one verifies scripts.sha256 first.
+#   The manifest covers every file a job reads here (scripts, prompts, rubrics,
+#   agents, rules, project settings), not only scripts.
+# - The copy in factory-gates pins every action to a full commit ID, with the
+#   version as a comment, kept fresh by Dependabot. The tags shown here name
+#   the version only (decided 3 November 2026).
 
 name: lcp-gate
 
@@ -1631,26 +1641,36 @@ jobs:
       lane: ${{ steps.lane.outputs.lane }}
       story: ${{ steps.lane.outputs.story }}
     steps:
+      # Read-only gate token so this job can run the tested lane_map.py (decision D1,
+      # 3 November 2026). No PR code is checked out or run here.
+      - id: gate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.GATE_READER_APP_ID }}
+          private-key: ${{ secrets.GATE_READER_KEY }}
+          owner: getai
+          repositories: factory-gates
+      - uses: actions/checkout@v5
+        with:
+          repository: ${{ env.GATE_REPO }}
+          ref: release
+          token: ${{ steps.gate-token.outputs.token }}
+          path: gate
+          persist-credentials: false
+      - name: Verify trusted script hashes
+        working-directory: gate
+        run: sha256sum --check --strict scripts.sha256
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PY_VERSION }}
+      # Agent branches: agent/<lane>/<ado-id>-<attempt>, for example agent/fl2/48213-1.
+      # Anything else (human PR, release PR, merge queue) maps to lane "none".
+      # An agent branch on a lane not in LCP_LANES fails.
       - id: lane
         env:
           HEAD_REF: ${{ github.head_ref || github.event.merge_group.head_ref }}
           ALLOWED: ${{ vars.LCP_LANES }}        # for example "fl1 fl2 fl3"
-        run: |
-          set -euo pipefail
-          # Agent branches: agent/<lane>/<ado-id>-<attempt>, for example agent/fl2/48213-1
-          if [[ "$HEAD_REF" =~ ^agent/(fl[0-9]+)/([0-9]+)-([0-9]+)$ ]]; then
-            lane="${BASH_REMATCH[1]}"
-            story="${BASH_REMATCH[2]}"
-            if [[ " $ALLOWED " != *" $lane "* ]]; then
-              echo "Unknown lane: $lane"
-              exit 1
-            fi
-          else
-            lane="none"        # human PR, release PR or merge queue
-            story="none"
-          fi
-          echo "lane=$lane" >> "$GITHUB_OUTPUT"
-          echo "story=$story" >> "$GITHUB_OUTPUT"
+        run: python3 -I gate/lcp/lane_map.py
 
   locks:
     name: protected paths and locked scenarios
@@ -1661,20 +1681,39 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          path: pr
           fetch-depth: 0
           persist-credentials: false
+      # Read-only gate token so this job can run the tested check_protected_paths.py
+      # (decision D1, 3 November 2026). PR files are only read by git diff, never run.
+      - id: gate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.GATE_READER_APP_ID }}
+          private-key: ${{ secrets.GATE_READER_KEY }}
+          owner: getai
+          repositories: factory-gates
+      - uses: actions/checkout@v5
+        with:
+          repository: ${{ env.GATE_REPO }}
+          ref: release
+          token: ${{ steps.gate-token.outputs.token }}
+          path: gate
+          persist-credentials: false
+      - name: Verify trusted script hashes
+        working-directory: gate
+        run: sha256sum --check --strict scripts.sha256
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PY_VERSION }}
+      # Lists renames as a delete plus an add (--no-renames), so moving a locked file out
+      # of a protected folder is caught. Lane "none" (human PR) passes inside the script.
       - name: Protected paths and locked scenarios unchanged (second lock behind the push ruleset)
-        if: needs.map.outputs.lane != 'none'
+        working-directory: pr
         env:
+          LANE: ${{ needs.map.outputs.lane }}
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
-        run: |
-          set -euo pipefail
-          changed="$(git diff --name-only "$BASE_SHA"...HEAD)"
-          protected='^(tests/acceptance/|tests/scenarios/|specs/[^/]+/spec\.md|specs/[^/]+/checklists/|glossary\.md|docs/adr/|coding-standards\.md|\.specify/|\.github/|\.claude/|\.mcp/|AGENTS\.md|CLAUDE\.md|scripts/|builders/lib/|deploy/)'
-          if printf '%s\n' "$changed" | grep -E "$protected"; then
-            echo "An agent PR changed a protected path. Failing."
-            exit 1
-          fi
+        run: python3 -I ../gate/lcp/check_protected_paths.py --lane "$LANE" --base "$BASE_SHA"
 
   build:
     name: builders, drift and pack (PR code, no credentials)

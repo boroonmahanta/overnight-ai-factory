@@ -16,9 +16,9 @@ Next steps:
 
 ## Current state
 
-- Mostly documents. First code: `factory-gates/` (stage 1 slice 1, 23 tests passing locally). No pipelines or environments exist yet.
-- **Next: Build 1**, per `docs/plans/stage-1-gate-build-plan.md`. D1 to D3 all decided. Boroon merges the Session 5 pull request first.
-- **Session 4 work is in PR 9** (https://github.com/boroonmahanta/overnight-ai-factory/pull/9), opened 2 November 2026 from `claude/wizardly-planck-8i7543`, rebased onto `main`. PR 8 had merged with only the first commit. Boroon merges PR 9 by hand. Once he has, nothing from Session 4 is outstanding on a branch.
+- Mostly documents. First code: `factory-gates/` (stage 1 slice 1 and Build 1, 47 tests passing locally). No pipelines or environments exist yet. Nothing has run on GHE.com or a tenant.
+- **Build 1 is done** on branch `claude/brave-davinci-0d5ssc` (Session 6). Not yet on `main`. **Next: Build 2** (rulesets and CODEOWNERS as files), per `docs/plans/stage-1-gate-build-plan.md`, once Boroon has merged Build 1.
+- PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
 - Nothing from the plan has been built or tested. Every item marked `[untested]` in the plan is still untested.
 - Boroon said more context will be added in later sessions.
@@ -34,6 +34,47 @@ Next steps:
 - Spike 0.9 has a hard date. Audit for unmanaged developer environments before 15 November 2026.
 
 ## Log
+
+## Session 6, 2026-11-03, branch `claude/brave-davinci-0d5ssc`
+
+Build 1 of `docs/plans/stage-1-gate-build-plan.md`, started from `main` (PR 10 merged). D1 to D3 settled before the session.
+
+Done:
+- Copied plan Appendix A verbatim to `factory-gates/.github/workflows/lcp-gate.yml` as its own commit (`806c3b2`), so later diffs show every change.
+- **Layout fix:** moved the scripts from `factory-gates/gate/lcp/` to `factory-gates/lcp/`. The workflow checks the gate repo out at `gate/` and calls `gate/lcp/<name>.py`, and plan C.5 names `factory-gates/lcp/verify/`. With the old layout every call would have resolved to `gate/gate/lcp/`. `manifest.py` now scans `lcp/`.
+- `map` and `locks` now get the read-only gate token, check out the gate repo, verify `scripts.sha256`, then run `lane_map.py` and `check_protected_paths.py` (D1). `locks` checks out the PR at `pr/` like the other jobs and passes the lane to the script, which already lets lane `none` through (tested), so the step-level `if` was dropped.
+- Hash check: kept `sha256sum --check --strict scripts.sha256` in every job. New tests prove `manifest.py` and `sha256sum` agree on changed and missing files. Only `manifest.py` catches an unlisted file; the committed-manifest test covers that before release.
+- `verify-in-test` and `danger` left as written, each with a header comment naming the stage 0 spikes they wait for.
+- `pending-scripts.txt` (D2): the 20 scripts the workflow calls that do not exist. `requirements-test.txt` (D3): PyYAML 6.0.3 with 48 hashes (source archive plus every CPython 3.11 to 3.14 wheel) from PyPI. pip accepted it with `--require-hashes`, and the source archive hash was checked by hand.
+- `tests/test_workflow.py`: 15 tests, covering every check in the build plan plus no trigger filters, secrets only in token steps, `persist-credentials: false` everywhere. Five agreement tests in `test_manifest.py`. 43 tests at this point (47 by the end of the session, see below).
+- Proved the tests by breaking a copy 10 ways (including removing `--no-renames` and putting back the plan's original `locks` job). Each failed as it should.
+- **Plan fix (approved 3 November 2026):** Appendix A `locks` job replaced with the factory-gates version. Consistency edits: both credential tables, "Four jobs hold" the gate key, the 5.7 trusted-script list, and a row in decision log 14.4. The plan's `locks` job is now identical to the one in factory-gates.
+
+Decisions in the first request: none new from Boroon. Three choices of mine were put to him afterwards and all approved in the second request (below): the layout move (forced by the plan's own paths); dropping the `if` on the `locks` step; keeping `sha256sum` rather than calling `manifest.py` in the workflow.
+
+Files changed, whole session: `factory-gates/` (`.github/workflows/lcp-gate.yml` new, `.github/dependabot.yml` new, `lcp/` moved from `gate/lcp/`, `lcp/manifest.py` rewritten, `scripts.sha256`, `pending-scripts.txt` new, `requirements-test.txt` new, `tests/test_workflow.py` new, `tests/test_manifest.py`, other tests' import paths, `README.md`), `docs/sources/plan-v3.1.md`, `docs/plans/stage-1-gate-build-plan.md`, `CLAUDE.md`, `docs/progress.md`.
+
+On the branch, in order: `806c3b2` (Appendix A copied verbatim), `2ecaa3c` (layout move), `9980c9d` (`map` and `locks` wired, workflow tests), `eb1ce7a` (plan `locks` fix), `b1cd152` (log), `440d3f1` (commit pins, Dependabot), `8860c2a` (manifest scope), `c88fe31` (plan `map` fix, decision rows). All pushed. No pull request opened. Boroon merges by hand.
+
+Then (Session 6, second request), decisions by Boroon, 3 November 2026, all done on this branch:
+- **Keep `locks` running on every PR** with the human-PR exemption inside the script (one tested place, not two).
+- **Keep `sha256sum` as the hash check** in the workflow. A job only runs files the workflow names, and all are listed. The committed-manifest test catches an unlisted file before `release`.
+- **Pin every action to a full commit ID.** Nine actions. Each ID is what its major tag pointed to on 3 November 2026 (`git ls-remote`), with the matching release as a comment: checkout v5.1.0, setup-python v5.6.0, setup-dotnet v5.4.0, upload-artifact v4.6.2, create-github-app-token v2.2.2, download-artifact v4.3.0, setup-node v4.4.0, azure/login v2.3.1, codeql-action v3.39.1. `.github/dependabot.yml` added (weekly, Mondays, Sydney time) so pin updates arrive as reviewed PRs. The expected-failure test is now a normal test and also checks the version comment is on the same line. The plan's YAML keeps the tags for readability and says so in its header.
+- **The plan's `map` job now matches factory-gates** (gate token, hash check, `lane_map.py`). Both credential tables, "Five jobs hold" the gate key, and the 14.4 row updated.
+- **The hash manifest now covers every file a gate job reads**, not only `lcp/`: prompts, rubrics, `.github/agents/`, rules, `projects/`, the Playwright lockfile, and whatever is added later. Not hashed: `tests/`, docs, test-only files, the manifest itself, and `.github/` apart from `agents/`. `manifest.py` rewritten around an `is_hashed` rule; four scope tests added; plan 5.7 and the Appendix A header say so; a 14.4 row records it. Today the manifest still lists only the three scripts, because nothing else exists yet.
+- 47 tests, `OK`. actionlint still shows only the three known warnings. Checked the plan's six jobs against factory-gates with the pins mapped back to tags: all six match.
+
+Also answered in chat: a pro-code gate would most likely sit beside `lcp/` as `pcp/` with its own `pcp-gate.yml` in the same repo (V2.1 used one `factory-gates` repo for both lanes). Not decided. Three things to settle then: shared scripts between the two gates, the manifest covering both, and the custom-property value that routes code repos to `pcp-gate.yml`. Noted in the README.
+
+Open items:
+- **Finding: actionlint 1.7.12 flags `queue: max` and `copilot-requests: write` (twice)**, all in the untested jobs. Left as written. Check in spike 0.6 and stage 1.
+- Dependabot on GHE.com for this org: untested. If it is not available, the pins go stale until someone re-runs the lookup by hand.
+- Spike 0.9, the environment audit, is still due before 15 November 2026.
+
+Next steps:
+1. Boroon reviews and merges Build 1 (pull request when he asks for one).
+2. Build 2, from `main`: rulesets and CODEOWNERS as files, `make_rulesets.py`, `audit_bypass.py`. Regenerate the manifest after adding `rulesets/` and `templates/`.
+3. Build 3: the offline `build` job checks.
 
 ## Session 5, 2026-11-03, branch `claude/nice-brahmagupta-5641pb`
 

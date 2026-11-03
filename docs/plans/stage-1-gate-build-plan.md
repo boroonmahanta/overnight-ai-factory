@@ -6,16 +6,17 @@ This covers the parts of Stage 1 (plan section 11.2) that need no tenant and no 
 
 ## Where things stand
 
-- Slice 1 is done: `lane_map.py`, `check_protected_paths.py`, `manifest.py`, `scripts.sha256`, 23 tests. All pass (re-run 3 November 2026).
-- Slice 1's three commits (`86e257a`, `7ea4ad0`, `183216d`) were on `claude/wizardly-planck-8i7543`. They are now also on `claude/nice-brahmagupta-5641pb` with this plan. Neither branch is on `main`. Boroon merges by hand.
-- Tests run with `cd factory-gates && python3 -B -m unittest discover -s tests`.
+- Slice 1 is done: `lane_map.py`, `check_protected_paths.py`, `manifest.py`, `scripts.sha256`, 23 tests. Merged to `main` by PR 10.
+- **Build 1 is done** (Session 6, 3 November 2026, branch `claude/brave-davinci-0d5ssc`): the workflow file, `map` and `locks` on the tested scripts, `pending-scripts.txt`, PyYAML pinned for tests, 24 new tests (47 in all), the plan's `map` and `locks` jobs fixed. Also decided by Boroon the same day: actions pinned to full commit IDs with Dependabot to keep them fresh, and the hash manifest widened from scripts to every file a gate job reads. Details in `docs/progress.md` and `factory-gates/README.md`.
+- **Layout change in Build 1:** the scripts moved from `factory-gates/gate/lcp/` to `factory-gates/lcp/`. The workflow checks the gate repo out at `gate/`, so it calls them as `gate/lcp/<name>.py`. Below, `gate/lcp/x.py` means the workflow path; the file lives at `factory-gates/lcp/x.py`.
+- Tests run with `cd factory-gates && python3 -m pip install --require-hashes -r requirements-test.txt` (once), then `python3 -B -m unittest discover -s tests`.
 
 ## How to start each build session
 
 1. Start from the branch that holds this plan, or from `main` once Boroon has merged it. Check `factory-gates/` exists first.
 2. Read `CLAUDE.md`, `docs/progress.md`, this file and `factory-gates/README.md`.
 3. Read only the plan lines named for that session. Do not load whole sources.
-4. Run the 23 tests before changing anything.
+4. Run the tests before changing anything (47 after Build 1).
 5. End as usual: progress entry, commit, push, no pull request unless asked.
 
 ## Decisions before Build 1
@@ -33,9 +34,9 @@ D1, D2 and D3 decided by Boroon on 3 November 2026: the recommended options in e
 
 **D3. A YAML parser for the tests.** Python's standard library has none. **Decided (Boroon, 3 November 2026):** PyYAML, pinned with a hash, for tests only, in `factory-gates/requirements-test.txt`. The gate scripts themselves stay free of packages.
 
-## Build 1: the workflow file, and the plan fix
+## Build 1: the workflow file, and the plan fix (done 3 November 2026)
 
-Read: plan lines 1563 to 2058 (Appendix A), 622 to 665 (section 5.7).
+Read: plan lines 1563 to 2058 (Appendix A), 622 to 665 (section 5.7). (Line numbers as they were before Build 1.)
 
 1. Copy the Appendix A YAML verbatim to `factory-gates/.github/workflows/lcp-gate.yml`. First commit is the plain copy, so later diffs show every change.
 2. `map`: give it the read-only gate App token, check out the gate repo, verify hashes, call `lane_map.py` (D1 option A). Keep its outputs `lane` and `story`.
@@ -57,7 +58,7 @@ Done when: all tests pass, including the new ones. The test with `--no-renames` 
 
 ## Build 2: rulesets and CODEOWNERS as files
 
-Read: plan lines 650 to 665 (rulesets), 2059 to 2196 (Appendix B, for `trust.yml` and CODEOWNERS by floor, skim only).
+Read: plan lines 641 to 650 (rulesets, section 5.7 part 3), 2108 to 2245 (Appendix B, for `trust.yml` and CODEOWNERS by floor, skim only). Line numbers as at the end of Build 1.
 
 1. Four JSON files in `factory-gates/rulesets/`, in GitHub's REST ruleset format: `main-gate.json`, `integration-gate.json`, `protected-paths.json`, `factory-required-workflows.json`. Settings as plan section 5.7.
 2. `factory-gates/templates/CODEOWNERS` for project repos. Protected paths go to `@acceptance-owners` or the platform team.
@@ -70,7 +71,7 @@ Done when: all tests pass. Seeded bad files fail as expected: a stale ruleset, C
 
 ## Build 3: the offline `build` job checks
 
-Read: plan lines 1672 to 1716 (the `build` job), section 5.6 only if needed (`grep -n '^### 5.6' docs/sources/plan-v3.1.md`).
+Read: plan lines 1718 to 1762 (the `build` job, as at the end of Build 1), section 5.6 only if needed (`grep -n '^### 5.6' docs/sources/plan-v3.1.md`).
 
 1. `gate/lcp/check_builders.py`: runs every `workflows/build/*.py`, then fails on `git diff --exit-code`. It runs PR code, so it has no credentials (the job stays as it is). It is a gate-repo script so the logic is tested, but it is only as trusted as the job it runs in.
 2. A small fixture project under `factory-gates/tests/fixtures/` with one builder and its output. Tests: matching output passes, hand-edited output fails, a builder that crashes fails.
@@ -89,4 +90,5 @@ Done when: all tests pass. The `build` job still has no credentials (the Build 1
 
 - The YAML is the plan's untested starting point. Our tests prove its shape, not that it runs on GHE.com.
 - Required workflows ignore `branches`, `paths` and `types` filters (plan section 5.7). Do not add any.
-- Action tags, not SHAs (Build 1 step 6). A finding for Boroon, not a change.
+- Action tags, not SHAs (Build 1 step 6). Raised as a finding and settled the same day: `factory-gates` pins to full commit IDs; the plan's YAML keeps the tags for readability.
+- In Build 2, `rulesets/` and `templates/` will be hashed into `scripts.sha256` by default. Regenerate the manifest after adding them.
