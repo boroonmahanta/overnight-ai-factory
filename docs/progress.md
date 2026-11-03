@@ -16,7 +16,8 @@ Next steps:
 
 ## Current state
 
-- Documents only. No code, no pipelines, no environments exist yet.
+- Mostly documents. First code: `factory-gates/` (stage 1 slice 1, 23 tests passing locally). No pipelines or environments exist yet.
+- **Next: Build 1**, per `docs/plans/stage-1-gate-build-plan.md`. D1 to D3 all decided. Boroon merges the Session 5 pull request first.
 - **Session 4 work is in PR 9** (https://github.com/boroonmahanta/overnight-ai-factory/pull/9), opened 2 November 2026 from `claude/wizardly-planck-8i7543`, rebased onto `main`. PR 8 had merged with only the first commit. Boroon merges PR 9 by hand. Once he has, nothing from Session 4 is outstanding on a branch.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
 - Nothing from the plan has been built or tested. Every item marked `[untested]` in the plan is still untested.
@@ -29,12 +30,50 @@ Next steps:
 - **Not read in full.** The files added from the zip were saved but not read in this session: the reports V1 and V2, the runtime and costs note, the eight GitHub and Azure notes, the five Power Platform notes and the one-pager. The five workshop slide images were saved but not viewed. The plan condenses most of them. Read one only when a task needs its detail.
 - **Decisions still waiting on Boroon** (from `docs/analysis/tshirt-sizing.md`): approve the shortlist of skills to read in full before any are adopted (plan section 8.3); decide whether to add a work-size field to ADO (Appendix D); decide whether to write a GET AI router skill that routes by size. The sizes themselves are approved.
 - The Pocock v1.3 transcript ends mid-sentence at 14:28. The zip copy is the same, so the source itself is cut off.
-- The credit ruling (spike 0.1) has not been sent to Partner Center. The question text is in plan section 9.1.
+- **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 - Spike 0.9 has a hard date. Audit for unmanaged developer environments before 15 November 2026.
 
 ## Log
 
+## Session 5, 2026-11-03, branch `claude/nice-brahmagupta-5641pb`
+
+Planning only. No build work, by Boroon's choice, to save context.
+
+Done:
+- Fast-forwarded this branch onto `claude/wizardly-planck-8i7543`, so it now holds slice 1 (`86e257a`, `7ea4ad0`, `183216d`). Re-ran the 23 tests: all pass.
+- Wrote `docs/plans/stage-1-gate-build-plan.md`: three build sessions (workflow file and plan fix; rulesets and CODEOWNERS; offline `build` job checks), with what to read, steps, tests and done tests for each.
+
+Decisions (Boroon, 3 November 2026):
+- Pull slice 1 into this branch: yes.
+- Fix the rename gap in the plan's Appendix A `locks` job too, not only in `factory-gates/`: yes. Done in Build 1, not yet.
+- Build in separate sessions, one per slice. This session is planning only.
+
+Files changed: `docs/plans/stage-1-gate-build-plan.md` (new), `docs/progress.md`, `CLAUDE.md`.
+
+Open items:
+- **Three decisions before Build 1, all decided 3 November 2026** (detail in the plan): D1, `map` and `locks` get the read-only gate token; D2, a pending-scripts list checked by a test; D3, PyYAML pinned for tests only.
+- Finding to raise in Build 1: the plan pins actions to tags such as `@v5`, not commit SHAs.
+- Slice 1 and this plan go to `main` by the Session 5 pull request, opened 3 November 2026 at Boroon's request.
+- The rest of Stage 1 (Spec Kit presets, glossary and ADR templates, Playwright kit, session mining) needs its own planning session.
+- Spike 0.9, the environment audit, is still due before 15 November 2026.
+
+Later in Session 5, Boroon decided: D1, option A (`map` and `locks` get the read-only gate App token); D2, the pending-scripts list. D3, PyYAML pinned with a hash, for tests only.
+
+Next steps:
+1. Boroon merges the Session 5 pull request (slice 1 plus this plan) into `main`.
+2. Build 1, from `main`.
+
 ## Session 4, 2026-11-02, branch `claude/wizardly-planck-8i7543`
+
+Build started (Boroon, 2 November 2026: "get on with the actual build"). **Stage 1 slice 1 is `factory-gates/`**, staged in this repo until the `getai/factory-gates` repo exists. Three trusted gate scripts with 23 unit tests, all passing locally with Python 3.13 and no packages:
+- `lane_map.py`: branch `agent/<lane>/<ado-id>-<attempt>` to lane and story; unknown lane fails (replaces the inline bash in the `map` job).
+- `check_protected_paths.py`: fails an agent PR that touches a protected path. Tested against real git repos.
+- `manifest.py` and `scripts.sha256`: hash manifest for the trusted scripts; a test fails if the committed manifest is stale.
+- **Finding:** Appendix A's inline `locks` check (`git diff --name-only BASE...HEAD`) misses renames, because git lists only the new path. Moving a locked scenario out of `tests/acceptance/` would pass. The script uses `--no-renames` and a test proves the difference. The plan's YAML is not yet changed. The push ruleset is the first lock, so this is a gap in the second lock only.
+- Not tested: anything on GHE.com or a Power Platform tenant. Next slices are listed in `factory-gates/README.md`: wire the scripts into the workflow YAML, rulesets and CODEOWNERS as files, the offline `build` job, then the tenant-dependent jobs after the stage 0 spikes.
+- Files changed: `factory-gates/` (new), `CLAUDE.md`, `docs/progress.md`.
+
+After PR 9 merged (decision by Boroon, 2 November 2026): **credit funding for client builds is accepted and settled.** Not to be raised again. Recorded in `CLAUDE.md` (biggest risk 1, open questions) and in the plan (section 9.1, spike 0.1 row, risk 1 row, section 15.1, new decision log section 14.4). Files changed: `docs/sources/plan-v3.1.md`, `CLAUDE.md`, `docs/progress.md`.
 
 Done:
 - Boroon gave the three-batch skills plan from the chat "Planning the skills to use": batch 1 `lcp` (13 skills, needed before Stage 2, day 15), batch 2 `pcp` (16, before Stage 5, day 46), batch 3 Lane A (8, before Stage 6, day 60). Another session read all 36 and wrote `docs/analysis/skill-batches-review.md`. That file is only on branch `claude/sharp-wright-1muptp` (commit `c3a1c72`), not on `main`. Its verdicts are proposals, and its reads were done by agents, not line by line.
@@ -93,15 +132,14 @@ Open items:
 - All 36 skills in the three-batch plan are now read (or, for `ci-cd-and-automation`, `shipping-and-launch` and `arena`, dropped on the other session's tags without our own full read). Nothing new is adopted. Decide the 14 roll-up additions together, then make the plan edits (rule 17).
 - **No bug-fix workflow** (see the sixth request above). Decide before Stage 5.
 - Add to the Stage 3 driver spec: the non-PARK stop checkpoint, and where the transcript lives for the decision-log audit.
-- Not started: spike 0.1 (credit ruling) and spike 0.9 (environment audit, before 15 November 2026).
+- Not started: spike 0.9 (environment audit, before 15 November 2026).
 
 Next steps:
 1. Boroon merges PR 9. Then branch the next session from `main`.
 2. Spike 0.9: audit for unmanaged developer environments before 15 November 2026 (hard date).
-3. Spike 0.1: send the credit ruling to Partner Center (question text in plan section 9.1).
-4. Decide the 14 roll-up additions with Boroon (end of `docs/analysis/skills-reading-notes-skill-batches.md`), starting with items 1 and 2 (prompt injection, code-repo security checks), then make the plan edits for his review (rule 17). Includes the day approval of the Lane A sketch.
-5. Boroon rules on where the other session's review differs from what is live. The review file (`docs/analysis/skill-batches-review.md`) is still only on branch `claude/sharp-wright-1muptp`.
-6. Reading is finished. Revisit the shelved Lane A skills at Stage 6 and `diagnosing-bugs` for BAU Managed Services.
+3. Decide the 14 roll-up additions with Boroon (end of `docs/analysis/skills-reading-notes-skill-batches.md`), starting with items 1 and 2 (prompt injection, code-repo security checks), then make the plan edits for his review (rule 17). Includes the day approval of the Lane A sketch.
+4. Boroon rules on where the other session's review differs from what is live. The review file (`docs/analysis/skill-batches-review.md`) is still only on branch `claude/sharp-wright-1muptp`.
+5. Reading is finished. Revisit the shelved Lane A skills at Stage 6 and `diagnosing-bugs` for BAU Managed Services.
 
 ## Session 3, 2026-11-02, branch `claude/exciting-babbage-4u2zp4`
 

@@ -1,7 +1,7 @@
 # GET AI overnight software factory
 
-This repo holds the plan and, later, the build of GET AI's overnight software factory.
-Today it is documents only. There is no code yet.
+This repo holds the plan and the start of the build of GET AI's overnight software factory.
+Mostly documents. The first code is `factory-gates/` (stage 1, tested locally, not yet run on a real tenant).
 
 This file loads at the start of every session. It is a map, not the full plan.
 Keep it short. Detail lives in `docs/sources/`.
@@ -54,6 +54,8 @@ End:
 | `docs/one-pager/` | The engineer one-pager for plan V3.1, as `GET-AI-Overnight-Factory-one-pager.html` and `single-page-artefact.md`. A short summary for GET AI engineers |
 | `docs/sources/report-v2.1-two-lanes-one-gate.md` | Earlier report V2.1, "Two Lanes, One Gate, Priced at List". 925 lines. The GitHub and Azure design the main plan builds on: two lanes, harness parity, Spec Kit day gate, traces, credits, ledger schema, Lane A and B cost models, 8-stage plan. Still the best source for Lane A, ACA jobs, the ledger SQL schema and GitHub-side limits |
 | `docs/sources/report-grill-the-spec-lock-the-tests.md` | The first report, "Grill the Spec, Lock the Tests". 195 lines. Original evidence base: what each harness resource teaches, the verifier-is-the-weak-point research, the grill gate, Claude Code facts, first design and stages |
+| `docs/plans/stage-1-gate-build-plan.md` | The plan for the next three build sessions (workflow file, rulesets and CODEOWNERS, offline build checks). Read it at the start of any Stage 1 build session. D1 to D3 decided |
+| `factory-gates/` | Stage 1 build, staged here until the `getai/factory-gates` repo exists. First slice: `gate/lcp/lane_map.py`, `check_protected_paths.py` and `manifest.py`, `scripts.sha256`, 23 unit tests (`python3 -B -m unittest discover -s tests`). Not yet wired into the workflow YAML. Its README lists the next slices and a finding: the plan's inline `locks` check misses renames |
 | `.claude/skills/bro/SKILL.md` | The `/bro` skill |
 | `.claude/skills/` | Live skills. `bro`. `ask-me` (router by size, adapted from `ask-matt`). Adopted unchanged: `constraint-driven-development`, `doubt-driven-development`, `source-driven-development`, `create-verification-skill`, `maintain-verification-skill`. Adapted for GET AI, all untested: `lcp-blast-radius`, `getai-decision-log`, `getai-correct`, `lcp-how`, `lcp-why`, `getai-intake`, `getai-wizard`, `getai-questionnaire`, `getai-grilling`, `getai-domain-modeling`, `lcp-triage`. Also adopted 2 November 2026 with a GET AI note each: `unslop` and 21 `principle-*` skills (three conflicting ones stay on the shelf). Pro-code versions, all untested: `pcp-blast-radius`, `pcp-how`, `pcp-why`, `pcp-triage` (the plan has no code-repo triage workflow yet). Decided by Boroon on 2 November 2026. The two verification skills were then edited to write to `.claude/skills/lcp-verify/`. All of them reviewed by him and merged to the default branch (rule 17 met). Still untested |
 | `skills/` | Third-party skills, the pinned originals of the first 16 (Addy 3, Tan 7, Pocock 4, Benny 2). A shelf: it does not auto-load, only `.claude/skills/` does. Provenance, commits and what became of each are in `skills/README.md` |
@@ -198,7 +200,7 @@ The size is the largest answer across reversibility, blast radius, clarity, veri
 
 ## Biggest risks
 
-1. **Credits may not fund client work.** Partner credits are "internal-use-rights". Run client work at cash until Microsoft answers in writing (spike 0.1).
+1. **Credits for client work: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled; do not reopen.
 2. Auto-merge letting soft test gaming through. Answer: deterministic floor, rungs earned on evidence.
 3. Unmanaged developer environments retiring (dates above).
 4. Client code leaving Australia for inference. Copilot residency covers only the US and EU. BYOK to Azure OpenAI in Australia East is the only in-country path found. Each client gets a tier T1 to T4.
@@ -231,7 +233,6 @@ The 45 days build the factory. They move no project up a trust rung. Do not star
 
 ## Open questions (owner)
 
-- Can partner credits fund client delivery? (Boroon, spike 0.1)
 - Does `pac --githubFederated` work on GHE.com and in ruleset workflows? (Platform team, spike 0.2)
 - Which Copilot features work on GHE.com, and which billing identity for the CLI? (Platform team and Boroon, spike 0.6)
 - Does Dataverse MCP accept an app-only token? (spike 0.3)

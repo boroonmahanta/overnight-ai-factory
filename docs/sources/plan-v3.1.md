@@ -1191,7 +1191,7 @@ Skills are process written as words; agents run them, and some ship code. Pocock
 
 Source: [benefits guide](https://learn.microsoft.com/partner-center/benefits/benefits-at-a-glance). The fee is USD 4,875 a year ([pay the fee](https://learn.microsoft.com/partner-center/membership/mpn-pay-fee-silver-gold-competency)). Credits are yearly, expire with membership, align to the purchase date from 1 November 2026, land on an MCA billing profile with a card attached, and cover first-party Azure only, not Marketplace ([MCA credits](https://learn.microsoft.com/azure/cost-management-billing/benefits/credits/mca-check-azure-credits-balance)). Copilot seats, AI credit overage, Actions and GitHub Enterprise can bill to an Azure subscription connected to the enterprise or a cost centre ([Copilot Azure billing](https://docs.github.com/en/copilot/reference/copilot-billing/azure-billing)). Power Platform licences, Process licences, capacity add-ons and pay-as-you-go meters were not researched against credits.
 
-**The eligibility risk is unchanged and still the biggest.** Microsoft calls partner credits "internal-use-rights credits" ([credits FAQ](https://learn.microsoft.com/partner-center/benefits/mpn-benefits-azure-cloud#azure-credits-faqs-legacy-experience)). Partner Visual Studio subscriptions may not be used to "Develop, test, or maintain applications as part of customer or client projects" ([VS Enterprise for partners](https://learn.microsoft.com/visualstudio/subscriptions/program-mcpp#internal-use-only-restriction)). The binding terms sit in a guide the researchers could not read. Send Partner Center support this question in writing, asking them to cite the Terms of Participation Guide:
+**Accepted, 2 November 2026 (Boroon): builds for customers can be made on credits. Settled.** What follows is the original analysis, kept for the record. Microsoft calls partner credits "internal-use-rights credits" ([credits FAQ](https://learn.microsoft.com/partner-center/benefits/mpn-benefits-azure-cloud#azure-credits-faqs-legacy-experience)). Partner Visual Studio subscriptions may not be used to "Develop, test, or maintain applications as part of customer or client projects" ([VS Enterprise for partners](https://learn.microsoft.com/visualstudio/subscriptions/program-mcpp#internal-use-only-restriction)). The binding terms sit in a guide the researchers could not read. Send Partner Center support this question in writing, asking them to cite the Terms of Participation Guide:
 
 > "May GET AI use its Solutions Partner Azure bulk credits and its GitHub Copilot Enterprise (via Azure credits) benefit to pay for GitHub and Azure metered usage that GET AI incurs while delivering a paid client engagement, where the client never receives the credits, the subscription or the GitHub accounts?"
 
@@ -1374,7 +1374,7 @@ Each spike is one to two days unless noted. A failed spike changes the design be
 
 | # | Spike | Exit test | If it fails |
 |---|---|---|---|
-| 0.1 | **Credit ruling.** Send the question (section 9.1). Set up the Mode A and Mode B billing profiles. Connect the credited subscription to a test cost centre ([connect Azure](https://docs.github.com/en/billing/how-tos/set-up-payment/connect-azure-sub)) | Written answer on file. The next invoice shows "Azure credits applied" against GitHub lines (1 to 3 weeks elapsed) | Client work stays at cash; price from list |
+| 0.1 | **Credit ruling.** Send the question (section 9.1). Set up the Mode A and Mode B billing profiles. Connect the credited subscription to a test cost centre ([connect Azure](https://docs.github.com/en/billing/how-tos/set-up-payment/connect-azure-sub)) | Credit funding accepted (Boroon, 2 November 2026). The next invoice shows "Azure credits applied" against GitHub lines (1 to 3 weeks elapsed) | Client work stays at cash; price from list |
 | 0.2 | **GHE.com OIDC with pac.** One job on `getai.ghe.com`: print the `sub` claim, create the credential (Other issuer, `https://token.actions.getai.ghe.com`), run `pac auth create -ghf` then `pac org who` against a sandbox. Repeat inside a ruleset workflow with the `job_workflow_ref` subject | `pac org who` returns the application user in both cases | Certificate in Key Vault, then managed identity, then rotated secrets (section 5.3) |
 | 0.3 | **Dataverse MCP with an app-only token.** Local `@microsoft/dataverse mcp` with a federated profile; the remote endpoint with our app ID on the allowed clients list | A read and a create succeed headless | Night stays on pac and trusted Web API scripts |
 | 0.4 | **`pac copilot` under federated login.** `clone`, `pull`, `push` and `pack` as `getai-fl1-exec` | All four work; `pack` output imports into Test | Agents are edited as files and deployed by `pack` plus import only |
@@ -1411,7 +1411,7 @@ Start stage 0 now. The invoice test cannot be rushed, because a month's charges 
 
 | # | Risk | Why it matters | Mitigation |
 |---|---|---|---|
-| 1 | Credits may not fund client delivery | "Internal-use-rights credits" ([credits FAQ](https://learn.microsoft.com/partner-center/benefits/mpn-benefits-azure-cloud#azure-credits-faqs-legacy-experience)) | Written ruling; two modes; price at list (section 9) |
+| 1 | Credits may not fund client delivery | "Internal-use-rights credits" ([credits FAQ](https://learn.microsoft.com/partner-center/benefits/mpn-benefits-azure-cloud#azure-credits-faqs-legacy-experience)) | Accepted (Boroon, 2 November 2026); two modes; price at list (section 9) |
 | 2 | Auto-merge lets soft test gaming through, or sampling at L2 misses defects | About 80% of agent test patches have weak oracles; about 20% of tests-passing patches are wrong; LLM judges are generous (section 3.4). A sample sees only some PRs | Deterministic floor; LLM raise-only; protected paths never; `integration` only; rungs earned per change class on evidence; every PR with unknowns sampled; immediate per-class drop-back (section 5.10) |
 | 3 | Unmanaged developer environments retire | No new ones from 15 November 2026; suspended 15 December 2026; deleted 15 January 2027 ([important changes](https://learn.microsoft.com/power-platform/important-changes-coming#deprecation-of-unmanaged-developer-environments-and-the-power-apps-developer-plan)) | Lanes are Sandbox plus Managed; spike 0.9 audit now |
 | 4 | Client code leaves Australia for inference | Copilot residency covers only the US and EU ([Copilot with data residency](https://raw.githubusercontent.com/github/docs/main/content/admin/data-residency/github-copilot-with-data-residency.md)) | Residency tier per client; BYOK to Azure OpenAI Standard in Australia East for T3; synthetic data only in lanes. Triage reports redacted at intake, tier checked, no triage agent for T4 (section 4.5) |
@@ -1522,13 +1522,20 @@ Board lens: these are reusable IP, Power Platform depth strengthens the Microsof
 | Third-party skills | Pin and review Microsoft's plugins | One policy for all third-party skills | Agents run what skills say |
 | Long sessions | By lane | Unchanged; disagreement recorded in section 3.3 | Lane B stories already fit one session |
 
+
+### 14.4 Decisions after V3.1
+
+| Topic | Before | Now | Why |
+|---|---|---|---|
+| **Partner credits for client builds** | Treated as unknown; client work at cash until Microsoft answered in writing | Accepted by Boroon on 2 November 2026: builds for customers can be made on credits | Removes the biggest risk on the list. Rules 13 and 14 are unchanged |
+
 ## 15. Open questions and evidence quality
 
 ### 15.1 Open questions, by owner
 
 | Question | Owner | Resolved by |
 |---|---|---|
-| Can partner credits fund client delivery? | Boroon | Spike 0.1 |
+| Can partner credits fund client delivery? | Boroon | Accepted 2 November 2026: yes |
 | Does `pac --githubFederated` work on GHE.com, including in ruleset workflows with a `job_workflow_ref` subject? | Platform team | Spike 0.2 |
 | Which Copilot features work on GHE.com (CLI org billing, OpenTelemetry, cloud agent, code review, Agent HQ)? | Platform team | Spike 0.6 |
 | Org-metered `GITHUB_TOKEN` or a machine account for CLI billing? | Boroon and platform team | Spike 0.6 |
