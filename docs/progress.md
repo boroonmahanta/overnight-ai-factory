@@ -17,7 +17,7 @@ Next steps:
 ## Current state
 
 - Mostly documents. First code: `factory-gates/` (stage 1 slice 1, 23 tests passing locally). No pipelines or environments exist yet.
-- **Next: Build 1**, per `docs/plans/stage-1-gate-build-plan.md`. Decisions D1 to D3 in that plan come first.
+- **Next: Build 1**, per `docs/plans/stage-1-gate-build-plan.md`. D1 and D2 decided; D3 (PyYAML for tests only) waits on Boroon.
 - **Session 4 work is in PR 9** (https://github.com/boroonmahanta/overnight-ai-factory/pull/9), opened 2 November 2026 from `claude/wizardly-planck-8i7543`, rebased onto `main`. PR 8 had merged with only the first commit. Boroon merges PR 9 by hand. Once he has, nothing from Session 4 is outstanding on a branch.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
 - Nothing from the plan has been built or tested. Every item marked `[untested]` in the plan is still untested.
@@ -57,8 +57,10 @@ Open items:
 - The rest of Stage 1 (Spec Kit presets, glossary and ADR templates, Playwright kit, session mining) needs its own planning session.
 - Spike 0.9, the environment audit, is still due before 15 November 2026.
 
+Later in Session 5, Boroon decided: D1, option A (`map` and `locks` get the read-only gate App token); D2, the pending-scripts list. D3 asked about (what PyYAML is); not yet decided.
+
 Next steps:
-1. Boroon answers D1 to D3.
+1. Boroon answers D3.
 2. Build 1, from this branch (or `main` once merged).
 
 ## Session 4, 2026-11-02, branch `claude/wizardly-planck-8i7543`

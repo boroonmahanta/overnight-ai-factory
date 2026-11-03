@@ -18,26 +18,28 @@ This covers the parts of Stage 1 (plan section 11.2) that need no tenant and no 
 4. Run the 23 tests before changing anything.
 5. End as usual: progress entry, commit, push, no pull request unless asked.
 
-## Decisions needed before Build 1
+## Decisions before Build 1
+
+D1 and D2 decided by Boroon on 3 November 2026: the recommended options. D3 is waiting on Boroon.
 
 **D1. How `map` and `locks` get our scripts.** Plan lines 1618 to 1671. Both jobs hold no credentials, and the gate repo is private, so they cannot check out `gate/lcp/*.py`. Options:
 
 | Option | What | Trade-off |
 |---|---|---|
-| A (recommended) | Give `map` and `locks` the same read-only gate App token that `static` uses, check out the gate repo, verify `scripts.sha256`, then run the scripts | Uses the tested scripts. Safe under rule 5 because neither job runs PR code (`locks` only runs `git diff`). Two more jobs hold the reader key |
+| A (**chosen**, Boroon, 3 November 2026) | Give `map` and `locks` the same read-only gate App token that `static` uses, check out the gate repo, verify `scripts.sha256`, then run the scripts | Uses the tested scripts. Safe under rule 5 because neither job runs PR code (`locks` only runs `git diff`). Two more jobs hold the reader key |
 | B | Keep the inline bash, add `--no-renames` to `locks`. The Python scripts become the reference and their tests check the bash matches | No new credentials. Two copies of the logic that can drift |
 
-**D2. The ~20 scripts the workflow calls that do not exist yet** (for example `check_manifest.py`, `lint_logic_apps.py`, `merge_danger_floor.py`). Recommended: a `pending-scripts.txt` list in `factory-gates/`. A test fails if the workflow calls a script that is neither in `gate/` nor on that list. Writing a script removes it from the list. No stub files, so nothing fake is hashed.
+**D2. The ~20 scripts the workflow calls that do not exist yet** (for example `check_manifest.py`, `lint_logic_apps.py`, `merge_danger_floor.py`). **Decided (Boroon, 3 November 2026):** a `pending-scripts.txt` list in `factory-gates/`. A test fails if the workflow calls a script that is neither in `gate/` nor on that list. Writing a script removes it from the list. No stub files, so nothing fake is hashed.
 
-**D3. A YAML parser for the tests.** Python's standard library has none. Recommended: PyYAML, pinned with a hash, for tests only, in `factory-gates/requirements-test.txt`. The gate scripts themselves stay free of packages.
+**D3. A YAML parser for the tests. Waiting on Boroon.** Python's standard library has none. Recommended: PyYAML, pinned with a hash, for tests only, in `factory-gates/requirements-test.txt`. The gate scripts themselves stay free of packages.
 
 ## Build 1: the workflow file, and the plan fix
 
 Read: plan lines 1563 to 2058 (Appendix A), 622 to 665 (section 5.7).
 
 1. Copy the Appendix A YAML verbatim to `factory-gates/.github/workflows/lcp-gate.yml`. First commit is the plain copy, so later diffs show every change.
-2. `map`: call `lane_map.py` (per D1). Keep its outputs `lane` and `story`.
-3. `locks`: call `check_protected_paths.py` (per D1). This closes the rename gap.
+2. `map`: give it the read-only gate App token, check out the gate repo, verify hashes, call `lane_map.py` (D1 option A). Keep its outputs `lane` and `story`.
+3. `locks`: same pattern, call `check_protected_paths.py` (D1 option A). This closes the rename gap.
 4. Make the hash check run before the first trusted script in every job that runs one. Use `manifest.py` or keep `sha256sum --check --strict`, whichever matches `scripts.sha256`'s format. Check both agree.
 5. Leave `verify-in-test` and `danger` as written, with a header comment saying they are untested and wait for the Stage 0 spikes.
 6. Tests in `factory-gates/tests/test_workflow.py`:
@@ -49,7 +51,7 @@ Read: plan lines 1563 to 2058 (Appendix A), 622 to 665 (section 5.7).
    - Every script called is in `gate/` or `pending-scripts.txt` (D2).
    - Every action is pinned to a version. Note: the plan pins to tags such as `@v5`, not commit SHAs. Flag this as a finding and do not change it without Boroon.
 7. Regenerate `scripts.sha256`.
-8. **Plan fix (approved 3 November 2026):** edit the `locks` job in `docs/sources/plan-v3.1.md` Appendix A to match. Use `--no-renames` if D1 is B, or the script call if D1 is A. Add one line to the decision log (section 14) and note it in `factory-gates/README.md`.
+8. **Plan fix (approved 3 November 2026):** edit the `locks` job in `docs/sources/plan-v3.1.md` Appendix A to match. Replace the inline check with the script call and the gate checkout (D1 option A). Add one line to the decision log (section 14) and note it in `factory-gates/README.md`.
 
 Done when: all tests pass, including the new ones. The test with `--no-renames` removed still fails. The plan's `locks` job no longer misses renames.
 
