@@ -8,6 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "lcp"))
 import audit_bypass  # noqa: E402
+import make_rulesets as mr  # noqa: E402
 
 RULESETS = ROOT / "rulesets"
 
@@ -80,7 +81,7 @@ class CommandLineTests(unittest.TestCase):
         return path
 
     def test_committed_rulesets_pass(self):
-        result = self.run_audit(*sorted(RULESETS.glob("*.json")))
+        result = self.run_audit(*(RULESETS / f"{name}.json" for name in mr.RULESET_NAMES))
         self.assertEqual((result.returncode, result.stderr), (0, ""))
 
     def test_seeded_copilot_in_protected_paths_fails(self):

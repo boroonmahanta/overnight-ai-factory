@@ -14,6 +14,7 @@ import make_rulesets as mr  # noqa: E402
 
 RULESETS = ROOT / "rulesets"
 CODEOWNERS = ROOT / "templates/CODEOWNERS"
+PROTECTED_JSON = f"{mr.RULESETS_DIR}/protected-paths.json"
 
 
 def load(name: str) -> dict:
@@ -50,8 +51,8 @@ class CommittedFilesTests(unittest.TestCase):
         self.assertEqual(cpp.find_protected(samples), sorted(set(samples)))
 
     def test_all_four_rulesets_parse_and_are_named_after_their_file(self):
-        names = sorted(p.stem for p in RULESETS.glob("*.json"))
-        self.assertEqual(names, ["factory-required-workflows", "integration-gate", "main-gate", "protected-paths"])
+        names = sorted(p.stem for p in RULESETS.glob("*.json") if p.stem != "org")
+        self.assertEqual(names, sorted(mr.RULESET_NAMES))
         for name in names:
             ruleset = load(name)
             self.assertEqual(ruleset["name"], name)
@@ -60,13 +61,13 @@ class CommittedFilesTests(unittest.TestCase):
             self.assertTrue(ruleset["rules"])
 
     def test_all_four_rulesets_pass_the_bypass_audit(self):
-        for path in RULESETS.glob("*.json"):
-            self.assertEqual(audit_bypass.audit_file(path), [], path.name)
+        for name in mr.RULESET_NAMES:
+            self.assertEqual(audit_bypass.audit_file(RULESETS / f"{name}.json"), [], name)
 
     def test_every_ruleset_applies_only_to_factory_repos(self):
-        for path in RULESETS.glob("*.json"):
-            prop = load(path.stem)["conditions"]["repository_property"]["include"]
-            self.assertEqual(prop, [{"name": "factory", "property_values": ["enabled"], "source": "custom"}], path.name)
+        for name in mr.RULESET_NAMES:
+            prop = load(name)["conditions"]["repository_property"]["include"]
+            self.assertEqual(prop, [{"name": "factory", "property_values": ["enabled"], "source": "custom"}], name)
 
 
 class PlanSettingsTests(unittest.TestCase):
@@ -132,7 +133,7 @@ class SeededFailureTests(unittest.TestCase):
         self.assertEqual(self.run_check().returncode, 0)
 
     def test_stale_ruleset_fails(self):
-        path = self.root / mr.RULESET_FILE
+        path = self.root / PROTECTED_JSON
         ruleset = json.loads(path.read_text())
         ruleset["rules"][0]["parameters"]["restricted_file_paths"].remove("scripts/**")
         path.write_text(json.dumps(ruleset, indent=2) + "\n")
@@ -141,7 +142,7 @@ class SeededFailureTests(unittest.TestCase):
         self.assertIn("stale: rulesets/protected-paths.json", result.stderr)
 
     def test_missing_ruleset_fails(self):
-        (self.root / mr.RULESET_FILE).unlink()
+        (self.root / PROTECTED_JSON).unlink()
         result = self.run_check()
         self.assertEqual(result.returncode, 1)
         self.assertIn("missing: rulesets/protected-paths.json", result.stderr)
@@ -164,7 +165,7 @@ class SeededFailureTests(unittest.TestCase):
         self.assertIn("@getai/factory-reviewers", result.stderr)
 
     def test_make_repairs_a_stale_ruleset(self):
-        (self.root / mr.RULESET_FILE).write_text("{}\n")
+        (self.root / PROTECTED_JSON).write_text("{}\n")
         subprocess.run([sys.executable, str(Path(mr.__file__)), "make", str(self.root)], check=True)
         self.assertEqual(self.run_check().returncode, 0)
 
@@ -211,7 +212,64 @@ class CodeownersMatchingTests(unittest.TestCase):
 
     def test_check_accepts_either_allowed_team(self):
         text = "/glossary.md  @getai/platform-team\n"
-        self.assertEqual(mr.check_codeowners(text, ["glossary.md"]), [])
+        self.assertEqual(mr.check_codeowners(text, {"@getai/acceptance-owners", "@getai/platform-team"}, ["glossary.md"]), [])
+
+    def test_allowed_owners_follow_the_org_in_org_json(self):
+        self.assertEqual(mr.protected_owners({"org": "other"}), {"@other/acceptance-owners", "@other/platform-team"})
+
+
+class OrgJsonTests(unittest.TestCase):
+    """Every ID is typed once, in rulesets/org.json, and flows into the files."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        shutil.copytree(RULESETS, self.root / "rulesets")
+        shutil.copytree(ROOT / "templates", self.root / "templates")
+        self.org_path = self.root / mr.ORG_FILE
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def set_org(self, **changes):
+        org = json.loads(self.org_path.read_text())
+        org.update(changes)
+        self.org_path.write_text(json.dumps(org, indent=2) + "\n")
+        return org
+
+    def test_changing_an_id_makes_the_files_stale_until_make(self):
+        self.set_org(teams={"acceptance-owners": 11, "platform-team": 12, "factory-reviewers": 13}, gate_repository_id=501)
+        problems = mr.check(self.root)
+        self.assertEqual(sorted(p.split(":")[1].split(" ")[1] for p in problems),
+                         ["rulesets/factory-required-workflows.json", "rulesets/protected-paths.json"])
+        mr.make(self.root)
+        self.assertEqual(mr.check(self.root), [])
+        protected = json.loads((self.root / "rulesets/protected-paths.json").read_text())
+        self.assertEqual([a["actor_id"] for a in protected["bypass_actors"]], [11, 12])
+        required = json.loads((self.root / "rulesets/factory-required-workflows.json").read_text())
+        self.assertEqual(required["rules"][0]["parameters"]["workflows"][0]["repository_id"], 501)
+
+    def test_app_ids_and_enforcement_flow_through(self):
+        self.set_org(apps={"github-actions": 5, "lane-drift": 6}, required_workflows_enforcement="active")
+        mr.make(self.root)
+        main_gate = json.loads((self.root / "rulesets/main-gate.json").read_text())
+        checks = rules_by_type(main_gate)["required_status_checks"]["required_status_checks"]
+        self.assertEqual(checks, [{"context": "lcp-gate", "integration_id": 5}])
+        integration = json.loads((self.root / "rulesets/integration-gate.json").read_text())
+        checks = rules_by_type(integration)["required_status_checks"]["required_status_checks"]
+        self.assertEqual([c["integration_id"] for c in checks], [5, 6])
+        required = json.loads((self.root / "rulesets/factory-required-workflows.json").read_text())
+        self.assertEqual(required["enforcement"], "active")
+
+    def test_a_different_org_name_fails_codeowners_until_the_template_follows(self):
+        self.set_org(org="other")
+        mr.make(self.root)
+        problems = mr.check(self.root)
+        self.assertTrue(problems)
+        self.assertTrue(all("@other/acceptance-owners or @other/platform-team" in p for p in problems))
+        template = self.root / mr.CODEOWNERS_FILE
+        template.write_text(template.read_text().replace("@getai/", "@other/"))
+        self.assertEqual(mr.check(self.root), [])
 
     def test_sample_paths(self):
         self.assertEqual(mr.sample_paths("deploy/**"), ["deploy/sample.txt", "deploy/sub/sample.txt"])
