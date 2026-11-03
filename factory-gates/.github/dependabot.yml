@@ -1,0 +1,15 @@
+# Keeps the commit pins in .github/workflows/lcp-gate.yml fresh (decision,
+# Boroon, 3 November 2026). Dependabot opens a pull request that moves a pin
+# to the new commit and updates the "# vX.Y.Z" comment beside it. A human
+# reviews and merges it by day (rule 17). It never pushes to release itself.
+# Whether Dependabot runs on GHE.com for this org is untested.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: Australia/Sydney
+    commit-message:
+      prefix: "pins"

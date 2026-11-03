@@ -202,16 +202,18 @@ class WorkflowTests(unittest.TestCase):
             self.assertIsNotNone(match, f"{name} step {index}: {uses} has no version")
             self.assertNotIn(match.group(1).lower(), MOVING_REFS, f"{name} step {index}: {uses}")
 
-    @unittest.expectedFailure
-    def test_every_action_is_pinned_to_a_commit_sha(self):
-        # FINDING for Boroon (Build 1): the plan pins actions to tags such as @v5, and a
-        # tag can be moved. GitHub advises full commit SHAs. Not changed without his say.
-        # When the pins become SHAs, this passes and unittest reports an unexpected
-        # success: then remove the expectedFailure marker.
+    def test_every_action_is_pinned_to_a_commit_sha_with_its_version_beside_it(self):
+        # A tag such as @v5 can be moved to other code; a full commit SHA cannot
+        # (decided by Boroon, 3 November 2026). The "# vX.Y.Z" comment is what Dependabot
+        # reads and rewrites, so it must sit on the same line as the pin.
         for name, index, step in self.all_steps():
             uses = step.get("uses")
             if uses is not None:
                 self.assertRegex(ACTION_REF.match(uses).group(1), FULL_SHA, f"{name} step {index}")
+        uses_lines = [ln for ln in WORKFLOW.read_text(encoding="utf-8").splitlines() if "uses:" in ln]
+        self.assertTrue(uses_lines)
+        for line in uses_lines:
+            self.assertRegex(line, r"@[0-9a-f]{40} # v\d+\.\d+\.\d+\b", f"no version comment: {line.strip()}")
 
 
 if __name__ == "__main__":
