@@ -99,7 +99,14 @@ class PlanSettingsTests(unittest.TestCase):
         self.assertEqual(rules["pull_request"]["required_approving_review_count"], 1)
         self.assertIn("merge_queue", rules)
         contexts = [c["context"] for c in rules["required_status_checks"]["required_status_checks"]]
-        self.assertEqual(contexts, ["lcp-gate", "lane/drift"])
+        # lane/drift left out for stage 1 (Boroon, 3 November 2026); back in at stage 3.
+        self.assertEqual(contexts, ["lcp-gate"])
+
+    def test_lane_drift_returns_when_its_app_id_is_set(self):
+        org = mr.load_org(ROOT)
+        org["apps"]["lane-drift"] = 77
+        checks = rules_by_type(mr.integration_gate(org))["required_status_checks"]["required_status_checks"]
+        self.assertEqual(checks, [{"context": "lcp-gate", "integration_id": 15368}, {"context": "lane/drift", "integration_id": 77}])
 
     def test_required_workflows(self):
         ruleset = load("factory-required-workflows")
@@ -257,7 +264,7 @@ class OrgJsonTests(unittest.TestCase):
         self.assertEqual(checks, [{"context": "lcp-gate", "integration_id": 5}])
         integration = json.loads((self.root / "rulesets/integration-gate.json").read_text())
         checks = rules_by_type(integration)["required_status_checks"]["required_status_checks"]
-        self.assertEqual([c["integration_id"] for c in checks], [5, 6])
+        self.assertEqual([(c["context"], c["integration_id"]) for c in checks], [("lcp-gate", 5), ("lane/drift", 6)])
         required = json.loads((self.root / "rulesets/factory-required-workflows.json").read_text())
         self.assertEqual(required["enforcement"], "active")
 

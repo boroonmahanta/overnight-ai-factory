@@ -46,10 +46,6 @@
           {
             "context": "lcp-gate",
             "integration_id": 15368
-          },
-          {
-            "context": "lane/drift",
-            "integration_id": 0
           }
         ]
       }

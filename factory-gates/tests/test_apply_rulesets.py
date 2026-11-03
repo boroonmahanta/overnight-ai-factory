@@ -119,8 +119,7 @@ class PlanAndApplyTests(unittest.TestCase):
         local = mr.rulesets(mr.load_org(ROOT))
         self.assertEqual(ar.unresolved_ids(local["protected-paths"]), ["bypass_actors[0].actor_id", "bypass_actors[1].actor_id"])
         self.assertEqual(ar.unresolved_ids(local["factory-required-workflows"]), ["rules[0].parameters.workflows[0].repository_id"])
-        self.assertEqual(ar.unresolved_ids(local["integration-gate"]), ["rules[0].parameters.required_status_checks[1].integration_id"] and
-                         ar.unresolved_ids(local["integration-gate"]))
+        self.assertEqual(ar.unresolved_ids(local["integration-gate"]), [], "lane/drift is out for stage 1, so nothing is unresolved")
         self.assertEqual(ar.unresolved_ids(local["main-gate"]), [])
         self.assertEqual(ar.unresolved_ids(self.local["integration-gate"]), [])
 
@@ -267,12 +266,13 @@ class CommandLineTests(unittest.TestCase):
         self.assertEqual(gh.writes, [])
 
     def test_apply_with_yes_on_unresolved_ids_sends_only_what_is_resolved(self):
-        # The committed org.json has IDs of 0: only main-gate and the property can go.
+        # The committed org.json has team and repo IDs of 0: only the property, main-gate
+        # and integration-gate (no lane/drift in stage 1) can go.
         gh = FakeGitHub()
         self.assertEqual(ar.main(["x", "apply", str(self.root), "--yes"], transport=gh), 0)
         self.assertEqual([(m, p) for m, p, _ in gh.writes],
-                         [("PUT", f"/orgs/{ORG}/properties/schema/factory"), ("POST", f"/orgs/{ORG}/rulesets")])
-        self.assertEqual(gh.writes[1][2]["name"], "main-gate")
+                         [("PUT", f"/orgs/{ORG}/properties/schema/factory"), ("POST", f"/orgs/{ORG}/rulesets"), ("POST", f"/orgs/{ORG}/rulesets")])
+        self.assertEqual([w[2]["name"] for w in gh.writes[1:]], ["main-gate", "integration-gate"])
 
     def test_audit_exit_codes(self):
         gh = FakeGitHub(teams={"acceptance-owners": 11, "platform-team": 12})

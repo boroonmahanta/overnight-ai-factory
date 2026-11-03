@@ -105,6 +105,12 @@ def main_gate(org: dict) -> dict:
 
 def integration_gate(org: dict) -> dict:
     # Force pushes stay allowed: V2.1 resets `integration` each evening without a bypass entry.
+    # The `lane/drift` check is left out for stage 1 (Boroon, 3 November 2026): the App that
+    # posts it is built in stage 3. Add it then, with a passing tick for human PRs (plan gap,
+    # see docs/progress.md). Setting apps.lane-drift in org.json to a non-zero ID adds it.
+    checks = [("lcp-gate", org["apps"]["github-actions"])]
+    if org["apps"].get("lane-drift"):
+        checks.append(("lane/drift", org["apps"]["lane-drift"]))
     return branch_ruleset("integration-gate", ["refs/heads/integration"], [
         {"type": "deletion"},
         {"type": "pull_request", "parameters": {
@@ -114,7 +120,7 @@ def integration_gate(org: dict) -> dict:
             "require_last_push_approval": False,
             "required_review_thread_resolution": True,
         }},
-        status_checks(("lcp-gate", org["apps"]["github-actions"]), ("lane/drift", org["apps"]["lane-drift"])),
+        status_checks(*checks),
         MERGE_QUEUE,
     ])
 

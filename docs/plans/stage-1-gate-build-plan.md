@@ -9,7 +9,7 @@ This covers the parts of Stage 1 (plan section 11.2) that need no tenant and no 
 - Slice 1 is done: `lane_map.py`, `check_protected_paths.py`, `manifest.py`, `scripts.sha256`, 23 tests. Merged to `main` by PR 10.
 - **Build 1 is done** (Session 6, 3 November 2026, branch `claude/brave-davinci-0d5ssc`): the workflow file, `map` and `locks` on the tested scripts, `pending-scripts.txt`, PyYAML pinned for tests, 24 new tests (47 in all), the plan's `map` and `locks` jobs fixed. Also decided by Boroon the same day: actions pinned to full commit IDs with Dependabot to keep them fresh, and the hash manifest widened from scripts to every file a gate job reads. Details in `docs/progress.md` and `factory-gates/README.md`.
 - **Build 1 merged** by PR 11 on 3 November 2026.
-- **Build 2 is done** (Session 7, 3 November 2026, branch `claude/eager-goldberg-gj0iqg`): the four rulesets as JSON, `templates/CODEOWNERS`, `make_rulesets.py`, `audit_bypass.py`, 64 new tests (111 in all), manifest regenerated. Nothing applied. Choices to confirm are listed in `factory-gates/README.md` under "Rulesets and CODEOWNERS".
+- **Build 2 is done** (Session 7, 3 November 2026, branch `claude/eager-goldberg-gj0iqg`): the four rulesets as JSON, `templates/CODEOWNERS`, `make_rulesets.py`, `audit_bypass.py`, 65 new tests (112 in all), manifest regenerated. Nothing applied. Choices to confirm are listed in `factory-gates/README.md` under "Rulesets and CODEOWNERS".
 - **Layout change in Build 1:** the scripts moved from `factory-gates/gate/lcp/` to `factory-gates/lcp/`. The workflow checks the gate repo out at `gate/`, so it calls them as `gate/lcp/<name>.py`. Below, `gate/lcp/x.py` means the workflow path; the file lives at `factory-gates/lcp/x.py`.
 - Tests run with `cd factory-gates && python3 -m pip install --require-hashes -r requirements-test.txt` (once), then `python3 -B -m unittest discover -s tests`.
 
@@ -18,7 +18,7 @@ This covers the parts of Stage 1 (plan section 11.2) that need no tenant and no 
 1. Start from the branch that holds this plan, or from `main` once Boroon has merged it. Check `factory-gates/` exists first.
 2. Read `CLAUDE.md`, `docs/progress.md`, this file and `factory-gates/README.md`.
 3. Read only the plan lines named for that session. Do not load whole sources.
-4. Run the tests before changing anything (111 after Build 2).
+4. Run the tests before changing anything (112 after Build 2).
 5. End as usual: progress entry, commit, push, no pull request unless asked.
 
 ## Decisions before Build 1
