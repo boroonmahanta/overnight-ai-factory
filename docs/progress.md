@@ -19,7 +19,7 @@ Next steps:
 - Mostly documents. First code: `factory-gates/` (stage 1 slice 1 and Builds 1 to 3, 141 tests passing locally). No pipelines or environments exist yet. Nothing has run on GHE.com or a tenant. The rulesets are files, not applied.
 - **Build 1 is done** (Session 6). PR 11 merged into `main` on 3 November 2026.
 - **Build 2 is done** (Session 7). PR 12 merged into `main` on 3 November 2026.
-- **Build 3 is done** (Session 8) on branch `claude/elegant-wozniak-316hdv`, pull request open at Boroon's request. **Next: Boroon reviews and merges it, then the move.** After Build 3, `factory-gates/` moves to `AI-Business-Solutions/factory-gates` on `getai.ghe.com` (decided 3 November 2026) and leaves this repo.
+- **Build 3 is done** (Session 8). PR 13 merged into `main` on 3 November 2026. **Next: the move.** `factory-gates/` moves to `AI-Business-Solutions/factory-gates` on `getai.ghe.com` (decided 3 November 2026) and leaves this repo.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
 - Nothing from the plan has been built or tested. Every item marked `[untested]` in the plan is still untested.
