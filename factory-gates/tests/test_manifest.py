@@ -52,6 +52,15 @@ class ManifestTests(unittest.TestCase):
         (self.root / "lcp/__pycache__/a.cpython-313.pyc").write_bytes(b"x")
         self.assertEqual(manifest.verify(self.root, text), [])
 
+    def test_a_git_worktree_link_file_is_ignored(self):
+        # In a git worktree (or a submodule) .git is a file, not a folder. It must never be
+        # hashed: a manifest made in a worktree would list it, and sha256sum would then fail
+        # in every gate job, where .git is a folder (found rehearsing the move, Build 3).
+        text = manifest.make(self.root)
+        (self.root / ".git").write_text("gitdir: /elsewhere/.git/worktrees/x\n")
+        self.assertEqual(manifest.make(self.root), text)
+        self.assertEqual(manifest.verify(self.root, text), [])
+
     def test_bad_manifest_line_raises(self):
         with self.assertRaises(ValueError):
             manifest.verify(self.root, "not-a-hash lcp/a.py\n")

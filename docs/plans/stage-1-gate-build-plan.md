@@ -10,6 +10,8 @@ This covers the parts of Stage 1 (plan section 11.2) that need no tenant and no 
 - **Build 1 is done** (Session 6, 3 November 2026, branch `claude/brave-davinci-0d5ssc`): the workflow file, `map` and `locks` on the tested scripts, `pending-scripts.txt`, PyYAML pinned for tests, 24 new tests (47 in all), the plan's `map` and `locks` jobs fixed. Also decided by Boroon the same day: actions pinned to full commit IDs with Dependabot to keep them fresh, and the hash manifest widened from scripts to every file a gate job reads. Details in `docs/progress.md` and `factory-gates/README.md`.
 - **Build 1 merged** by PR 11 on 3 November 2026.
 - **Build 2 is done** (Session 7, 3 November 2026, branch `claude/eager-goldberg-gj0iqg`): the four rulesets as JSON, `templates/CODEOWNERS`, `make_rulesets.py`, `audit_bypass.py`, 65 new tests (112 in all), manifest regenerated. Nothing applied. Choices to confirm are listed in `factory-gates/README.md` under "Rulesets and CODEOWNERS".
+- **Build 2 merged** by PR 12 on 3 November 2026.
+- **Build 3 is done** (Session 8, 3 November 2026, branch `claude/elegant-wozniak-316hdv`): `check_builders.py`, `pack_offline.py` (the `pac` wrapper, untested against the real `pac`), the fixture project, the `build` job on the scripts, 29 new tests (141 in all), manifest regenerated, and a fix to `manifest.py` for git worktrees. `map` hands the two scripts to `build` as an artifact, because `build` holds no credentials and cannot check out the private gate repo. Choices to confirm and the steps to move `factory-gates/` to GHE.com are in `factory-gates/README.md`.
 - **Layout change in Build 1:** the scripts moved from `factory-gates/gate/lcp/` to `factory-gates/lcp/`. The workflow checks the gate repo out at `gate/`, so it calls them as `gate/lcp/<name>.py`. Below, `gate/lcp/x.py` means the workflow path; the file lives at `factory-gates/lcp/x.py`.
 - Tests run with `cd factory-gates && python3 -m pip install --require-hashes -r requirements-test.txt` (once), then `python3 -B -m unittest discover -s tests`.
 
@@ -18,7 +20,7 @@ This covers the parts of Stage 1 (plan section 11.2) that need no tenant and no 
 1. Start from the branch that holds this plan, or from `main` once Boroon has merged it. Check `factory-gates/` exists first.
 2. Read `CLAUDE.md`, `docs/progress.md`, this file and `factory-gates/README.md`.
 3. Read only the plan lines named for that session. Do not load whole sources.
-4. Run the tests before changing anything (112 after Build 2).
+4. Run the tests before changing anything (141 after Build 3).
 5. End as usual: progress entry, commit, push, no pull request unless asked.
 
 ## Decisions before Build 1
@@ -71,7 +73,7 @@ Read: plan lines 641 to 650 (rulesets, section 5.7 part 3), 2108 to 2245 (Append
 
 Done when: all tests pass. Seeded bad files fail as expected: a stale ruleset, Copilot in a bypass list, and a protected path missing from CODEOWNERS.
 
-## Build 3: the offline `build` job checks
+## Build 3: the offline `build` job checks (done 3 November 2026)
 
 Read: plan lines 1718 to 1762 (the `build` job, as at the end of Build 1), section 5.6 only if needed (`grep -n '^### 5.6' docs/sources/plan-v3.1.md`).
 
@@ -81,6 +83,8 @@ Read: plan lines 1718 to 1762 (the `build` job, as at the end of Build 1), secti
 4. Update the workflow's `build` job to call the script. Regenerate `scripts.sha256`.
 
 Done when: all tests pass. The `build` job still has no credentials (the Build 1 test proves it).
+
+How it went: all three done. One gap in this plan: a job with no credentials cannot check out the private gate repo, so `map` (which already holds the reader token and checks the hashes) uploads `check_builders.py` and `pack_offline.py` as a one-day artifact for `build`. The drift check also fails on an uncommitted new output file, which `git diff --exit-code` alone misses. Boroon confirmed both on 3 November 2026, and the plan's Appendix A `build` and `map` jobs were edited to match.
 
 ## Not in these three sessions
 
