@@ -16,7 +16,7 @@ Next steps:
 
 ## Current state
 
-- Mostly documents. First code: `factory-gates/` (stage 1 slice 1 and Builds 1 to 3, 140 tests passing locally). No pipelines or environments exist yet. Nothing has run on GHE.com or a tenant. The rulesets are files, not applied.
+- Mostly documents. First code: `factory-gates/` (stage 1 slice 1 and Builds 1 to 3, 141 tests passing locally). No pipelines or environments exist yet. Nothing has run on GHE.com or a tenant. The rulesets are files, not applied.
 - **Build 1 is done** (Session 6). PR 11 merged into `main` on 3 November 2026.
 - **Build 2 is done** (Session 7). PR 12 merged into `main` on 3 November 2026.
 - **Build 3 is done** (Session 8) on branch `claude/elegant-wozniak-316hdv`, not merged, no pull request yet. **Next: Boroon reviews it, then the move.** After Build 3, `factory-gates/` moves to `AI-Business-Solutions/factory-gates` on `getai.ghe.com` (decided 3 November 2026) and leaves this repo.
@@ -46,19 +46,21 @@ Done:
 - `lcp/pack_offline.py`: `solution` runs the plan's two `pac solution pack` calls (unmanaged, then managed) and fails on `pac` missing, `pac` failing, a zero exit with no zip or a broken zip, or no source; it deletes old zips first. `agents` runs `pac copilot pack` in each `agents/<name>/`. The plan's flags, unchanged. `pac` was not installed; the call stays `[untested]`.
 - `tests/fixtures/builder-project/`: one builder, its input and its committed output.
 - The workflow's `build` job now checks the PR out at `pr/` and runs the two scripts; no inline `git diff` or `pac`. `map` uploads the two scripts, after its hash check, as a one-day artifact `gate-build-scripts`, which `build` downloads. `build` still holds no credentials: the Build 1 test passes unchanged.
-- Tests: `test_check_builders.py` (13), `test_pack_offline.py` (13, with a fake `pac` on `PATH`), two new tests in `test_workflow.py` and the hash-order test taught about the artifact. 140 in all, `OK`. The two cases the plan named fail as expected: a hand-edited output, a builder that crashes. Broke a copy eleven ways; each failed (list in the README).
+- Tests: `test_check_builders.py` (13), `test_pack_offline.py` (13, with a fake `pac` on `PATH`), two new tests in `test_workflow.py` and the hash-order test taught about the artifact. 140 in all, `OK` (141 after the fix below). The two cases the plan named fail as expected: a hand-edited output, a builder that crashes. Broke a copy eleven ways; each failed (list in the README).
 - `scripts.sha256` regenerated (eight scripts now). The manifest tests failed until then, as they should. `pending-scripts.txt` did not list either script, so nothing was removed (still 20).
 - actionlint 1.7.12: still only the three known warnings, none in `map` or `build`.
-- `factory-gates/README.md`: Build 3 section, test list, findings 5 to 8, and **"Moving to GHE.com"**, twelve steps for the move. Not moved.
+- `factory-gates/README.md`: Build 3 section, test list, findings 5 to 9, and **"Moving to GHE.com"**, twelve steps for the move. Not moved.
+- **Rehearsed the move** on a scratch clone: `git subtree split` gave 11 commits, starting with slice 1 and Build 1's plain copy of Appendix A; the split tree ID equals the folder's (step 4); a plain clone of the split passes all tests, the manifest and the rulesets check (step 9).
+- **Bug found in that rehearsal, fixed:** in a git worktree `.git` is a file, and `manifest.py` hashed it. A manifest made in a worktree would list `.git`, and `sha256sum --check` would then fail in every gate job. Claude Code on a laptop often works in worktrees. `.git` is now never hashed; one new test (failed before the fix). `scripts.sha256` regenerated. 141 tests, `OK`.
 
 Choices of mine, in the README for Boroon to confirm or change:
 - **How `build` gets a gate script.** The build plan did not say. `build` cannot check out the private gate repo without the reader token, which it must not hold (rule 5). Chosen: `map` hands the two checked scripts over as an artifact. The alternative is an inline copy in the YAML, which brings back two copies of the logic (the D1 trade-off).
 - **The drift check is stricter than the plan.** `git diff --exit-code` misses a generated file that was never committed, which pack would then ship unreviewed. A test shows the plan's command passing in that case.
 - No `pac` version check in the wrapper; the install step pins it.
 
-Findings (README, Findings 5 to 8): the gap above; the uncommitted-output gap; the plan's bash loop fails a project with no builders (no `nullglob`); the plan never collects `pac copilot pack` output.
+Findings (README, Findings 5 to 9): the gap above; the uncommitted-output gap; the plan's bash loop fails a project with no builders (no `nullglob`); the plan never collects `pac copilot pack` output; the worktree bug above.
 
-Files changed: `factory-gates/lcp/check_builders.py` (new), `factory-gates/lcp/pack_offline.py` (new), `factory-gates/tests/fixtures/builder-project/` (new, three files), `factory-gates/tests/test_check_builders.py` (new), `factory-gates/tests/test_pack_offline.py` (new), `factory-gates/tests/test_workflow.py`, `factory-gates/.github/workflows/lcp-gate.yml`, `factory-gates/scripts.sha256`, `factory-gates/README.md`, `docs/plans/stage-1-gate-build-plan.md`, `CLAUDE.md`, `docs/progress.md`.
+Files changed: `factory-gates/lcp/check_builders.py` (new), `factory-gates/lcp/pack_offline.py` (new), `factory-gates/tests/fixtures/builder-project/` (new, three files), `factory-gates/tests/test_check_builders.py` (new), `factory-gates/tests/test_pack_offline.py` (new), `factory-gates/tests/test_workflow.py`, `factory-gates/tests/test_manifest.py`, `factory-gates/lcp/manifest.py`, `factory-gates/.github/workflows/lcp-gate.yml`, `factory-gates/scripts.sha256`, `factory-gates/README.md`, `docs/plans/stage-1-gate-build-plan.md`, `CLAUDE.md`, `docs/progress.md`.
 
 Open items:
 - The plan's Appendix A `build` and `map` jobs now differ from `factory-gates`. Editing the plan to match needs Boroon's approval, as in Build 1.

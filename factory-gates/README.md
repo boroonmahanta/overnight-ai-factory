@@ -24,7 +24,7 @@ Status: **slice 1, Build 1, Build 2 and Build 3 done, tested locally only.** Not
 | `scripts.sha256` | The manifest, in `sha256sum` format, of every file a gate job reads. Today: the eight scripts, `org.json`, the four rulesets and the CODEOWNERS template. Prompts, rubrics, agents, rules and project settings join it as they are written | |
 | `pending-scripts.txt` | The 20 scripts the workflow calls that are not written yet (decision D2). Delete a line when you write the script | |
 | `requirements-test.txt` | PyYAML 6.0.3, pinned by hash, for tests only (decision D3). The scripts in `lcp/` use the standard library only | |
-| `tests/` | 140 tests. Real git repos for the protected-path and builder checks. `test_workflow.py` checks the workflow's shape. `test_make_rulesets.py` and `test_audit_bypass.py` check the rulesets and CODEOWNERS, with seeded bad copies. `test_apply_rulesets.py` drives the apply tool against a fake GitHub, never the network. `test_pack_offline.py` drives the pack wrapper against a fake `pac` | |
+| `tests/` | 141 tests. Real git repos for the protected-path and builder checks. `test_workflow.py` checks the workflow's shape. `test_make_rulesets.py` and `test_audit_bypass.py` check the rulesets and CODEOWNERS, with seeded bad copies. `test_apply_rulesets.py` drives the apply tool against a fake GitHub, never the network. `test_pack_offline.py` drives the pack wrapper against a fake `pac` | |
 | `tests/fixtures/builder-project/` | A tiny project repo for `test_check_builders.py`: one builder (`workflows/build/build_status_choices.py`), its input (`config/status_choices.json`) and its committed output (`src/generated/status_choices.yml`). Not hashed: no gate job reads it | |
 
 ## Layout: why `lcp/` is at the root
@@ -141,6 +141,8 @@ Choices of mine in Build 3, for Boroon to confirm or change:
 6. **The plan's `git diff --exit-code` misses a generated file that was never committed** (fixed in `check_builders.py`). `git diff` ignores untracked files, and `pac solution pack` packs whatever is in `src/`. So an agent that forgot to commit one output file would pass the drift check and ship a file nobody reviewed.
 7. **The plan's builder loop fails a project with no builders.** Without `nullglob`, bash passes the literal `workflows/build/*.py` to `python3`, which cannot open it, and `set -e` fails the step. `check_builders.py` passes when there are no builders.
 8. **The plan does not collect `pac copilot pack` output.** It runs the pack in each workspace but uploads only `out/`, so the pack is a check, not a build. Fine for now. What it writes, and where, is for the stage 0 spike (`pac copilot`), along with the flags.
+
+9. **`manifest.py` hashed a worktree's `.git` file (fixed).** In a git worktree or submodule, `.git` is a file, not a folder, so it slipped past the `.git/` exclusion. A manifest made there would list `.git`, and `sha256sum --check` would then fail in every gate job, where `.git` is a folder. Found rehearsing the move. `.git` is now never hashed, and a test proves it.
 
 The plan's Appendix A `build` and `map` jobs now differ from this copy. Editing the plan to match needs Boroon's approval, as in Build 1.
 

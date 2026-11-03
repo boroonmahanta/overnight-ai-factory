@@ -32,7 +32,8 @@ import sys
 from pathlib import Path
 
 MANIFEST = "scripts.sha256"
-NOT_HASHED_FILES = {MANIFEST, "README.md", "pending-scripts.txt", "requirements-test.txt", ".gitignore"}
+# ".git" is a file, not a folder, in a git worktree or submodule.
+NOT_HASHED_FILES = {MANIFEST, "README.md", "pending-scripts.txt", "requirements-test.txt", ".gitignore", ".git"}
 NOT_HASHED_DIRS = ("tests/", ".git/")
 GITHUB_DIR = ".github/"
 GITHUB_HASHED = ".github/agents/"
