@@ -16,10 +16,11 @@ Next steps:
 
 ## Current state
 
-- Mostly documents. First code: `factory-gates/` (stage 1 slice 1 and Builds 1 to 3, 141 tests passing locally). No pipelines or environments exist yet. Nothing has run on GHE.com or a tenant. The rulesets are files, not applied.
+- Mostly documents. The first code, the gate, now lives in its own repo **`GetAI-IP/factory-gates` on `getai.ghe.com`**, branch `release` (moved 3 November 2026, Session 9): stage 1 slice 1 and Builds 1 to 3, 141 tests passing there. It has not yet run as a gate on any project repo. No pipelines, Apps or environments exist yet. Nothing has run on a tenant. The rulesets are files, not applied.
 - **Build 1 is done** (Session 6). PR 11 merged into `main` on 3 November 2026.
 - **Build 2 is done** (Session 7). PR 12 merged into `main` on 3 November 2026.
-- **Build 3 is done** (Session 8) on branch `claude/elegant-wozniak-316hdv`, pull request open at Boroon's request. **Next: Boroon reviews and merges it, then the move.** After Build 3, `factory-gates/` moves to `AI-Business-Solutions/factory-gates` on `getai.ghe.com` (decided 3 November 2026) and leaves this repo.
+- **Build 3 is done** (Session 8). PR 13 merged into `main` on 3 November 2026.
+- **The move is done** (Session 9, 3 November 2026): steps 1 to 11 of "Moving to GHE.com" (now in the new repo's README). `factory-gates/` is deleted from this repo on branch `claude/wonderful-lamport-vbdypu`, **PR 14 open** at Boroon's request (3 November 2026); he merges it by hand. Step 12, applying the rulesets, is not started. `GetAI-IP` is the central org; four other orgs will use the gate. **Gate work runs from Boroon's laptop:** cloud sessions cannot reach `getai.ghe.com`.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
 - Nothing from the plan has been built or tested. Every item marked `[untested]` in the plan is still untested.
@@ -28,6 +29,14 @@ Next steps:
 
 ## Open items
 
+- **Gate work is laptop work (decided 3 November 2026).** Connecting `getai.ghe.com` to Claude's cloud (Git providers) needs a Claude Team or Enterprise plan, and Boroon is on an individual plan. So any change to `GetAI-IP/factory-gates` runs from his laptop: a local Claude Code session, a cloud session attached to a laptop folder by Remote Control, or a cloud session that prepares a patch he applies (as in Session 9). The steps below are kept only in case a Team plan comes later (the docs cover GitHub Enterprise Server and say nothing about `*.ghe.com`).
+  - **The steps** (from https://code.claude.com/docs/en/github-enterprise-server, read 3 November 2026; the page covers GitHub Enterprise Server and is silent on `*.ghe.com`). Needs the Owner or Primary Owner role in the Claude org (Team or Enterprise plan) and permission to create GitHub Apps on `getai.ghe.com`. (1) Create the empty private repo `GetAI-IP/factory-gates` (move step 2). (2) claude.ai, Organization settings, Git providers (https://claude.ai/admin-settings/source-control#github-enterprise), GitHub Enterprise section, Connect, "Set up automatically": display name up to 20 characters, hostname `getai.ghe.com`, leave the CA field empty. (3) Continue to GitHub Enterprise, review the pre-filled app, Create GitHub App. (4) Install the app on `factory-gates` only. (5) On claude.ai/code connect your own GitHub Enterprise account from the repository picker, then start a new session with the repo. If the guided redirect is blocked, use "Add manually" (needs app ID, client ID, client secret, webhook secret, private key; copy the webhook URL Claude generates into the app).
+  - **Likely trip points, my inference, untested:** the GHE.com API is at `api.getai.ghe.com`, not `/api/v3` as on Server (see `lcp/apply_rulesets.py`), and the page does not say Claude handles that; the app manifest has no Workflows permission, so a push touching `.github/workflows/` (the first push of the split, the step 8 patch) is refused until Workflows read and write is added in the app's settings and approved; an enterprise IP allow list needs Anthropic's outbound IPs; the cloud environment may need `getai.ghe.com` and `api.getai.ghe.com` under Allowed domains.
+- **Five orgs, one central gate (Boroon, 3 November 2026).** The enterprise on `getai.ghe.com` is `GetAI`. The central org `GetAI-IP` holds `factory-gates` and the held-out tests (`factory-holdout`). Four orgs will use the gate: `AI-Business-Solutions`, `AI-Managed-Services`, `Cloud-AI-Platforms`, `GetAI-Knowledge`. Org logins have no `_tqa7h098` suffix (checked for `GetAI-IP` by its URL; assumed for the others, check `AI-Business-Solutions` before step 12). The gate is a repo, a workflow file and rulesets, not a GitHub App; its only Apps are the two read-only token Apps. **Design, proposed, not built:** `lcp-gate.yml` becomes a reusable workflow; each of the four orgs gets a small private caller repo that its own `factory-required-workflows` ruleset points at; one `org.json` per org. Until then `rulesets/org.json` and `templates/CODEOWNERS` describe `AI-Business-Solutions`. **Checked:** (b) below is true. `factory-gates` Settings, Actions, Access offers "Accessible from repositories in the 'GetAI' enterprise", now set. Access is allowed only from private repos, so the callers must be private. Still to check: (a), (c), (d) below.
+  - The four checks behind that design: (a) a ruleset can only require a workflow from a repo in its own org, hence the callers (belief); (b) a private reusable workflow can be shared across the enterprise (**checked true**); (c) `job_workflow_ref` in the OIDC token names the central workflow when a caller runs it, so the federated credential pin to `release` still works (belief, spike 0.2); (d) whether a token App owned by `GetAI-IP` can be installed on the other orgs, or each org needs its own pair (unknown).
+- **Until a second approver exists** (Boroon, 3 November 2026): `release-protection` in `GetAI-IP/factory-gates` has 0 required approvals, and `factory-gates` is excluded from the `GetAI-IP` org ruleset `protect-main`. Rule 17's "reviewed" is self-review meanwhile, so keep write access to Boroon alone. Before step 12 makes the gate required on any org: set approvals to 1, tick "Require approval of the most recent reviewable push", and remove the exclusion.
+- **Five Dependabot pull requests are open in `GetAI-IP/factory-gates`** (#1 to #5, all major bumps). Hold them: merge none and close none until the self-test workflow exists. Detail in the Session 9 log.
+- **Follow-ups in `GetAI-IP/factory-gates`, by pull request there:** README step 9 should say Python 3.10 or later and a virtual environment outside the clone, and mark the move done; the `.github/dependabot.yml` comment still says Dependabot is untested on GHE.com (it runs); next slice 2, the self-test workflow.
 - **Sources are complete.** Boroon uploaded the whole research folder as a zip. Every file was checked by checksum against the repo, duplicates were skipped, and the rest were added. The other session ("Overnight AI software factory", id `session_019bVvHWrUECf7G5YiXU3fKW`) is no longer needed for sources and can be deleted.
 - **Not read in full.** The files added from the zip were saved but not read in this session: the reports V1 and V2, the runtime and costs note, the eight GitHub and Azure notes, the five Power Platform notes and the one-pager. The five workshop slide images were saved but not viewed. The plan condenses most of them. Read one only when a task needs its detail.
 - **Decisions still waiting on Boroon** (from `docs/analysis/tshirt-sizing.md`): approve the shortlist of skills to read in full before any are adopted (plan section 8.3); decide whether to add a work-size field to ADO (Appendix D); decide whether to write a GET AI router skill that routes by size. The sizes themselves are approved.
@@ -36,6 +45,55 @@ Next steps:
 - Spike 0.9 has a hard date. Audit for unmanaged developer environments before 15 November 2026.
 
 ## Log
+
+## Session 9, 2026-11-03, branch `claude/wonderful-lamport-vbdypu`
+
+The move of `factory-gates/` to GHE.com, from `main` (PR 13, Build 3, merged 3 November 2026). The 141 tests passed before any change. Boroon expected a laptop session. This one ran in a cloud container that cannot reach `getai.ghe.com` (the host is not allowed, there is no login for it, SSO cannot run there). So I did the steps that need no GHE.com, prepared the rest, and checked each of his laptop steps from the output he pasted.
+
+Done in this session (cloud):
+- Current state: PR 13 merged on 3 November 2026.
+- Steps 1, 3 and 4 rehearsed in a fresh clone of `main`: `git subtree split` gave 13 commits, head `f91750ec6a4d9982cb2d55b117ddbdf6003f2d90`, tree `2651ffba434dcd658540a4a261cf47b51db0e024`, equal to `main:factory-gates`. A plain clone of the split passed the 141 tests, `manifest.py verify` and `make_rulesets.py check`.
+- Step 8 made and tested as `docs/plans/factory-gates-move-step-8.patch` (kept as the record). `GATE_REPO`, all six token `owner:` fields (each reads only `factory-gates` or `factory-holdout`), the holdout checkout and the header comment name `GetAI-IP`; the `GATE_REPO` test assertion matches; the README is no longer a "staging copy", names the central org and the four orgs, and adds next slice 6 (callers). No hashed file changed. Checked with `git am` on a fresh clone of the split: 141 tests, manifest and rulesets clean, tree `1e7ece8621aafa27a22798d61c5b997c2340560b`. (A first version for `AI-Business-Solutions` was replaced when `GetAI-IP` became the central org.)
+- Step 11: deleted `factory-gates/` from this repo (33 files). `CLAUDE.md`, `docs/plans/stage-1-gate-build-plan.md` and this file point at the new repo.
+- Nothing was pushed to `getai.ghe.com` from here.
+
+Done by Boroon, 3 November 2026 (`getai.ghe.com` and his Mac, git 2.56.0, Python 3.15.0):
+- Step 2: created `GetAI-IP/factory-gates`, private and empty.
+- Steps 3 to 5: same split head and tree IDs as the rehearsal. The push created `release`, the default branch.
+- Step 6: repository ruleset `release-protection` on `release`: pull request required, force push and deletion blocked, empty bypass list, 0 required approvals (decision below).
+- Step 7: Actions Access set to "Accessible from repositories in the 'GetAI' enterprise". Actions permissions: enterprise actions plus GitHub's own and `azure/login@*`, full-SHA pins required (all nine actions in the workflow already are).
+- Step 8: applied the patch, opened and merged the new repo's first pull request, after excluding `factory-gates` from the org ruleset `protect-main` (decision below).
+- Step 9: fresh clone `~/factory-gates-check`, venv `~/.venvs/factory-gates`: tree `1e7ece86…` as expected, 141 tests `OK`, manifest and rulesets check silent.
+- Step 10: option B (below).
+
+Decisions (Boroon, 3 November 2026):
+- **Central org `GetAI-IP`** holds the gate and the held-out tests (`GetAI-IP/factory-holdout`, not yet created). Four orgs will use the gate: `AI-Business-Solutions`, `AI-Managed-Services`, `Cloud-AI-Platforms`, `GetAI-Knowledge`, all in the enterprise `GetAI`. Replaces `AI-Business-Solutions` as the gate's home. The callers design is in Open items.
+- **The cloud route is closed.** Git providers needs a Claude Team or Enterprise plan; he is on an individual plan. Gate work runs from his laptop.
+- **No github.com stand-in.** Proposed, chosen, then dropped before anything was made: a personal account cannot do any of stage 1's org-level work, and it would add a second host and set of identities.
+- **0 approvals on `release-protection`, and `factory-gates` excluded from `protect-main`, until a second approver exists.** `protect-main` is a `GetAI-IP` org ruleset on each repo's default branch (1 approval, by someone other than the last pusher). It blocked step 8, because no one can approve their own pull request. Undo both before step 12 (Open items).
+- **Step 10: B.** Accept the red `lcp-gate` run on the gate repo's own pull requests. It ends when the callers build makes the central workflow call-only, and the self-test workflow (next slice 2) gives the real signal.
+- One gate repo serves many teams and both profiles (`profile:lcp` now, `profile:pcp` with its own `pcp-gate.yml` at stage 5).
+
+Findings:
+- **Dependabot runs on `getai.ghe.com`** (open since Build 1). Within 15 minutes of the push it opened five major-bump pull requests: `azure/login` 2.3.1 to 3.1.0 (#1), `actions/create-github-app-token` 2.2.2 to 3.3.0 (#2), `actions/setup-node` 4.4.0 to 7.1.0 (#3), `actions/checkout` 5.1.0 to 7.0.1 (#4), `actions/upload-artifact` 4.6.2 to 7.0.2 (#5). Five is its default limit; `download-artifact`, `setup-python`, `setup-dotnet` and `codeql-action` will follow. Advice: merge none and close none (closing makes it skip that version) until the self-test workflow exists; then one at a time after reading the release notes, with `upload-artifact` and `download-artifact` together (the `map` to `build` hand-off uses both). Maybe group those two and set the limit in `dependabot.yml`.
+- A private repo's workflows can be shared with the whole enterprise, but only to private repos. The callers must be private.
+- The red `lcp-gate` run fails at the first token step, `appId option is required`: `vars.GATE_READER_APP_ID` is not set because the gate reader App does not exist yet. Expected. The same log shows the Actions permissions let GitHub's actions run, and the token step asks for `GetAI-IP/factory-gates`.
+- "Require approval of the most recent reviewable push", which I advised for step 6, also needs a second person, even at 0 approvals. My mistake; left unticked until there is a second approver.
+- The scripts need Python 3.10 or later (`Path | None`); macOS's built-in `python3` is 3.9. Homebrew's Python needs a virtual environment, and it must sit outside the clone: `manifest.py` calls every unknown file under the root "unlisted" (correct, an unknown file is an unreviewed file), so a `.venv` inside failed 2 tests on the first try. The new repo's README says neither yet.
+- The test output shows "401 Bad credentials" and "created ruleset … id 901": that is `test_apply_rulesets.py`'s fake GitHub. Nothing is sent.
+- The Claude Code page for GitHub Enterprise Server (read 3 November 2026) says nothing about `*.ghe.com`. A token route for the cloud (allowed domain plus a stored token) is undocumented and untested.
+- Local Claude Code on the laptop needs nothing special for GHE.com; it uses the laptop's git and `gh`. The laptop already holds a login for `getai.ghe.com` (the push did not prompt).
+- **Boroon's working copy** of the gate (chosen 3 November 2026): a git clone of `GetAI-IP/factory-gates` at `/Users/Local VS Code/10-overnight-ai-factory/factory-gates` (a clone, not copied files, so it stays linked to the real repo). Virtual environment at `~/.venvs/factory-gates`, outside the clone. Cloned and checked the same day: tree `1e7ece86…`, on `release`. The day's temporary folders (`~/factory-move`, `~/factory-gates`, `~/factory-gates-check`, `~/step-8.patch`) are deleted.
+
+Files changed: `CLAUDE.md`, `docs/progress.md`, `docs/plans/stage-1-gate-build-plan.md`, `docs/plans/factory-gates-move-step-8.patch` (new), `factory-gates/` (deleted).
+
+Open items: in the Open items section above (laptop-only gate work, the callers checks (a), (c), (d), the approver stopgaps, the Dependabot pull requests, the README follow-ups). Spike 0.9 before 15 November 2026, unchanged.
+
+Next steps:
+1. Boroon reviews and merges PR 14 (https://github.com/boroonmahanta/overnight-ai-factory/pull/14), opened at his request on 3 November 2026. Merging it removes `factory-gates/` from `main`.
+2. In `GetAI-IP/factory-gates`, by pull request there, from his laptop: the README step 9 fixes and the `dependabot.yml` comment, then next slice 2, the self-test workflow.
+3. Checks (a), (c), (d) on `getai.ghe.com`, then the callers build (next slice 6).
+4. Step 12, the rulesets, once the three teams exist and the approval stopgaps are undone. `apply --yes` only when Boroon says so.
 
 ## Session 8, 2026-11-03, branch `claude/elegant-wozniak-316hdv`
 

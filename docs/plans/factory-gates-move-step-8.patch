@@ -1,0 +1,192 @@
+From 8e2c8dc153112648778a043b5061e949487fed25 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 3 Nov 2026 08:12:42 +0000
+Subject: [PATCH] Point the gate workflow at GetAI-IP, the central org (move
+ step 8)
+
+The plan calls the gate repo getai/factory-gates. On getai.ghe.com the
+gate and the held-out tests live in the central org, GetAI-IP (decided
+3 November 2026). Set GATE_REPO, the owner of all six App token steps
+(each reads only factory-gates or factory-holdout), the holdout checkout
+and the header comment to it, and the GATE_REPO assertion in
+tests/test_workflow.py.
+
+README: no longer a staging copy; names the central org, the four orgs
+that will use the gate, and the caller design as a later slice. The move
+steps now name GetAI-IP.
+
+rulesets/org.json and templates/CODEOWNERS are unchanged: they describe
+an org that uses the gate (AI-Business-Solutions) and are hashed.
+None of the changed files is hashed, so scripts.sha256 is unchanged.
+
+141 tests OK, manifest verify clean, rulesets check clean.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01A9uxVEtbdaw7cznA4jDW61
+---
+ .github/workflows/lcp-gate.yml | 25 ++++++++++++++-----------
+ README.md                      | 19 ++++++++++---------
+ tests/test_workflow.py         |  2 +-
+ 3 files changed, 25 insertions(+), 21 deletions(-)
+
+diff --git a/.github/workflows/lcp-gate.yml b/.github/workflows/lcp-gate.yml
+index 44c6fda..eeeb8d6 100644
+--- a/.github/workflows/lcp-gate.yml
++++ b/.github/workflows/lcp-gate.yml
+@@ -1,8 +1,11 @@
+ # lcp-gate.yml
+ # Required workflow for the Lane B low-code platform profile (Power Platform today).
+-# Lives in getai/factory-gates on the protected "release" branch. Applied by the
+-# organisation ruleset "factory-required-workflows" (Require workflows to pass
+-# before merging) to every repo with custom property factory=enabled.
++# Lives in GetAI-IP/factory-gates on the protected "release" branch (the plan
++# says getai/factory-gates; GetAI-IP is the central org on getai.ghe.com).
++# Applied by the organisation ruleset "factory-required-workflows" (Require
++# workflows to pass before merging) to every repo with custom property
++# factory=enabled. How the other orgs reach it from their own rulesets is a
++# later build.
+ #
+ # STATUS: UNTESTED STARTING POINT. Check every action version, CLI flag, claim
+ # format and path in stage 0 and stage 1 before relying on it.
+@@ -41,7 +44,7 @@ env:
+   GH_HOST: getai.ghe.com
+   PAC_VERSION: "2.4.1"          # pin pac; matches Microsoft's OIDC sample
+   PY_VERSION: "3.11"
+-  GATE_REPO: getai/factory-gates
++  GATE_REPO: GetAI-IP/factory-gates
+ 
+ jobs:
+   map:
+@@ -60,7 +63,7 @@ jobs:
+         with:
+           app-id: ${{ vars.GATE_READER_APP_ID }}
+           private-key: ${{ secrets.GATE_READER_KEY }}
+-          owner: getai
++          owner: GetAI-IP
+           repositories: factory-gates
+       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+         with:
+@@ -115,7 +118,7 @@ jobs:
+         with:
+           app-id: ${{ vars.GATE_READER_APP_ID }}
+           private-key: ${{ secrets.GATE_READER_KEY }}
+-          owner: getai
++          owner: GetAI-IP
+           repositories: factory-gates
+       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+         with:
+@@ -197,7 +200,7 @@ jobs:
+         with:
+           app-id: ${{ vars.GATE_READER_APP_ID }}
+           private-key: ${{ secrets.GATE_READER_KEY }}
+-          owner: getai
++          owner: GetAI-IP
+           repositories: factory-gates
+       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+         with:
+@@ -272,7 +275,7 @@ jobs:
+         with:
+           app-id: ${{ vars.GATE_READER_APP_ID }}
+           private-key: ${{ secrets.GATE_READER_KEY }}
+-          owner: getai
++          owner: GetAI-IP
+           repositories: factory-gates
+       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+         with:
+@@ -356,11 +359,11 @@ jobs:
+         with:
+           app-id: ${{ vars.HOLDOUT_READER_APP_ID }}
+           private-key: ${{ secrets.HOLDOUT_READER_KEY }}
+-          owner: getai
++          owner: GetAI-IP
+           repositories: factory-holdout
+       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+         with:
+-          repository: getai/factory-holdout
++          repository: GetAI-IP/factory-holdout
+           token: ${{ steps.holdout-token.outputs.token }}
+           path: holdout
+           persist-credentials: false
+@@ -462,7 +465,7 @@ jobs:
+         with:
+           app-id: ${{ vars.GATE_READER_APP_ID }}
+           private-key: ${{ secrets.GATE_READER_KEY }}
+-          owner: getai
++          owner: GetAI-IP
+           repositories: factory-gates
+       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+         with:
+diff --git a/README.md b/README.md
+index e7790d1..c977db9 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,6 @@
+-# factory-gates (staging copy)
++# factory-gates
+ 
+-This folder is the first build of the gate repo, `getai/factory-gates` in the plan, which becomes `AI-Business-Solutions/factory-gates` on `getai.ghe.com` (decided 3 November 2026). It is staged inside the planning repo until it moves there. This folder's root becomes the repo root (`lcp/`, `scripts.sha256`, `.github/`, `tests/` and the rest), on the protected `release` branch. The steps are under "Moving to GHE.com" below.
++This is the gate repo, `getai/factory-gates` in the plan. It lives at `GetAI-IP/factory-gates` on `getai.ghe.com`, on the protected `release` branch. `GetAI-IP` is the central org (decided 3 November 2026), and the held-out tests live there too, in `GetAI-IP/factory-holdout`. Four orgs will use the gate: `AI-Business-Solutions`, `AI-Managed-Services`, `Cloud-AI-Platforms` and `GetAI-Knowledge`. How they reach it (a small caller workflow in each, one `org.json` per org) is a later build. Until then `rulesets/org.json` and `templates/CODEOWNERS` describe one of them, `AI-Business-Solutions`. The repo was split out of the planning repo's `factory-gates/` folder with its history. The move steps are under "Moving to GHE.com" below.
+ 
+ Status: **slice 1, Build 1, Build 2 and Build 3 done, tested locally only.** Nothing here has run on GHE.com or a Power Platform tenant. The workflow's shape is tested. Whether it runs is not. The rulesets are files, not applied anywhere. `pac` has never been run by anything here.
+ 
+@@ -148,10 +148,10 @@ The plan's Appendix A `build` and `map` jobs were edited to match this copy (app
+ 
+ ## Moving to GHE.com
+ 
+-Decided 3 November 2026: after Build 3, this folder becomes the repo `AI-Business-Solutions/factory-gates` on `getai.ghe.com`, with this folder's root as the repo root and a protected `release` branch, and the staged copy here is deleted, so there is one copy. Not done yet. Steps, from Boroon's laptop (this cloud container cannot reach `getai.ghe.com`):
++Decided 3 November 2026: after Build 3, the planning repo's `factory-gates/` folder becomes the repo `GetAI-IP/factory-gates` on `getai.ghe.com` (first planned for `AI-Business-Solutions`, changed the same day when `GetAI-IP` was made the central org), with the folder's root as the repo root and a protected `release` branch, and the staged copy there is deleted, so there is one copy. Steps 1, 3 and 4 were first run in a cloud session (tree ID `2651ffba434dcd658540a4a261cf47b51db0e024`). The rest run from Boroon's laptop, because cloud sessions cannot reach `getai.ghe.com`:
+ 
+ 1. **Wait for Build 3 to be merged** into `main` of the planning repo, and pull it. All tests pass there.
+-2. **Create the empty repo** `AI-Business-Solutions/factory-gates` on `getai.ghe.com`: private, with no README, licence or `.gitignore`, so the first push lands clean.
++2. **Create the empty repo** `GetAI-IP/factory-gates` on `getai.ghe.com`: private, with no README, licence or `.gitignore`, so the first push lands clean.
+ 3. **Split the folder out with its history.** In a fresh clone of the planning repo, on `main`:
+ 
+    ```bash
+@@ -172,12 +172,12 @@ Decided 3 November 2026: after Build 3, this folder becomes the repo `AI-Busines
+ 5. **Push it as `release`** and make `release` the default branch:
+ 
+    ```bash
+-   git push https://getai.ghe.com/AI-Business-Solutions/factory-gates.git factory-gates-export:refs/heads/release
++   git push https://getai.ghe.com/GetAI-IP/factory-gates.git factory-gates-export:refs/heads/release
+    ```
+ 
+ 6. **Protect `release`** with a repository ruleset, by hand in the repo settings (the org rulesets only cover `factory = enabled` repos, and this is not one): changes by pull request only, one approval from `platform-team`, no force push, no deletion, an empty bypass list (rule 17). Do not set `factory = enabled` on this repo.
+-7. **Share the workflow with the org.** In the repo's Actions settings, under Access, allow repositories in `AI-Business-Solutions` to use it, so the required-workflow ruleset can run `lcp-gate.yml` from a private repo. Check on GHE.com that this is the setting it needs.
+-8. **First pull request in the new repo, reviewed (rule 17): point the workflow at its new home.** In `.github/workflows/lcp-gate.yml`: `GATE_REPO: AI-Business-Solutions/factory-gates`, `repository: AI-Business-Solutions/factory-holdout`, `owner: AI-Business-Solutions` in all six App token steps, and the header comment. In `tests/test_workflow.py`, the `GATE_REPO` assertion. The workflow and tests are not hashed, so `scripts.sha256` does not change. Also check whether Dependabot runs on this org (open since Build 1).
++7. **Share the workflow with the other orgs.** In the repo's Actions settings, under Access, allow repositories in the enterprise to use it, so the four orgs can call `lcp-gate.yml` from this private repo (their caller workflows are a later build). Check on GHE.com that this is the setting it needs, and that all five orgs sit in one enterprise.
++8. **First pull request in the new repo, reviewed (rule 17): point the workflow at its new home.** In `.github/workflows/lcp-gate.yml`: `GATE_REPO: GetAI-IP/factory-gates`, `repository: GetAI-IP/factory-holdout`, `owner: GetAI-IP` in all six App token steps (all six read only `factory-gates` or `factory-holdout`, both in `GetAI-IP`), and the header comment. In `tests/test_workflow.py`, the `GATE_REPO` assertion. This README too. None of these are hashed, so `scripts.sha256` does not change. Also check whether Dependabot runs on this org (open since Build 1). The planning repo holds this change as `docs/plans/factory-gates-move-step-8.patch`; apply it with `git am` on a branch off `release`.
+ 9. **Run the checks in a fresh clone of the new repo:**
+ 
+    ```bash
+@@ -201,12 +201,13 @@ Decided 3 November 2026: after Build 3, this folder becomes the repo `AI-Busines
+ 11. **Delete the staged copy** from the planning repo by pull request: remove `factory-gates/`, point the `CLAUDE.md` row and `docs/plans/stage-1-gate-build-plan.md` at the new repo, and log it in `docs/progress.md`. Only after step 9 passes and `release` holds the tree from step 4 plus the step 8 edits.
+ 12. **Then apply the rulesets** with the seven steps under "Applying to the real organisation" above, once the three teams exist. Only `apply --yes` when Boroon says so.
+ 
+-Also changes with the move: the federated credential for `getai-<proj>-test` (plan 5.3) must trust `AI-Business-Solutions/factory-gates/.github/workflows/lcp-gate.yml@refs/heads/release`, not the plan's `getai/...`. That is spike 0.2's to test.
++Also changes with the move: the federated credential for `getai-<proj>-test` (plan 5.3) must trust `GetAI-IP/factory-gates/.github/workflows/lcp-gate.yml@refs/heads/release`, not the plan's `getai/...`. When another org calls the gate through a caller workflow, the OIDC claim `job_workflow_ref` should still name this central workflow (a belief, untested). That is spike 0.2's to test.
+ 
+ ## Next slices
+ 
+-1. Move this folder to `AI-Business-Solutions/factory-gates`, the steps above.
++1. Move the planning repo's `factory-gates/` folder to `GetAI-IP/factory-gates`, the steps above.
+ 2. A workflow in the gate repo that runs its own tests and `manifest.py verify` on every pull request to `release`, so a reviewer sees them green before merging.
+ 3. Applying the rulesets: the steps above, once the organisation exists. `apply_rulesets.py` is written and tested against a fake GitHub only.
+ 4. Running `pac solution pack` and `pac copilot pack` for real, with `pac` 2.4.1 on a runner (stage 0). `pack_offline.py` keeps the plan's flags until then.
+ 5. Everything that needs a tenant (OIDC, import to Test, Playwright, verifiers) waits for the stage 0 spikes. `verify-in-test` and `danger` carry a header comment saying so.
++6. Callers for the four orgs. Turn `lcp-gate.yml` into a reusable workflow (`on: workflow_call`), add a small protected caller repo in each org for its `factory-required-workflows` ruleset to point at, and keep one `org.json` per org. First check on `getai.ghe.com` (all beliefs, none tested): that a ruleset can only require a workflow from its own org; that a private reusable workflow can be shared across the enterprise; whether the two token Apps can be installed across orgs or each org needs its own pair.
+diff --git a/tests/test_workflow.py b/tests/test_workflow.py
+index 8635757..c347b56 100644
+--- a/tests/test_workflow.py
++++ b/tests/test_workflow.py
+@@ -103,7 +103,7 @@ class WorkflowTests(unittest.TestCase):
+         self.assertEqual(
+             list(self.jobs), ["map", "locks", "build", "static", "verify-in-test", "danger"]
+         )
+-        self.assertEqual(self.wf["env"]["GATE_REPO"], "getai/factory-gates")
++        self.assertEqual(self.wf["env"]["GATE_REPO"], "GetAI-IP/factory-gates")
+ 
+     def test_triggers_have_no_filters(self):
+         # Required workflows ignore branches, paths and types filters (plan 5.7). Do not add any.
+-- 
+2.43.0
+
