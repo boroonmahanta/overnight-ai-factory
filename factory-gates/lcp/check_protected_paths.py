@@ -19,18 +19,49 @@ import re
 import subprocess
 import sys
 
-# One list. Keep it in step with the push ruleset path restrictions
-# (plan section 5.x). A change here is a gate-script change: reviewed PR only.
-PROTECTED = re.compile(
-    r"^("
-    r"tests/acceptance/|tests/scenarios/"
-    r"|specs/[^/]+/spec\.md|specs/[^/]+/checklists/"
-    r"|glossary\.md|docs/adr/|coding-standards\.md"
-    r"|\.specify/|\.github/|\.claude/|\.mcp/"
-    r"|AGENTS\.md|CLAUDE\.md"
-    r"|scripts/|builders/lib/|deploy/"
-    r")"
-)
+# The one list of protected paths (plan section 5.7, part 3), in the fnmatch
+# form the push ruleset uses. make_rulesets.py generates
+# rulesets/protected-paths.json from it, and a test fails if that file or
+# templates/CODEOWNERS falls behind. A change here is a gate-script change:
+# reviewed PR only.
+PROTECTED_PATHS = [
+    "tests/acceptance/**",
+    "tests/scenarios/**",
+    "specs/*/spec.md",
+    "specs/*/checklists/**",
+    "glossary.md",
+    "docs/adr/**",
+    "coding-standards.md",
+    ".specify/**",
+    ".github/**",
+    "AGENTS.md",
+    "CLAUDE.md",
+    ".claude/**",
+    ".mcp/**",
+    "scripts/**",
+    "builders/lib/**",
+    "deploy/**",
+]
+
+
+def glob_to_regex(pattern: str) -> str:
+    """`**` matches across folders, `*` within one. Anchored to the repo root."""
+    out = ""
+    i = 0
+    while i < len(pattern):
+        if pattern.startswith("**", i):
+            out += ".*"
+            i += 2
+        elif pattern[i] == "*":
+            out += "[^/]*"
+            i += 1
+        else:
+            out += re.escape(pattern[i])
+            i += 1
+    return f"^{out}$"
+
+
+PROTECTED = re.compile("|".join(glob_to_regex(p) for p in PROTECTED_PATHS))
 
 
 def find_protected(paths: list[str]) -> list[str]:

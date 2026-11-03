@@ -16,8 +16,9 @@ Next steps:
 
 ## Current state
 
-- Mostly documents. First code: `factory-gates/` (stage 1 slice 1 and Build 1, 47 tests passing locally). No pipelines or environments exist yet. Nothing has run on GHE.com or a tenant.
-- **Build 1 is done** on branch `claude/brave-davinci-0d5ssc` (Session 6). Not yet on `main`. **Next: Build 2** (rulesets and CODEOWNERS as files), per `docs/plans/stage-1-gate-build-plan.md`, once Boroon has merged Build 1.
+- Mostly documents. First code: `factory-gates/` (stage 1 slice 1, Build 1 and Build 2, 84 tests passing locally). No pipelines or environments exist yet. Nothing has run on GHE.com or a tenant. The rulesets are files, not applied.
+- **Build 1 is done** (Session 6). PR 11 merged into `main` on 3 November 2026.
+- **Build 2 is done** on branch `claude/eager-goldberg-gj0iqg` (Session 7). Not yet on `main`. **Next: Build 3** (the offline `build` job checks), per `docs/plans/stage-1-gate-build-plan.md`, once Boroon has merged Build 2.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
 - Nothing from the plan has been built or tested. Every item marked `[untested]` in the plan is still untested.
@@ -34,6 +35,41 @@ Next steps:
 - Spike 0.9 has a hard date. Audit for unmanaged developer environments before 15 November 2026.
 
 ## Log
+
+## Session 7, 2026-11-03, branch `claude/eager-goldberg-gj0iqg`
+
+Build 2 of `docs/plans/stage-1-gate-build-plan.md`, started from `main` (PR 11, Build 1, merged 3 November 2026). The 47 tests passed before any change.
+
+Done:
+- **One source for protected paths.** `check_protected_paths.py` now holds the list as 16 fnmatch globs (`PROTECTED_PATHS`, the ruleset's own form) and builds its regex from them. Same behaviour; the eight existing tests still pass. `glob_to_regex` reads `*` as within one folder and `**` as across folders, anchored at the root.
+- `lcp/make_rulesets.py`: `make` writes `rulesets/protected-paths.json` from that list; `check` fails if the JSON is stale or missing, or if `templates/CODEOWNERS` leaves a protected path unowned by `@getai/acceptance-owners` or `@getai/platform-team`. It carries a small CODEOWNERS matcher (GitHub's rules: anchoring, trailing slash, `*` in one folder, `docs/*` not reaching subfolders, last line wins).
+- `lcp/audit_bypass.py`: reads ruleset JSON; fails on any bypass actor that is not a team (Integration, which is what Copilot is; DeployKey; every RepositoryRole, the write role named; OrganizationAdmin; unknown). `main-gate` must have an empty list. Exit 1 with one line per problem, 2 for usage.
+- `rulesets/`: `main-gate.json`, `integration-gate.json`, `factory-required-workflows.json` by hand, `protected-paths.json` generated. All four are organisation rulesets with the `factory = enabled` property condition. Settings as plan 5.7 part 3; `factory-required-workflows` is in `evaluate` mode (plan 11.2, stage 1 starts in Evaluate).
+- `templates/CODEOWNERS`: tests and specs to acceptance owners; harness, scripts and deploy to the platform team; glossary, ADRs and coding standards to either; no `*` catch-all; the L2 floor-3 paths as comments for stage 7.
+- Tests: `test_make_rulesets.py` (24) and `test_audit_bypass.py` (13). 84 in all, `OK`. The three seeded bad files from the plan's done-when fail as expected (stale ruleset, Copilot in a bypass list, protected path missing from CODEOWNERS), plus a wrong-team owner, a team in `main-gate`, every role, a deploy key, broken JSON. Also broke the real files on purpose and restored them: a new path in the list fails both checks; a hand edit to the generated JSON fails as stale.
+- `scripts.sha256` regenerated: five scripts, four rulesets, the CODEOWNERS template. The manifest test failed until then, as the plan said it would.
+- Nothing applied. Applying needs the real org on GHE.com.
+
+Decisions: none from Boroon this session. Choices of mine, all listed in `factory-gates/README.md` under "Rulesets and CODEOWNERS" for him to confirm or change:
+- All four rulesets at organisation level with the `factory = enabled` condition, not one copy per repo.
+- Placeholder IDs are `0` (two team IDs, the gate repo ID, the `lane/drift` check's App ID). The API rejects `0`, so a file applied too early fails loudly. `15368` is the GitHub Actions App ID on github.com; confirm on GHE.com.
+- `integration-gate` leaves force pushes allowed (V2.1's evening reset of `integration` without a bypass entry). Confirm the reset is still wanted.
+- No `*` line in CODEOWNERS, so code owner review bites only on protected paths and will not block L2 auto-merge later.
+- Team handles are `@getai/<team>` because CODEOWNERS needs the org prefix.
+- The audit fails every repository role, not only write: the plan allows only the two teams.
+
+Files changed: `factory-gates/lcp/check_protected_paths.py`, `factory-gates/lcp/make_rulesets.py` (new), `factory-gates/lcp/audit_bypass.py` (new), `factory-gates/rulesets/` (four new files), `factory-gates/templates/CODEOWNERS` (new), `factory-gates/tests/test_make_rulesets.py` (new), `factory-gates/tests/test_audit_bypass.py` (new), `factory-gates/scripts.sha256`, `factory-gates/README.md`, `docs/plans/stage-1-gate-build-plan.md`, `CLAUDE.md`, `docs/progress.md`.
+
+Open items:
+- The check context a required workflow reports on GHE.com (`lcp-gate` assumed). Confirm in stage 1.
+- GitHub's fnmatch may read `*` more loosely than the script. If so the ruleset blocks a little more, never less. Check when the push ruleset is first applied.
+- The online half of the bypass audit (team members against the identity register) waits for the org.
+- Still open from Session 6: actionlint warnings in the untested jobs; Dependabot on GHE.com; spike 0.9 before 15 November 2026.
+
+Next steps:
+1. Boroon reviews and merges Build 2 (pull request when he asks for one).
+2. Build 3, from `main`: the offline `build` job checks (`check_builders.py`, a fixture project, the `pac` pack wrapper). Regenerate the manifest.
+3. A separate planning session for the rest of Stage 1 (presets, templates, Playwright kit v0, mining sessions).
 
 ## Session 6, 2026-11-03, branch `claude/brave-davinci-0d5ssc`
 
