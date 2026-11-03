@@ -18,7 +18,7 @@ Next steps:
 
 - Mostly documents. First code: `factory-gates/` (stage 1 slice 1, Build 1 and Build 2, 111 tests passing locally). No pipelines or environments exist yet. Nothing has run on GHE.com or a tenant. The rulesets are files, not applied.
 - **Build 1 is done** (Session 6). PR 11 merged into `main` on 3 November 2026.
-- **Build 2 is done** on branch `claude/eager-goldberg-gj0iqg` (Session 7). Not yet on `main`. **Next: Build 3** (the offline `build` job checks), per `docs/plans/stage-1-gate-build-plan.md`, once Boroon has merged Build 2.
+- **Build 2 is done** on branch `claude/eager-goldberg-gj0iqg` (Session 7), pull request open. **Next: Build 3** (the offline `build` job checks), per `docs/plans/stage-1-gate-build-plan.md`, once Boroon has merged Build 2. After Build 3, `factory-gates/` moves to `AI-Business-Solutions/factory-gates` on `getai.ghe.com` (decided 3 November 2026) and leaves this repo.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
 - Nothing from the plan has been built or tested. Every item marked `[untested]` in the plan is still untested.
@@ -59,7 +59,11 @@ Second request ("I have the real org, do the rest"), same day, same branch:
 - Boroon is building the factory in his personal github.com repo and will move it to the GHE.com org when complete. That is fine for the planning repo. Two limits: rulesets are org settings, not repo content, so they are applied to `AI-Business-Solutions` by the tool, never forked; and a required workflow must live in a repo in the same org, so `factory-gates` must be pushed as a new repo there (GHE.com cannot fork from github.com; push `factory-gates/` as its own repo).
 - **This container cannot reach `api.getai.ghe.com`** (the environment's network policy denied it). So `resolve`, `plan` and `apply` run from Boroon's machine, or the environment's network access is widened to that host.
 
-Decisions: none from Boroon this session. Choices of mine, all listed in `factory-gates/README.md` under "Rulesets and CODEOWNERS" for him to confirm or change:
+Decisions by Boroon, 3 November 2026:
+- **Split the repos.** The planning repo (documents, plans, skills) stays on github.com, where these cloud sessions work. `factory-gates` moves to `AI-Business-Solutions/factory-gates` on `getai.ghe.com` after Build 3, pushed as a new repo with the folder root as the repo root and a protected `release` branch. The staged copy here is then deleted, so there is one copy. From then on gate code changes happen in the org repo, by reviewed PR, with Claude Code on his laptop. The rulesets are applied from his laptop once the three teams exist.
+- Also agreed: allow `getai.ghe.com` and `api.getai.ghe.com` in the cloud environment's network access, so a cloud session can run `plan` and `audit` against the org with a token held as an environment secret.
+
+Choices of mine, all listed in `factory-gates/README.md` under "Rulesets and CODEOWNERS" for him to confirm or change:
 - All four rulesets at organisation level with the `factory = enabled` condition, not one copy per repo.
 - Placeholder IDs are `0` in `org.json` (three team IDs, the gate repo ID, the `lane/drift` check's App ID). `plan` and `apply` refuse a ruleset with a `0`, so nothing half-filled reaches the API. `15368` is the GitHub Actions App ID on github.com; `resolve` replaces it with the host's own.
 - `integration-gate` leaves force pushes allowed (V2.1's evening reset of `integration` without a bypass entry). Confirm the reset is still wanted.
@@ -76,9 +80,9 @@ Open items:
 - Still open from Session 6: actionlint warnings in the untested jobs; Dependabot on GHE.com; spike 0.9 before 15 November 2026.
 
 Next steps:
-1. Boroon gives the real org (host, org name, gate repo name). Put them in `rulesets/org.json`, regenerate, then `resolve`, `plan`, and only `apply --yes` when he says so. The seven steps are in the README.
-2. Boroon reviews and merges Build 2 (pull request when he asks for one).
-3. Build 3, from `main`: the offline `build` job checks (`check_builders.py`, a fixture project, the `pac` pack wrapper). Regenerate the manifest.
+1. Boroon reviews and merges Build 2 (pull request opened at his request, 3 November 2026).
+2. Build 3, from `main`: the offline `build` job checks (`check_builders.py`, a fixture project, the `pac` pack wrapper). Regenerate the manifest.
+3. Then move `factory-gates/` to `AI-Business-Solutions/factory-gates` on GHE.com (decision above), create the three teams, run `resolve` and `plan` from Boroon's laptop, and only `apply --yes` when he says so. The seven steps are in the README.
 3. A separate planning session for the rest of Stage 1 (presets, templates, Playwright kit v0, mining sessions).
 
 ## Session 6, 2026-11-03, branch `claude/brave-davinci-0d5ssc`
