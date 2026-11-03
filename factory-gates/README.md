@@ -1,17 +1,19 @@
 # factory-gates (staging copy)
 
-This folder is the first build of the gate repo, `getai/factory-gates` in the plan. It is staged inside the planning repo until that repo exists. Move the contents there as they are: this folder's root becomes the repo root (`lcp/`, `scripts.sha256`, `.github/`, `tests/` and the rest), on the protected `release` branch.
+This folder is the first build of the gate repo, `getai/factory-gates` in the plan, which becomes `AI-Business-Solutions/factory-gates` on `getai.ghe.com` (decided 3 November 2026). It is staged inside the planning repo until it moves there. This folder's root becomes the repo root (`lcp/`, `scripts.sha256`, `.github/`, `tests/` and the rest), on the protected `release` branch. The steps are under "Moving to GHE.com" below.
 
-Status: **slice 1, Build 1 and Build 2 done, tested locally only.** Nothing here has run on GHE.com or a Power Platform tenant. The workflow's shape is tested. Whether it runs is not. The rulesets are files, not applied anywhere.
+Status: **slice 1, Build 1, Build 2 and Build 3 done, tested locally only.** Nothing here has run on GHE.com or a Power Platform tenant. The workflow's shape is tested. Whether it runs is not. The rulesets are files, not applied anywhere. `pac` has never been run by anything here.
 
 ## What is here
 
 | File | What it does | Plan |
 |---|---|---|
-| `.github/workflows/lcp-gate.yml` | The gate workflow. Plan Appendix A, with `map` and `locks` changed to run the tested scripts (Build 1). Every action is pinned to a full commit ID, with the version as a comment | Appendix A |
+| `.github/workflows/lcp-gate.yml` | The gate workflow. Plan Appendix A, with `map` and `locks` changed to run the tested scripts (Build 1), and `build` too (Build 3). Every action is pinned to a full commit ID, with the version as a comment | Appendix A |
 | `.github/dependabot.yml` | Asks Dependabot to open a weekly pull request when an action pin has a newer release. It rewrites the ID and the version comment together. A human merges by day (rule 17). Untested on GHE.com | |
 | `lcp/lane_map.py` | Maps `agent/<lane>/<ado-id>-<attempt>` to a lane and a story. Anything else maps to `none`. An unknown lane fails. Run by `map` | Appendix A, job `map` |
 | `lcp/check_protected_paths.py` | Fails an agent PR that changes a protected path (tests, locked scenarios, specs, glossary, ADRs, standards, `.github/`, `.claude/`, scripts, deploy). One list. Run by `locks` | Appendix A, job `locks`; rule 17 |
+| `lcp/check_builders.py` | Runs every `workflows/build/*.py` in a project repo, then fails if the tree differs from the commit: a changed or deleted tracked file, or a new file git does not ignore. A crashed or hung builder fails too. Runs PR code, so it is only as trusted as the `build` job, which holds no credentials (Build 3) | Appendix A, job `build`; section 5.6 |
+| `lcp/pack_offline.py` | Wraps `pac solution pack` (unmanaged, then managed) and `pac copilot pack` (each `agents/<name>/`) with clear errors: `pac` missing, `pac` failing, a zero exit with no zip or a broken zip, a stale zip, no source. The plan's flags, unchanged. **`[untested]` against the real `pac`** (Build 3) | Appendix A, job `build` |
 | `lcp/manifest.py` | Makes and checks `scripts.sha256`. Fails on a changed, missing or unlisted file | Appendix A header rules; stage 1 "trusted scripts with a hash manifest" |
 | `lcp/make_rulesets.py` | Generates all four rulesets from the one path list in `check_protected_paths.py` and the names and IDs in `rulesets/org.json`, and checks `templates/CODEOWNERS` owns every protected path. `check` fails if any file is behind (Build 2) | Section 5.7 part 3 |
 | `lcp/audit_bypass.py` | Reads ruleset JSON and fails if a bypass list names anything but a team: an App (Copilot is one), a deploy key, a repository role or the org admin role. `main-gate` must have an empty list. The offline half of the nightly bypass audit (Build 2) | Section 5.7 part 3; rule 6 |
@@ -19,10 +21,11 @@ Status: **slice 1, Build 1 and Build 2 done, tested locally only.** Nothing here
 | `rulesets/org.json` | The org name, host, gate repo, team IDs and App IDs, typed once. IDs are `0` until `resolve` fills them | |
 | `rulesets/` | The four rulesets in GitHub's REST format, all generated: `main-gate.json`, `integration-gate.json`, `protected-paths.json`, `factory-required-workflows.json`. Not applied anywhere | Section 5.7 part 3 |
 | `templates/CODEOWNERS` | CODEOWNERS for a project repo. Protected paths go to `@AI-Business-Solutions/acceptance-owners` or `@AI-Business-Solutions/platform-team` | Section 5.7; 5.10 for rung L2 |
-| `scripts.sha256` | The manifest, in `sha256sum` format, of every file a gate job reads. Today: the six scripts, `org.json`, the four rulesets and the CODEOWNERS template. Prompts, rubrics, agents, rules and project settings join it as they are written | |
+| `scripts.sha256` | The manifest, in `sha256sum` format, of every file a gate job reads. Today: the eight scripts, `org.json`, the four rulesets and the CODEOWNERS template. Prompts, rubrics, agents, rules and project settings join it as they are written | |
 | `pending-scripts.txt` | The 20 scripts the workflow calls that are not written yet (decision D2). Delete a line when you write the script | |
 | `requirements-test.txt` | PyYAML 6.0.3, pinned by hash, for tests only (decision D3). The scripts in `lcp/` use the standard library only | |
-| `tests/` | 111 tests. Real git repos for the protected-path check. `test_workflow.py` checks the workflow's shape. `test_make_rulesets.py` and `test_audit_bypass.py` check the rulesets and CODEOWNERS, with seeded bad copies. `test_apply_rulesets.py` drives the apply tool against a fake GitHub, never the network | |
+| `tests/` | 140 tests. Real git repos for the protected-path and builder checks. `test_workflow.py` checks the workflow's shape. `test_make_rulesets.py` and `test_audit_bypass.py` check the rulesets and CODEOWNERS, with seeded bad copies. `test_apply_rulesets.py` drives the apply tool against a fake GitHub, never the network. `test_pack_offline.py` drives the pack wrapper against a fake `pac` | |
+| `tests/fixtures/builder-project/` | A tiny project repo for `test_check_builders.py`: one builder (`workflows/build/build_status_choices.py`), its input (`config/status_choices.json`) and its committed output (`src/generated/status_choices.yml`). Not hashed: no gate job reads it | |
 
 ## Layout: why `lcp/` is at the root
 
@@ -101,15 +104,107 @@ Each check was proved by breaking a copy on purpose: removing `--no-renames`, mo
 - `org.json` flows through: a changed team or repo ID makes the files stale until `make`; App IDs and the enforcement mode land where they should; a different org name fails CODEOWNERS until the template follows.
 - The apply tool, against a fake GitHub: `resolve` fills what exists and reports what does not, and only reads; `plan` sends nothing; `apply` without `--yes` sends nothing; `apply --yes` creates the property and the rulesets, and a second run changes nothing; a drifted live ruleset is updated in place; a `0` ID blocks that ruleset and lets the others through; API errors are reported with their status. The live audit catches Copilot added in the UI, a team in `main-gate`, a third team in the push ruleset, a bot or service account inside a bypass team, and an unknown team ID.
 
+## The build job (Build 3)
+
+`build` runs the PR's builders, so it holds no credentials (rule 5): `contents: read`, no secret, no App token, no OIDC. Three steps, each one script call:
+
+1. `check_builders.py --root pr` runs every `workflows/build/*.py`, then fails on any drift from the commit.
+2. `pack_offline.py solution --source pr/src --out out` packs the unmanaged and the managed zip.
+3. `pack_offline.py agents --root pr/agents` runs `pac copilot pack` in each workspace.
+
+Then `out/` is uploaded as `packed`, which `static` downloads, as before.
+
+**How the scripts reach a job with no credentials.** The gate repo is private, and checking it out needs the gate reader token, which `build` must not hold. So `map`, which already checks the gate repo out and verifies `scripts.sha256`, uploads just these two scripts as the artifact `gate-build-scripts` (one-day retention), and `build` downloads it from the same run into `gate/lcp/`. `build` does not re-check the hashes: the only manifest it could check against would arrive through the same artifact, so the check would prove nothing. The files are safe for another reason: the only job that runs PR code is `build`, and it downloads before it runs anything. The PR is checked out at `pr/`, so nothing the gate adds (`gate/`, `out/`) sits inside the tree the drift check compares.
+
+Choices of mine in Build 3, for Boroon to confirm or change:
+
+- **The artifact hand-off above.** The plan does not say how `build` gets a gate script. The other way is an inline copy of the logic in the YAML, which brings back two copies that can drift (the reason for D1). The two scripts become readable to anyone who can read a project repo's run artifacts for a day. They hold nothing secret.
+- **The drift check is stricter than the plan's `git diff --exit-code`.** It also fails on a new file a builder wrote that is not in the commit and not ignored, and it compares against the starting commit, so a builder that runs `git add` cannot hide its change. Without this, a generated file the agent forgot to commit would be packed and shipped without anyone reviewing it. A test proves the plan's command passes in that case.
+- **Builders run with `python -B` and `PYTHONDONTWRITEBYTECODE=1`**, so an imported helper leaves no `__pycache__` folder to trip the new-file check. Every builder runs even after one fails, so one run reports every problem. Each has a 600 second timeout.
+- **Every `*.py` directly in `workflows/build/` is run**, as the plan's loop does. Helper modules go in a subfolder or in `builders/lib/` (protected). No builders at all passes.
+- **The wrapper keeps the plan's `pac` flags exactly** and adds only checks around them. It does not check the `pac` version (the install step pins it) because the format of `pac`'s version output is not known here.
+
+## What the Build 3 tests check
+
+- `test_check_builders.py`, on a copy of the fixture turned into a real git repo: the matching output passes. A hand-edited output fails with the file named and the diff shown. A builder that crashes fails with its exit code and traceback, and the others still run. Also: output left out of the commit, a builder that stages its change, a builder that deletes output, a hung builder, no builders, ignored output, a helper import leaving no bytecode, non-builders beside the builders, and the usage errors.
+- `test_pack_offline.py`, with a fake `pac` on `PATH` that records each call: the exact plan arguments in order; `pac` missing; `pac` failing (named, with its output); a zero exit with no zip, with a non-zip, or with a stale zip left from an earlier run; no source; a hung `pac`; workspaces packed in name order from inside each one, skipping files and hidden folders; no agents folder needing no `pac`; a failing workspace named while the others still run.
+- `test_workflow.py`: `build` downloads `gate-build-scripts` before any script runs, has no gate checkout, and still passes the Build 1 no-credentials test. `map` uploads exactly the two scripts `build` calls, after its hash check, and nothing else. The download takes no token, run ID or repository. No other job downloads them. The PR is at `pr/`. No inline `git diff` or `pac` call is left in `build`.
+- Proved by breaking a copy eleven ways: builders without `-B` and without `PYTHONDONTWRITEBYTECODE`, no new-file check, a diff against the index instead of the start commit, a builder's exit code ignored, a stale zip kept, no zip check, a gate token in `build`, `map` uploading before its hash check, a download with a token, the PR back at the workspace root, and an inline `git diff` back in `build`. Each failed. Removing only `-B` still passes, as it should, because the environment variable alone stops the bytecode.
+
 ## Findings
 
 1. **Renames (fixed).** The plan's inline `locks` check, `git diff --name-only BASE...HEAD`, listed only the new path of a rename, so moving `tests/acceptance/trip.md` to `src/moved.md` passed. `check_protected_paths.py` uses `--no-renames`, and `test_moving_a_protected_file_out_of_its_folder_is_blocked` fails if that is removed. The workflow now runs the script. The plan's Appendix A `locks` job was edited to match (approved 3 November 2026), with a row in decision log 14.4.
 2. **Tag pins (fixed).** The plan pinned actions to tags such as `@v5`, which can be moved to other code. Boroon decided on 3 November 2026 to pin to full commit IDs. Each ID is the commit its major tag pointed to on that day, read with `git ls-remote`, and the comment names the matching release (for example `actions/checkout` `v5.1.0`). The plan's YAML keeps the tags for readability and says so in its header.
 3. **actionlint 1.7.12 flags three lines, all in the untested jobs:** `queue: max` under `concurrency` in `verify-in-test` (the plan already says "confirm syntax in stage 1"), and `copilot-requests: write` in `verify-in-test` and `danger` ("unknown permission scope"). actionlint's list may lag GitHub. Left as written. Check in spike 0.6 and stage 1. actionlint is not a dependency here. It was run from scratch space.
 4. **`sha256sum` does not catch an unlisted file.** See "What is hashed" above. A test pins this gap down.
+5. **`build` could not reach a gate script (fixed by the artifact hand-off).** The build plan said `check_builders.py` is a gate-repo script run by a job with no credentials, but the gate repo is private, so that job cannot check it out. See "The build job" above.
+6. **The plan's `git diff --exit-code` misses a generated file that was never committed** (fixed in `check_builders.py`). `git diff` ignores untracked files, and `pac solution pack` packs whatever is in `src/`. So an agent that forgot to commit one output file would pass the drift check and ship a file nobody reviewed.
+7. **The plan's builder loop fails a project with no builders.** Without `nullglob`, bash passes the literal `workflows/build/*.py` to `python3`, which cannot open it, and `set -e` fails the step. `check_builders.py` passes when there are no builders.
+8. **The plan does not collect `pac copilot pack` output.** It runs the pack in each workspace but uploads only `out/`, so the pack is a check, not a build. Fine for now. What it writes, and where, is for the stage 0 spike (`pac copilot`), along with the flags.
+
+The plan's Appendix A `build` and `map` jobs now differ from this copy. Editing the plan to match needs Boroon's approval, as in Build 1.
+
+## Moving to GHE.com
+
+Decided 3 November 2026: after Build 3, this folder becomes the repo `AI-Business-Solutions/factory-gates` on `getai.ghe.com`, with this folder's root as the repo root and a protected `release` branch, and the staged copy here is deleted, so there is one copy. Not done yet. Steps, from Boroon's laptop (this cloud container cannot reach `getai.ghe.com`):
+
+1. **Wait for Build 3 to be merged** into `main` of the planning repo, and pull it. All tests pass there.
+2. **Create the empty repo** `AI-Business-Solutions/factory-gates` on `getai.ghe.com`: private, with no README, licence or `.gitignore`, so the first push lands clean.
+3. **Split the folder out with its history.** In a fresh clone of the planning repo, on `main`:
+
+   ```bash
+   git subtree split --prefix=factory-gates -b factory-gates-export
+   ```
+
+   This makes a branch whose root is the folder, holding only the commits that touched it. It keeps Build 1's first commit (the plain copy of Appendix A), so later diffs still show every change from the plan. If `git subtree` is missing, `git filter-repo --subdirectory-filter factory-gates` on a throwaway clone does the same. A plain copy with no history also works, but loses that.
+4. **Check the split is byte for byte the folder.** These two commands must print the same ID:
+
+   ```bash
+   git rev-parse main:factory-gates
+   ```
+
+   ```bash
+   git rev-parse 'factory-gates-export^{tree}'
+   ```
+
+5. **Push it as `release`** and make `release` the default branch:
+
+   ```bash
+   git push https://getai.ghe.com/AI-Business-Solutions/factory-gates.git factory-gates-export:refs/heads/release
+   ```
+
+6. **Protect `release`** with a repository ruleset, by hand in the repo settings (the org rulesets only cover `factory = enabled` repos, and this is not one): changes by pull request only, one approval from `platform-team`, no force push, no deletion, an empty bypass list (rule 17). Do not set `factory = enabled` on this repo.
+7. **Share the workflow with the org.** In the repo's Actions settings, under Access, allow repositories in `AI-Business-Solutions` to use it, so the required-workflow ruleset can run `lcp-gate.yml` from a private repo. Check on GHE.com that this is the setting it needs.
+8. **First pull request in the new repo, reviewed (rule 17): point the workflow at its new home.** In `.github/workflows/lcp-gate.yml`: `GATE_REPO: AI-Business-Solutions/factory-gates`, `repository: AI-Business-Solutions/factory-holdout`, `owner: AI-Business-Solutions` in all six App token steps, and the header comment. In `tests/test_workflow.py`, the `GATE_REPO` assertion. The workflow and tests are not hashed, so `scripts.sha256` does not change. Also check whether Dependabot runs on this org (open since Build 1).
+9. **Run the checks in a fresh clone of the new repo:**
+
+   ```bash
+   python3 -m pip install --require-hashes -r requirements-test.txt
+   ```
+
+   ```bash
+   python3 -B -m unittest discover -s tests
+   ```
+
+   ```bash
+   python3 lcp/manifest.py verify . scripts.sha256
+   ```
+
+   ```bash
+   python3 lcp/make_rulesets.py check .
+   ```
+
+   Expect `OK`, then no output from the manifest, then a clean rulesets check.
+10. **Decide what happens to `lcp-gate.yml` on this repo's own pull requests.** It sits in `.github/workflows/`, so GitHub will also run it on every pull request to `factory-gates`, where it fails (no `src/`, no lane). Either disable it in this repo's Actions settings (first check that a disabled workflow can still be required by the org ruleset), or accept the red run until a workflow that runs this repo's own tests is added (next slice).
+11. **Delete the staged copy** from the planning repo by pull request: remove `factory-gates/`, point the `CLAUDE.md` row and `docs/plans/stage-1-gate-build-plan.md` at the new repo, and log it in `docs/progress.md`. Only after step 9 passes and `release` holds the tree from step 4 plus the step 8 edits.
+12. **Then apply the rulesets** with the seven steps under "Applying to the real organisation" above, once the three teams exist. Only `apply --yes` when Boroon says so.
+
+Also changes with the move: the federated credential for `getai-<proj>-test` (plan 5.3) must trust `AI-Business-Solutions/factory-gates/.github/workflows/lcp-gate.yml@refs/heads/release`, not the plan's `getai/...`. That is spike 0.2's to test.
 
 ## Next slices
 
-1. Build 3: the `build` job's offline checks (builders, `git diff --exit-code`, `pac solution pack`). See `docs/plans/stage-1-gate-build-plan.md`.
-2. Applying the rulesets: the steps above, once the organisation exists. `apply_rulesets.py` is written and tested against a fake GitHub only.
-3. Everything that needs a tenant (OIDC, import to Test, Playwright, verifiers) waits for the stage 0 spikes. `verify-in-test` and `danger` carry a header comment saying so.
+1. Move this folder to `AI-Business-Solutions/factory-gates`, the steps above.
+2. A workflow in the gate repo that runs its own tests and `manifest.py verify` on every pull request to `release`, so a reviewer sees them green before merging.
+3. Applying the rulesets: the steps above, once the organisation exists. `apply_rulesets.py` is written and tested against a fake GitHub only.
+4. Running `pac solution pack` and `pac copilot pack` for real, with `pac` 2.4.1 on a runner (stage 0). `pack_offline.py` keeps the plan's flags until then.
+5. Everything that needs a tenant (OIDC, import to Test, Playwright, verifiers) waits for the stage 0 spikes. `verify-in-test` and `danger` carry a header comment saying so.

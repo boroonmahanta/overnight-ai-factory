@@ -25,6 +25,9 @@
 # Build 1 (3 November 2026) changed map and locks to run the tested scripts
 # lane_map.py and check_protected_paths.py with the read-only gate token
 # (decision D1). Scripts not yet written are listed in pending-scripts.txt.
+# Build 3 (3 November 2026) changed build to run the tested check_builders.py and
+# pack_offline.py. build holds no credentials, so map hands it those two checked
+# scripts as an artifact.
 
 name: lcp-gate
 
@@ -69,6 +72,18 @@ jobs:
       - name: Verify trusted script hashes
         working-directory: gate
         run: sha256sum --check --strict scripts.sha256
+      # build runs PR code, so it gets no gate token (rule 5) and cannot check out this
+      # private repo. It gets these two scripts, checked above, as an artifact instead.
+      # Nothing else from the gate repo leaves this job.
+      - name: Hand the checked build scripts to build
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: gate-build-scripts
+          path: |
+            gate/lcp/check_builders.py
+            gate/lcp/pack_offline.py
+          if-no-files-found: error
+          retention-days: 1
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: ${{ env.PY_VERSION }}
@@ -131,9 +146,18 @@ jobs:
     permissions:
       contents: read
     steps:
+      # The PR goes in pr/, so nothing the gate adds (gate/, out/) is inside the tree
+      # the builder check compares.
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
+          path: pr
           persist-credentials: false
+      # check_builders.py and pack_offline.py, hash-checked in map. Same run only: no
+      # token, run ID or repository input.
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: gate-build-scripts
+          path: gate/lcp
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: ${{ env.PY_VERSION }}
@@ -142,27 +166,15 @@ jobs:
           dotnet-version: 8.0.x
       - name: Install pinned pac
         run: dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version "$PAC_VERSION"
+      # Runs every workflows/build/*.py, then fails on any drift from the commit,
+      # including a generated file that was never committed.
       - name: Run every builder, then fail on any diff
-        run: |
-          set -euo pipefail
-          for builder in workflows/build/*.py; do
-            python3 "$builder"
-          done
-          git diff --exit-code || { echo "Generated files do not match builders"; exit 1; }
+        run: python3 -I gate/lcp/check_builders.py --root pr
       - name: Pack the solution offline (YAML source format)
-        run: |
-          set -euo pipefail
-          mkdir -p out
-          pac solution pack --zipfile out/solution_unmanaged.zip --folder src --packagetype Unmanaged
-          pac solution pack --zipfile out/solution_managed.zip --folder src --packagetype Managed
+        run: python3 -I gate/lcp/pack_offline.py solution --source pr/src --out out
+      # pac copilot pack is local and needs no sign-in. Confirm its flags in stage 1.
       - name: Pack Copilot Studio workspaces offline
-        run: |
-          set -euo pipefail
-          # pac copilot pack is local and needs no sign-in. Confirm its flags in stage 1.
-          for ws in agents/*/; do
-            [ -d "$ws" ] || continue
-            (cd "$ws" && pac copilot pack)
-          done
+        run: python3 -I gate/lcp/pack_offline.py agents --root pr/agents
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: packed

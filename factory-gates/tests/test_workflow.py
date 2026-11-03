@@ -26,6 +26,10 @@ PENDING = ROOT / "pending-scripts.txt"
 
 GATE_PATH = "gate"  # where every job checks out the gate repo
 VERIFY_CMD = "sha256sum --check --strict scripts.sha256"
+# build runs PR code, so it holds no gate token and cannot check out the gate repo.
+# map uploads the scripts build needs, after its hash check, under this name (Build 3).
+BUILD_ARTIFACT = "gate-build-scripts"
+FED_BY_ARTIFACT = {"build"}
 
 # A gate script call: lcp/x.py from inside gate/, gate/lcp/x.py from the workspace,
 # ../gate/lcp/x.py from inside pr/. Anchored so pr/lcp/x.py or $PWD/lcp/... do not match.
@@ -68,6 +72,20 @@ def is_hash_verify(step: dict) -> bool:
 
 def is_app_token(step: dict) -> bool:
     return str(step.get("uses", "")).startswith("actions/create-github-app-token@")
+
+
+def is_build_scripts_download(step: dict) -> bool:
+    return (
+        str(step.get("uses", "")).startswith("actions/download-artifact@")
+        and (step.get("with") or {}).get("name") == BUILD_ARTIFACT
+    )
+
+
+def is_build_scripts_upload(step: dict) -> bool:
+    return (
+        str(step.get("uses", "")).startswith("actions/upload-artifact@")
+        and (step.get("with") or {}).get("name") == BUILD_ARTIFACT
+    )
 
 
 class WorkflowTests(unittest.TestCase):
@@ -138,6 +156,14 @@ class WorkflowTests(unittest.TestCase):
             if not script_steps:
                 continue
             jobs_with_scripts.add(name)
+            if name in FED_BY_ARTIFACT:
+                # No gate checkout here: the scripts arrive from map, which checked them.
+                # test_build_gets_its_scripts_from_map_after_the_hash_check covers map's side.
+                downloads = [i for i, s in enumerate(steps) if is_build_scripts_download(s)]
+                self.assertTrue(downloads, f"{name}: runs gate scripts but never downloads them")
+                self.assertLess(downloads[0], script_steps[0], f"{name}: a script runs before the download")
+                self.assertFalse([s for s in steps if is_gate_checkout(s)], f"{name}: gate checkout")
+                continue
             checkouts = [i for i, s in enumerate(steps) if is_gate_checkout(s)]
             verifies = [i for i, s in enumerate(steps) if is_hash_verify(s)]
             self.assertTrue(checkouts, f"{name}: no gate checkout at {GATE_PATH}/")
@@ -145,7 +171,62 @@ class WorkflowTests(unittest.TestCase):
             self.assertLess(checkouts[0], verifies[0], f"{name}: hash check before the gate checkout")
             self.assertLess(verifies[0], script_steps[0], f"{name}: a gate script runs before the hash check")
         # Guard against the check passing by finding nothing.
-        self.assertEqual(jobs_with_scripts, {"map", "locks", "static", "verify-in-test", "danger"})
+        self.assertEqual(jobs_with_scripts, {"map", "locks", "build", "static", "verify-in-test", "danger"})
+
+    def test_build_gets_its_scripts_from_map_after_the_hash_check(self):
+        build_steps = self.jobs["build"]["steps"]
+        called = sorted({ref for s in build_steps for ref in script_refs(s)})
+        self.assertEqual(called, ["gate/lcp/check_builders.py", "gate/lcp/pack_offline.py"])
+        self.assertIn("map", self.jobs["build"]["needs"])
+
+        # map uploads exactly those scripts, after its hash check, and nothing else.
+        map_steps = self.jobs["map"]["steps"]
+        uploads = [i for i, s in enumerate(map_steps) if is_build_scripts_upload(s)]
+        verifies = [i for i, s in enumerate(map_steps) if is_hash_verify(s)]
+        self.assertEqual(len(uploads), 1)
+        self.assertLess(verifies[0], uploads[0], "map uploads the scripts before checking their hashes")
+        upload = map_steps[uploads[0]]["with"]
+        self.assertEqual(sorted(upload["path"].split()), called)
+        self.assertEqual(upload["if-no-files-found"], "error")
+        self.assertEqual(upload["retention-days"], 1)
+        other_uploads = [s for s in map_steps if str(s.get("uses", "")).startswith("actions/upload-artifact@")]
+        self.assertEqual(len(other_uploads), 1, "map uploads something besides the build scripts")
+
+        # build downloads them from this run only, into gate/lcp/, outside the PR tree at pr/.
+        downloads = [s for s in build_steps if is_build_scripts_download(s)]
+        self.assertEqual(len(downloads), 1)
+        self.assertEqual(downloads[0]["with"], {"name": BUILD_ARTIFACT, "path": f"{GATE_PATH}/lcp"})
+        pr_checkout = build_steps[0]
+        self.assertTrue(str(pr_checkout.get("uses", "")).startswith("actions/checkout@"))
+        self.assertEqual(pr_checkout["with"].get("path"), "pr")
+
+        # No other job takes the build scripts.
+        for name, job in self.jobs.items():
+            if name != "build":
+                self.assertFalse([s for s in job.get("steps", []) if is_build_scripts_download(s)], name)
+
+    def test_build_runs_the_tested_scripts_not_inline_commands(self):
+        runs = {s.get("name"): s.get("run") or "" for s in self.jobs["build"]["steps"] if s.get("run")}
+        self.assertEqual(
+            runs["Run every builder, then fail on any diff"],
+            "python3 -I gate/lcp/check_builders.py --root pr",
+        )
+        self.assertEqual(
+            runs["Pack the solution offline (YAML source format)"],
+            "python3 -I gate/lcp/pack_offline.py solution --source pr/src --out out",
+        )
+        self.assertEqual(
+            runs["Pack Copilot Studio workspaces offline"],
+            "python3 -I gate/lcp/pack_offline.py agents --root pr/agents",
+        )
+        inline = "\n".join(runs.values())
+        for banned in ("git diff", "pac solution", "pac copilot", "workflows/build"):
+            self.assertNotIn(banned, inline, f"build runs {banned} inline")
+        # The zips land in out/ at the workspace root, where static downloads them.
+        upload = next(s for s in self.jobs["build"]["steps"]
+                      if str(s.get("uses", "")).startswith("actions/upload-artifact@"))
+        self.assertEqual(upload["with"]["name"], "packed")
+        self.assertEqual(upload["with"]["path"], "out/")
 
     def test_every_script_call_resolves_into_the_gate_checkout(self):
         for name, index, step in self.all_steps():
