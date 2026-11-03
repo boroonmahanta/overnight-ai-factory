@@ -57,6 +57,55 @@ class ManifestTests(unittest.TestCase):
             manifest.verify(self.root, "not-a-hash lcp/a.py\n")
 
 
+class ScopeTests(unittest.TestCase):
+    """Every file a gate job reads is hashed; tests, docs and the workflow folder are not."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        for rel in self.hashed + self.not_hashed:
+            path = self.root / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(f"{rel}\n")
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    hashed = [
+        "lcp/a.py", "lcp/cs-runner/run.mjs", "lcp/danger-rules.yml", "lcp/verify/bin/lcp-verify",
+        "prompts/lcp-evaluate.md", "rubrics/copilot-agent.md",
+        "projects/p1/trust.yml", "projects/p1/test.settings.json",
+        "playwright/package-lock.json", "rulesets/main-gate.json", "templates/CODEOWNERS",
+        ".github/agents/lcp-evaluator.agent.md",
+    ]
+    not_hashed = [
+        "tests/test_a.py", "tests/fixtures/x.yml", "README.md", "pending-scripts.txt",
+        "requirements-test.txt", "scripts.sha256", ".gitignore",
+        ".github/workflows/lcp-gate.yml", ".github/dependabot.yml", ".github/CODEOWNERS",
+        "lcp/__pycache__/a.cpython-313.pyc", ".git/HEAD",
+    ]
+
+    def test_scope(self):
+        self.assertEqual(manifest.trusted_files(self.root), sorted(self.hashed))
+
+    def test_an_unlisted_prompt_is_reported(self):
+        text = manifest.make(self.root)
+        (self.root / "prompts/focus-regression.md").write_text("new focus\n")
+        self.assertEqual(manifest.verify(self.root, text), ["unlisted: prompts/focus-regression.md"])
+
+    def test_a_changed_rules_file_is_reported(self):
+        text = manifest.make(self.root)
+        (self.root / "lcp/danger-rules.yml").write_text("floor: 0\n")
+        self.assertEqual(manifest.verify(self.root, text), ["changed: lcp/danger-rules.yml"])
+
+    def test_editing_a_test_or_the_readme_needs_no_regeneration(self):
+        text = manifest.make(self.root)
+        (self.root / "tests/test_a.py").write_text("changed\n")
+        (self.root / "README.md").write_text("changed\n")
+        (self.root / ".github/workflows/lcp-gate.yml").write_text("changed\n")
+        self.assertEqual(manifest.verify(self.root, text), [])
+
+
 class CommittedManifestTests(unittest.TestCase):
     def test_committed_manifest_matches_the_scripts(self):
         # If this fails, regenerate: python3 lcp/manifest.py make . > scripts.sha256

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Hash manifest for the trusted gate scripts (scripts.sha256).
+"""Hash manifest for the trusted files in the gate repo (scripts.sha256).
 
 Jobs that hold credentials run only scripts from this repo, after checking them
 against the manifest (lcp-gate.yml header rules). Format matches `sha256sum`:
@@ -8,38 +8,66 @@ slashes. The workflow checks the gate repo out at `gate/` and runs
 `sha256sum --check --strict scripts.sha256` there, so a script listed as
 `lcp/x.py` is called as `gate/lcp/x.py`.
 
+What is hashed (decided by Boroon, 3 November 2026): every file in the repo that
+a gate job reads, not only scripts. That covers prompts, rubrics, agent
+definitions under .github/agents/, danger-rules.yml, trust.yml and project
+settings, because rule 17 puts them next to gate scripts and they shape the
+verdict and the Merge Danger floor as much as code does. Nothing added later has
+to be remembered: a new folder is hashed unless it is listed below as not hashed.
+
+Not hashed, because no gate job reads them: tests/, README.md, the test-only
+files, this manifest itself, and .github/ apart from .github/agents/ (the
+workflow is the root of trust, pinned by the required-workflow ruleset, and
+Dependabot edits its pins by PR).
+
   manifest.py make   <root> > scripts.sha256
   manifest.py verify <root> scripts.sha256
 
-verify fails on a changed file, a missing file, or a file under <root>/lcp that is
-not listed (an unlisted script is an unreviewed script). sha256sum does not catch an
+verify fails on a changed file, a missing file, or a trusted file that is not
+listed (an unlisted file is an unreviewed file). sha256sum does not catch an
 unlisted file, so the committed-manifest test is what catches it before release.
 """
 import hashlib
 import sys
 from pathlib import Path
 
-SCAN_DIR = "lcp"
+MANIFEST = "scripts.sha256"
+NOT_HASHED_FILES = {MANIFEST, "README.md", "pending-scripts.txt", "requirements-test.txt", ".gitignore"}
+NOT_HASHED_DIRS = ("tests/", ".git/")
+GITHUB_DIR = ".github/"
+GITHUB_HASHED = ".github/agents/"
 SKIP_SUFFIXES = {".pyc"}
 SKIP_PARTS = {"__pycache__"}
+
+
+def is_hashed(rel: str) -> bool:
+    """rel is a forward-slash path relative to the gate repo root."""
+    if rel.startswith(GITHUB_DIR):
+        return rel.startswith(GITHUB_HASHED)
+    if rel.startswith(NOT_HASHED_DIRS) or rel in NOT_HASHED_FILES:
+        return False
+    if SKIP_PARTS & set(rel.split("/")) or Path(rel).suffix in SKIP_SUFFIXES:
+        return False
+    return True
 
 
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def scripts(root: Path) -> list[str]:
-    base = root / SCAN_DIR
+def trusted_files(root: Path) -> list[str]:
     found = []
-    for path in sorted(base.rglob("*")):
-        if not path.is_file() or path.suffix in SKIP_SUFFIXES or SKIP_PARTS & set(path.parts):
+    for path in sorted(root.rglob("*")):
+        if not path.is_file():
             continue
-        found.append(path.relative_to(root).as_posix())
+        rel = path.relative_to(root).as_posix()
+        if is_hashed(rel):
+            found.append(rel)
     return found
 
 
 def make(root: Path) -> str:
-    return "".join(f"{sha256(root / rel)}  {rel}\n" for rel in scripts(root))
+    return "".join(f"{sha256(root / rel)}  {rel}\n" for rel in trusted_files(root))
 
 
 def parse(text: str) -> dict[str, str]:
@@ -55,9 +83,9 @@ def parse(text: str) -> dict[str, str]:
 
 
 def verify(root: Path, manifest_text: str) -> list[str]:
-    """Return a list of problems. Empty means the scripts match the manifest."""
+    """Return a list of problems. Empty means the trusted files match the manifest."""
     listed = parse(manifest_text)
-    present = set(scripts(root))
+    present = set(trusted_files(root))
     problems = []
     for rel, digest in sorted(listed.items()):
         path = root / rel

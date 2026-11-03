@@ -8,7 +8,8 @@
 #
 # Not tracked here: trusted files that are not scripts, such as
 # lcp/danger-rules.yml, prompts/, rubrics/, playwright/, projects/ and the
-# lcp-verify CLI in lcp/verify/.
+# lcp-verify CLI in lcp/verify/. Once written, they are hashed into
+# scripts.sha256 like everything else a gate job reads (see lcp/manifest.py).
 
 # static
 lcp/check_manifest.py
