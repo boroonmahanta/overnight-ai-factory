@@ -17,7 +17,7 @@ Next steps:
 ## Current state
 
 - Mostly documents. First code: `factory-gates/` (stage 1 slice 1, 23 tests passing locally). No pipelines or environments exist yet.
-- **Next: Build 1**, per `docs/plans/stage-1-gate-build-plan.md`. D1 and D2 decided; D3 (PyYAML for tests only) waits on Boroon.
+- **Next: Build 1**, per `docs/plans/stage-1-gate-build-plan.md`. D1 to D3 all decided. Boroon merges the Session 5 pull request first.
 - **Session 4 work is in PR 9** (https://github.com/boroonmahanta/overnight-ai-factory/pull/9), opened 2 November 2026 from `claude/wizardly-planck-8i7543`, rebased onto `main`. PR 8 had merged with only the first commit. Boroon merges PR 9 by hand. Once he has, nothing from Session 4 is outstanding on a branch.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
 - Nothing from the plan has been built or tested. Every item marked `[untested]` in the plan is still untested.
@@ -53,15 +53,15 @@ Files changed: `docs/plans/stage-1-gate-build-plan.md` (new), `docs/progress.md`
 Open items:
 - **Three decisions before Build 1** (detail in the plan): D1, how `map` and `locks` get the gate scripts when they hold no credentials (recommended: give them the read-only gate token); D2, how to handle the ~20 scripts the workflow calls that do not exist yet (recommended: a pending list checked by a test); D3, PyYAML pinned for tests only (recommended).
 - Finding to raise in Build 1: the plan pins actions to tags such as `@v5`, not commit SHAs.
-- Slice 1 and this plan are on this branch and `claude/wizardly-planck-8i7543`, not on `main`. No pull request yet.
+- Slice 1 and this plan go to `main` by the Session 5 pull request, opened 3 November 2026 at Boroon's request.
 - The rest of Stage 1 (Spec Kit presets, glossary and ADR templates, Playwright kit, session mining) needs its own planning session.
 - Spike 0.9, the environment audit, is still due before 15 November 2026.
 
-Later in Session 5, Boroon decided: D1, option A (`map` and `locks` get the read-only gate App token); D2, the pending-scripts list. D3 asked about (what PyYAML is); not yet decided.
+Later in Session 5, Boroon decided: D1, option A (`map` and `locks` get the read-only gate App token); D2, the pending-scripts list. D3, PyYAML pinned with a hash, for tests only.
 
 Next steps:
-1. Boroon answers D3.
-2. Build 1, from this branch (or `main` once merged).
+1. Boroon merges the Session 5 pull request (slice 1 plus this plan) into `main`.
+2. Build 1, from `main`.
 
 ## Session 4, 2026-11-02, branch `claude/wizardly-planck-8i7543`
 

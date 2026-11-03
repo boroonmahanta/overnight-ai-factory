@@ -20,7 +20,7 @@ This covers the parts of Stage 1 (plan section 11.2) that need no tenant and no 
 
 ## Decisions before Build 1
 
-D1 and D2 decided by Boroon on 3 November 2026: the recommended options. D3 is waiting on Boroon.
+D1, D2 and D3 decided by Boroon on 3 November 2026: the recommended options in each case. Build 1 can start.
 
 **D1. How `map` and `locks` get our scripts.** Plan lines 1618 to 1671. Both jobs hold no credentials, and the gate repo is private, so they cannot check out `gate/lcp/*.py`. Options:
 
@@ -31,7 +31,7 @@ D1 and D2 decided by Boroon on 3 November 2026: the recommended options. D3 is w
 
 **D2. The ~20 scripts the workflow calls that do not exist yet** (for example `check_manifest.py`, `lint_logic_apps.py`, `merge_danger_floor.py`). **Decided (Boroon, 3 November 2026):** a `pending-scripts.txt` list in `factory-gates/`. A test fails if the workflow calls a script that is neither in `gate/` nor on that list. Writing a script removes it from the list. No stub files, so nothing fake is hashed.
 
-**D3. A YAML parser for the tests. Waiting on Boroon.** Python's standard library has none. Recommended: PyYAML, pinned with a hash, for tests only, in `factory-gates/requirements-test.txt`. The gate scripts themselves stay free of packages.
+**D3. A YAML parser for the tests.** Python's standard library has none. **Decided (Boroon, 3 November 2026):** PyYAML, pinned with a hash, for tests only, in `factory-gates/requirements-test.txt`. The gate scripts themselves stay free of packages.
 
 ## Build 1: the workflow file, and the plan fix
 
