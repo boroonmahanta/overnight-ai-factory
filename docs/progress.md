@@ -83,6 +83,7 @@ Findings:
 - The test output shows "401 Bad credentials" and "created ruleset … id 901": that is `test_apply_rulesets.py`'s fake GitHub. Nothing is sent.
 - The Claude Code page for GitHub Enterprise Server (read 3 November 2026) says nothing about `*.ghe.com`. A token route for the cloud (allowed domain plus a stored token) is undocumented and untested.
 - Local Claude Code on the laptop needs nothing special for GHE.com; it uses the laptop's git and `gh`. The laptop already holds a login for `getai.ghe.com` (the push did not prompt).
+- **Boroon's working copy** of the gate (chosen 3 November 2026): a git clone of `GetAI-IP/factory-gates` at `/Users/Local VS Code/10-overnight-ai-factory/factory-gates` (a clone, not copied files, so it stays linked to the real repo). Virtual environment at `~/.venvs/factory-gates`, outside the clone. The day's temporary folders (`~/factory-move`, `~/factory-gates`, `~/factory-gates-check`, `~/step-8.patch`) can be deleted.
 
 Files changed: `CLAUDE.md`, `docs/progress.md`, `docs/plans/stage-1-gate-build-plan.md`, `docs/plans/factory-gates-move-step-8.patch` (new), `factory-gates/` (deleted).
 
