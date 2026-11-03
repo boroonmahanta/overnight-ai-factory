@@ -51,7 +51,7 @@ Decisions (Boroon, 3 November 2026):
 Files changed: `docs/plans/stage-1-gate-build-plan.md` (new), `docs/progress.md`, `CLAUDE.md`.
 
 Open items:
-- **Three decisions before Build 1** (detail in the plan): D1, how `map` and `locks` get the gate scripts when they hold no credentials (recommended: give them the read-only gate token); D2, how to handle the ~20 scripts the workflow calls that do not exist yet (recommended: a pending list checked by a test); D3, PyYAML pinned for tests only (recommended).
+- **Three decisions before Build 1, all decided 3 November 2026** (detail in the plan): D1, `map` and `locks` get the read-only gate token; D2, a pending-scripts list checked by a test; D3, PyYAML pinned for tests only.
 - Finding to raise in Build 1: the plan pins actions to tags such as `@v5`, not commit SHAs.
 - Slice 1 and this plan go to `main` by the Session 5 pull request, opened 3 November 2026 at Boroon's request.
 - The rest of Stage 1 (Spec Kit presets, glossary and ADR templates, Playwright kit, session mining) needs its own planning session.
