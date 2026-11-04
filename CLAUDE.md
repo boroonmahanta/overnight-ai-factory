@@ -203,7 +203,7 @@ The size is the largest answer across reversibility, blast radius, clarity, veri
 
 1. **Credits for client work: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled; do not reopen.
 2. Auto-merge letting soft test gaming through. Answer: deterministic floor, rungs earned on evidence.
-3. Unmanaged developer environments retiring (dates above).
+3. Unmanaged developer environments retiring (dates above). Spike 0.9 done 4 November 2026: four unmanaged, all personal, none client facing. Their owners act by 15 December 2026.
 4. Client code leaving Australia for inference. Copilot residency covers only the US and EU. BYOK to Azure OpenAI in Australia East is the only in-country path found. Each client gets a tier T1 to T4.
 5. Whether `pac auth --githubFederated` works on GHE.com. Untested. First spike (0.2).
 

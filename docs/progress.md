@@ -44,7 +44,7 @@ Next steps:
 - **Decisions still waiting on Boroon** (from `docs/analysis/tshirt-sizing.md`): approve the shortlist of skills to read in full before any are adopted (plan section 8.3); decide whether to add a work-size field to ADO (Appendix D); decide whether to write a GET AI router skill that routes by size. The sizes themselves are approved.
 - The Pocock v1.3 transcript ends mid-sentence at 14:28. The zip copy is the same, so the source itself is cut off.
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
-- Spike 0.9 has a hard date. Audit for unmanaged developer environments before 15 November 2026.
+- **Spike 0.9, environment audit: done 4 November 2026 (Boroon).** Four developer environments are unmanaged. All the rest are managed. The four are personal dev environments, none client facing, none a factory lane. Not blocking. Still to do by 15 December 2026, when they are suspended (deleted 15 January 2027): each owner converts theirs to a Managed Environment, moves the work to a Sandbox plus Managed environment, or exports what they want to keep. The plan's pass test (none left in use by 15 December) is met only then.
 
 ## Log
 
@@ -67,11 +67,13 @@ Done in `GetAI-IP/factory-gates`:
 - Checked locally before the push, and again in a fresh clone of the branch: 151 tests `OK`, manifest and rulesets clean.
 - CI on PR 7: **`self-test` passed** (run 36242716, CPython 3.11.17, 151 tests `OK`, manifest and rulesets steps green). `lcp-gate` red as expected (run 36242711): `map lane` fails with `appId option is required`, and the other five jobs skipped.
 - After the merge: the merge commit's tree equals PR 7's head tree (`bb39aad`). The laptop clone is on `release` at `0b05d84`. Finder files cleared first, then 151 tests `OK`, manifest and rulesets clean. Dependabot ran on `release` after the merge (run 36261386) and left #1 to #5 as they were, so none has a `self-test` run yet.
+- Boroon deleted the `self-test-workflow` branch, on the laptop and on `getai.ghe.com`, and turned on "Automatically delete head branches" in the repo's settings. Merged branches, Dependabot's included, now go on their own.
 - Dependabot #1 to #5 and the rulesets untouched. `apply_rulesets.py` not run.
 
 Decisions (Boroon, 4 November 2026):
 - **Finder files.** He browses the laptop folders in Finder. So before every local check, and whenever the local folders are used, delete the `.DS_Store` files in the gate clone first (command in `CLAUDE.md` and in the gate README step 9). Do not teach `manifest.py` to skip them: it is a hashed gate script, and an unknown file is rightly "unlisted".
 - **`self-test` as a required status check on `release-protection`: not now.** Offered once `self-test` was green. It stays a visible check, not a required one. **Turn it on when someone other than Boroon starts working on the factory** (he said so later the same day, after asking what each choice means).
+- **Spike 0.9 does not block the factory.** Boroon ran the environment audit in the admin centre: four unmanaged developer environments, all personal, none client facing; the rest are managed. The four still need their owners to act by 15 December 2026 (Open items).
 
 Findings:
 - Finder wrote `.DS_Store` files into the clone mid-session. The next local run failed `manifest.py verify` and 2 tests (`test_committed_manifest_matches_the_scripts`, `test_committed_manifest_passes_sha256sum`) as "unlisted: .DS_Store". Not a real failure. CI runners have no Finder files.
@@ -80,13 +82,14 @@ Findings:
 
 Files changed: `CLAUDE.md`, `docs/progress.md`. In `GetAI-IP/factory-gates`, by PR 7: `.github/workflows/self-test.yml` (new), `tests/test_self_test_workflow.py` (new), `README.md`, `.github/dependabot.yml`.
 
-Open items: PR 7 merged. The Dependabot pull requests and the required-check choice (Open items above). Spike 0.9 before 15 November 2026, unchanged.
+Open items: PR 7 merged. The Dependabot pull requests and the required-check choice (Open items above). Spike 0.9 done; the four personal environments need action by 15 December 2026.
 
 Next steps:
 1. Done: Boroon merged PR 7 in `GetAI-IP/factory-gates` on 4 November 2026.
 2. The Dependabot pull requests, one at a time: a new push to get a `self-test` run, read the release notes, merge. `upload-artifact` together with `download-artifact`.
 3. Checks (a), (c), (d) on `getai.ghe.com`, then the callers build (next slice 6).
 4. Step 12, the rulesets, once the three teams exist and the approval stopgaps are undone. `apply --yes` only when Boroon says so.
+5. The owners of the four unmanaged personal developer environments convert them, move the work, or export it, before 15 December 2026.
 
 ## Session 9, 2026-11-03, branch `claude/wonderful-lamport-vbdypu`
 
