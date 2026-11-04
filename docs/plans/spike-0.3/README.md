@@ -13,8 +13,8 @@ If both fail, record what broke and stop. The fallback (the night stays on pac a
 
 | Thing | Where | State |
 |---|---|---|
-| `probe.yml` | `GetAI-IP/mcp-probe` (private, scratch), `.github/workflows/probe.yml` | Not yet pushed |
-| `mcp_probe.py` | Same repo, `probe/mcp_probe.py` | Not yet pushed |
+| `probe.yml` | `GetAI-IP/mcp-probe` (private, scratch, repo 5331556), `.github/workflows/probe.yml` | Pushed 5 November 2026 (`4ab9682`), at Boroon's word |
+| `mcp_probe.py` | Same repo, `probe/mcp_probe.py` | Pushed with it |
 | Entra app `getai-fl1-exec` | GET AI tenant. Kept from spike 0.2. No credentials now | Exists |
 | Environment `factory-lane-1` | Power Platform, Australia, Sandbox, Managed. Application user `getai-fl1-exec`, System Administrator | Exists |
 
@@ -90,19 +90,26 @@ Needs: Power Platform Administrator. The Advanced Settings page opens a list ins
 
 ## Run order
 
-All runs: `GH_HOST=getai.ghe.com gh workflow run probe.yml -R GetAI-IP/mcp-probe --ref main -f tenant_id=... -f app_id=... -f env_url=https://factory-lane-1.crm6.dynamics.com/ -f paths=both -f write=true`.
+Runs 2 and 3: `GH_HOST=getai.ghe.com gh workflow run probe.yml -R GetAI-IP/mcp-probe --ref main -f tenant_id=... -f app_id=... -f env_url=https://factory-lane-1.crm6.dynamics.com/ -f paths=both -f write=<false|true>`. Run 1 passes no inputs.
 
-| Run | Before it | What it shows |
-|---|---|---|
-| 1 | Repo pushed | Claims only (no app ID): the subject for step A. Also proves the pinned installs and prints the CLI's `--help` |
-| 2 | Step A, five minutes, step B | Both paths with `getai-fl1-exec` **not** on the allowed list: what breaks, and where |
-| 3 | Step C, five minutes | Both paths with `getai-fl1-exec` on the list. The exit test |
+| Run | Before it | `write` | What it shows |
+|---|---|---|---|
+| 1 | Repo pushed | - | Claims only (no app ID): the subject for step A. Also proves the pinned installs and prints the CLI's `--help` |
+| 2 | Step A, five minutes, step B | false | Both paths, reads only, with `getai-fl1-exec` **not** on the allowed list: what breaks, and where |
+| 3 | Step C, five minutes | true | Both paths with `getai-fl1-exec` on the list. One create per path, deleted in the same job. The exit test |
 
-Each path creates at most one row per run, and the same job deletes it.
+So the spike writes two rows in all (one per path, in run 3), unless a run is repeated.
 
 ## Results
 
-Not yet run.
+### Run 1: claims only (run 36506161, 5 November 2026): pass
+
+- `sub`: `repo:GetAI-IP@801576/mcp-probe@5331556:environment:fl1-exec`. The immutable form, as in spike 0.2.
+- `job_workflow_ref`: `GetAI-IP/mcp-probe/.github/workflows/probe.yml@refs/heads/main`. `issuer_scope`: none.
+- The tarball matched the pinned `sha512`; `npm install --offline` from it worked ("added 1 package"). Node `lts/*` gave v26.13.0. pac 2.4.1 installed.
+- The CLI's own help confirms `--githubFederated` (`-ghf`) and `--accept-cleartext-caching` on `auth create`, and `--clientid` defaults to "DataverseCLI app".
+- **The CLI collects usage data by default:** its first line is "DataverseCLI collects anonymous usage data to improve the product. To opt out: set DATAVERSE_TELEMETRY_OPT_OUT=1". The workflow sets that from run 2 on. The factory's lane jobs should set it too.
+- No token-shaped string (`eyJ`) in the log.
 
 ## Clean-up after the spike
 

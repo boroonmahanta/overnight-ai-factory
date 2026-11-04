@@ -70,6 +70,7 @@ jobs:
       WRITE: ${{ inputs.write }}
       DOTNET_NOLOGO: "1"
       DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      DATAVERSE_TELEMETRY_OPT_OUT: "1"   # the CLI sends usage data otherwise (its banner, run 1)
     steps:
       - name: Refuse any ref but main
         run: |
