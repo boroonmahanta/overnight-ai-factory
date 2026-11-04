@@ -16,12 +16,12 @@ Next steps:
 
 ## Current state
 
-- Mostly documents. The first code, the gate, now lives in its own repo **`GetAI-IP/factory-gates` on `getai.ghe.com`**, branch `release` (moved 3 November 2026, Session 9): stage 1 slice 1 and Builds 1 to 3, 141 tests passing there (151 with PR 7). It has not yet run as a gate on any project repo. No pipelines, Apps or environments exist yet. Nothing has run on a tenant. The rulesets are files, not applied.
+- Mostly documents. The first code, the gate, now lives in its own repo **`GetAI-IP/factory-gates` on `getai.ghe.com`**, branch `release` (moved 3 November 2026, Session 9): stage 1 slice 1 and Builds 1 to 3, 151 tests passing there (PR 7, merged 4 November 2026). It has not yet run as a gate on any project repo. No pipelines, Apps or environments exist yet. Nothing has run on a tenant. The rulesets are files, not applied.
 - **Build 1 is done** (Session 6). PR 11 merged into `main` on 3 November 2026.
 - **Build 2 is done** (Session 7). PR 12 merged into `main` on 3 November 2026.
 - **Build 3 is done** (Session 8). PR 13 merged into `main` on 3 November 2026.
 - **The move is done** (Session 9, 3 November 2026): steps 1 to 11 of "Moving to GHE.com" (now in the new repo's README). `factory-gates/` is deleted from this repo: **PR 14 merged into `main` on 4 November 2026**. Step 12, applying the rulesets, is not started. `GetAI-IP` is the central org; four other orgs will use the gate. **Gate work runs from Boroon's laptop:** cloud sessions cannot reach `getai.ghe.com`.
-- **Gate upkeep and the self-test workflow** (Session 10, 4 November 2026) are in PR 7 in `GetAI-IP/factory-gates`. `self-test` is green on it. It waits for Boroon's merge.
+- **Gate upkeep and the self-test workflow** (Session 10) are on `release` in `GetAI-IP/factory-gates`: **PR 7 merged on 4 November 2026**, with `self-test` green on it.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
 - Nothing from the plan has been built or tested. Every item marked `[untested]` in the plan is still untested.
@@ -36,8 +36,8 @@ Next steps:
 - **Five orgs, one central gate (Boroon, 3 November 2026).** The enterprise on `getai.ghe.com` is `GetAI`. The central org `GetAI-IP` holds `factory-gates` and the held-out tests (`factory-holdout`). Four orgs will use the gate: `AI-Business-Solutions`, `AI-Managed-Services`, `Cloud-AI-Platforms`, `GetAI-Knowledge`. Org logins have no `_tqa7h098` suffix (checked for `GetAI-IP` by its URL; assumed for the others, check `AI-Business-Solutions` before step 12). The gate is a repo, a workflow file and rulesets, not a GitHub App; its only Apps are the two read-only token Apps. **Design, proposed, not built:** `lcp-gate.yml` becomes a reusable workflow; each of the four orgs gets a small private caller repo that its own `factory-required-workflows` ruleset points at; one `org.json` per org. Until then `rulesets/org.json` and `templates/CODEOWNERS` describe `AI-Business-Solutions`. **Checked:** (b) below is true. `factory-gates` Settings, Actions, Access offers "Accessible from repositories in the 'GetAI' enterprise", now set. Access is allowed only from private repos, so the callers must be private. Still to check: (a), (c), (d) below.
   - The four checks behind that design: (a) a ruleset can only require a workflow from a repo in its own org, hence the callers (belief); (b) a private reusable workflow can be shared across the enterprise (**checked true**); (c) `job_workflow_ref` in the OIDC token names the central workflow when a caller runs it, so the federated credential pin to `release` still works (belief, spike 0.2); (d) whether a token App owned by `GetAI-IP` can be installed on the other orgs, or each org needs its own pair (unknown).
 - **Until a second approver exists** (Boroon, 3 November 2026): `release-protection` in `GetAI-IP/factory-gates` has 0 required approvals, and `factory-gates` is excluded from the `GetAI-IP` org ruleset `protect-main`. Rule 17's "reviewed" is self-review meanwhile, so keep write access to Boroon alone. Before step 12 makes the gate required on any org: set approvals to 1, tick "Require approval of the most recent reviewable push", and remove the exclusion. When someone other than Boroon starts working on the factory, also make `self-test` a required status check (see the `self-test` bullet below).
-- **Five Dependabot pull requests are open in `GetAI-IP/factory-gates`** (#1 to #5, all major bumps). Still held: merge none and close none. Once PR 7 (the self-test workflow) is on `release`, take them one at a time: a new push to each to get a `self-test` run, then read the release notes and merge. Detail in the Session 9 and 10 logs.
-- **The follow-ups in `GetAI-IP/factory-gates` are done in PR 7** (Session 10), open until Boroon merges it: README step 9 and the move marked done, the `dependabot.yml` comment, and next slice 2, the self-test workflow.
+- **Five Dependabot pull requests are open in `GetAI-IP/factory-gates`** (#1 to #5, all major bumps). Close none. `self-test` is on `release` now (PR 7), so take them one at a time: a new push to each to get a `self-test` run (none has one yet), then read the release notes and merge. Detail in the Session 9 and 10 logs.
+- **The follow-ups in `GetAI-IP/factory-gates` are done in PR 7** (Session 10), merged 4 November 2026: README step 9 and the move marked done, the `dependabot.yml` comment, and next slice 2, the self-test workflow.
 - **`self-test` is not a required status check** on `release-protection`. **Boroon, 4 November 2026: turn it on when someone other than him starts working on the factory**, with the second-approver changes above. The change: in `release-protection`, add "Require status checks to pass" with the check `self-test`, source GitHub Actions; leave "require branches to be up to date" off. Until then `self-test` is advice, not a lock: a pull request into `release` can merge with it red, so check it is green before merging, Dependabot pull requests included.
 - **Sources are complete.** Boroon uploaded the whole research folder as a zip. Every file was checked by checksum against the repo, duplicates were skipped, and the rest were added. The other session ("Overnight AI software factory", id `session_019bVvHWrUECf7G5YiXU3fKW`) is no longer needed for sources and can be deleted.
 - **Not read in full.** The files added from the zip were saved but not read in this session: the reports V1 and V2, the runtime and costs note, the eight GitHub and Azure notes, the five Power Platform notes and the one-pager. The five workshop slide images were saved but not viewed. The plan condenses most of them. Read one only when a task needs its detail.
@@ -58,7 +58,7 @@ Done in this repo:
 
 Done in `GetAI-IP/factory-gates`:
 - Before any change, on `release` after `git pull`, Python 3.15.0 in `~/.venvs/factory-gates`: 141 tests `OK`, `manifest.py verify` and `make_rulesets.py check` silent.
-- **PR 7** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/7), branch `self-test-workflow`, two commits, head `9f22f8b`. Pushed and opened at Boroon's word. Not merged.
+- **PR 7** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/7), branch `self-test-workflow`, two commits, head `9f22f8b`. Pushed and opened at Boroon's word. **Merged by Boroon on 4 November 2026 at 11:36** (merge commit `0b05d84`).
   - `.github/workflows/self-test.yml` (new). On every pull request to `release` it installs the test requirements by hash, then runs the unit tests, `manifest.py verify` and `make_rulesets.py check`. `permissions: {}` at the top and `contents: read` on the job. No secrets, tokens, OIDC or environment, and checkout drops its credentials. The same commit pins as `lcp-gate.yml` (checkout v5.1.0, setup-python v5.6.0) and the same Python, 3.11. The check reports as `self-test`.
   - `tests/test_self_test_workflow.py` (new, 10 tests): the trigger, the permissions, no credentials, the README commands in order, no way to skip a check, Python equal to the gate's, and every action in every workflow pinned to a full commit ID with its version beside it. Broke a copy 28 ways; each was caught. 151 tests in all.
   - README: the move marked done (steps 1 to 11, 3 November 2026; step 12 still to do). Step 9 says Python 3.10 or later, a virtual environment outside the clone, and to delete Finder's `.DS_Store` files first. Step 6 records the 0 approvals, step 10 records option B, next slices 1 and 2 are done, and a new section lists what the new tests check.
@@ -66,6 +66,7 @@ Done in `GetAI-IP/factory-gates`:
   - No hashed file changed, so `scripts.sha256` is unchanged.
 - Checked locally before the push, and again in a fresh clone of the branch: 151 tests `OK`, manifest and rulesets clean.
 - CI on PR 7: **`self-test` passed** (run 36242716, CPython 3.11.17, 151 tests `OK`, manifest and rulesets steps green). `lcp-gate` red as expected (run 36242711): `map lane` fails with `appId option is required`, and the other five jobs skipped.
+- After the merge: the merge commit's tree equals PR 7's head tree (`bb39aad`). The laptop clone is on `release` at `0b05d84`. Finder files cleared first, then 151 tests `OK`, manifest and rulesets clean. Dependabot ran on `release` after the merge (run 36261386) and left #1 to #5 as they were, so none has a `self-test` run yet.
 - Dependabot #1 to #5 and the rulesets untouched. `apply_rulesets.py` not run.
 
 Decisions (Boroon, 4 November 2026):
@@ -79,11 +80,11 @@ Findings:
 
 Files changed: `CLAUDE.md`, `docs/progress.md`. In `GetAI-IP/factory-gates`, by PR 7: `.github/workflows/self-test.yml` (new), `tests/test_self_test_workflow.py` (new), `README.md`, `.github/dependabot.yml`.
 
-Open items: PR 7 waits for Boroon's merge. The Dependabot pull requests and the required-check choice (Open items above). Spike 0.9 before 15 November 2026, unchanged.
+Open items: PR 7 merged. The Dependabot pull requests and the required-check choice (Open items above). Spike 0.9 before 15 November 2026, unchanged.
 
 Next steps:
-1. Boroon merges PR 7 in `GetAI-IP/factory-gates`.
-2. Then the Dependabot pull requests, one at a time: a new push to get a `self-test` run, read the release notes, merge. `upload-artifact` together with `download-artifact`.
+1. Done: Boroon merged PR 7 in `GetAI-IP/factory-gates` on 4 November 2026.
+2. The Dependabot pull requests, one at a time: a new push to get a `self-test` run, read the release notes, merge. `upload-artifact` together with `download-artifact`.
 3. Checks (a), (c), (d) on `getai.ghe.com`, then the callers build (next slice 6).
 4. Step 12, the rulesets, once the three teams exist and the approval stopgaps are undone. `apply --yes` only when Boroon says so.
 
