@@ -27,7 +27,7 @@ Next steps:
 - **Spike 0.2 passed** (Session 12, 4 November 2026): `pac auth create --githubFederated` works on `getai.ghe.com`, both in a job started by hand and inside a ruleset workflow with a `job_workflow_ref` subject. `pac org who` returned the application user both times. Record and portal steps: `docs/plans/spike-0.2/README.md`. Scratch repos `GetAI-IP/oidc-probe` and `GetAI-IP/oidc-probe-target`, org ruleset `oidc-probe-required` and two federated credentials remain until clean-up (Open items).
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
-- Spike 0.2 is the first plan item tested on real services. Every other item marked `[untested]` in the plan is still untested. The plan text is not yet edited for the spike's result (proposed edits are in the Session 12 entry).
+- Spike 0.2 is the first plan item tested on real services. Every other item marked `[untested]` in the plan is still untested. The plan is edited for the spike's result (11 lines, Session 12, at Boroon's word).
 - Boroon said more context will be added in later sessions.
 - Work is sized with T-shirt sizes (XS to XL), approved on 1 November 2026. See `CLAUDE.md`.
 
@@ -41,7 +41,7 @@ Next steps:
   - The four checks behind that design: (a) a ruleset can only require a workflow from a repo in its own org, hence the callers (belief); (b) a private reusable workflow can be shared across the enterprise (**checked true**); (c) `job_workflow_ref` in the OIDC token names the central workflow when a caller runs it, so the federated credential pin to `release` still works (**checked true within one org**, spike 0.2, 4 November 2026: a ruleset workflow in `GetAI-IP` running on `oidc-probe-target` called `oidc-probe/.../probe.yml@main`, and `job_workflow_ref` was `GetAI-IP/oidc-probe/.github/workflows/probe.yml@refs/heads/main`; across orgs not tested); (d) whether a token App owned by `GetAI-IP` can be installed on the other orgs, or each org needs its own pair (unknown).
 - **Until a second approver exists** (Boroon, 3 November 2026): `release-protection` in `GetAI-IP/factory-gates` has 0 required approvals, and `factory-gates` is excluded from the `GetAI-IP` org ruleset `protect-main`. Rule 17's "reviewed" is self-review meanwhile, so keep write access to Boroon alone. Before step 12 makes the gate required on any org: set approvals to 1, tick "Require approval of the most recent reviewable push", and remove the exclusion. When someone other than Boroon starts working on the factory, also make `self-test` a required status check (see the `self-test` bullet below).
 - **Three Dependabot pull requests are open in `GetAI-IP/factory-gates`** (seen 4 November 2026, Session 12, not touched): #9 `setup-python` 5.6.0 to 7.1.0, #10 `setup-dotnet` 5.4.0 to 6.0.0, #11 `codeql-action/upload-sarif` 3.39.1 to 4.39.1. The first five and gate PR 8 (https://getai.ghe.com/GetAI-IP/factory-gates/pull/8) are merged. **For each Dependabot pull request:** read the release notes for every major crossed, check the pin against the tag with `git ls-remote`, see `self-test` green, then merge. Close none.
-- **Gate finding from spike 0.2: pac needs .NET 10.** pac 2.4.1 (the gate's pin) ships for `net10.0` only (NuGet catalogue, 4 November 2026), but `lcp-gate.yml` sets up `dotnet-version: 8.0.x` in `build` and `verify-in-test` (plan Appendix A lines 1757 and 1883 too). It may still work if the runner image happens to carry .NET 10, but that is luck. The probe used `10.0.x` and pac reported `.NET 10.0.14`. Fix in a gate pull request: `10.0.x` in both jobs (not done; not run with 8.0.x to prove the failure). Do it with or after #10 (`setup-dotnet` v6).
+- **Gate finding from spike 0.2: pac needs .NET 10.** pac 2.4.1 (the gate's pin) ships for `net10.0` only (NuGet catalogue, 4 November 2026), but `lcp-gate.yml` sets up `dotnet-version: 8.0.x` in `build` and `verify-in-test`. Plan Appendix A (lines 1757 and 1883) now says `10.0.x` (Session 12), so the gate is behind the plan here. It may still work if the runner image happens to carry .NET 10, but that is luck. The probe used `10.0.x` and pac reported `.NET 10.0.14`. Fix in a gate pull request: `10.0.x` in both jobs (not done; not run with 8.0.x to prove the failure). Do it with or after #10 (`setup-dotnet` v6).
 - **Spike 0.2 clean-up, waiting on Boroon.** Delete the org ruleset `oidc-probe-required` (id 50511, `GetAI-IP`), the repos `GetAI-IP/oidc-probe` and `GetAI-IP/oidc-probe-target` (its PR 1 is never merged), and both federated credentials on `getai-fl1-exec` (`oidc-probe-fl1-exec`, `oidc-probe-target-ruleset`). Keep `getai-fl1-exec`, its application user and `factory-lane-1` for the night shift (Stage 3). Each delete needs Boroon's word.
 - **Leftover branch** `point-workflow-at-getai-ip` is still on `getai.ghe.com` (PR 6, merged before "Automatically delete head branches" was on). Boroon may delete it.
 - **The follow-ups in `GetAI-IP/factory-gates` are done in PR 7** (Session 10), merged 4 November 2026: README step 9 and the move marked done, the `dependabot.yml` comment, and next slice 2, the self-test workflow.
@@ -92,23 +92,24 @@ Findings:
 
 Not tested: a caller in another org calling a `GetAI-IP` reusable workflow (check (c) across orgs); an environment with protection rules; `merge_group`; the gate's own `lcp-gate.yml`; self-hosted runners.
 
-Proposed plan edits (not made; Boroon to approve). Line numbers are as at 4 November 2026:
+Plan edits, proposed and then **made at Boroon's word** ("make the proposed plan edits now"), the same session. 11 lines changed in `docs/sources/plan-v3.1.md`, none added, so every line number in `CLAUDE.md` still holds:
 - Lines 256 and 445 ("No source confirms it on GHE.com", "Nobody has confirmed `--githubFederated` on GHE.com"): confirmed by spike 0.2, 4 November 2026.
 - Line 469 (subject): give the immutable form as the default for new repos, with the example from case 1.
-- Line 470: replace "[inference; untested for ruleset workflows]" with "tested in spike 0.2 within one org, through a reusable workflow called by a ruleset workflow; across orgs untested". Also `getai/factory-gates` to `GetAI-IP/factory-gates`.
+- Line 470: replace "[inference; untested for ruleset workflows]" with "tested in spike 0.2 within one org, through a reusable workflow called by a ruleset workflow; across orgs untested". Also `getai/factory-gates` to `GetAI-IP/factory-gates`. Added while editing: the subject names the project repo, so the Test identity needs one credential per project repo plus one for triage; and the `workflow_ref` suffix.
 - Line 471: add that pac shows `AADSTS700213` with the presented subject, and that a new credential takes minutes to work.
-- Line 473: drop "[inference]" on `ACTIONS_ID_TOKEN_REQUEST_URL`; add that pac 2.4.1 needs .NET 10.
+- Line 473: drop "[inference]" on `ACTIONS_ID_TOKEN_REQUEST_URL`; add that pac 2.4.1 needs .NET 10. Added while editing: the app registration needs no API permission.
+- Line 469 also says that a rename or re-creation breaks the credential, since the name and the IDs are both in the subject.
 - Line 1378 (row 0.2): mark passed, 4 November 2026, Session 12.
 - Line 1420 (risk 7): lower it. The fallback stays for code apps (`pa app push` needs a secret) and self-hosted runners.
 - Line 1543 (open question): answered yes, within one org.
 - Appendix A lines 1757 and 1883: `dotnet-version: 10.0.x`.
 
-Files changed: `docs/plans/spike-0.2/README.md`, `probe.yml`, `required.yml` (new), `docs/progress.md`, `CLAUDE.md`. On `getai.ghe.com`: the two scratch repos, their settings and the ruleset above. Nothing in `GetAI-IP/factory-gates` changed. Dependabot #9 to #11 untouched. `protect-main`, `release-protection` and the four other orgs untouched. No secrets, no client data. The tenant ID and app ID are not recorded in this public repo.
+Files changed: `docs/plans/spike-0.2/README.md`, `probe.yml`, `required.yml` (new), `docs/sources/plan-v3.1.md` (11 lines), `docs/progress.md`, `CLAUDE.md`. On `getai.ghe.com`: the two scratch repos, their settings and the ruleset above. Nothing in `GetAI-IP/factory-gates` changed. Dependabot #9 to #11 untouched. `protect-main`, `release-protection` and the four other orgs untouched. No secrets, no client data. The tenant ID and app ID are not recorded in this public repo.
 
-Open items: the clean-up and the gate's .NET fix (Open items above); the proposed plan edits; check (c) across orgs (with the callers build).
+Open items: the clean-up and the gate's .NET fix (Open items above); check (c) across orgs (with the callers build). The plan's row 0.9 (environment audit, closed in Session 10) is still not marked in the plan; not part of this session's edits.
 
 Next steps:
-1. Boroon: approve, change or reject the proposed plan edits.
+1. Done: the plan edits, at Boroon's word.
 2. Clean up the scratch objects, each at Boroon's word.
 3. A gate pull request: `dotnet-version: 10.0.x` in `lcp-gate.yml`, with or after Dependabot #10.
 4. Spike 0.3 (does Dataverse MCP accept an app-only token?) can reuse `getai-fl1-exec` and `factory-lane-1`.
