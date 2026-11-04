@@ -85,7 +85,7 @@ Files changed: `CLAUDE.md`, `docs/progress.md`. In `GetAI-IP/factory-gates`, by 
 Open items: PR 7 merged. The Dependabot pull requests and the required-check choice (Open items above). Spike 0.9 done; the four personal environments need action by 15 December 2026.
 
 Next steps:
-1. Done: Boroon merged PR 7 in `GetAI-IP/factory-gates` on 4 November 2026.
+1. Boroon reviews and merges PR 15 (https://github.com/boroonmahanta/overnight-ai-factory/pull/15), this session's planning pull request, opened at his request on 4 November 2026. (Done: he merged gate PR 7 the same day.)
 2. The Dependabot pull requests, one at a time: a new push to get a `self-test` run, read the release notes, merge. `upload-artifact` together with `download-artifact`.
 3. Checks (a), (c), (d) on `getai.ghe.com`, then the callers build (next slice 6).
 4. Step 12, the rulesets, once the three teams exist and the approval stopgaps are undone. `apply --yes` only when Boroon says so.
