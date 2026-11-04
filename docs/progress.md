@@ -36,7 +36,7 @@ Next steps:
 - **Five orgs, one central gate (Boroon, 3 November 2026).** The enterprise on `getai.ghe.com` is `GetAI`. The central org `GetAI-IP` holds `factory-gates` and the held-out tests (`factory-holdout`). Four orgs will use the gate: `AI-Business-Solutions`, `AI-Managed-Services`, `Cloud-AI-Platforms`, `GetAI-Knowledge`. Org logins have no `_tqa7h098` suffix (checked for `GetAI-IP` by its URL; assumed for the others, check `AI-Business-Solutions` before step 12). The gate is a repo, a workflow file and rulesets, not a GitHub App; its only Apps are the two read-only token Apps. **Design, proposed, not built:** `lcp-gate.yml` becomes a reusable workflow; each of the four orgs gets a small private caller repo that its own `factory-required-workflows` ruleset points at; one `org.json` per org. Until then `rulesets/org.json` and `templates/CODEOWNERS` describe `AI-Business-Solutions`. **Checked:** (b) below is true. `factory-gates` Settings, Actions, Access offers "Accessible from repositories in the 'GetAI' enterprise", now set. Access is allowed only from private repos, so the callers must be private. Still to check: (a), (c), (d) below.
   - The four checks behind that design: (a) a ruleset can only require a workflow from a repo in its own org, hence the callers (belief); (b) a private reusable workflow can be shared across the enterprise (**checked true**); (c) `job_workflow_ref` in the OIDC token names the central workflow when a caller runs it, so the federated credential pin to `release` still works (belief, spike 0.2); (d) whether a token App owned by `GetAI-IP` can be installed on the other orgs, or each org needs its own pair (unknown).
 - **Until a second approver exists** (Boroon, 3 November 2026): `release-protection` in `GetAI-IP/factory-gates` has 0 required approvals, and `factory-gates` is excluded from the `GetAI-IP` org ruleset `protect-main`. Rule 17's "reviewed" is self-review meanwhile, so keep write access to Boroon alone. Before step 12 makes the gate required on any org: set approvals to 1, tick "Require approval of the most recent reviewable push", and remove the exclusion. When someone other than Boroon starts working on the factory, also make `self-test` a required status check (see the `self-test` bullet below).
-- **Five Dependabot pull requests are open in `GetAI-IP/factory-gates`** (#1 to #5, all major bumps). Close none. `self-test` is on `release` now (PR 7), so take them one at a time: a new push to each to get a `self-test` run (none has one yet), then read the release notes and merge. Detail in the Session 9 and 10 logs.
+- **Five Dependabot pull requests in `GetAI-IP/factory-gates` are ready for Boroon to merge** (#1 to #5, Session 11, 4 November 2026). Each has its release notes read, its pin checked and `self-test` green on its current head. Verdict for all five: merge, one at a time, in any order. Close none. #5 now also moves `download-artifact`. Four small follow-ups are listed in the Session 11 log.
 - **The follow-ups in `GetAI-IP/factory-gates` are done in PR 7** (Session 10), merged 4 November 2026: README step 9 and the move marked done, the `dependabot.yml` comment, and next slice 2, the self-test workflow.
 - **`self-test` is not a required status check** on `release-protection`. **Boroon, 4 November 2026: turn it on when someone other than him starts working on the factory**, with the second-approver changes above. The change: in `release-protection`, add "Require status checks to pass" with the check `self-test`, source GitHub Actions; leave "require branches to be up to date" off. Until then `self-test` is advice, not a lock: a pull request into `release` can merge with it red, so check it is green before merging, Dependabot pull requests included.
 - **Sources are complete.** Boroon uploaded the whole research folder as a zip. Every file was checked by checksum against the repo, duplicates were skipped, and the rest were added. The other session ("Overnight AI software factory", id `session_019bVvHWrUECf7G5YiXU3fKW`) is no longer needed for sources and can be deleted.
@@ -46,6 +46,54 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 11, 2026-11-04, branch `claude/session-11-dependabot`
+
+The five Dependabot pull requests in `GetAI-IP/factory-gates`. A local side session on Boroon's laptop, started by the Session 10 session. Started from `main` at PR 15's merge (`985f454`). Another session was using the laptop folder on `claude/session-10-repo-home`, so this branch was made in a separate worktree and the shared folder's branch was not switched.
+
+Done:
+- PR 15 (Session 10 planning) checked: merged into `main` on 4 November 2026.
+- Gate clone, before any change: Finder files cleared (none found), `release` at `0b05d84`, up to date. 151 tests `OK`, `manifest.py verify` and `make_rulesets.py check` silent.
+- Read the release notes for every major version crossed, and each README's breaking-change section. Checked each against how `lcp-gate.yml` (and `self-test.yml` for checkout) uses the action. Every job runs on `ubuntu-latest`.
+- Checked every pin with `git ls-remote` on github.com: each new commit ID is the tag's commit (`azure/login` v3.1.0 is an annotated tag; it resolves to the pinned commit), and each old pin matched too.
+- At Boroon's word: `@dependabot rebase` on #2, #3 and #4. Dependabot rebased all three onto `0b05d84`. **The #4 rebase also moved the checkout pin in `self-test.yml`**, so no `recreate` was needed (the Session 10 inference held).
+- At Boroon's word, pushed one commit to each of two Dependabot branches, after running the checks on the branch merged into `release`:
+  - #1, `0310952`: the comment now says `# v3.1.0`. Dependabot had moved the commit but left `# v2.3.1`, because the comment had a note after the version. The note ("for Key Vault ... and Blob") moved to its own line above, so the `uses:` line ends with the version.
+  - #5, `c97ee08`: the four `download-artifact` pins move from v4.3.0 to v8.0.2 (`9000827ccba6bdab643e8b6fd33ac0654aef8333`, checked against the tag), so the `map` to `build` hand-off moves in one merge.
+- `self-test` green on all five current heads (runs 36280921, 36280741, 36280751, 36280761, 36281156; 151 tests `OK` each). `lcp-gate` red on all five as expected: `map lane` stops at the token step because the gate reader App does not exist.
+- All five merged in a row into a local copy of `release`: no conflicts, 151 tests `OK`, manifest and rulesets clean, no old pin left, every `uses:` comment ends with its version. So the order does not matter.
+- Scratch worktrees removed. The gate clone is back on `release`, clean. Nothing merged, closed or set on `getai.ghe.com`. Rulesets untouched.
+
+Verdicts (all five: merge; Boroon merges, one at a time):
+- **#1 `azure/login` 2.3.1 to 3.1.0: merge.** v3.0.0 only moved Node 20 to 24. v3.0.2 hardened the PowerShell path (we use the CLI path). v3.1.0 adds opt-in inputs only. The gate passes `client-id`, `tenant-id`, `allow-no-subscriptions`, all unchanged.
+- **#2 `actions/create-github-app-token` 2.2.2 to 3.3.0: merge.** v3.0.0: Node 24, and behind a proxy it now needs `NODE_USE_ENV_PROXY=1` (hosted runners have no proxy). v3.1.0 deprecates `app-id` for `client-id`; `app-id` still works with a warning. `owner`, `repositories`, `private-key` and the `token` output are unchanged.
+- **#3 `actions/setup-node` 4.4.0 to 7.1.0: merge, plus a follow-up.** v5 Node 24 and automatic npm caching; v6 limits it to npm and removes `always-auth`; v7 is ESM and drops the dummy `NODE_AUTH_TOKEN`. None touches us: no `cache`, `registry-url` or `always-auth`, and the auto cache reads only `$GITHUB_WORKSPACE/package.json` (read in the v7.1.0 source), which the gate does not have (checkouts go to `pr/` and `gate/`).
+- **#4 `actions/checkout` 5.1.0 to 7.0.1: merge.** v6 keeps persisted credentials in a separate file (we always set `persist-credentials: false`). v7 refuses fork code only on `pull_request_target` and `workflow_run` (the gate uses `pull_request` and `merge_group`). Our v5.1.0 pin already had the July 2026 backport. Its `self-test` run used v7.0.1 for real on the GHE.com runner.
+- **#5 `actions/upload-artifact` 4.6.2 to 7.0.2, with `download-artifact` to 8.0.2: merge.** Upload v5 and v6 are Node 24; v7 adds opt-in unzipped uploads (`archive: false`) and ESM. Download v5 changed paths only for `artifact-ids` (we use `name`); v8 skips unzipping non-zip files and **fails on a digest mismatch by default**, which suits the hand-off of hash-checked scripts. The gate's inputs (`name`, `path`, `if-no-files-found`, `retention-days`) are unchanged, and the `test_workflow.py` hand-off tests pass.
+
+Findings:
+- `self-test` checks that pins are well formed and the tests pass. It does not run the five actions as the gate does. Two small real signals: #4's `self-test` ran checkout v7.0.1, and #2's `map lane` ran `create-github-app-token` v3.3.0 up to its new error ("The 'client-id' (or deprecated 'app-id') input must be set"). The rest run for real only once `lcp-gate` can run, after the gate reader App exists.
+- Dependabot updates the version comment only when the comment is the version alone (seen on #1; the exact rule is my inference). The pin test allows text after the version, so a stale comment passes.
+- No test makes one action use one pin across both workflows. Had #4 missed `self-test.yml`, `self-test` would still have passed.
+- Four of the five were still based on the original split (`f91750e`), before PR 6 and PR 7. Only #4 had been rebased once. GitHub showed all five as mergeable.
+- After a human push, Dependabot no longer rebases #1 or #5. Neither conflicts with the others.
+
+Follow-ups, not done (proposals):
+1. In `lcp-gate.yml`, `package-manager-cache: false` on both `setup-node` steps. The README advises it for jobs with secrets (`verify-in-test` has OIDC and Key Vault). It cannot fire today; this keeps it off if a `package.json` ever lands at the workspace root.
+2. Tighten the pin tests: a `uses:` comment must be `# vX.Y.Z` and nothing else, and one action has one pin across all workflows.
+3. A Dependabot `groups:` entry for `upload-artifact` and `download-artifact`, so they arrive as one pull request.
+4. When the gate reader and holdout reader Apps are made: `client-id` instead of `app-id`. If `verify-in-test` moves to a self-hosted runner: runner v2.327.1 or later.
+- Dependabot's next wave, once these merge and free its five slots: `setup-python` v5.6.0, `setup-dotnet` v5.4.0, `codeql-action` v3.39.1. Same routine.
+
+Files changed: `docs/progress.md`, `CLAUDE.md`. In `GetAI-IP/factory-gates`: commits `0310952` (#1) and `c97ee08` (#5) on Dependabot branches, `.github/workflows/lcp-gate.yml` only; no hashed file changed.
+
+Open items: the five pull requests wait for Boroon to merge. The four follow-ups above.
+
+Next steps:
+1. Boroon merges #1 to #5, one at a time, in any order, checking `self-test` is green on each. After the last one, pull `release` on the laptop and run the local checks (Finder files first).
+2. The follow-ups 1 to 3 as one small pull request in the gate repo, if Boroon wants them.
+3. Checks (a), (c), (d) on `getai.ghe.com`, then the callers build (next slice 6).
+4. Step 12, the rulesets, once the three teams exist and the approval stopgaps are undone. `apply --yes` only when Boroon says so.
 
 ## Session 10, 2026-11-04, branch `claude/session-10-gate-upkeep`
 
