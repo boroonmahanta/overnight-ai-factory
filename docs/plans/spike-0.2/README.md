@@ -37,6 +37,7 @@ Needs: Application Developer, Cloud Application Administrator or Application Adm
    - Type: **Explicit subject identifier**
    - Value: the `sub` the probe printed (case 1 below)
    - Name: as below. It cannot be changed later
+   - Description (optional, not checked by Entra): `Spike 0.2 scratch. GitHub Actions OIDC from getai.ghe.com, repo GetAI-IP/oidc-probe, environment fl1-exec. Remove after the spike.`
    - Audience: `api://AzureADTokenExchange` (the default)
    - Add. No client secret, no certificate.
 
@@ -62,6 +63,7 @@ Needs: System Administrator in `factory-lane-1` (the admin who made it has this)
 - Subject seen (run 36381961, 4 November 2026): `repo:GetAI-IP@801576/oidc-probe@5328416:environment:fl1-exec`. The repo was made after 15 July 2026, so GitHub uses the immutable form with the owner and repo IDs.
 - Credential name: `oidc-probe-fl1-exec`.
 - Run: `gh workflow run probe.yml -R GetAI-IP/oidc-probe --ref main -f tenant_id=... -f app_id=... -f env_url=...` (with `GH_HOST=getai.ghe.com`).
+- **Passed** (run 36384161, 4 November 2026): `'<app id>' authenticated successfully`, `Connected to... factory-lane-1`, and `pac org who` showed `Connected as <app id>` with the application user's User ID. pac 2.4.1 on .NET 10.0.14.
 
 ## Case 2: inside a ruleset workflow
 
@@ -75,6 +77,13 @@ Each step needs Boroon's word first.
 6. Open a pull request in `oidc-probe-target`. Its first run prints the subject; pac fails because no credential exists yet.
 7. Boroon adds a second credential on `getai-fl1-exec`, name `oidc-probe-target-ruleset`, with that subject. Expected shape: `repo:GetAI-IP@801576/oidc-probe-target@<id>:environment:fl1-exec:job_workflow_ref:GetAI-IP/oidc-probe/.github/workflows/probe.yml@refs/heads/main`.
 8. Re-run the failed job.
+
+Seen so far (4 November 2026): steps 1 to 6 done. `oidc-probe-target` is repo 5328491; the ruleset is id 50511. First ruleset run 36385301 (event `pull_request`, `ref` `refs/pull/1/merge`) failed at the sign-in as expected, with `AADSTS700213: No matching federated identity record found for presented assertion subject '...'`. So Entra does name the subject it was shown, at least through pac. Claims:
+
+- `sub`: `repo:GetAI-IP@801576/oidc-probe-target@5328491:environment:fl1-exec:job_workflow_ref:GetAI-IP/oidc-probe/.github/workflows/probe.yml@refs/heads/main`
+- `job_workflow_ref`: `GetAI-IP/oidc-probe/.github/workflows/probe.yml@refs/heads/main`. It names the central reusable workflow, not the caller: check (c), within one org
+- `workflow_ref`: `GetAI-IP_tqa7h098/oidc-probe/.github/workflows/required.yml@refs/heads/main`. This one carries the enterprise suffix `_tqa7h098` on the org; `sub` and `job_workflow_ref` do not
+- `gh run view` cannot show a ruleset run (it looks for the workflow in the target repo and gets 404). Read it with `gh api repos/<target>/actions/runs/<id>/jobs` and `.../actions/jobs/<id>/logs`
 
 ## Clean-up after the spike
 
