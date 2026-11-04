@@ -1,0 +1,120 @@
+# Spike 0.2 (plan 11.1): GHE.com OIDC with pac.
+# Published as .github/workflows/probe.yml in GetAI-IP/oidc-probe (private).
+#
+# 1. Prints the OIDC token's claims. Never the token itself.
+# 2. If an app ID is given, signs in to Dataverse with
+#    pac auth create --githubFederated, then runs pac org who.
+#
+# Runs no pull request code (rule 5): it has no checkout step. It starts by
+# hand (workflow_dispatch) or is called by required.yml at a fixed ref.
+# No secrets. The tenant ID, app ID and Dataverse URL are not secret; they come
+# in as inputs so they stay out of the public planning repo.
+name: oidc-probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      tenant_id:
+        description: Entra tenant ID. Leave all three empty to print the claims only
+        type: string
+        default: ""
+      app_id:
+        description: Application (client) ID of the app registration
+        type: string
+        default: ""
+      env_url:
+        description: Dataverse URL, https://<org>.crm6.dynamics.com/
+        type: string
+        default: ""
+  workflow_call:
+    inputs:
+      tenant_id:
+        type: string
+        default: ""
+      app_id:
+        type: string
+        default: ""
+      env_url:
+        type: string
+        default: ""
+
+permissions: {}
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    # Plan 5.3: the execute job runs in environment fl<n>-exec, so the
+    # default subject is repo:<org>/<repo>:environment:fl1-exec
+    # (with owner and repo IDs, for repos made after 15 July 2026).
+    environment: fl1-exec
+    timeout-minutes: 15
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      PAC_VERSION: "2.4.1"   # the gate's pin (lcp-gate.yml)
+      TENANT_ID: ${{ inputs.tenant_id }}
+      APP_ID: ${{ inputs.app_id }}
+      ENV_URL: ${{ inputs.env_url }}
+      DOTNET_NOLOGO: "1"
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+    steps:
+      - name: Print the OIDC token's claims (never the token)
+        shell: python3 -I {0}
+        run: |
+          import base64, json, os, urllib.parse, urllib.request
+
+          url = os.environ["ACTIONS_ID_TOKEN_REQUEST_URL"]
+          url += ("&" if "?" in url else "?") + "audience=" + urllib.parse.quote("api://AzureADTokenExchange", safe="")
+          request = urllib.request.Request(
+              url, headers={"Authorization": "Bearer " + os.environ["ACTIONS_ID_TOKEN_REQUEST_TOKEN"]})
+          with urllib.request.urlopen(request, timeout=30) as response:
+              token = json.load(response)["value"]
+          part = token.split(".")[1]
+          del token
+          claims = json.loads(base64.urlsafe_b64decode(part + "=" * (-len(part) % 4)))
+          del part
+
+          keys = ("iss", "aud", "sub", "job_workflow_ref", "job_workflow_sha", "workflow_ref",
+                  "event_name", "ref", "environment", "repository", "repository_id",
+                  "repository_owner", "repository_owner_id", "runner_environment", "issuer_scope")
+          lines = [f"{key}: {claims.get(key)}" for key in keys]
+          print("\n".join(lines))
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              summary.write("### OIDC claims (not the token)\n\n```\n" + "\n".join(lines) + "\n```\n")
+
+      - name: Check the sign-in inputs
+        if: env.APP_ID != ''
+        run: |
+          set -euo pipefail
+          guid='^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+          [[ "$TENANT_ID" =~ $guid ]] || { echo "::error::tenant_id is not a GUID"; exit 1; }
+          [[ "$APP_ID" =~ $guid ]] || { echo "::error::app_id is not a GUID"; exit 1; }
+          # Australia only (rule 15): the Oceania Dataverse host is crm6.
+          [[ "$ENV_URL" =~ ^https://[a-z0-9-]+\.crm6\.dynamics\.com/?$ ]] \
+            || { echo "::error::env_url must be https://<org>.crm6.dynamics.com/"; exit 1; }
+
+      # Keep the comment on the uses line to the version alone, so Dependabot updates it.
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+        if: env.APP_ID != ''
+        with:
+          dotnet-version: 10.0.x   # pac 2.4.1 ships for net10.0 only
+
+      - name: Install pinned pac
+        if: env.APP_ID != ''
+        run: |
+          set -euo pipefail
+          dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version "$PAC_VERSION"
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      - name: Sign in with GitHub federation (no secret)
+        if: env.APP_ID != ''
+        run: pac auth create --name probe --githubFederated --tenant "$TENANT_ID" --applicationId "$APP_ID" --environment "$ENV_URL"
+
+      - name: Who am I
+        if: env.APP_ID != ''
+        run: pac org who
+
+      - name: Clear pac profiles
+        if: always() && env.APP_ID != ''
+        run: pac auth clear || true
