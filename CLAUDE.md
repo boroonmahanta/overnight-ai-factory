@@ -2,6 +2,7 @@
 
 This repo holds the plan and the start of the build of GET AI's overnight software factory.
 Mostly documents. The first code, the gate, lives in its own repo `GetAI-IP/factory-gates` on `getai.ghe.com` (stage 1: slice 1 and Builds 1 to 3; moved out of this repo 3 November 2026; tested, not yet run as a gate or on a tenant).
+**Where things live (Boroon, 4 November 2026):** this planning repo stays on github.com, `boroonmahanta/overnight-ai-factory`, for good. Only the workflows and the automation Apps go on `getai.ghe.com`: the gate, the held-out tests, the caller repos and the GitHub Apps. This repo is public (checked 4 November 2026); whether to make it private is open (`docs/progress.md`).
 
 This file loads at the start of every session. It is a map, not the full plan.
 Keep it short. Detail lives in `docs/sources/`.
