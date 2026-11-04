@@ -1,0 +1,187 @@
+# Spike 0.3 (plan 11.1): Dataverse MCP with an app-only token.
+# Published as .github/workflows/probe.yml in GetAI-IP/mcp-probe (private, scratch),
+# next to probe/mcp_probe.py.
+#
+# One job, signed in as getai-fl1-exec through GitHub OIDC (no secret):
+#   1. prints the OIDC token's claims (never the token);
+#   2. installs pac (pinned) and the Dataverse CLI (pinned, hash checked);
+#   3. signs in with a federated pac profile, as in spike 0.2;
+#   4. local path: the Dataverse CLI's MCP proxy, `dataverse mcp <url>`, over stdio;
+#   5. remote path: an app-only token straight to https://<org>/api/mcp;
+#   6. deletes the probe rows it made, clears the profiles, and reports.
+# Steps 3 to 6 run only when an app ID is given. Leave it empty for a claims-only run.
+#
+# Hand start only (workflow_dispatch), and only from main: no pull request code
+# runs (rule 5). The checkout is this repo at the dispatched commit, for
+# probe/mcp_probe.py. No secrets. The tenant ID, app ID and Dataverse URL are not
+# secret; they come in as inputs so they stay out of the public planning repo.
+name: mcp-probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      tenant_id:
+        description: Entra tenant ID. Leave tenant, app and URL empty for a claims-only run
+        type: string
+        default: ""
+      app_id:
+        description: Application (client) ID of getai-fl1-exec
+        type: string
+        default: ""
+      env_url:
+        description: Dataverse URL, https://<org>.crm6.dynamics.com/
+        type: string
+        default: ""
+      paths:
+        description: Which path to try
+        type: choice
+        options: [both, local, remote]
+        default: both
+      write:
+        description: Create one probe row per path (then delete it). Off means read only
+        type: boolean
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: mcp-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    # Plan 5.3: the execute job runs in environment fl<n>-exec. The subject is
+    # repo:<org>@<org-id>/<repo>@<repo-id>:environment:fl1-exec (spike 0.2).
+    environment: fl1-exec
+    timeout-minutes: 20
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      PAC_VERSION: "2.4.1"   # the gate's pin (lcp-gate.yml)
+      DV_VERSION: "1.0.88"   # @microsoft/dataverse, latest on 5 November 2026
+      # The registry's integrity value for 1.0.88 (registry.npmjs.org, read 5 November 2026).
+      DV_INTEGRITY: "sha512-QxxPjz7CZLik6MjQ4o1h8NFtTcF0BqVOQ+Gs+ZXGahDC9nEX58onUiXTUIx40Z5dlgn1cCOt/PlWAr2I49xWzw=="
+      TENANT_ID: ${{ inputs.tenant_id }}
+      APP_ID: ${{ inputs.app_id }}
+      ENV_URL: ${{ inputs.env_url }}
+      PATHS: ${{ inputs.paths }}
+      WRITE: ${{ inputs.write }}
+      DOTNET_NOLOGO: "1"
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+    steps:
+      - name: Refuse any ref but main
+        run: |
+          [ "$GITHUB_REF" = "refs/heads/main" ] || { echo "::error::run this from main only"; exit 1; }
+
+      # Keep the comment on each uses line to the version alone, so Dependabot updates it.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Print the OIDC token's claims (never the token)
+        run: python3 -I probe/mcp_probe.py claims
+
+      - name: Check the sign-in inputs
+        if: env.APP_ID != ''
+        run: |
+          set -euo pipefail
+          guid='^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+          [[ "$TENANT_ID" =~ $guid ]] || { echo "::error::tenant_id is not a GUID"; exit 1; }
+          [[ "$APP_ID" =~ $guid ]] || { echo "::error::app_id is not a GUID"; exit 1; }
+          # Australia only (rule 15): the Oceania Dataverse host is crm6.
+          [[ "$ENV_URL" =~ ^https://[a-z0-9-]+\.crm6\.dynamics\.com/?$ ]] \
+            || { echo "::error::env_url must be https://<org>.crm6.dynamics.com/"; exit 1; }
+
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+        with:
+          dotnet-version: 10.0.x   # pac 2.4.1 ships for net10.0 only (spike 0.2)
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: lts/*
+          package-manager-cache: false   # no npm cache in a job that signs in
+
+      - name: Install pinned pac
+        run: |
+          set -euo pipefail
+          dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version "$PAC_VERSION"
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      - name: Install the pinned Dataverse CLI from a hash-checked tarball
+        run: |
+          set -euo pipefail
+          tarball="$RUNNER_TEMP/dataverse-$DV_VERSION.tgz"
+          curl -fsSL --retry 3 -o "$tarball" \
+            "https://registry.npmjs.org/@microsoft/dataverse/-/dataverse-$DV_VERSION.tgz"
+          got="sha512-$(openssl dgst -sha512 -binary "$tarball" | base64 -w0)"
+          if [ "$got" != "$DV_INTEGRITY" ]; then
+            echo "::error::@microsoft/dataverse $DV_VERSION does not match the pinned integrity"; exit 1
+          fi
+          echo "Integrity matches the pin."
+          # The package has no dependencies and no install scripts (read 5 November 2026).
+          # --offline: npm installs this file and fetches nothing.
+          npm install --global --offline --ignore-scripts --no-audit --no-fund --no-update-notifier "$tarball"
+          node --version
+          command -v dataverse
+
+      - name: Show the Dataverse CLI's own help for the flags this probe uses
+        run: |
+          set -uo pipefail
+          dataverse --help </dev/null || true
+          dataverse auth create --help </dev/null || true
+          dataverse mcp --help </dev/null || true
+
+      - name: Sign in with a federated pac profile (no secret)
+        if: env.APP_ID != ''
+        run: |
+          set -euo pipefail
+          pac auth create --name probe --githubFederated --tenant "$TENANT_ID" --applicationId "$APP_ID" --environment "$ENV_URL"
+          pac org who
+
+      - name: Give the Dataverse CLI a profile (the pac one if it can use it)
+        if: env.APP_ID != ''
+        run: |
+          set -euo pipefail
+          echo "Profiles the Dataverse CLI sees after pac auth create:"
+          dataverse auth list </dev/null || true
+          if dataverse org who </dev/null; then
+            echo "Finding: the Dataverse CLI used the federated pac profile."
+          else
+            echo "Finding: the Dataverse CLI did not use the pac profile. Making its own federated profile."
+            # A plaintext token cache on this throwaway runner; the last steps remove it.
+            dataverse auth create --name probe-dv --githubFederated --tenant "$TENANT_ID" \
+              --applicationId "$APP_ID" --environment "$ENV_URL" --accept-cleartext-caching </dev/null
+            dataverse auth who </dev/null
+            dataverse org who </dev/null
+          fi
+
+      - name: Ask the Dataverse CLI to validate the MCP setup (information only)
+        if: env.APP_ID != ''
+        continue-on-error: true
+        run: dataverse mcp "$ENV_URL" --validate </dev/null
+
+      - name: Local path, through the Dataverse CLI's MCP proxy
+        if: env.APP_ID != '' && (env.PATHS == 'both' || env.PATHS == 'local')
+        continue-on-error: true
+        run: python3 -I probe/mcp_probe.py local
+
+      - name: Remote path, an app-only token to /api/mcp
+        if: env.APP_ID != '' && (env.PATHS == 'both' || env.PATHS == 'remote')
+        continue-on-error: true
+        run: python3 -I probe/mcp_probe.py remote
+
+      - name: Delete the probe rows this app made (Web API)
+        if: always() && env.APP_ID != '' && env.WRITE == 'true'
+        run: python3 -I probe/mcp_probe.py cleanup
+
+      - name: Clear the sign-in profiles
+        if: always() && env.APP_ID != ''
+        run: |
+          dataverse auth remove --all </dev/null || true
+          pac auth clear || true
+
+      - name: Result
+        if: always() && env.APP_ID != ''
+        run: python3 -I probe/mcp_probe.py summary
