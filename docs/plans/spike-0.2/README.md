@@ -9,11 +9,13 @@ Exit test: `pac org who` returns the application user in both cases: a job start
 | Thing | Where | State |
 |---|---|---|
 | `probe.yml` | `GetAI-IP/oidc-probe` (private, scratch), `.github/workflows/probe.yml` | Pushed 4 November 2026 |
-| `required.yml` | Same repo, `.github/workflows/required.yml`. The copy here has placeholders for the three IDs | Not pushed yet |
-| `oidc-probe-target` | `GetAI-IP/oidc-probe-target` (private, scratch). Holds the test pull request for step 5. No workflows | Not created yet |
-| Org ruleset `oidc-probe-required` | `GetAI-IP`, targets `oidc-probe-target` only, by repository ID | Not created yet |
-| Entra app `getai-fl1-exec` | GET AI tenant | Not created yet |
-| Environment `factory-lane-1` | Power Platform, Australia, Sandbox, Managed | Not created yet |
+| `required.yml` | Same repo, `.github/workflows/required.yml`. The copy here has placeholders for the three IDs | Pushed 4 November 2026 (`ac9b369`) |
+| `oidc-probe-target` | `GetAI-IP/oidc-probe-target` (private, scratch, repo 5328491). Holds the test pull request for step 5 (PR 1, never merged). No workflows | Created 4 November 2026 |
+| Org ruleset `oidc-probe-required` | `GetAI-IP`, id 50511, targets `oidc-probe-target` only, by repository ID | Active since 4 November 2026 |
+| Entra app `getai-fl1-exec` | GET AI tenant. Two federated credentials | Created by Boroon, 4 November 2026 |
+| Environment `factory-lane-1` | Power Platform, Australia, Sandbox, Managed. Application user `getai-fl1-exec`, System Administrator | Created by Boroon, 4 November 2026 |
+
+**Result: pass** (4 November 2026). `pac org who` returned the application user in both cases.
 
 Neither workflow checks anything out, so no pull request code runs (rule 5). Ruleset workflows run only on `pull_request`, `pull_request_target` or `merge_group` (GitHub docs, `ruleset-workflow-event-triggers`), so step 5 uses `pull_request`; GitHub reads `required.yml` and `probe.yml` from `main` of `oidc-probe`, not from the pull request.
 
@@ -84,6 +86,8 @@ Seen so far (4 November 2026): steps 1 to 6 done. `oidc-probe-target` is repo 53
 - `job_workflow_ref`: `GetAI-IP/oidc-probe/.github/workflows/probe.yml@refs/heads/main`. It names the central reusable workflow, not the caller: check (c), within one org
 - `workflow_ref`: `GetAI-IP_tqa7h098/oidc-probe/.github/workflows/required.yml@refs/heads/main`. This one carries the enterprise suffix `_tqa7h098` on the org; `sub` and `job_workflow_ref` do not
 - `gh run view` cannot show a ruleset run (it looks for the workflow in the target repo and gets 404). Read it with `gh api repos/<target>/actions/runs/<id>/jobs` and `.../actions/jobs/<id>/logs`
+
+**Passed** on attempt 3 of run 36385301: `pac org who` returned the same application user as case 1. Attempt 2, seconds after the second credential was saved, failed with the same `AADSTS700213`, though the saved subject, issuer and audience matched byte for byte; about four minutes later it worked. **Wait about five minutes after saving a new credential.**
 
 ## Clean-up after the spike
 
