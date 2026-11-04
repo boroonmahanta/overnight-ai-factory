@@ -21,7 +21,8 @@ Next steps:
 - **Build 2 is done** (Session 7). PR 12 merged into `main` on 3 November 2026.
 - **Build 3 is done** (Session 8). PR 13 merged into `main` on 3 November 2026.
 - **The move is done** (Session 9, 3 November 2026): steps 1 to 11 of "Moving to GHE.com" (now in the new repo's README). `factory-gates/` is deleted from this repo: **PR 14 merged into `main` on 4 November 2026**. Step 12, applying the rulesets, is not started. `GetAI-IP` is the central org; four other orgs will use the gate. **Gate work runs from Boroon's laptop:** cloud sessions cannot reach `getai.ghe.com`.
-- **Gate upkeep and the self-test workflow** (Session 10) are on `release` in `GetAI-IP/factory-gates`: **PR 7 merged on 4 November 2026**, with `self-test` green on it.
+- **Gate upkeep and the self-test workflow** (Session 10) are on `release` in `GetAI-IP/factory-gates`: **PR 7 merged on 4 November 2026**, with `self-test` green on it. The planning record is PR 15, **merged into `main` on 4 November 2026**.
+- **Where things live (Boroon, 4 November 2026).** This planning repo stays on github.com, `boroonmahanta/overnight-ai-factory`, for good. Only the workflows and the automation Apps go on `getai.ghe.com`: the gate (`GetAI-IP/factory-gates`), the held-out tests (`factory-holdout`), the caller repos and the GitHub Apps. This replaces the Session 7 note that the planning repo would move to GHE.com when complete. Planning sessions can still run in Claude's cloud; gate work stays on the laptop.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
 - Nothing from the plan has been built or tested. Every item marked `[untested]` in the plan is still untested.
@@ -30,6 +31,7 @@ Next steps:
 
 ## Open items
 
+- **This planning repo is public** (checked 4 November 2026 with `gh repo view`; a signed-out browser could also open it). Anyone can read the plan, the cost model, the org names, `getai.ghe.com`, the gate's design and the identity names. Boroon to decide. Advice: make it private (Settings, General, Danger Zone, Change visibility). The catch: on GitHub Free, rulesets are not enforced on private repos, so `main` loses its ruleset unless the account is on Pro; with Boroon as the only writer that matters less. Making it private stops new readers but does not undo copies already made.
 - **Gate work is laptop work (decided 3 November 2026).** Connecting `getai.ghe.com` to Claude's cloud (Git providers) needs a Claude Team or Enterprise plan, and Boroon is on an individual plan. So any change to `GetAI-IP/factory-gates` runs from his laptop: a local Claude Code session, a cloud session attached to a laptop folder by Remote Control, or a cloud session that prepares a patch he applies (as in Session 9). The steps below are kept only in case a Team plan comes later (the docs cover GitHub Enterprise Server and say nothing about `*.ghe.com`).
   - **The steps** (from https://code.claude.com/docs/en/github-enterprise-server, read 3 November 2026; the page covers GitHub Enterprise Server and is silent on `*.ghe.com`). Needs the Owner or Primary Owner role in the Claude org (Team or Enterprise plan) and permission to create GitHub Apps on `getai.ghe.com`. (1) Create the empty private repo `GetAI-IP/factory-gates` (move step 2). (2) claude.ai, Organization settings, Git providers (https://claude.ai/admin-settings/source-control#github-enterprise), GitHub Enterprise section, Connect, "Set up automatically": display name up to 20 characters, hostname `getai.ghe.com`, leave the CA field empty. (3) Continue to GitHub Enterprise, review the pre-filled app, Create GitHub App. (4) Install the app on `factory-gates` only. (5) On claude.ai/code connect your own GitHub Enterprise account from the repository picker, then start a new session with the repo. If the guided redirect is blocked, use "Add manually" (needs app ID, client ID, client secret, webhook secret, private key; copy the webhook URL Claude generates into the app).
   - **Likely trip points, my inference, untested:** the GHE.com API is at `api.getai.ghe.com`, not `/api/v3` as on Server (see `lcp/apply_rulesets.py`), and the page does not say Claude handles that; the app manifest has no Workflows permission, so a push touching `.github/workflows/` (the first push of the split, the step 8 patch) is refused until Workflows read and write is added in the app's settings and approved; an enterprise IP allow list needs Anthropic's outbound IPs; the cloud environment may need `getai.ghe.com` and `api.getai.ghe.com` under Allowed domains.
@@ -73,6 +75,7 @@ Decisions (Boroon, 4 November 2026):
 - **Finder files.** He browses the laptop folders in Finder. So before every local check, and whenever the local folders are used, delete the `.DS_Store` files in the gate clone first (command in `CLAUDE.md` and in the gate README step 9). Do not teach `manifest.py` to skip them: it is a hashed gate script, and an unknown file is rightly "unlisted".
 - **`self-test` as a required status check on `release-protection`: not now.** Offered once `self-test` was green. It stays a visible check, not a required one. **Turn it on when someone other than Boroon starts working on the factory** (he said so later the same day, after asking what each choice means).
 - **Spike 0.9, the environment audit: closed.** Boroon ran it in the admin centre: four unmanaged developer environments, all personal, none client facing, none a factory lane; the rest are managed. Not critical to the factory. He has told the four owners, who handle their own before 15 December 2026 (suspended then, deleted 15 January 2027). The factory tracks them no further. The plan's pass test (none in use by 15 December) is set aside for these four, because no lane or client work uses them.
+- **Where things live.** The planning repo stays on github.com for good; only the workflows and the automation Apps go on `getai.ghe.com` (Current state). Decided after PR 15 merged, when he asked why the planning pull request was not on GHE. Recorded on branch `claude/session-10-repo-home`.
 
 Findings:
 - Finder wrote `.DS_Store` files into the clone mid-session. The next local run failed `manifest.py verify` and 2 tests (`test_committed_manifest_matches_the_scripts`, `test_committed_manifest_passes_sha256sum`) as "unlisted: .DS_Store". Not a real failure. CI runners have no Finder files.
@@ -81,13 +84,14 @@ Findings:
 
 Files changed: `CLAUDE.md`, `docs/progress.md`. In `GetAI-IP/factory-gates`, by PR 7: `.github/workflows/self-test.yml` (new), `tests/test_self_test_workflow.py` (new), `README.md`, `.github/dependabot.yml`.
 
-Open items: PR 7 merged. The Dependabot pull requests and the required-check choice (Open items above). Spike 0.9 closed.
+Open items: PR 7 and PR 15 merged. The Dependabot pull requests, the required-check choice and the public planning repo (Open items above). Spike 0.9 closed.
 
 Next steps:
-1. Boroon reviews and merges PR 15 (https://github.com/boroonmahanta/overnight-ai-factory/pull/15), this session's planning pull request, opened at his request on 4 November 2026. (Done: he merged gate PR 7 the same day.)
-2. The Dependabot pull requests, one at a time: a new push to get a `self-test` run, read the release notes, merge. `upload-artifact` together with `download-artifact`.
-3. Checks (a), (c), (d) on `getai.ghe.com`, then the callers build (next slice 6).
-4. Step 12, the rulesets, once the three teams exist and the approval stopgaps are undone. `apply --yes` only when Boroon says so.
+1. Done: Boroon merged PR 15 (https://github.com/boroonmahanta/overnight-ai-factory/pull/15), this session's planning pull request, and gate PR 7, both on 4 November 2026.
+2. Boroon decides whether to make this planning repo private (Open items).
+3. The Dependabot pull requests, one at a time: a new push to get a `self-test` run, read the release notes, merge. `upload-artifact` together with `download-artifact`.
+4. Checks (a), (c), (d) on `getai.ghe.com`, then the callers build (next slice 6).
+5. Step 12, the rulesets, once the three teams exist and the approval stopgaps are undone. `apply --yes` only when Boroon says so.
 
 ## Session 9, 2026-11-03, branch `claude/wonderful-lamport-vbdypu`
 
