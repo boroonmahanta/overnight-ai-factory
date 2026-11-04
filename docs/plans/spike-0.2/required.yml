@@ -1,0 +1,35 @@
+# Spike 0.2, step 5: the probe inside a ruleset workflow.
+# Published as .github/workflows/required.yml in GetAI-IP/oidc-probe (private).
+#
+# An org ruleset in GetAI-IP that targets only GetAI-IP/oidc-probe-target
+# requires this file at refs/heads/main. Ruleset workflows run only on
+# pull_request, pull_request_target or merge_group, so this one uses
+# pull_request (never pull_request_target). It still runs no pull request
+# code (rule 5): GitHub reads this file and probe.yml from main of oidc-probe,
+# not from the pull request, and neither has a checkout step.
+#
+# The caller calls the probe as a reusable workflow, as the four org callers
+# will call lcp-gate.yml. So job_workflow_ref should name probe.yml, which is
+# check (c) in docs/progress.md.
+#
+# The three values below are placeholders here. The copy in oidc-probe has the
+# real ones (not secret, but kept out of the public planning repo).
+name: oidc-probe-required
+
+on:
+  pull_request:
+
+permissions: {}
+
+jobs:
+  probe:
+    permissions:
+      id-token: write
+      contents: read
+    # A branch, not a commit ID, on purpose: the credential pins
+    # job_workflow_ref to refs/heads/main, as the gate's pins to release.
+    uses: GetAI-IP/oidc-probe/.github/workflows/probe.yml@main
+    with:
+      tenant_id: "<tenant-id>"
+      app_id: "<app-id>"
+      env_url: "https://<org>.crm6.dynamics.com/"
