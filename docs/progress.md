@@ -52,6 +52,33 @@ Next steps:
 
 ## Log
 
+## Ways-of-working one-pager, 2026-11-05, branch `claude/session-13-spike-0-3`
+
+A side task in the Session 13 folder, separate from spike 0.3. Spike 0.3 still needs its own entry.
+
+Done:
+- Wrote a one-pager for GET AI low-code and pro-code FDE squads on how the factory works, for technical and non-technical readers. Built on the GET AI design system ("GET AI Diagrams" artifact: tokens, `bundle.css`, logo, three icons).
+- Sections: where we are; in one minute; a story's path through ADO plus the Factory Eligible checklist; a day and a night (a 06:00 to 06:00 timeline, then five phases, each with "You" and "Under the hood"); which lane (low-code and pro-code side by side); size the work (XS to XL, the six questions); Merge Danger and the trust ladder (a 0 to 10 floor scale with examples, L0 marked "We are here"); who does what; your rhythm; 13 of the 19 rules and a glossary; stages and key dates.
+- Boroon's layout changes (version 3): Day gate is phase 1 and Triage phase 2; the Night card head is solid electric blue like the night shift bar, and the Morning head solid turquoise like the review bars; Lane A sits above Lane B, code in the pro-code panel; "A story's path" comes before "A day and a night".
+- Sources: plan V3.1 sections 2, 4, 5.5, 5.10, 5.11, 6.4 to 6.7, 7.3, `docs/analysis/tshirt-sizing.md`, and this log.
+- Published as a private artifact, https://claude.ai/artifact/Ufn9wxxTA29eCRCLWHn9sg (version 3; version 2 lined up the five phase cards by section). Checked in headless Firefox at desktop and phone width.
+
+Decisions:
+- Left out the skills per size (still proposals) and most cost figures (kept one line: human minutes are about 80% of a story's cost, model).
+- Left out the old one-pager's "client work runs at cash", since credits for client work were accepted on 2 November 2026.
+- Boroon asked what PARK stands for. It is not an acronym: it is the word "park", written in capitals because the agent prints `PARK: <instruction>` as its last line. The page does not say this yet.
+
+Files changed: `docs/one-pager/GET-AI-Factory-Ways-of-Working.html` (new), `CLAUDE.md` (the `docs/one-pager/` row), `docs/progress.md`.
+
+Open items:
+- The artifact is private. Boroon shares it with the team from the page's Share menu.
+- The older `GET-AI-Overnight-Factory-one-pager.html` still says client work runs at cash. Update or retire it.
+- The page's "Where we are" box and status section are true at 5 November 2026. Refresh them as stages pass.
+
+Next steps:
+1. Share the artifact with the squads.
+2. Optional: add "PARK is the word park, not an acronym" to the page's glossary.
+
 ## Session 12, 2026-11-04, branch `claude/session-12-spike-0-2`
 
 Spike 0.2, GHE.com OIDC with pac. A local session on Boroon's laptop. Started from `main` at PR 17's merge (`129c285`).
