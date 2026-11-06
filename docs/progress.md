@@ -52,6 +52,24 @@ Next steps:
 
 ## Log
 
+## Session 13, 2026-11-05 to 06, branch `claude/session-13-spike-0-3`
+
+Spike 0.3, Dataverse MCP with an app-only token. A local session on Boroon's laptop. Started from `main` at PR 19's merge (`e9e2741`); PR 19 (the Session 12 close-out) was checked as merged first. The ways-of-working one-pager (next entry) was a side task on the same branch; PR 20 took this branch to `main` up to that commit (`419b101`).
+
+**Result: draft, waiting on run 3** (the exit test: a read and a create through each path). This entry is finished after run 3 and the clean-up.
+
+Done so far:
+- Read the Dataverse MCP docs (local proxy, remote endpoint, allowed clients, CLI reference, tools, FAQ, preview tools) and the npm package `@microsoft/dataverse` 1.0.88 in full except its native binaries: no dependencies, no install scripts, a 1 KB launcher that starts a bundled binary, updates only on an explicit `install`.
+- Read-only checks in the tenant (Boroon's `az` sign-in): the Dataverse API publishes `user_impersonation` and `mcp.tools`, both delegated, and no app roles; the Dataverse CLI app has no service principal (never consented); `getai-fl1-exec` had no credentials, only Graph `User.Read`.
+- Wrote `docs/plans/spike-0.3/probe.yml` (one job, `workflow_dispatch` from `main` only, `id-token: write` and `contents: read`, no secrets; three actions pinned to the gate's commit SHAs, checked with `git ls-remote`; pac 2.4.1 on .NET `10.0.x`; the Dataverse CLI from a tarball checked against the registry's `sha512`, installed offline with scripts off), `mcp_probe.py` (standard library MCP client for stdio and streamable HTTP; never prints a token; clean-up deletes only `spike-0.3 probe` rows this app created) and `README.md` (portal steps, run order, results, findings). 48 local checks against fakes passed; the harness stayed in the scratchpad.
+- At Boroon's word: created private `GetAI-IP/mcp-probe` (repo 5331556) and pushed `4ab9682`, then `237ac5b` (the telemetry opt-out). Run 1 (36506161, claims only) passed. Boroon added the federated credential `mcp-probe-fl1-exec` (the first save had `epo:` for `repo:`; a read-back caught it and he fixed it), checked the GA MCP toggle is on, and left the Preview toggle alone. Run 2 (36783926, reads only, `getai-fl1-exec` not yet allowed): both paths refused with 403 by the allowed-clients check. Boroon then added `getai-fl1-exec` to the allowed MCP clients (unique name `new_getaifl1exec`, after `getaifl1exec` was refused for lacking a publisher prefix); read back as enabled, with the right app ID, at 01:10:58 UTC on 6 November.
+
+Findings so far: the eleven in `docs/plans/spike-0.3/README.md`, "Findings so far". In short: `/api/mcp` accepts an app-only token as a sign-in and checks the allowed list by the token's app ID; the local proxy forwards the job's token and hides upstream errors from the client; the Dataverse CLI does not see pac's profiles, keeps its token cache unencrypted on Linux and sends usage data unless opted out; `--validate` advises the wrong app; an allowed MCP client is a solution component that needs a publisher prefix, so lanes could get theirs by solution or by `dataverse mcp allow`.
+
+Not recorded in this public repo: the tenant ID, the app ID, and the Dataverse org and user IDs. They are in the private run logs.
+
+Open: run 3, the clean-up (test rows, the federated credential, the scratch repo, the allowed-clients entry), the proposed plan edits.
+
 ## Ways-of-working one-pager, 2026-11-05, branch `claude/session-13-spike-0-3`
 
 A side task in the Session 13 folder, separate from spike 0.3. Spike 0.3 still needs its own entry.
