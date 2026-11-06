@@ -28,6 +28,7 @@ Next steps:
 - **Spike 0.3 passed on both paths** (Session 13, 6 November 2026): Dataverse MCP accepts an app-only token. A job on `getai.ghe.com`, signed in as `getai-fl1-exec` by GitHub OIDC with no secret, made a read and a create through the Dataverse CLI's local proxy and through the remote `/api/mcp` endpoint, once `getai-fl1-exec` was on `factory-lane-1`'s allowed MCP clients list. Record, portal steps and 13 findings: `docs/plans/spike-0.3/README.md`. The two test rows, the scratch repo `GetAI-IP/mcp-probe` and the federated credential `mcp-probe-fl1-exec` are **deleted** (6 November 2026, at Boroon's word). The allowed MCP client entry `new_getaifl1exec` is **kept for Stage 3**, at Boroon's word. The plan is edited for the result (9 lines, Session 13, at Boroon's word). Planning PR 21 merged into `main` on 6 November 2026.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
+- **The Get AI Engineer's material is assessed** (Session 14, 6 November 2026): `docs/analysis/delivery-vault-assessment.md`. It found the Power Platform standards, patterns and export procedure in the Get AI Engineer's older vault in Azure DevOps, and recommends building live in the lane with the export as the record. Proposals only; Boroon to decide.
 - Spikes 0.2 and 0.3 are the only plan items tested on real services. Every other item marked `[untested]` in the plan is still untested. The plan is edited for spike 0.2's result (11 lines, Session 12) and spike 0.3's (9 lines, Session 13), each at Boroon's word.
 - Boroon said more context will be added in later sessions.
 - Work is sized with T-shirt sizes (XS to XL), approved on 1 November 2026. See `CLAUDE.md`.
@@ -55,6 +56,46 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 14, 2026-11-06, branch `claude/session-14-vault-assessment`
+
+A fresh assessment of the Get AI Engineer's material and the 5 November call, for lane B (low-code). A local session on Boroon's laptop. Started from `main` at PR 22's merge (`63f83f2`), after checking that the Session 13 close-out (PR 22) is on `main`.
+
+Done:
+- Read `CLAUDE.md`, this log, the vault copy in full (`docs/sources/delivery-vault/`, 19 files), the call transcript (pasted in the chat, not stored here), plan sections 2, 5, 6, 7.3 and 11 and Appendices C and D, `docs/analysis/tshirt-sizing.md`, and the spike 0.2 and 0.3 READMEs.
+- Read-only on `getai.ghe.com`: the vault has moved to `51fdde5` (two commits after our copy, 4 to 6 November: offline HTML onboarding guides, Mac notes, channel naming; nothing on building). No other repo of the Get AI Engineer's. The handbook holds no low-code standards.
+- At Boroon's request in the chat, read-only in Azure DevOps: the Get AI Engineer's older Power Platform vault, `getai` organisation, project `GETAI-PowerPlatform`, repo `vault` (`main` at `5f26ede`), and the folder layout of its per-client source repos. It holds the Power Platform material the call described and the GHE vault lacks. Its folder names name clients, so nothing from it is copied here.
+- Read Microsoft's `power-platform-skills` (commit `3ffa5b8`) and Microsoft Learn on source control with solution files, the YAML format, `pac solution` and cloud flows by code.
+- Wrote `docs/analysis/delivery-vault-assessment.md`, verdict table first: 37 pieces judged (combine, replace, keep ours, gap), an inventory, a recommendation on how agents build, day versus night, dates by scenario, questions for the Get AI Engineer, 15 proposed plan edits, and where it differs from Session 13. The comparison with `delivery-vault-fast-track.md` was written after the draft, as asked.
+
+Findings, in short:
+1. **The older ADO vault has what we lack:** 46 Power Platform standards with stable IDs, each marked "rule" (34, for the gate's lints and floor) or "judgement" (12, for the reviewer); 8 flow patterns; an export and unpack procedure with inventories; a design template; full records of the past engagement. Verdict: the standards replace our unwritten `coding-standards.md` seed; the export procedure replaces the plan's thin export step (keeping our YAML format).
+2. **How agents build:** recommend building live in the lane through supported tools, with the driver (not the agent) exporting the solution as the PR's source; builders only where Microsoft ships a generator. Microsoft's own source control page does not support editing extracted files. This would drop the per-component builders and their plan checks from the gate's unwritten scripts.
+3. **Microsoft's pages disagree** on whether `pac solution unpack`, `clone` and `sync` write the YAML format. A spike is needed before Stage 3.
+4. **Microsoft's Power Automate plugin signs in as a user** (`az login` plus MSAL); the canvas plugin needs an open Studio tab. Neither is a safe night assumption. Solution flows can be written through the Dataverse Web API, which Microsoft documents.
+5. **New gap:** an unmanaged import does not remove components, so under live build a lane reset must prove the lane equals `integration`.
+6. **Dates (estimates):** about one week earlier than the Session 13 baseline. One person: L0 trial week of 30 November, L1 from about 18 January 2027. With a second engineer and the Get AI Engineer's time: L0 about 23 to 27 November, Stage 3 exit about mid-December. The Get AI Engineer's time makes a live-engagement trial possible; it does not much speed the build.
+
+Decisions: none. Everything in the assessment is a proposal.
+
+Files changed: `docs/analysis/delivery-vault-assessment.md` (new), `docs/progress.md`, `CLAUDE.md` (map rows). The plan and the vault copy are unchanged. Nothing changed on `getai.ghe.com`, in Azure DevOps or in the tenant.
+
+Open items:
+- **How agents build: Boroon to decide** (assessment section 3). It changes plan 5.4, 5.6, 5.7, B.1 and C.1.
+- Which of the 15 proposed plan edits to make (assessment section 7).
+- The questions and asks for the Get AI Engineer (assessment section 6), including whether the ADO vault is retired and who owns the standards.
+- The vault copy here is at `19877b8`; the source is at `51fdde5` (onboarding guides only). Refresh only if a later session needs them.
+- The ADO vault stays in Azure DevOps. It names clients and holds engagement records, so any part the factory takes comes over anonymised, by a reviewed PR (rule 17).
+
+Next steps:
+1. Boroon: decide the build method, then which plan edits to make.
+2. Boroon: send the Get AI Engineer the section 6 questions and asks.
+3. Next spike session: either spike 0.6 (Copilot CLI on GHE.com), or a combined lane spike in `factory-lane-1`: headless YAML export, reset fidelity, and one flow created through the Web API as `getai-fl1-exec` (assessment section 3.4).
+
+Later (7 November 2026, same branch, at Boroon's word):
+- Added assessment section 3.5: live build against builders, side by side, 18 factors with green and red markers. Score: live build 10, builders 5, ties 3. Each builder win has a fix under live build, listed below the table.
+- Renamed "the author" to "the Get AI Engineer" in the assessment, this entry and its map row, and changed his/him to they/them there. Session 13's file and older entries still say "the vault's author", as written.
+4. A planning pull request for this branch, when Boroon asks.
 
 ## Session 13, 2026-11-05 to 06, branch `claude/session-13-spike-0-3`
 
