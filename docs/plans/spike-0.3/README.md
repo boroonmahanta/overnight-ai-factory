@@ -62,6 +62,7 @@ Needs: owner of the app registration (you created it, so you are) or Application
    - Audience: `api://AzureADTokenExchange` (the default)
    - Add. No secret, no certificate, no API permission.
 3. **Wait five minutes** before the next run (spike 0.2: a new credential took about four minutes to work).
+4. Before the run, read the credential back (read-only): `az ad app federated-credential list --id <app id> --query "[].{name:name,issuer:issuer,subject:subject,audiences:audiences}"`. On 6 November 2026 the first save had the subject `epo:GetAI-IP@...` (the leading `r` lost in the paste); the read-back caught it, Boroon edited the value in place, and the second read-back matched at 23:27 UTC. Entra accepts any subject string, so only a read-back or a failed sign-in shows a typo.
 
 ### B. Check the Dataverse MCP server is on in `factory-lane-1` (before run 2)
 
@@ -69,8 +70,23 @@ Needs: Power Platform Administrator (Microsoft's stated role for these settings)
 
 1. https://admin.powerplatform.microsoft.com, Manage, Environments, select `factory-lane-1`, then **Settings** on the command bar.
 2. Product, **Features**. Scroll to **Dataverse Model Context Protocol**.
-3. Check **Allow MCP clients to interact with Dataverse MCP server** is on (Microsoft says it is on by default). If it is off, turn it on and Save. Change nothing else here yet.
+3. Check **Allow MCP clients to interact with Dataverse MCP server** is on (Microsoft says it is on by default). If it is off, turn it on and Save. There are two toggles with that name: use the GA one. Leave the one ending **(Preview version)** as it is: it serves `/api/mcp_preview` and its preview tools (not covered by support, may change without notice), and the probe calls only `/api/mcp`. Change nothing else here yet. (Asked by Boroon, 6 November 2026.)
 4. Optional, read-only: select **Advanced Settings** and note which clients are listed and enabled. Tell me; do not change any.
+
+Seen by Boroon on 6 November 2026, before any change ("Active Allowed MCP Clients" in `factory-lane-1`). This is the state to return to after the spike:
+
+| Name | Unique name | Application ID | Enabled |
+|---|---|---|---|
+| Agent 365 Tools | `agent365tools` | `ea9ffc3e-8a23-4a7d-836d-234d7c7565c1` | Yes |
+| Dataverse MCP CLI tool | `dataversemcpcli` | `0c412cc3-0dd6-449b-987f-05b053db9457` | No |
+| Enterprise Copilot Platform | `enterprisecopilotplatform` | `fb8d773d-7ef8-4ec0-a117-179f88add510` | No |
+| Microsoft Copilot Studio App | `microsoftcopilotstudio` | `7ab7862c-4c57-491e-8a45-d52a7e023983` | Yes |
+| Microsoft Copilot Studio App - OBO | `microsoftcopilotstudioobo` | `96ff4394-9197-43aa-b393-6a41652e21f8` | Yes |
+| Microsoft Cowork | `microsoftcowork` | `6ab48b67-cd74-4ad4-81af-5932984589be` | No |
+| Microsoft GitHub Copilot App | `microsoftgithubcopilot` | `aebc6443-996d-45c2-90f0-388ff96faa56` | No |
+| vibepowerapps | `developeragentsprod` | `8e38132a-0fcc-47e2-8178-724bda6fc696` | Yes |
+
+All are Microsoft's own apps. `getai-fl1-exec` is not on the list, as run 2 needs. Nothing changed for the spike so far.
 
 ### C. Add `getai-fl1-exec` to the allowed MCP clients (after run 2)
 
@@ -110,6 +126,19 @@ So the spike writes two rows in all (one per path, in run 3), unless a run is re
 - The CLI's own help confirms `--githubFederated` (`-ghf`) and `--accept-cleartext-caching` on `auth create`, and `--clientid` defaults to "DataverseCLI app".
 - **The CLI collects usage data by default:** its first line is "DataverseCLI collects anonymous usage data to improve the product. To opt out: set DATAVERSE_TELEMETRY_OPT_OUT=1". The workflow sets that from run 2 on. The factory's lane jobs should set it too.
 - No token-shaped string (`eyJ`) in the log.
+
+### Run 2: both paths, read only, `getai-fl1-exec` not on the allowed list (run 36783926, 6 November 2026): both refused, as expected
+
+IDs are shown as `<app id>` here; the private run log has them.
+
+- **pac sign-in worked** (second time, as in spike 0.2): `'<app id>' authenticated successfully`, `Connected to... factory-lane-1`, and `pac org who` gave the application user.
+- **The Dataverse CLI did not see the pac profile.** After `pac auth create`, `dataverse auth list` said "No authentication profiles found" and `dataverse org who` said "No active authentication profile". So "compatible with PAC CLI auth profiles" does not mean shared, at least for a federated profile on Linux. Its own `dataverse auth create --githubFederated` worked at once: profile type `GitHubFederated`, `Connected as <app id>`, the same application user ID as pac.
+- **The Dataverse CLI keeps its token cache unencrypted on Linux,** with a warning on every command: "No usable keyring detected on headless Linux; MSAL token cache will be stored UNENCRYPTED at /home/runner/.local/share/Microsoft/DataverseCli/tokencache_spn_msalv3.dat". In a lane job, any process in that job can read it.
+- **`--validate`:** both the GA and preview endpoints returned 403 (Forbidden). Its advice names the CLI's own app (`0c412cc3-...`), which is the wrong app when the profile is a service principal.
+- **Local path:** the proxy answered `initialize` itself (server `dataverse 1.0.88.0`, protocol `2025-06-18`, capabilities logging, prompts, resources, tools). On `tools/list` it opened its upstream session and got `MCP initialize failed for https://factory-lane-1.crm6.dynamics.com/api/mcp: 403 Forbidden` (in its stderr log). The client saw only `JSON-RPC error -32603: An error occurred.` So the proxy forwards our app's token, and hides the cause from the MCP client.
+- **Remote path:** the app-only token had `aud` `https://factory-lane-1.crm6.dynamics.com`, `appid` `<app id>`, `idtyp` `app`, `roles` none, `scp` none, `ver` 1.0. `/api/mcp` answered **HTTP 403**, body: `The application '<app id>' is not authorized to access MCP. For details on approved clients and instructions to enable additional applications, see: https://aka.ms/configuremcpclientlist`. Not 401: the token was accepted as a sign-in, and the refusal is the allowed-clients check, by the token's app ID.
+- Both paths are blocked by the same thing: `getai-fl1-exec` is not on the list. The Dataverse CLI app entry is not involved when the profile is our own app.
+- No token-shaped string (`eyJ`) in the log. Profiles cleared at the end ("Removed all 1 authentication profile(s)", "Authentication profiles and token cache removed").
 
 ## Clean-up after the spike
 
