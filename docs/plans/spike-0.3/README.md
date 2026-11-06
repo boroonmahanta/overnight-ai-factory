@@ -15,9 +15,10 @@ If both fail, record what broke and stop. The fallback (the night stays on pac a
 
 | Thing | Where | State |
 |---|---|---|
-| `probe.yml` | `GetAI-IP/mcp-probe` (private, scratch, repo 5331556), `.github/workflows/probe.yml` | Pushed 5 November 2026 (`4ab9682`), at Boroon's word |
-| `mcp_probe.py` | Same repo, `probe/mcp_probe.py` | Pushed with it |
-| Entra app `getai-fl1-exec` | GET AI tenant. Kept from spike 0.2. No credentials now | Exists |
+| `probe.yml` | `GetAI-IP/mcp-probe` (private, scratch, repo 5331556), `.github/workflows/probe.yml` | Pushed 5 November 2026 (`4ab9682`, then `237ac5b`), at Boroon's word. Repo **deleted 6 November 2026** |
+| `mcp_probe.py` | Same repo, `probe/mcp_probe.py` | Pushed with it; deleted with the repo |
+| Entra app `getai-fl1-exec` | GET AI tenant. Kept from spike 0.2. Federated credential `mcp-probe-fl1-exec` added for the spike, **deleted 6 November 2026**; no credentials now | Exists |
+| Allowed MCP client `new_getaifl1exec` | `factory-lane-1`, for `getai-fl1-exec` | Added 6 November 2026; **kept for Stage 3** (Boroon) |
 | Environment `factory-lane-1` | Power Platform, Australia, Sandbox, Managed. Application user `getai-fl1-exec`, System Administrator | Exists |
 
 ## How the probe works
@@ -182,4 +183,10 @@ Started at 03:22 UTC, about two hours after the list entry was saved.
 
 ## Clean-up after the spike
 
-Delete the scratch repo `GetAI-IP/mcp-probe` (with its `fl1-exec` environment) and the federated credential `mcp-probe-fl1-exec`. Decide whether `getai-fl1-exec` stays on the allowed MCP clients list (only if the night will use MCP). Check no `spike-0.3 probe` row is left in `factory-lane-1`. Keep `getai-fl1-exec`, its application user and `factory-lane-1` for the night shift (Stage 3).
+**Done 6 November 2026, at Boroon's word:**
+
+- The two test rows: deleted by run 3's clean-up step; checked again read-only under Boroon's sign-in (no `spike-0.3` row; `account` empty).
+- The scratch repo `GetAI-IP/mcp-probe`, with its `fl1-exec` environment and three runs: deleted after a last look; returns 404.
+- The federated credential `mcp-probe-fl1-exec`: deleted with `az ad app federated-credential delete`; `getai-fl1-exec` has no federated credentials, secrets or certificates.
+- The allowed MCP client entry `new_getaifl1exec`: **kept for Stage 3** (Boroon's choice). It grants nothing while the app has no credential. To return to the state before the spike, delete it in Advanced Settings (the list before is in step B).
+- Kept for the night shift (Stage 3): `getai-fl1-exec`, its application user and `factory-lane-1`.
