@@ -28,13 +28,27 @@ Next steps:
 - **Spike 0.3 passed on both paths** (Session 13, 6 November 2026): Dataverse MCP accepts an app-only token. A job on `getai.ghe.com`, signed in as `getai-fl1-exec` by GitHub OIDC with no secret, made a read and a create through the Dataverse CLI's local proxy and through the remote `/api/mcp` endpoint, once `getai-fl1-exec` was on `factory-lane-1`'s allowed MCP clients list. Record, portal steps and 13 findings: `docs/plans/spike-0.3/README.md`. The two test rows, the scratch repo `GetAI-IP/mcp-probe` and the federated credential `mcp-probe-fl1-exec` are **deleted** (6 November 2026, at Boroon's word). The allowed MCP client entry `new_getaifl1exec` is **kept for Stage 3**, at Boroon's word. The plan is edited for the result (9 lines, Session 13, at Boroon's word). Planning PR 21 merged into `main` on 6 November 2026.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
-- **The Get AI Engineer's material is assessed** (Session 14, 6 November 2026): `docs/analysis/delivery-vault-assessment.md`. It found the Power Platform standards, patterns and export procedure in the Get AI Engineer's older vault in Azure DevOps, and recommends building live in the lane with the export as the record. Proposals only; Boroon to decide.
-- Spikes 0.2 and 0.3 are the only plan items tested on real services. Every other item marked `[untested]` in the plan is still untested. The plan is edited for spike 0.2's result (11 lines, Session 12) and spike 0.3's (9 lines, Session 13), each at Boroon's word.
+- **The Get AI Engineer's material is assessed** (Session 14, 6 November 2026): `docs/analysis/delivery-vault-assessment.md`. It found the Power Platform standards, patterns and export procedure in the Get AI Engineer's older vault in Azure DevOps, and recommends building live in the lane with the export as the record.
+- **Live build is decided (Boroon, 7 November 2026) and edited into the plan** (Session 15). In lane B (low-code), agents build live in the lane. A trusted driver step, not the agent, exports and unpacks the solution, and that export is the PR's source. Builders stay only where Microsoft ships a generator: App Spec, `pac copilot`, code apps, PCF and plug-in source. Pro-code is unchanged. Three spikes must pass before Stage 3: 0.18 (headless YAML export), 0.19 (reset fidelity) and the widened 0.14. `GetAI-IP/factory-gates` now lags the plan; the follow-ups are under Open items.
+- Spikes 0.2 and 0.3 are the only plan items tested on real services. Every other item marked `[untested]` in the plan is still untested. The plan is edited for spike 0.2's result (11 lines, Session 12), spike 0.3's (9 lines, Session 13) and the live-build decision (Session 15), each at Boroon's word.
 - Boroon said more context will be added in later sessions.
 - Work is sized with T-shirt sizes (XS to XL), approved on 1 November 2026. See `CLAUDE.md`.
 
 ## Open items
 
+- **`GetAI-IP/factory-gates` lags the plan after live build** (Session 15, 7 November 2026). A laptop gate slice, by pull request there; Boroon merges. Not started. Before any local check, delete Finder's `.DS_Store` files in the clone. What to change (read from the clone at `85ad2b5`, the same as `release`):
+  1. `pending-scripts.txt`: delete `lcp/create_schema.py` and `lcp/create_security.py` (verify-in-test); add `lcp/plan_from_export.py` under `# static`. `tests/test_workflow.py` keeps this list and the workflow in step.
+  2. `.github/workflows/lcp-gate.yml`, to match plan Appendix A:
+     - in `build`, the step name and comment for generator-backed builders;
+     - in `static`, `fetch-depth: 0`, the "Export-diff plan against the base commit" step and the `export-plan` artifact;
+     - in `verify-in-test`, drop the "Schema and security plan" step and download `export-plan` into `evidence/`;
+     - `merge_danger_floor.py` (pre-floor and floor) and `verifier_plan.py` read `--plan evidence/export-plan.json` instead of `--schema-plan` and `--security-plan`.
+  3. `lcp/check_builders.py`: narrow it to generator-backed parts. Its docstring still says agents edit per-component builders. Decide how a project declares its generator-backed builders: keep `workflows/build/*.py` as thin wrappers around Microsoft's generators, or use a declared list. Consider failing any builder that writes under `src/`, which only the driver writes now. Update `tests/test_check_builders.py` and the fixture `tests/fixtures/builder-project/`: its builder is a per-component builder.
+  4. `README.md`: the rows and findings about per-component builders (the `check_builders.py` and fixture rows, the `build` job steps, and the findings on `workflows/build/`).
+  5. `templates/CODEOWNERS`: the commented `/workflows/build/` line. `builders/lib/**` stays protected in `check_protected_paths.py` and `rulesets/protected-paths.json`, as the plan keeps it.
+  6. When `lcp/danger-rules.yml` is written: the new B.1 rows and the rule names `export-additive` and `export-flow-logic`.
+  7. Regenerate `scripts.sha256` with `lcp/manifest.py` after the script changes.
+  - **Not on `pending-scripts.txt`:** `export_lane.py`, `reset_environment.py` (now with leftover removal and the proof) and the lane drift check. They run in the execution workflow in `factory-control`, not in `lcp-gate.yml`. They are Stage 3 builds, after spikes 0.18 and 0.19.
 - **This planning repo is public** (checked 4 November 2026 with `gh repo view`; a signed-out browser could also open it). Anyone can read the plan, the cost model, the org names, `getai.ghe.com`, the gate's design and the identity names. Boroon to decide. Advice: make it private (Settings, General, Danger Zone, Change visibility). The catch: on GitHub Free, rulesets are not enforced on private repos, so `main` loses its ruleset unless the account is on Pro; with Boroon as the only writer that matters less. Making it private stops new readers but does not undo copies already made.
 - **Gate work is laptop work (decided 3 November 2026).** Connecting `getai.ghe.com` to Claude's cloud (Git providers) needs a Claude Team or Enterprise plan, and Boroon is on an individual plan. So any change to `GetAI-IP/factory-gates` runs from his laptop: a local Claude Code session, a cloud session attached to a laptop folder by Remote Control, or a cloud session that prepares a patch he applies (as in Session 9). The steps below are kept only in case a Team plan comes later (the docs cover GitHub Enterprise Server and say nothing about `*.ghe.com`).
   - **The steps** (from https://code.claude.com/docs/en/github-enterprise-server, read 3 November 2026; the page covers GitHub Enterprise Server and is silent on `*.ghe.com`). Needs the Owner or Primary Owner role in the Claude org (Team or Enterprise plan) and permission to create GitHub Apps on `getai.ghe.com`. (1) Create the empty private repo `GetAI-IP/factory-gates` (move step 2). (2) claude.ai, Organization settings, Git providers (https://claude.ai/admin-settings/source-control#github-enterprise), GitHub Enterprise section, Connect, "Set up automatically": display name up to 20 characters, hostname `getai.ghe.com`, leave the CA field empty. (3) Continue to GitHub Enterprise, review the pre-filled app, Create GitHub App. (4) Install the app on `factory-gates` only. (5) On claude.ai/code connect your own GitHub Enterprise account from the repository picker, then start a new session with the repo. If the guided redirect is blocked, use "Add manually" (needs app ID, client ID, client secret, webhook secret, private key; copy the webhook URL Claude generates into the app).
@@ -56,6 +70,82 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 15, 2026-11-07, branch `claude/session-15-live-build`
+
+The plan rewritten for live build in lane B (low-code). A local session on Boroon's laptop. Started from `main` at PR 23's merge (`1fcac59`), after checking that PR 23 (Session 14) is merged.
+
+Done:
+- Read `CLAUDE.md`, the Session 14 entry, assessment sections 3, 3.5 and 7, and the plan parts the change touches. Checked Microsoft Learn for the YAML export doubt: the format reference, the Git integration FAQ and the `pac solution` reference, all cited in plan 5.6.
+- Proposed the edits as a list (assessment section 7 items 1 to 7, 11 and 13, plus the lines elsewhere that would contradict the decision). Boroon said "Yes, as proposed", which took my picks on two choices: (A) the plan check diffs the PR's export against its base commit, in `static`, not against Test; (B) fix the contradicting lines now.
+- Two of Boroon's forked sessions asked, by message, for two additions, and they were folded in under his yes: a clear definition of "driver" (item 13), and the low-code versus pro-code meanings of "builder" and "driver" (item 14). One claim in the second was corrected against plan 4.2: Lane B's code profile has no trusted driver. The orchestrator dispatches the task, an `agentStop` hook runs the fast checks, and the cloud agent opens its own PR.
+- Edited `docs/sources/plan-v3.1.md` in place (now 2,659 lines):
+  - **Bottom line and 2.1:** live build in a clause each; rule 5's note.
+  - **5.1:** execution and lane-close rows, the flow text, and the new "Driver (low-code lane)" paragraph with Lane A's driver and the code profile.
+  - **5.2:** the cloud agent example.
+  - **5.4:** the reset gains leftover removal and a proof (export equals the reset commit, else Offline). A story resuming after a PARK or a NEEDS_WORK round resets to its own branch.
+  - **5.5:** the per-story row and the gate row.
+  - **5.6:**
+    - The headless YAML export doubt, with the XML fallback.
+    - "Builders and the drift gate" becomes "Live build, export as the record": the driver's export procedure and inventories; builders only for generators; code parts work the pro-code way; builders are low-code only.
+    - A new lane drift check: a second export equals the PR head, and no component sits outside the solution.
+    - The FlowAgent row and the plugin notes.
+  - **5.7:** the `build`, `static` and `verify-in-test` rows. The trusted scripts drop `create_schema.py --plan`, `create_security.py --plan` and `sync_solutions.py`, and add `export_lane.py`, `plan_from_export.py` and a standards lint. The builder-protection paragraph is rewritten.
+  - **5.10:** the floor inputs, the spec pass and the never-auto-merge line.
+  - **5.11:** a PARK or a safe stop exports the lane first, or the next reset would wipe the work.
+  - **5.12:** skills `lcp-live-build` (replaces `builder-pattern`) and `lcp-flow-patterns`, the new rules, and a context cap.
+  - **Other sections:** 5.15, 6.3, 6.7, 7.3, 7.4 and 8.2 in wording.
+  - **11.1:** spike 0.14 widened; new 0.18 (headless YAML export) and 0.19 (reset fidelity).
+  - **11.2:** stages 1 and 3 and the stage 3 drift exit test.
+  - **12:** new risk 12 (the YAML export doubt). Old 12 to 32 are now 13 to 33. Old 16 (now 17) is reworded for live build.
+  - **14.4:** a new row for the decision, including "nothing changes for pro-code".
+  - **15.1:** a new open question for the three spikes.
+  - **Appendix A:**
+    - The layout note and the job table.
+    - In `build`, the step name and comments.
+    - In `static`, the export-diff step and artifact.
+    - In `verify-in-test`, the Test plan step is gone and the export plan is downloaded.
+    - The pre-floor, verifier plan and floor read `export-plan.json`.
+    - The YAML still parses (checked with PyYAML in a scratch venv).
+  - **Appendices B and C:**
+    - B.1 has four low-code rows remapped, plus a note that pro-code rules come at Stage 5.
+    - The B.2 heading, B.4, and the B.6 rule names `export-additive` and `export-flow-logic`.
+    - C.1 `lcp-executor`: live build, inventories first, flow patterns, no export commands, the loop, commits, the context cap.
+    - C.3 reviewer point 1 (the export against `state.md`), and the C.4 layout.
+  - **Appendix D:** the D.2 Finding states.
+- **Beyond the approved list, small and needed for consistency:**
+  - the 5.4 resume rule and the 5.11 export-before-park, without which live build loses parked work;
+  - the 15.1 open question;
+  - the bottom-line clause;
+  - the 6.3 preset line;
+  - the B.6 `flow-definition-logic` rename;
+  - C.1 saying the agent commits only its own files.
+- Kept as history: section 1's V3.1 change list, the 14.1 "builder protection" row, and the older 14.4 Build 3 row.
+- Updated `CLAUDE.md`:
+  - the plan row, the assessment row and the factory-gates row;
+  - the line map (Session 15 line numbers; Appendix A now ahead of `factory-gates`);
+  - the plan in brief, plus "builder" changed to "worker" or "executor" where it meant the agent;
+  - Terms: Live build, Builder (low-code only), Driver (low-code lane), Driver (Lane A), Pro-code;
+  - 33 risks, 19 spikes, and one open question.
+- Read-only: the local clone of `GetAI-IP/factory-gates` (`85ad2b5`), to list the follow-ups accurately. Nothing changed there, on `getai.ghe.com`, in Azure DevOps or in the tenant.
+
+Decisions:
+- **Live build in lane B (low-code)** (Boroon, 7 November 2026). Agents build live in the lane. A trusted driver step, not the agent, exports and unpacks the solution, and that export is the PR's source. Builders stay only where Microsoft ships a generator: App Spec, `pac copilot`, code apps, PCF and plug-in source.
+- The plan check diffs the export against the PR's base commit, in `static` (choice A, Boroon's yes to the proposal).
+- "Driver" and "builder" are defined as above; pro-code is unchanged (Boroon's forked sessions, under his yes).
+
+Files changed: `docs/sources/plan-v3.1.md`, `CLAUDE.md`, `docs/progress.md`. The vault copy and the assessment are unchanged.
+
+Open items:
+- The factory-gates follow-ups (Open items, top of this file). A laptop gate slice for later.
+- Spikes 0.18, 0.19 and the widened 0.14 must pass before Stage 3. If 0.18 fails, the plan's fallback is XML for flows and tables, with canvas apps kept out of the night.
+- Assessment section 7 items 8, 9, 10, 12, 14 and 15 are still proposals (standards seed, `getai-lcp` preset additions, one ADO project per engagement, mining set, "start my day", inventories as a blast-radius input; the last is partly done: the reviewer now reads the inventories).
+- The one-pager and the Ways-of-Working page do not mention live build. Refresh them only if they are to be shared again.
+
+Next steps:
+1. Boroon: review this branch; a planning pull request when he asks.
+2. A spike session in `factory-lane-1`: 0.18 and 0.19 together, then the widened 0.14 (flow by the Web API as `getai-fl1-exec`).
+3. The factory-gates slice, on the laptop.
 
 ## Session 14, 2026-11-06, branch `claude/session-14-vault-assessment`
 

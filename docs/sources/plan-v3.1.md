@@ -2,7 +2,7 @@
 
 **The GET AI overnight software factory. Combined plan V3.1, focused on Lane B for Power Platform. 1 November 2026.** V3.1 is V3 plus 15 changes from the Lauren Tan and Matt Pocock transcripts (section 1.3).
 
-**Bottom line.** Build the Power Platform profile of Lane B first, and keep the rest of V2.1. By day, a spec owner shapes a high-level spec on Spec Kit 1.2 with the GET AI preset and a new Power Platform preset. Someone other than the worker writes the acceptance scenarios and locks them. A human then sets "Factory Eligible" in Azure DevOps (ADO). At night, Copilot CLI runs headless on a GitHub Actions runner in Australia, with pac and Microsoft's Power Platform skill plugins pre-installed. It builds one story per lane across a pool of three long-lived Sandbox environments that are Managed Environments. A required workflow in a separate gate repo runs only trusted checks. It imports the PR into a Test environment the worker cannot touch, runs locked Playwright, Web API, flow and Copilot Studio scenarios plus a held-out set, and then one to three fresh verifier sessions click through the app, more for riskier PRs. A deterministic Merge Danger floor scores every PR, and the review agent may raise that score but never lower it. Humans merge in the morning. Auto-merge is a rung on a trust ladder, not a phase: a project earns it per change class, only into the integration branch, only on evidence, and drops back on any escaped defect. `main` is always human. Four identity roles keep build, verify, review and merge apart, with per-lane identities for each lane's environment, all secretless over OIDC if pac federation works on GHE.com, which is the first spike. V3.1 adds a verification skill and CLI (`lcp-verify`) that the worker uses in its own loop, an outer loop that triages AI Managed Services client reports, Wayfinder discovery maps and overnight research tickets, and gardening scans that feed a findings list instead of PRs. Three dates force action now: no new unmanaged developer environments from 15 November 2026, suspension from 15 December 2026 and deletion from 15 January 2027. Power Apps Test Engine is deprecated, so all UI tests are Playwright. Copilot inference cannot stay in Australia today, so decide residency per client; BYOK to Azure OpenAI in Australia East is the only in-country path the research found. On our model a Power Platform story costs about USD 15 in AI credits and compute at list, and about USD 150 fully loaded, with human minutes about 80% of that. The biggest risk is still the credit ruling: run client work at cash until Microsoft answers in writing.
+**Bottom line.** Build the Power Platform profile of Lane B first, and keep the rest of V2.1. By day, a spec owner shapes a high-level spec on Spec Kit 1.2 with the GET AI preset and a new Power Platform preset. Someone other than the worker writes the acceptance scenarios and locks them. A human then sets "Factory Eligible" in Azure DevOps (ADO). At night, Copilot CLI runs headless on a GitHub Actions runner in Australia, with pac and Microsoft's Power Platform skill plugins pre-installed. It builds one story per lane across a pool of three long-lived Sandbox environments that are Managed Environments, live in the lane; a trusted driver step then exports the solution, and that export is the PR's source (decided 7 November 2026). A required workflow in a separate gate repo runs only trusted checks. It imports the PR into a Test environment the worker cannot touch, runs locked Playwright, Web API, flow and Copilot Studio scenarios plus a held-out set, and then one to three fresh verifier sessions click through the app, more for riskier PRs. A deterministic Merge Danger floor scores every PR, and the review agent may raise that score but never lower it. Humans merge in the morning. Auto-merge is a rung on a trust ladder, not a phase: a project earns it per change class, only into the integration branch, only on evidence, and drops back on any escaped defect. `main` is always human. Four identity roles keep build, verify, review and merge apart, with per-lane identities for each lane's environment, all secretless over OIDC if pac federation works on GHE.com, which is the first spike. V3.1 adds a verification skill and CLI (`lcp-verify`) that the worker uses in its own loop, an outer loop that triages AI Managed Services client reports, Wayfinder discovery maps and overnight research tickets, and gardening scans that feed a findings list instead of PRs. Three dates force action now: no new unmanaged developer environments from 15 November 2026, suspension from 15 December 2026 and deletion from 15 January 2027. Power Apps Test Engine is deprecated, so all UI tests are Playwright. Copilot inference cannot stay in Australia today, so decide residency per client; BYOK to Azure OpenAI in Australia East is the only in-country path the research found. On our model a Power Platform story costs about USD 15 in AI credits and compute at list, and about USD 150 fully loaded, with human minutes about 80% of that. The biggest risk is still the credit ruling: run client work at cash until Microsoft answers in writing.
 
 ## Contents
 
@@ -125,7 +125,7 @@ Humans own intent, spec approval and the merge. Agents build and verify overnigh
 |---|---|---|---|
 | **Outer loop** (AI Managed Services clients) | Business hours; last triage batch 16:00 | Client reports arrive from the service desk, Teams, alerts and ADO. A triage agent groups them, reproduces each group in `factory-test` with `lcp-verify`, and the orchestrator drafts an ADO bug with repro steps and evidence. A human decides (section 4.5) | Draft bugs with evidence; nothing reaches the night without Factory Eligible |
 | **Day gate** | Business hours, locked by 17:00 | Intake (optionally through the Copilot Studio front door). Wayfinder maps for foggy work. Spec Kit idea assessment, specify and clarify with the GET AI and Power Platform presets, asking one question at a time and only for decisions. Glossary and decision records updated. Test author writes acceptance scenarios; acceptance owners lock them. Mocks or throwaway prototypes approved for user-facing work. Human sets Factory Eligible. 17:00: the orchestrator builds the night plan from ADO, a grouping pass flags related items, and an acceptance owner approves it | Approved spec, locked scenarios, night plan |
-| **Night** | 21:47 to 05:00 | Kickoff and preflight. One story per lane: reset, build with Copilot CLI, verify in the lane with `lcp-verify`, fast checks, push, PR. Portal-only steps and decisions PARK. Lane drift check. Lane released. Research tickets run on their own runners | One PR per story, or a parked story; research notes |
+| **Night** | 21:47 to 05:00 | Kickoff and preflight. One story per lane: reset, build live in the lane with Copilot CLI, verify in the lane with `lcp-verify`, fast checks, then the driver exports the solution, pushes and opens the PR. Portal-only steps and decisions PARK. Lane drift check. Lane released. Research tickets run on their own runners | One PR per story, or a parked story; research notes |
 | **Verify** | On each PR, through the night | Required gate workflow: trusted static checks, import into Test, locked and held-out scenarios, one to three verifier sessions scaled by Merge Danger, two-axis review, Merge Danger. NEEDS_WORK goes back to a lane, two rounds at most | Evidence bundle, verdict, Merge Danger score |
 | **Morning** | 05:41 digest; 09:00 to 10:00 review | Teams card and ADO updates. Trace review agent drafts fixes. Humans read evidence, read one failed trace in full, resolve PARKs, approve PRs into `integration`, approve the release PR to `main` and the UAT deployment | Merged work, answered questions, logged review minutes |
 
@@ -149,7 +149,7 @@ Humans own intent, spec approval and the merge. Agents build and verify overnigh
 2. **The worker never decides it is done.** The gate and an isolated evaluator decide. Self-reported "done" counts for nothing.
 3. **Acceptance scenarios come from someone other than the worker.** They are locked before the night, and nothing at night weakens them.
 4. **A held-out set lives where the worker cannot read it.** Only aggregate results come back to the PR.
-5. **Credentials and untrusted code never share a job.** PR code (builders, the agent's own tests) runs only in jobs with no credentials. Jobs with credentials run only trusted scripts from the gate repo and treat PR files as data.
+5. **Credentials and untrusted code never share a job.** PR code (generator-backed builders, code parts, the agent's own tests) runs only in jobs with no credentials. Jobs with credentials run only trusted scripts from the gate repo and treat PR files as data.
 6. **Four identity roles: execute, verify, review, merge.** Each lane has its own execution and verification identities. None of them sits in any bypass list.
 7. **One story, one lane, one branch, one PR.** A lane runs one story at a time under a lock.
 8. **Code over click-ops.** A step that needs the portal or an interactive consent PARKs. Agents never invent inputs or work around the requirement.
@@ -389,10 +389,10 @@ This is the uploaded plan's Part B, corrected. The shape stays: ADO queue, sched
 | Day gate | Spec Kit 1.2 with the GET AI preset and the `getai-lcp` preset, in VS Code, Copilot CLI or the Copilot app | Human Copilot seats | Spec, clarify, design mocks, locked scenarios |
 | Work queue and system of record | ADO Boards, `getai` organisation, process "Agile build v1" | Orchestrator service principal | Stories tagged `factory-eligible` in "Ready to build". State changes come only from the orchestrator |
 | Orchestrator | `factory-control` repo: scheduled Actions (kickoff, dispatch, tick, digest) plus an Azure Function for GHE.com webhooks | Factory GitHub App; orchestrator service principal for ADO and Key Vault | Night plan, preflight, lane locks, dispatch, PARK handling, ADO state, provisional ledger rows |
-| Execution | Actions job in `factory-control`, GitHub environment `fl<n>-exec`, on an ephemeral runner in Australia | `getai-fl<n>-exec`, over OIDC | Per-story reset, one Copilot CLI session with the `lcp-executor` agent, in-loop checks with the lane copy of `lcp-verify`, fast checks, then the driver pushes and opens the PR |
+| Execution | Actions job in `factory-control`, GitHub environment `fl<n>-exec`, on an ephemeral runner in Australia | `getai-fl<n>-exec`, over OIDC | The driver resets the lane and starts one Copilot CLI session with the `lcp-executor` agent, which builds live in the lane with in-loop checks from the lane copy of `lcp-verify`; between stops the driver runs the fast checks; then it exports the solution, commits it, pushes and opens the PR |
 | Verification skill and CLI | `lcp-verify`: trusted source in `factory-gates`; a pinned copy vendored into each project repo | Whatever identity runs it: the lane's in the loop, Test's in the gate | Open apps, query Dataverse, run flows and Copilot Studio test sets, emit evidence JSON (section 5.9) |
 | Lane environments | `factory-lane-1` to `factory-lane-3`: Sandbox, Managed Environment, Australia region | Bootstrapped once by a human | Hold the manual OAuth connections. One story at a time |
-| Lane close | Last job of the execution workflow, still under the lane lock | `getai-fl<n>-verify` (read only) | Drift check of the lane against the repo; posts the `lane/drift` check; releases the lock |
+| Lane close | Last job of the execution workflow, still under the lane lock | `getai-fl<n>-verify` (read only) | Lane drift check: a second export must equal the PR head, and no component made by the lane identity may sit outside the solution; posts the `lane/drift` check; releases the lock |
 | Gate | Required workflow `lcp-gate.yml` in `factory-gates`, protected `release` branch (Appendix A) | No-credential jobs; a read-only gate App; `getai-<proj>-test` over OIDC | Trusted checks, import into Test, locked and held-out scenarios, evaluator, Merge Danger |
 | Test environment | `factory-test`: Sandbox, Managed Environment, Australia region | `getai-<proj>-test` and a certificate test user | Managed import of each PR; morning preview of `integration` |
 | Evaluator and verifiers | One to three fresh Copilot CLI sessions inside the gate's Test job, one per focus | Test user's browser session; no Dataverse write | Click-through of the app; PASS, NEEDS_WORK or RESTART |
@@ -408,16 +408,22 @@ ADO "Ready to build" + Factory Eligible + locked scenarios
   -> 17:00 night plan (acceptance owner approves)
   -> 21:47 kickoff: preflight every lane, bypass audit, budgets
   -> per lane, one story at a time, under lock lane-fl<n>:
-       reset -> Copilot CLI (lcp-executor, lane copy of lcp-verify) -> fast checks (max 5 loops)
-       -> driver pushes agent/fl<n>/<ado-id>-<attempt> and opens PR into integration
+       driver resets and proves the lane
+       -> Copilot CLI builds live in the lane (lcp-executor, lane copy of lcp-verify)
+       -> driver exports the solution and runs fast checks (max 5 loops)
+       -> driver commits the export, pushes agent/fl<n>/<ado-id>-<attempt>, opens PR into integration
        -> lane drift check -> release lock -> next story
   -> PR triggers lcp-gate (required workflow, trusted code only):
-       map -> locks -> build (no credentials) -> static (trusted)
-       -> verify-in-test (Test lock): plan, checker, import, locked, held-out, 1 to 3 verifiers
+       map -> locks -> build (no credentials) -> static (trusted; export-diff plan)
+       -> verify-in-test (Test lock): checker, import, locked, held-out, 1 to 3 verifiers
        -> danger (floor, two-axis raise-only review) -> merge policy (by rung)
   -> 05:41 digest; 09:00 to 10:00 humans approve -> merge queue -> integration
   -> release PR integration -> main (human) -> uat (approval) -> prod (approval)
 ```
+
+**The driver (low-code lane).** The trusted steps of the night execution workflow that run around the agent session. They come from the gate repo and are never written by the agent. Before the session, the driver resets the lane and starts the Copilot CLI session. Between stops it runs the fast checks, up to 5 loops. After the session it exports and unpacks the solution, commits it, pushes the branch and opens the PR. The agent builds in the lane and writes its handoff files. It never exports, commits the solution, pushes or opens the PR (decided 7 November 2026, section 14.4). The lane drift check is not part of the driver: it runs in the separate lane-close job as the lane's read-only verify identity.
+
+The same word means a little more elsewhere. **Lane A's SDK driver** (section 4.1) is the TypeScript program in the ACA job that runs the generator and evaluator sessions; it plays the same role for code builds, without the export. **Lane B's code profile has no trusted driver:** the orchestrator dispatches the task through the tasks API, an `agentStop` hook runs the fast checks, and the cloud agent pushes its own branch and opens its own PR (section 4.2). That is safe there because the gate builds and tests from the source itself.
 
 ### 5.2 The engine: Copilot CLI on an Actions runner
 
@@ -440,7 +446,7 @@ Why this engine:
 
 **Secondary engine: Claude Code at cash.** Same runner, same skill marketplace (Microsoft lists Claude Code for every plugin, and `dataverse@claude-plugins-official` exists ([Dataverse-skills](https://github.com/microsoft/Dataverse-skills))), same pac and Dataverse profiles, MCP via `claude mcp add` ([PAC MCP](https://learn.microsoft.com/power-platform/developer/howto/use-mcp)). Use `--max-budget-usd` and `--max-turns`. Bills the Anthropic API at cash; inference is offshore. Use it for bake-offs and as a fallback when the Copilot pool is spent.
 
-**The cloud agent: only where its limits allow.** It can reach Dataverse in principle: setup steps may request `id-token: write` and run OIDC logins ([configure MCP servers](https://github.com/github/docs/blob/main/content/copilot/how-tos/copilot-on-github/customize-copilot/configure-mcp-servers.md)), and a custom allowlist entry for `dynamics.com` covers `*.crm6.dynamics.com` ([customise the firewall](https://github.com/github/docs/blob/main/content/copilot/how-tos/copilot-on-github/customize-copilot/customize-the-firewall.md)). But the session stops at 59 minutes, including setup and tests. The default allowlist has no entry for `dynamics` or `login.microsoftonline.com` ([allowlist reference](https://github.com/github/docs/blob/main/content/copilot/reference/copilot-allowlist-reference.md)), and no source lists the full Power Platform host set. The firewall "only applies to processes started by the agent via its Bash tool". It cannot use OAuth remote MCP servers, sees only Agents secrets ([secrets](https://github.com/github/docs/blob/main/content/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/configure-secrets-and-variables.md)), and emits no OpenTelemetry. So use it only for bounded edits that need no live environment, such as a builder change checked by an offline pack. Test first, in stage 0: OIDC plus `pac auth create -ghf` in setup steps on GHE.com; an allowlist of `dynamics.com`, `login.microsoftonline.com`, `api.bap.microsoft.com`, `api.powerapps.com` and `powerplatform.com`; and whether a 45-minute story with one import fits.
+**The cloud agent: only where its limits allow.** It can reach Dataverse in principle: setup steps may request `id-token: write` and run OIDC logins ([configure MCP servers](https://github.com/github/docs/blob/main/content/copilot/how-tos/copilot-on-github/customize-copilot/configure-mcp-servers.md)), and a custom allowlist entry for `dynamics.com` covers `*.crm6.dynamics.com` ([customise the firewall](https://github.com/github/docs/blob/main/content/copilot/how-tos/copilot-on-github/customize-copilot/customize-the-firewall.md)). But the session stops at 59 minutes, including setup and tests. The default allowlist has no entry for `dynamics` or `login.microsoftonline.com` ([allowlist reference](https://github.com/github/docs/blob/main/content/copilot/reference/copilot-allowlist-reference.md)), and no source lists the full Power Platform host set. The firewall "only applies to processes started by the agent via its Bash tool". It cannot use OAuth remote MCP servers, sees only Agents secrets ([secrets](https://github.com/github/docs/blob/main/content/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/configure-secrets-and-variables.md)), and emits no OpenTelemetry. So use it only for bounded edits that need no live environment, such as a change to a code part (a Copilot Studio topic file, code app source) checked by an offline pack. Test first, in stage 0: OIDC plus `pac auth create -ghf` in setup steps on GHE.com; an allowlist of `dynamics.com`, `login.microsoftonline.com`, `api.bap.microsoft.com`, `api.powerapps.com` and `powerplatform.com`; and whether a 45-minute story with one import fits.
 
 **Where the research is uncertain.** `--githubFederated` on GHE.com is now confirmed (spike 0.2, 4 November 2026). The Copilot CLI billing path on GHE.com is not documented separately. Some Microsoft skills have plan-approval steps, and their headless behaviour is unknown. Copilot feature availability on GHE.com (CLI policy, OpenTelemetry, code review, cloud agent) was not researched. Each is a stage 0 item.
 
@@ -528,12 +534,13 @@ The orchestrator checks the rest, because these need tenant or admin reads that 
 
 Any failure marks the lane **Offline**, raises an ADO bug with the failing check, and puts it in the digest. The night runs on the remaining lanes.
 
-**Per-story reset (automated, before the agent starts).** A trusted `reset_environment.py` from the gate repo runs as the execution identity, in a step before the agent gets control:
+**Per-story reset (automated, before the agent starts).** A trusted `reset_environment.py` from the gate repo runs as the execution identity, as the driver's first step, before the agent gets control:
 
 1. Delete transactional test data: rows that carry a test-run tag, plus the tables the manifest lists. Batch size 10 at first; honour `Retry-After`.
-2. Import the unmanaged solution built from the head of `integration`, with overwrite and publish.
+2. Import the unmanaged solution built from the head of `integration`, with overwrite and publish. A story that resumes after a PARK or comes back for a NEEDS_WORK round starts from the head of its own branch instead, because under live build its work so far lives in that branch's export. A RESTART starts from `integration`.
 3. Re-apply the lane's environment variable values.
-4. Confirm with a quick export and diff.
+4. Remove leftovers. An unmanaged import adds and updates components but never deletes them, so a component an earlier story added stays in the lane, and under live build the next export would carry it into the next PR. The script deletes every component in the lane's solution that the reset commit does not hold, and any component the lane identity made outside the solution.
+5. Prove the reset. A fresh export, unpacked and canonicalised, must equal the reset commit exactly. A mismatch marks the lane Offline and raises an ADO bug with the diff; the night runs on the other lanes. Spike 0.19 tests this before Stage 3.
 
 Never use `pac admin reset` in the loop. It wipes connections, application users, hierarchy exclusions and the pipelines link, all of which a human bootstrapped. If design B pipelines link a lane, a reset also forces you to "re-create the environment record" ([pipelines](https://learn.microsoft.com/power-platform/alm/pipelines)).
 
@@ -550,9 +557,9 @@ Times are Sydney local. All estimates; stage 3 measures them.
 | By 17:00 | Night plan | The orchestrator queries ADO for Factory Eligible stories and research tickets in "Ready to build", orders them by priority and predecessors, assigns lanes, models and per-story budgets, and writes `factory/nights/<night_id>.json`. A grouping pass (one read-only Copilot CLI session, or a Copilot dynamic workflow once it leaves preview ([dynamic workflows](https://docs.github.com/en/copilot/concepts/agent-capabilities/agent-powered-workflows-and-operations/dynamic-workflows))) adds notes: likely duplicates, stories that touch the same table or flow, a shared root cause. Its notes are advice; the ordering stays deterministic. An acceptance owner approves the plan through a GitHub environment approval (waits are free) and decides on any merge of duplicates |
 | 21:47 | Kickoff | Preflight every lane. Bypass audit. Budgets and credit runway. Mint `night_id` |
 | 21:55 | Dispatch | One `workflow_dispatch` per free lane, paced from one job (secondary limit: 80 content-creating requests a minute ([rate limits](https://docs.github.com/en/enterprise-cloud@latest/rest/using-the-rest-api/rate-limits-for-the-rest-api))) |
-| Per story, about 60 to 75 minutes | Execution | Reset (10 to 15 min) -> Copilot CLI session (30 to 45 min, with `lcp-verify` in the lane) -> fast checks after each stop (builders, diff, pack, manifest, lints), up to 5 loops -> driver commits, pushes, opens a PR into `integration` with `Factory-Run-Id`, `AB#<id>` and the PR body (Appendix C.7) -> lane drift check (3 to 5 min) -> release lock |
+| Per story, about 60 to 75 minutes | Execution | Reset and its proof (10 to 15 min) -> Copilot CLI session building live in the lane (30 to 45 min, with `lcp-verify` in the lane) -> fast checks after each stop (the driver exports and unpacks the solution, then runs the generator check, pack, the manifest check and lints), up to 5 loops -> driver commits the last export, pushes, opens a PR into `integration` with `Factory-Run-Id`, `AB#<id>` and the PR body (Appendix C.7) -> lane drift check (3 to 5 min) -> release lock |
 | 22:00 to 04:00 | Research | Research tickets run on separate runners with no Dataverse identity, one session each, and open a docs-only PR |
-| On each PR, about 20 to 55 minutes | Gate | Static checks in parallel; then, under the Test lock: plan against the Test baseline, checker, import, locked and held-out scenarios, one to three verifiers by Merge Danger floor; then the two-axis review and Merge Danger |
+| On each PR, about 20 to 55 minutes | Gate | Static checks in parallel, including the export-diff plan; then, under the Test lock: checker, import, locked and held-out scenarios, one to three verifiers by Merge Danger floor; then the two-axis review and Merge Danger |
 | :13, :33, :53 | Tick | NEEDS_WORK: re-queue to the next free lane with `findings.md`, two rounds at most. RESTART: fresh branch, attempt plus 1. PARK: ADO "Awaiting business", next story. No new dispatch after 04:00 |
 | 05:41 | Digest | Teams card and ADO updates: PRs with score, door type and blast radius; PARKs with exact instructions; Copilot Studio items needing a human; cost per story |
 | 06:00 | Trace review | `trace-reviewer` reads failed, parked and restarted runs and drafts fixes as PRs |
@@ -564,18 +571,22 @@ Times are Sydney local. All estimates; stage 3 measures them.
 
 **Solution format.** Use the YAML source-control format for new projects. It gives "cleaner, more readable per-component diffs", supports multi-solution repos, and is the only format that holds canvas `.msapp` files and modern flows. Microsoft says use it "for all new projects" ([source control with solution files](https://learn.microsoft.com/power-platform/alm/use-source-control-solution-files)). It needs pac 2.4.1 or later ([pac solution](https://learn.microsoft.com/en-us/power-platform/developer/cli/reference/solution)). Keep existing XML repos on XML until a quiet week, then migrate; one format per repo. Put manifests under `solutions/<Name>/`, or the tool falls back to XML with a misleading error ([SolutionPackager troubleshooting](https://learn.microsoft.com/power-platform/alm/solution-packager-tool#troubleshooting)).
 
-Do not use native Dataverse Git integration for the factory yet. GitHub support entered public preview on 31 August 2026, it needs Managed Environments, it is for developer environments only, it uses a GitHub App and Key Vault, and no source says it supports GHE.com ([Git integration overview](https://learn.microsoft.com/en-us/power-platform/alm/git-integration/overview); [connect to GitHub](https://learn.microsoft.com/power-platform/alm/git-integration/connecting-to-github)). Keep `pac solution export` and `unpack` in Actions as the source of truth.
+**A headless YAML export is not yet proven.** Live build makes the driver's export the PR's source, and Microsoft's pages disagree on which commands write YAML. The format reference says `pac solution clone` and `pac solution sync` extract to it ([YAML format reference](https://learn.microsoft.com/power-platform/alm/solution-source-control-yaml-format)). The Git integration FAQ says `unpack`, `clone` and `sync` "don't currently support YAML format" ([Git integration FAQ](https://learn.microsoft.com/power-platform/alm/git-integration/faqs)). The `pac solution` reference says `unpack` writes XML by default and `clone` writes YAML ([pac solution](https://learn.microsoft.com/power-platform/developer/cli/reference/solution#pac-solution-unpack)). Spike 0.18 settles it as the lane identity before Stage 3. If it fails, use the XML layout for flows and tables (the layout the Get AI Engineer's past engagement used) and keep canvas apps out of the night until Microsoft's tooling catches up. Either way, one format per repo.
 
-**Builders and the drift gate.** Microsoft does not support hand-editing `customizations.xml` for tables, columns, processes, plug-ins, security roles and more ([when to edit the customisations file](https://learn.microsoft.com/power-platform/alm/when-edit-customization-file)). So:
+Do not use native Dataverse Git integration for the factory yet. GitHub support entered public preview on 31 August 2026, it needs Managed Environments, it is for developer environments only, it uses a GitHub App and Key Vault, and no source says it supports GHE.com ([Git integration overview](https://learn.microsoft.com/en-us/power-platform/alm/git-integration/overview); [connect to GitHub](https://learn.microsoft.com/power-platform/alm/git-integration/connecting-to-github)). Keep the driver's export in Actions (`pac solution export` and `unpack`, or `clone`, whichever spike 0.18 shows writes YAML headless) as the source of truth.
 
-1. Builders emit the YAML format. Agents edit builder inputs and per-component builders, never generated output.
-2. Builders are deterministic: stable ordering, no timestamps, no fresh GUIDs on a re-run, fixed line endings. Otherwise the drift gate flaps.
-3. One builder owns version stamps, which otherwise live in several files at once [secondary] ([Flowline wiki](https://github.com/RemyDuijkeren/Flowline/wiki/11-Philosophy) [snippet]).
-4. Where Microsoft already has a generator, wrap it and drift-check its output: `pa app add data-source` and `pa app refresh data-source` for code apps ([pa CLI](https://learn.microsoft.com/power-apps/developer/code-apps/reference/cli)), `pac copilot pack` for agents, and the model-apps App Spec. Microsoft's own model-apps plugin follows this loop: spec, lint, dry-run, idempotent apply, verify, "downloads a deployed app back into an editable App Spec" ([model-apps README](https://github.com/microsoft/power-platform-skills/blob/main/plugins/model-apps/README.md)).
+**Live build, export as the record (decided 7 November 2026, section 14.4).** Microsoft's supported loop for solution source is to change components in the environment with the normal tools, then export and extract again; it does not support hand-editing extracted component files, outside the few `customizations.xml` sections it lists ([source control with solution files](https://learn.microsoft.com/power-platform/alm/use-source-control-solution-files); [when to edit the customisations file](https://learn.microsoft.com/power-platform/alm/when-edit-customization-file)). A script that writes flow JSON or table XML is the same unsupported edit, so the low-code lane does not use per-component builders. Instead:
 
-The gate then runs, in order: every builder; a drift check that fails on any change from the commit, including a new file a builder wrote (`git diff --exit-code` alone misses an output file that was never committed, and pack would then ship it unreviewed); `pac solution pack`; **a manifest check**; the solution checker. The manifest check exists because pack can drop a component silently. If a component is in `rootcomponents.yml` but its files are missing, "The tool still succeeds (exit code 0) and produces a valid .zip file, but the declared component is omitted" ([SolutionPackager troubleshooting](https://learn.microsoft.com/power-platform/alm/solution-packager-tool#troubleshooting)). The check fails if any declared root component has no files, or if the packed zip's component list differs from the declared list.
+1. **The agent builds live in its lane,** through supported tools only: pac, the Dataverse Web API (a solution-aware cloud flow is a row in the `workflows` table), Dataverse MCP and the model-apps App Spec apply. It never edits exported solution files.
+2. **The driver exports, not the agent** (section 5.1). After each stop it exports and unpacks the lane's solution into a clean tree and replaces `src/` with it, which throws away any agent edit there. It follows the Get AI Engineer's export procedure: a fixed solution scope; ZIP timestamp churn is not drift; files the export no longer produces are listed in the PR body as removals, so a removal is never silent; any failure stops the run. It writes inventories of components, environment variables and connection references (values redacted), which the executor and the reviewer read before the source. It owns the solution version stamp, which otherwise lives in several files at once [secondary] ([Flowline wiki](https://github.com/RemyDuijkeren/Flowline/wiki/11-Philosophy) [snippet]). So the PR's solution files come from trusted tooling, not from the model.
+3. **Builders stay only where Microsoft ships a generator.** The App Spec is a generator input: kept in Git, applied in the lane, and checked against the export. Microsoft's model-apps plugin follows this loop: spec, lint, dry-run, idempotent apply, verify, and it "downloads a deployed app back into an editable App Spec" ([model-apps README](https://github.com/microsoft/power-platform-skills/blob/main/plugins/model-apps/README.md)). **The code parts inside a solution work the pro-code way, even in the low-code lane:** PCF controls, plug-ins, code apps (`pa app add data-source` and `pa app refresh data-source` ([pa CLI](https://learn.microsoft.com/power-apps/developer/code-apps/reference/cli))) and Copilot Studio agent files (`pac copilot pack`) are kept as source in Git and built by Microsoft's tools. Their output must be stable on a re-run (ordering, timestamps, GUIDs, line endings), or the drift check flaps.
+4. **Canvas apps stay day work** in Studio (table below).
 
-**The lane drift check.** After the agent finishes, the lane-close job exports the lane's solution, unpacks it and compares it with the PR's source. Anything in the environment that is not in the repo is drift, and drift blocks the PR. This catches an agent that changed the environment through the Web API or MCP and skipped the builders. Dataverse re-serialises on export, so compare canonicalised files [secondary] ([DataverseDrift](https://www.nuget.org/packages/DataverseDrift) [snippet]). Run a weekly round-trip test on `integration` the same way.
+Builders are a low-code idea only. Pro-code never had them: the agent edits the source, and the gate builds and tests it.
+
+The gate then runs, in order: every generator-backed builder; a drift check that fails on any change from the commit, including a new file a builder wrote (`git diff --exit-code` alone misses an output file that was never committed, and pack would then ship it unreviewed); `pac solution pack`; **a manifest check**; the solution checker. The manifest check exists because pack can drop a component silently. If a component is in `rootcomponents.yml` but its files are missing, "The tool still succeeds (exit code 0) and produces a valid .zip file, but the declared component is omitted" ([SolutionPackager troubleshooting](https://learn.microsoft.com/power-platform/alm/solution-packager-tool#troubleshooting)). The check fails if any declared root component has no files, or if the packed zip's component list differs from the declared list.
+
+**The lane drift check.** After the driver opens the PR, the lane-close job, still under the lane lock, runs two checks as the lane's read-only verify identity. First, a second export, unpacked and canonicalised, must equal the PR head: nothing changed in the lane after the driver's export. Second, a query finds any component the lane identity created that is not in the solution: a side change the export would never show. Either one is drift, and drift blocks the PR. Dataverse re-serialises on export, so compare canonicalised files [secondary] ([DataverseDrift](https://www.nuget.org/packages/DataverseDrift) [snippet]) and ignore ZIP timestamp churn. Run a weekly round-trip test on `integration` the same way.
 
 **Copilot Studio agents as code.** `pac copilot init | clone | pull | push | pack` gives a Git-friendly workspace (`agent.mcs.yaml`, `topics/*.mcs.yaml`, `actions/`, `knowledge/`, `workflows/*/workflow.json`, `settings.mcs.yml`, connection references). `pack` "is a local operation ... needs no authentication and no environment, so it's safe to run in a build pipeline" ([pac copilot](https://learn.microsoft.com/power-platform/developer/cli/reference/copilot)). Rules:
 
@@ -596,11 +607,11 @@ The gate then runs, in order: every builder; a drift check that fails on any cha
 | PAC CLI MCP, `pac copilot mcp --run` ([Learn](https://learn.microsoft.com/power-platform/developer/howto/use-mcp)) | The active pac profile | Optional. Microsoft frames it as "designed for local development and testing purposes" |
 | Copilot Studio MCP ([Learn](https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/copilot-studio-mcp)) | Browser sign-in | Day only |
 | Canvas Authoring MCP ([AGENTS.md](https://github.com/microsoft/power-platform-skills/blob/main/plugins/canvas-apps/AGENTS.md)) | Needs an open Studio coauthoring tab | Day only |
-| FlowAgent MCP (power-automate plugin) ([README](https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-automate)) | `az login` plus MSAL | Optional after a spike; builders first |
+| FlowAgent MCP (power-automate plugin) ([README](https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-automate)) | `az login` plus MSAL, as a user | Night use only if spike 0.14 shows it works as the lane identity; otherwise flows go in through the Web API as `workflows` rows |
 
-Night default: pac plus trusted helper scripts for the Web API. Spike 0.3 (6 November 2026) cleared Dataverse MCP for night use as the lane's execute identity; writes stay on pac and trusted scripts until Stage 3 decides, and whether MCP becomes the default for fact lookups is open (Boroon). MCP writes are recorded against the lane's application user. Any write through MCP still changes the environment, so the lane drift check catches it if it skips the builders.
+Night default: the agent builds through pac and trusted helper scripts for the Web API, flows included. Spike 0.3 (6 November 2026) cleared Dataverse MCP for night use as the lane's execute identity; writes stay on pac and trusted scripts until Stage 3 decides, and whether MCP becomes the default for fact lookups is open (Boroon). MCP writes are recorded against the lane's application user. They land in the lane like any other write, so the driver's export carries them into the PR, and the lane drift check catches any that fall outside the solution.
 
-**Microsoft's skill plugins.** `microsoft/power-platform-skills` ships 11 plugins for Copilot CLI and Claude Code, MIT-licensed, and its installer also installs pac and enables auto-update ([README](https://github.com/microsoft/power-platform-skills)). `microsoft/Dataverse-skills` adds `dv-connect`, `dv-query`, `dv-data`, `dv-metadata`, `dv-solution`, `dv-security` and more ([README](https://github.com/microsoft/Dataverse-skills)). Rules: vendor and pin a commit; turn telemetry off with `POWER_PLATFORM_SKILLS_TELEMETRY_<PLUGIN>_OPTOUT`; read each version in full before adoption, because agents execute this code (the policy in section 8.3); treat `code-apps-preview` and `pcf` as preview.
+**Microsoft's skill plugins.** `microsoft/power-platform-skills` ships 11 plugins for Copilot CLI and Claude Code, MIT-licensed, and its installer also installs pac and enables auto-update ([README](https://github.com/microsoft/power-platform-skills)). `microsoft/Dataverse-skills` adds `dv-connect`, `dv-query`, `dv-data`, `dv-metadata`, `dv-solution`, `dv-security` and more ([README](https://github.com/microsoft/Dataverse-skills)). Rules: vendor and pin a commit; turn telemetry off with `POWER_PLATFORM_SKILLS_TELEMETRY_<PLUGIN>_OPTOUT`; read each version in full before adoption, because agents execute this code (the policy in section 8.3); treat `code-apps-preview` and `pcf` as preview. The canvas plugin is day only, because it needs an open Studio tab. The Power Automate plugin signs in as a user, so its night use waits on spike 0.14.
 
 **What still needs the portal, and therefore PARKs or stays in bootstrap.**
 
@@ -631,12 +642,12 @@ The uploaded plan's PR checks ran the agent's own scripts from the PR branch, wi
 |---|---|---|---|
 | `map` | No | Read-only gate App token | Lane from the branch name `agent/fl<n>/<ado-id>-<attempt>`, validated against an allowed list. Trusted, hash-checked script. Hands `build` its two hash-checked scripts as a one-day artifact |
 | `locks` | No | Read-only gate App token | Second lock on protected paths; locked scenarios and the spec unchanged against the base. Trusted, hash-checked script; a rename counts as a delete plus an add |
-| `build` | **Yes** (builders) | **None**: `contents: read`, no `id-token` | Builders and the drift check against the commit, offline `pac solution pack` and `pac copilot pack`. Uploads the zips. Gets its two scripts from `map`, because it cannot check out the private gate repo without a token |
-| `static` | No | Read-only gate App token | Trusted scripts from the gate repo, hash-checked, read the PR files and zips as data: manifest check, lints, criteria trace |
-| `verify-in-test` | No (locked tests are proven unchanged by `locks`) | `getai-<proj>-test` over OIDC, pinned to the gate workflow; test user certificate | Plan against the Test baseline, solution checker SARIF, import, locked scenarios, Playwright, Copilot Studio conversations, held-out set, evaluator |
+| `build` | **Yes** (generator-backed builders and code parts) | **None**: `contents: read`, no `id-token` | Generator-backed builders and their drift check against the commit, offline `pac solution pack` and `pac copilot pack`. Uploads the zips. Gets its two scripts from `map`, because it cannot check out the private gate repo without a token |
+| `static` | No | Read-only gate App token | Trusted scripts from the gate repo, hash-checked, read the PR files and zips as data: manifest check, export-diff plan check, lints, criteria trace |
+| `verify-in-test` | No (locked tests are proven unchanged by `locks`) | `getai-<proj>-test` over OIDC, pinned to the gate workflow; test user certificate | Solution checker SARIF, import, locked scenarios, Playwright, Copilot Studio conversations, held-out set, evaluator |
 | `danger` | No | Job token with `checks: write`; Copilot requests | Deterministic floor, raise-only review agent, merge policy |
 
-Trusted scripts from the uploaded plan move into the gate repo: `run_workflow.py`, `lint_logic_apps.py` (fails on an `if()` expression over 8,192 characters or unsafe substrings), `check_root_components.py`, `create_schema.py --plan`, `create_security.py --plan`, `sync_solutions.py` and `reset_environment.py`. New trusted scripts: the protected-paths check (`check_protected_paths.py`, run by `locks`), the builder drift check (`check_builders.py`) and the offline pack wrapper (`pack_offline.py`), both run by `build` and so only as trusted as that credential-free job, the manifest check, a static-results lint, a `.pa.yaml` schema lint against Microsoft's published schema ([canvas source](https://learn.microsoft.com/power-apps/maker/canvas-apps/power-apps-yaml)), an accessible-label lint, a criteria-to-scenario trace, a prototype lint, the Merge Danger floor and pre-floor, the verifier plan, the trusted `lcp-verify` CLI and the merge policy by rung. The gate verifies a `scripts.sha256` manifest before running any of them. The manifest covers every file in the gate repo that a job reads, not only scripts: prompts, rubrics, agent definitions, `danger-rules.yml`, `trust.yml` and project settings (decided 3 November 2026). Only tests, docs, test-only files and the workflow folder sit outside it.
+Trusted scripts from the uploaded plan move into the gate repo: `run_workflow.py`, `lint_logic_apps.py` (fails on an `if()` expression over 8,192 characters or unsafe substrings), `check_root_components.py` and `reset_environment.py`. Live build (7 November 2026) drops `create_schema.py --plan`, `create_security.py --plan` and `sync_solutions.py`: no builder writes tables or roles any more. New trusted scripts: the protected-paths check (`check_protected_paths.py`, run by `locks`), the generator drift check (`check_builders.py`, now limited to generator-backed parts) and the offline pack wrapper (`pack_offline.py`), both run by `build` and so only as trusted as that credential-free job; the driver's export (`export_lane.py`, run under the lane lock as the execution identity, like `reset_environment.py`); the export-diff plan check (`plan_from_export.py`, run by `static` with no Dataverse credentials: it diffs the exported table, column, choice and role definitions against the PR's base commit and feeds Appendix B.2); the manifest check; a standards lint for the "rule" standards in `coding-standards.md`, once they are adopted; a static-results lint, a `.pa.yaml` schema lint against Microsoft's published schema ([canvas source](https://learn.microsoft.com/power-apps/maker/canvas-apps/power-apps-yaml)), an accessible-label lint, a criteria-to-scenario trace, a prototype lint, the Merge Danger floor and pre-floor, the verifier plan, the trusted `lcp-verify` CLI and the merge policy by rung. The gate verifies a `scripts.sha256` manifest before running any of them. The manifest covers every file in the gate repo that a job reads, not only scripts: prompts, rubrics, agent definitions, `danger-rules.yml`, `trust.yml` and project settings (decided 3 November 2026). Only tests, docs, test-only files and the workflow folder sit outside it.
 
 **3. Rulesets lock the paths, the branches and the bypass list,** following V2.1's stack ([available rules](https://docs.github.com/en/enterprise-cloud@latest/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)):
 
@@ -645,7 +656,7 @@ Trusted scripts from the uploaded plan move into the gate repo: `run_workflow.py
 - **`protected-paths`** (push ruleset): `tests/acceptance/**` (including the verify profiles in `tests/acceptance/verify/`), `tests/scenarios/**`, `specs/*/spec.md`, `specs/*/checklists/**`, `glossary.md`, `docs/adr/**`, `coding-standards.md`, `.specify/**`, `.github/**`, `AGENTS.md`, `CLAUDE.md`, `.claude/**` (skills, including the vendored `lcp-verify`), `.mcp/**`, `scripts/**`, `builders/lib/**`, `deploy/**`. Bypass: `@acceptance-owners` and the platform team only.
 - **`factory-required-workflows`** (organisation) as above. A nightly audit fails the kickoff if any App, machine account, the write role or Copilot appears in a bypass list. GitHub's docs suggest adding Copilot as a bypass actor when a ruleset blocks it: that is the trap.
 
-**A refinement of the review's fix.** The review listed `workflows/build/` among the push-protected paths. In the uploaded repo those are the per-component builders: the agent must edit them to change any flow. So this plan protects the shared builder library (`builders/lib/**`) and every check script, and leaves per-component builders writable. Every builder change gets a Merge Danger floor of at least 3, so a human always merges it. The intent of the fix holds: the agent cannot edit any check it is judged by, because the builder check proves only that generated files match their builders.
+**A refinement of the review's fix, and what live build changes.** The review listed `workflows/build/` among the push-protected paths. In the uploaded repo those were the per-component builders, which the agent had to edit to change any flow, so V3.1 protected only the shared builder library and every check script and left the builders writable. Live build (7 November 2026) removes per-component builders: the agent changes flows and tables in the lane, and the driver overwrites `src/` with its own export, so an agent edit there never reaches the PR. `builders/lib/**` stays protected for any generator wrapper a project keeps. Generator inputs and code parts stay writable, and the Appendix B.1 floors decide who merges them. The intent of the fix holds: the agent cannot edit any check it is judged by, and it no longer writes the solution source at all.
 
 **GitHub environments.** One per identity: `fl1-exec` to `fl3-exec`, `fl1-verify` to `fl3-verify`, `lcp-test`, `uat`, `prod`. Deployment branch rules restrict `uat` and `prod` to `main` and the release workflow, with required reviewers and "Prevent self-review" on ([environments](https://docs.github.com/en/enterprise-cloud@latest/actions/reference/workflows-and-actions/deployments-and-environments)). Branch rules do not fit PR-triggered gate jobs, so the gate's own protection comes from the `job_workflow_ref` subject pin (section 5.3).
 
@@ -761,16 +772,16 @@ Merge Danger, blast radius and one-way versus two-way doors make a better mornin
 
 **The floor is deterministic.** A trusted script computes it from three inputs (Appendix B):
 
-1. **Changed paths.** For example: docs and handoff files score 0; additive builder inputs 2; any builder, flow logic or Copilot Studio topic change 3; a new connection reference 5; a security role 7; pipeline settings 9; tests, scripts, workflows, hooks or agent instructions 10, and they are protected.
-2. **Plan output.** `create_schema.py --plan` and `create_security.py --plan`, run against the Test baseline, flag type changes (6), privilege changes (7 or 8), column drops (8) and table drops (9). That makes one-way-door detection deterministic.
+1. **Changed paths.** For example: docs and handoff files score 0; additive exported views, forms or columns 2; flow logic, any other exported file, a generator input or a Copilot Studio topic change 3; a new connection reference 5; a security role 7; pipeline settings 9; tests, scripts, workflows, hooks or agent instructions 10, and they are protected.
+2. **Plan output.** `plan_from_export.py` diffs the exported table, column, choice and role definitions against the PR's base commit, and flags type changes (6), privilege changes (7 or 8), column drops (8) and table drops (9). That makes one-way-door detection deterministic, and it needs no Dataverse credentials. It compares against the base commit, not the Test environment, because Test holds whichever PR was imported last.
 3. **Gate results.** Any checker finding at High, any drift or any held-out failure raises the floor.
 
 **The LLM may only raise it, from two passes.** The review agent (`lcp-reviewer`, read-only) runs as two fresh sessions in parallel, as Pocock's review skill does [Pocock v1.1 6:09 to 6:47]:
 
 - **Standards pass.** Does the change follow the project's `coding-standards.md` and avoid the named smells in Appendix B.4? Coding standards live outside `AGENTS.md`, because review is where they earn their keep.
-- **Spec pass.** Does it faithfully implement the story's spec and locked scenarios, and nothing more? Builder correspondence, scenario coverage, decision records, out-of-scope changes, blast radius.
+- **Spec pass.** Does it faithfully implement the story's spec and locked scenarios, and nothing more? Whether the export matches the changes recorded in `state.md`, scenario coverage, decision records, out-of-scope changes, blast radius.
 
-Both read the diff, both plans, the evidence, `glossary.md` and `docs/adr/`. Each may raise the score, with a written reason. Final score = max(floor, standards score, spec score). The output is JSON plus a check run and a comment. It never submits a PR review and never fixes code. Refactoring it suggests goes to the findings list (section 7.4), not into the PR.
+Both read the diff, the export-diff plan, the inventories, the evidence, `glossary.md` and `docs/adr/`. Each may raise the score, with a written reason. Final score = max(floor, standards score, spec score). The output is JSON plus a check run and a comment. It never submits a PR review and never fixes code. Refactoring it suggests goes to the findings list (section 7.4), not into the PR.
 
 **Thresholds** (kept from the uploaded plan):
 
@@ -791,7 +802,7 @@ Rungs are set per project and per change class in `gate/projects/<proj>/trust.ym
 | **L2** | As L1 | Auto-merge for eligible classes at final score 0 to 2; humans review a sample after merge | Per class: 60 days at L2 with no drop-back, and a named floor-3 class passing two verifiers for 30 days | Any escaped defect in the class; sampled defect rate above 2% (assumption); profile smoke failing two nights running; agreement below 80% two weeks running |
 | **L3** [untested] | As L1, with two or three verifiers | Auto-merge for named floor-3 classes (flow logic inputs, Copilot Studio topics, code app source) when every verifier passes; a larger sample | Not defined; set at the first L3 review | As L2 |
 
-`main` is always human, at every rung. Per-component builders, protected paths and anything with a floor of 4 or more never auto-merge, at any rung. Every check must be green, including `lane/drift`.
+`main` is always human, at every rung. Rows marked "Never" in Appendix B.1, protected paths and anything with a floor of 4 or more never auto-merge, at any rung. Every check must be green, including `lane/drift`.
 
 **To climb from L1 to L2, per change class, all of these hold:**
 
@@ -847,11 +858,11 @@ The digest shows both, with the gate's part first.
 
 1. It writes `handoff/<ado-id>/park.json`: `type` (portal_step, design_approval, ambiguity, one_way_door, budget), `instruction` (exact steps for a human), `evidence` (paths), `facts_checked` (the sources it read, for `ambiguity`), `resume_hint`. For `ambiguity`, the instruction states the decision needed and why it matters.
 2. It prints `PARK: <instruction>` as its last line and ends the session. The driver exits with code 3.
-3. The driver commits the work so far and pushes the branch, without opening a PR, so the gate does not run on parked work.
+3. The driver exports the lane's solution, commits it with the work so far and pushes the branch, without opening a PR, so the gate does not run on parked work. Under live build the work lives in the lane until this export, and the next story's reset would wipe it.
 4. The execution workflow reports the PARK to the orchestrator, which sets ADO to "Awaiting business", copies the instruction into Blocked Reason, links the branch, releases the lane and dispatches the next story.
 5. In the morning a human does the step, records it in the work item, and sets the story back to "Ready to build". The next night resumes from the branch and the handoff files.
 
-**Stops that are not a PARK.** A timeout, an exhausted credit or iteration cap, or a killed replica ends a run with no `park.json`. The driver, not the agent, makes the stop safe: it commits any uncommitted work as one `wip:` commit (one line in the body if the tree is broken), pushes the branch without opening a PR, appends a decision-log row with result `INCONCLUSIVE` and the `run_id`, and leaves `state.md` and `learnings.json` as they are so the next run resumes from them. ADO moves by the state table above (caps exhausted goes to Needs rework). Idea from Lauren Tan's `pause-safely` playbook, moved into the driver because a night run cannot rely on the agent to stop itself. `[untested]`; check it in the Stage 3 driver spec and spike 0.8 (killed replica).
+**Stops that are not a PARK.** A timeout, an exhausted credit or iteration cap, or a killed replica ends a run with no `park.json`. The driver, not the agent, makes the stop safe: it exports the lane's solution if the lane still answers, commits it and any uncommitted work as one `wip:` commit (one line in the body if the tree is broken), pushes the branch without opening a PR, appends a decision-log row with result `INCONCLUSIVE` and the `run_id`, and leaves `state.md` and `learnings.json` as they are so the next run resumes from them. ADO moves by the state table above (caps exhausted goes to Needs rework). Idea from Lauren Tan's `pause-safely` playbook, moved into the driver because a night run cannot rely on the agent to stop itself. `[untested]`; check it in the Stage 3 driver spec and spike 0.8 (killed replica).
 
 Lane faults are different: a failed preflight marks the lane Offline and raises an ADO bug against the lane, not the story.
 
@@ -861,19 +872,19 @@ The uploaded plan's prompts become custom agents plus `AGENTS.md` and skills, so
 
 | File | Holds |
 |---|---|
-| `AGENTS.md` (about 100 lines; `CLAUDE.md` points to it) | A map: repo layout, the builder pattern, where scenarios live, the PARK protocol, links to skills. Not a manual |
+| `AGENTS.md` (about 100 lines; `CLAUDE.md` points to it) | A map: repo layout, the live-build loop, where scenarios live, the PARK protocol, links to skills. Not a manual |
 | `.github/agents/lcp-executor.agent.md` | The execution rules (below) |
 | `factory-gates/.github/agents/lcp-evaluator.agent.md` | Harsh grading, evidence for every claim, verdict JSON |
-| `factory-gates/.github/agents/lcp-reviewer.agent.md` | Raise-only scoring, builder correspondence, blast radius |
-| `.claude/skills/` | `builder-pattern`, `dataverse-safe-api` (backoff, batching, run tags), `park-protocol`, `lcp-verify`, `pr-body`, `rubric-lcp-app`, `rubric-lcp-flow`, `rubric-copilot-agent`, plus Microsoft's vendored plugins |
+| `factory-gates/.github/agents/lcp-reviewer.agent.md` | Raise-only scoring, the export checked against `state.md`, blast radius |
+| `.claude/skills/` | `lcp-live-build` (how to change the lane through supported tools; replaces `builder-pattern`), `lcp-flow-patterns` (flow patterns, seeded from the Get AI Engineer's eight), `dataverse-safe-api` (backoff, batching, run tags), `park-protocol`, `lcp-verify`, `pr-body`, `rubric-lcp-app`, `rubric-lcp-flow`, `rubric-copilot-agent`, plus Microsoft's vendored plugins |
 | `coding-standards.md`, `glossary.md`, `docs/adr/` | Practice standards for the reviewer; domain terms mapped to schema names; decisions on the non-obvious (sections 6.2 and 7.1). Kept out of `AGENTS.md` |
 
-The uploaded plan's execution rules all survive in `lcp-executor` (Appendix C.1): code over click-ops with PARK on portal-only steps; never inject identity, rely on `x-ms-object-id`; design first, halting without an approved mock; one branch, now pushed by the driver; and update `state.md` and `docs/lessons-learned.md`. New rules: edit builder inputs, never generated output; never touch protected paths; use the backoff helper; poll Entra changes; stop at the credit cap; look facts up and PARK only on decisions and one-way doors. The review prompt's rules survive in `lcp-reviewer` (Appendix C.3).
+The uploaded plan's execution rules all survive in `lcp-executor` (Appendix C.1): code over click-ops with PARK on portal-only steps; never inject identity, rely on `x-ms-object-id`; design first, halting without an approved mock; one branch, now pushed by the driver; and update `state.md` and `docs/lessons-learned.md`. New rules: build live in the lane through supported tools, never edit exported files, and leave the export to the driver; read the inventories before the source; end the session at the context cap (about a third of the window) so the driver can start a fresh one; never touch protected paths; use the backoff helper; poll Entra changes; stop at the credit cap; look facts up and PARK only on decisions and one-way doors. The review prompt's rules survive in `lcp-reviewer` (Appendix C.3).
 
 **How the executor builds: TDD at the seams.** From Pocock's implement and TDD skills [Pocock v1.1 5:09 to 5:24; 12:55 to 13:13]:
 
 - **Red before green, one slice at a time,** at the seams the spec's testability contract names (control names, schema names, flow names, trigger audience). The executor writes its own check in `tests/dev/<ado-id>/` or as an `lcp-verify` call, sees it fail, then builds. Its own tests are not acceptance evidence: agent tests mostly assert nothing (section 3.4).
-- **Builders and lints often;** one scenario at a time while building; the **full lane suite once at the end** (the locked scenarios and the profile's journeys, through `lcp-verify` in the lane).
+- **`lcp-verify` and lints often;** one scenario at a time while building; the **full lane suite once at the end** (the locked scenarios and the profile's journeys, through `lcp-verify` in the lane).
 - **No refactoring outside the ticket.** If it sees one, it notes it in the PR body under "Refactor candidates". Refactoring belongs to review, not the build loop.
 - Locked acceptance tests stay authored by someone else.
 
@@ -906,7 +917,7 @@ UAT and Prod must be Managed Environments, because pipelines now block unmanaged
 
 | | Design A: GitHub Actions does it (default) | Design B: Power Platform pipelines |
 |---|---|---|
-| Build | Managed zip built from `main` by the trusted builder; `pac solution check` | Same build, then `pac pipeline deploy --wait` ([pac pipeline](https://learn.microsoft.com/power-platform/developer/cli/reference/pipeline)) |
+| Build | Managed zip packed from `main` by trusted tooling; `pac solution check` | Same build, then `pac pipeline deploy --wait` ([pac pipeline](https://learn.microsoft.com/power-platform/developer/cli/reference/pipeline)) |
 | Approval | GitHub environments `uat` and `prod` with required reviewers and "Prevent self-review" | Delegated deployment: "All delegated deployments are pending until approved" ([delegated deployments](https://learn.microsoft.com/en-us/power-platform/alm/delegated-deployments-setup)), through an `OnApprovalStarted` flow or the admin deployment page ([extend pipelines](https://learn.microsoft.com/en-us/power-platform/alm/extend-pipelines)) |
 | Import | `pac solution import --settings-file` as `getai-<proj>-deploy` over OIDC | The pipeline stage deploys as the delegate service principal |
 | Secrets | None, if pac federation works on GHE.com | At least one: the approval flow's `UpdateApprovalStatus` must run on a Dataverse connection for the service principal, which "needs a client ID and secret" |
@@ -967,7 +978,7 @@ It adds a section to the spec template, a checklist and gate-script rules. Each 
 | Field | What the spec records | Why |
 |---|---|---|
 | Solution boundaries | Target solution, publisher prefix, and whether the story may add a new solution | Stops components leaking into the wrong root solution (`check_root_components.py`) |
-| Data model intent | Tables and columns in business terms, and whether any change is destructive | Feeds the `--plan` check; flags one-way doors before the night |
+| Data model intent | Tables and columns in business terms, and whether any change is destructive | Feeds the export-diff plan check (`plan_from_export.py`); flags one-way doors before the night |
 | Connection references | Each connector, its auth type, and whether it needs OAuth consent | OAuth ones must be bootstrapped or listed as a PARK step |
 | Environment variables | Name, type, and a value per environment (lane, Test, UAT, Prod) | Feeds `pac solution create-settings` and promotion |
 | Security roles | Which roles change, at what privilege depth | Always a floor of 7; a human reviews |
@@ -1033,7 +1044,7 @@ For client PMs, Spec Kit's canvases in the GitHub Copilot app are a second front
 
 - A throwaway canvas app, code app or flow sketch, built in a maker sandbox, or in a free lane by day.
 - It uses its own solution with the publisher prefix `proto`. Preflight fails a lane that still holds one (section 5.4), and a trusted lint fails any PR that contains one. **A prototype is never promoted.**
-- Its screenshots or a short screen recording go into the work item as the design-first approval (rule 10). The real build starts from the spec and builders, not from the prototype.
+- Its screenshots or a short screen recording go into the work item as the design-first approval (rule 10). The real build starts from the spec, live in a lane, not from the prototype.
 
 ## 7. Handoff files, traces, the weekly routine and gardening
 
@@ -1106,7 +1117,7 @@ This shows engineers that the factory learns from their corrections, which is th
 **Mine the human-led sessions before the night shift starts.** Tan calls past chats "a treasure trove of context": the places where you corrected the agent are the real process [Tan podcast 1:00:35 to 1:02:51]. Her `recall` skill does this [Tan podcast 1:03:02 to 1:03:35]. In stage 1, engineers work by day in VS Code and Copilot behind the gate. Before stage 3:
 
 - Each engineer exports a sample of their own sessions, by choice, and removes client data. Content capture stays off for human sessions (section 7.2). How VS Code and the Copilot app export chat history is still to be checked [untested].
-- A human-led retro reads them for repeated corrections: "no, use the builder", "that is the wrong table", "ask before deleting".
+- A human-led retro reads them for repeated corrections: "no, change it in the lane, not the file", "that is the wrong table", "ask before deleting".
 - Each repeated correction becomes a skill, a lint, a coding standard or a glossary entry, by PR. Exit test in section 11.2.
 
 ### 7.4 Gardening routines and the findings buffer
@@ -1126,7 +1137,7 @@ Much of Tan's PR volume is gardening [Tan podcast 46:01 to 46:15]. Her banned-pa
 
 **The findings list, not PRs.** Each scan writes to ADO: one `Finding` item per rule, tagged `garden-finding`, with an occurrence count and links, deduplicated week to week. One light session clusters new findings. Nothing opens a PR.
 
-**Reviewed weekly** in step 5 of section 7.3. Each cluster becomes a lint rule, a builder change, or one consolidated ticket through the normal day gate. A finding older than four weeks with no decision shows in the digest. Cost lines are in section 10.4.
+**Reviewed weekly** in step 5 of section 7.3. Each cluster becomes a lint rule, a skill or standards change, or one consolidated ticket through the normal day gate. A finding older than four weeks with no decision shows in the digest. Cost lines are in section 10.4.
 
 ## 8. Harness parity, the component register and third-party skills
 
@@ -1161,7 +1172,7 @@ Review it monthly, in the week after Ignite (17 to 20 November 2026), now for Un
 |---|---|---|
 | **Shipped primitive** | Use as is. Do not wrap | V2.1's list (cloud agent, CLI and SDK, custom agents, skills, hooks, Playwright MCP, OpenTelemetry, rulesets, required workflows, merge queue, cost centres, ACA jobs, Key Vault, Blob, Application Insights, Spec Kit core, assess and bug extensions, lean preset). Plus: pac CLI (`solution`, `copilot`, `admin`, `pipeline`, `copilot-studio`); `powerplatform-actions` (`actions-install`); solution checker and Managed Environment enforcement; Power Platform pipelines; the Power Platform Playwright toolkit; Copilot Studio evaluation and the Agent Kit; `power-platform-skills` and `Dataverse-skills`; Dataverse MCP and the Dataverse CLI; the `pa` CLI; Dataverse auditing and Purview; ADO Boards. V3.1 adds: Copilot CLI `--fleet` and dynamic workflows (preview); Azure Monitor alerts and action groups; ADO service hooks |
 | **Thin glue** | Keep small. Expect to delete | V2.1's list. Plus: lane mapping and locks; nightly preflight; per-story reset; the manifest check (until pack fails on missing files); the static-results lint; the Direct Line runner (until evaluation APIs take app tokens and cover the new harness); PARK glue; the ADO state Function (until Boards integration covers GHE.com); the `FlowRun` poller; the merge-policy check (until rulesets can require approval by score). V3.1 adds: the triage intake Function and redaction; the findings writer; the PR body renderer; the `trust.yml` check in the merge policy |
-| **IP** | Invest | V2.1's list (rubric skills and calibration set, evaluator prompts, trace reviewer and view, ledger and matrix, GET AI preset and bundle, gate script, regression set, gate template). Plus: the `getai-lcp` preset; the environment pool kit; the Power Platform gate workflow and trusted scripts; the Merge Danger rubric and floor; the Playwright kit for Power Platform; Copilot Studio evaluation sets and rubric; deterministic builders where Microsoft has no generator. V3.1 adds: the `lcp-verify` skill, CLI and verify profiles (critical infrastructure, like Tan's per-app verification skills); the triage agent and grouping prompt; per-practice coding standards and the smell list; gardening scan rules; the trust ladder rules; the PR body template; the Wayfinder ADO pattern |
+| **IP** | Invest | V2.1's list (rubric skills and calibration set, evaluator prompts, trace reviewer and view, ledger and matrix, GET AI preset and bundle, gate script, regression set, gate template). Plus: the `getai-lcp` preset; the environment pool kit; the Power Platform gate workflow and trusted scripts; the Merge Danger rubric and floor; the Playwright kit for Power Platform; Copilot Studio evaluation sets and rubric; the driver's export procedure and inventories (live build, 7 November 2026). V3.1 adds: the `lcp-verify` skill, CLI and verify profiles (critical infrastructure, like Tan's per-app verification skills); the triage agent and grouping prompt; per-practice coding standards and the smell list; gardening scan rules; the trust ladder rules; the PR body template; the Wayfinder ADO pattern |
 
 For each thin-glue item, ask: does a shipped primitive now do this? If yes, delete it after one regression run.
 
@@ -1387,18 +1398,20 @@ Each spike is one to two days unless noted. A failed spike changes the design be
 | 0.11 | **Test user sign-in.** Playwright certificate sign-in under the tenant's Conditional Access | Storage state acquired headless in CI | Work with the client's identity team on a CA exclusion |
 | 0.12 | **Copilot Studio evaluation from code.** `pac copilot-studio run-maker-evaluation-test-set` and the REST API with an app token; a Direct Line script | We know which tokens work | Direct Line runner only |
 | 0.13 | **ADO and GHE.com.** Orchestrator service principal on the ADO REST API; Azure Boards `AB#` links from GHE.com | State changes and links work | The Function writes links itself |
-| 0.14 | **Skills headless.** `model-apps` `/app-builder` and `dv-solution` in `copilot -p` | We know where they stop for approval | PARK at the approval point |
+| 0.14 | **Skills and lane tools headless, as the lane identity** (widened 7 November 2026 for live build). `model-apps` `/app-builder` and `dv-solution` in `copilot -p`. The App Spec apply and FlowAgent (power-automate plugin) signed in as `getai-fl1-exec` (`az login` with a federated token). One solution-aware cloud flow created and then updated through the Web API (`workflows` row) as `getai-fl1-exec`, then exported | We know where the skills stop for approval. The Web API flow runs, exports and packs again. We know whether the App Spec apply and FlowAgent work as the lane identity | PARK at the approval point. Flows by the Web API only. The App Spec apply and FlowAgent by day only |
 | 0.15 | **Redaction and Universe.** Secrets absent from captured traces; Universe announcements checked against sections 5.2, 8 and 9 | Both done | Capture off until fixed |
 | 0.16 | **Parallel sessions in one gate job.** Three `lcp-evaluator` sessions with separate browser contexts for one test user, and two reviewer sessions, in parallel | No sign-in clash; each session's spans tagged with its focus | Run verifiers in series and accept a longer Test lock |
 | 0.17 | **Session export for mining.** Export a VS Code and a Copilot app chat session by hand | A readable transcript without client data | Engineers write short correction notes instead |
+| 0.18 | **Headless YAML export as the lane identity** (added 7 November 2026). On a runner, as `getai-fl1-exec`: `pac solution export` then `unpack`, and `pac solution clone` and `sync`, for a solution holding a table, a flow, a security role, an environment variable and a connection reference (section 5.6) | The output is the YAML format, packs offline again with `pac solution pack`, and a second export gives the same canonical files | XML layout for flows and tables; canvas apps stay out of the night (section 5.6) |
+| 0.19 | **Reset fidelity** (added 7 November 2026; run with 0.10). In `factory-lane-1`, plant a leftover component in the lane's solution and one outside it, run `reset_environment.py` to the head of `integration`, then export | Both leftovers are removed, and the export equals `integration` exactly (canonical compare) | The lane goes Offline on a mismatch and a human cleans it. If that happens often, restore the lane from its labelled pre-night backup (platform admin identity) |
 
 ### 11.2 Stages 1 to 8
 
 | Stage | Days | Build | Exit test | Effort |
 |---|---|---|---|---|
-| **1. Safety net** (uploaded Phase 1) | 1 to 14 | `factory-gates` repo with `lcp-gate.yml` (Appendix A) as a required workflow, in Evaluate mode first. The four rulesets and CODEOWNERS. Trusted scripts with a hash manifest. Builder check, pack, manifest check, plan checks, lints, solution checker SARIF. `factory-test` bootstrapped with `getai-<proj>-test` and the test user. Locked scenario conventions and the Playwright kit v0. Spec Kit 1.2.x pinned, GET AI and `getai-lcp` presets v0 with the grilling rules, `glossary.md` and `docs/adr/` templates and the prototype option, gate script as hook and CI check. The third-party skills policy applied to every vendored skill. Humans keep triggering the AI in VS Code; their PRs now pass the gate. Engineers export a sample of their sessions for mining (section 7.3) | A seeded edit to `tests/acceptance/` or `scripts/` is blocked by the push ruleset and, with the ruleset off, by the `locks` job. A component with missing files fails the manifest check. A spec with an open marker or no scenarios cannot become Factory Eligible. A human PR runs the full gate in Test and posts evidence. At least 20 human-led sessions mined; each repeated correction is a skill, lint, coding standard or glossary PR, or a recorded "no action" | 3 to 4 weeks (tight in 14 days) |
+| **1. Safety net** (uploaded Phase 1) | 1 to 14 | `factory-gates` repo with `lcp-gate.yml` (Appendix A) as a required workflow, in Evaluate mode first. The four rulesets and CODEOWNERS. Trusted scripts with a hash manifest. Generator check, pack, manifest check, the export-diff plan check, lints, solution checker SARIF. `factory-test` bootstrapped with `getai-<proj>-test` and the test user. Locked scenario conventions and the Playwright kit v0. Spec Kit 1.2.x pinned, GET AI and `getai-lcp` presets v0 with the grilling rules, `glossary.md` and `docs/adr/` templates and the prototype option, gate script as hook and CI check. The third-party skills policy applied to every vendored skill. Humans keep triggering the AI in VS Code; their PRs now pass the gate. Engineers export a sample of their sessions for mining (section 7.3) | A seeded edit to `tests/acceptance/` or `scripts/` is blocked by the push ruleset and, with the ruleset off, by the `locks` job. A component with missing files fails the manifest check. A spec with an open marker or no scenarios cannot become Factory Eligible. A human PR runs the full gate in Test and posts evidence. At least 20 human-led sessions mined; each repeated correction is a skill, lint, coding standard or glossary PR, or a recorded "no action" | 3 to 4 weeks (tight in 14 days) |
 | **2. ADO automation and `lcp-verify`** (uploaded Phase 2) | 15 to 21 | Orchestrator Function and the state map (section 5.11). Custom fields (Appendix D), including the Wayfinder and triage fields. `run_id` on every run. Ledger v0: `fact_run`, provisional lines, evidence export to Blob. OpenTelemetry on day sessions through managed settings. `lcp-verify` v0 (app, query, flow, agent, smoke) and the first verify profile. The PR body template | Branch, PR and merge events move ADO states correctly for a week of human PRs. Every run has a `run_id` and a cost row. Evidence for each PR is in Blob. `lcp-verify`, run from a human's Copilot session in a lane, reproduces a seeded defect and writes `evidence.json`; the gate's trusted copy gives the same result in Test | 1.5 weeks |
-| **3. Night shift, one lane** (uploaded Phase 3, first half; rung L1) | 22 to 30 | `factory-lane-1` bootstrapped (Sandbox, Managed, Australia) with its lane test user. Execution workflow with the lane lock, preflight, reset, Copilot CLI executor using `lcp-verify` and the TDD rules, fast-check loop, driver push, lane drift check. PARK protocol with facts first. Verifiers scaled by pre-floor; two-axis review with Merge Danger; no auto-merge. Research tickets. 05:41 digest; review 09:00 to 10:00. Trace reviewer. The weekly routine starts | Three nights produce PRs and a digest with nobody awake. A seeded portal-only step PARKs with exact instructions. A seeded question the glossary answers does not PARK. A seeded environment-only change is caught as drift. A verifier catches a seeded defect that passes the locked scenarios. One research ticket returns cited notes. Cost per story and per verifier known from measured rows | 1.5 to 2 weeks |
+| **3. Night shift, one lane** (uploaded Phase 3, first half; rung L1) | 22 to 30 | `factory-lane-1` bootstrapped (Sandbox, Managed, Australia) with its lane test user. Execution workflow with the lane lock, preflight, reset with its proof, Copilot CLI executor building live with `lcp-verify` and the TDD rules, fast-check loop, driver export and push, lane drift check. PARK protocol with facts first. Verifiers scaled by pre-floor; two-axis review with Merge Danger; no auto-merge. Research tickets. 05:41 digest; review 09:00 to 10:00. Trace reviewer. The weekly routine starts | Three nights produce PRs and a digest with nobody awake. A seeded portal-only step PARKs with exact instructions. A seeded question the glossary answers does not PARK. A seeded change made after the driver's export, and a seeded component outside the solution, are both caught as drift. A seeded leftover is removed by the reset, and the export after reset equals `integration`. A verifier catches a seeded defect that passes the locked scenarios. One research ticket returns cited notes. Cost per story and per verifier known from measured rows | 1.5 to 2 weeks |
 | **4. Three lanes, calibrated** (uploaded Phase 3, second half) | 31 to 45 | Lanes 2 and 3. Test queue with `queue: max`; a second Test environment if the queue needs it (section 5.5). NEEDS_WORK re-queue and RESTART. Held-out set in `factory-holdout`. Day-3 reconciliation. Matrix v1 with the Power Platform page. Weekly seeded-violation tests. Gardening scans and the findings list. Outer-loop pilot for one AI Managed Services client (can slip to stage 8 without blocking) | A night with nine stories across three lanes, no cross-lane interference, no reset mid-check. Ten verdicts graded blind, agreement recorded. Reconciliation variance under 10% per grain key (assumed tolerance). The matrix shows cost per accepted story at list and cash. The first findings list reviewed. Ten real or replayed client reports triaged: duplicates grouped, repro evidence attached, redaction log checked | 2.5 weeks |
 | **5. Lane B for code repos** (V2.1 stages 2 and 3) | 46 to 70 | Cloud agent dispatch, tick and report; gate evaluator; code review at Lite; the `@copilot` loop; held-out suite; Merge Danger rules for code paths | As V2.1: three unattended nights, a seeded defect caught, ten verdicts graded | 3 to 4 weeks |
 | **6. Lane A** (V2.1 stage 4) | 60 to 90 | The SDK driver in ACA with generator and evaluator sessions, Spec Kit inside, RESTART, resumable state | One greenfield build merges unattended; cost per role matches billing | 2 to 3 weeks |
@@ -1422,27 +1435,28 @@ Start stage 0 now. The invoice test cannot be rushed, because a month's charges 
 | 9 | Copilot Studio evaluation gaps on the new harness | Preview, General quality only, no API ([evaluate (preview)](https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/analytics-agent-evaluation-intro)) | Factory agents use the standard harness; human check for new-harness agents |
 | 10 | Evaluation runs as a user and test sets are visible to makers | Built-in evaluation needs a user token; "Any maker with access to the agent" sees test sets | Separate Test environment and test user; Direct Line runner with locked scripts; held-out set outside Copilot Studio |
 | 11 | Pack drops components silently | Exit code 0 with a component missing ([SolutionPackager troubleshooting](https://learn.microsoft.com/power-platform/alm/solution-packager-tool#troubleshooting)) | Manifest check after every pack |
-| 12 | Dataverse throttling and the tenant daily pool | 52 concurrent per user; one 25,000-request pool for all application users on Power Apps tenants ([request limits](https://learn.microsoft.com/en-us/power-platform/admin/api-request-limits-allocations)) | Per-lane application users; backoff helper; serial imports; pool monitoring in preflight |
-| 13 | Test Engine dependency | Deprecated April 2026, repo unmaintained ([deprecations](https://learn.microsoft.com/power-platform/important-changes-coming#deprecation-of-test-engine)) | Playwright toolkit only; no `pac test run` |
-| 14 | Preview components change or break | `pa` CLI and `code-apps-preview`, `pac code`, `pac copilot` CLI mode, `pac copilot-studio`, the Dataverse CLI, MCP servers, Git integration, low-code plug-ins, dynamic workflows | Pin versions (npm packages by tarball hash, as the Dataverse CLI in spike 0.3); vendored plugins; register review monthly; no dependence on preview parts for locked tests |
-| 15 | Interactive steps cannot run at night | OAuth consent, first code-app share, agent accounts, canvas authoring | Bootstrap runbook; PARK protocol; route canvas authoring to day work |
-| 16 | Agent changes the environment outside the source | MCP or Web API writes that skip builders | Lane drift check blocks the PR |
-| 17 | Lane state decays | Expired connections, removed permissions, lost exclusions | Nightly preflight marks the lane Offline and raises a bug |
-| 18 | The Test environment becomes the bottleneck | About 36 minutes per PR with verifiers, serial: 7.2 hours for 12 runs (section 5.5) | Verifiers in parallel inside the lock; watch queue length; a second Test environment at three lanes |
-| 19 | Capacity runs out | Create, copy and restore each need 1 GB free ([backup FAQ](https://learn.microsoft.com/power-platform/admin/backup-restore-environments#faq)) | Capacity check in preflight; short audit retention in lanes |
-| 20 | Service-principal-owned premium flows suspended | "Flows owned by service principals are not compliant" without a licence ([SP-owned flows](https://learn.microsoft.com/power-automate/service-principal-support)) | Designated licensed user in lanes and Test; Process licence in Prod |
-| 21 | Federated credential subject mismatch | A wrong subject is accepted and "the exchange fails without error" ([FIC considerations](https://learn.microsoft.com/entra/workload-id/workload-identity-federation-considerations)); new repos use immutable subjects | Read the real `sub` first; preflight checks every credential |
-| 22 | Captured traces or mined sessions contain client metadata or secrets | Content capture stores prompts and tool data; human sessions may hold client data | Short retention; RBAC; resource per client; redaction tested. Human sessions exported only by choice, client data removed, capture stays off |
-| 23 | Bypass list drift | One bypass entry undoes the gate | Nightly audit fails the kickoff |
-| 24 | Third-party skills change under us, phone home, or carry instructions we never read | The installer auto-updates; telemetry is on by default ([power-platform-skills](https://github.com/microsoft/power-platform-skills)); Pocock's and Tan's skills are adopted by copying | Third-party skills policy (section 8.3): read in full, pin, review updates as PRs, record source and licence, prefer our own adaptations |
-| 25 | Entra eventual consistency | Reported 5 to 15 minutes [unverified] | Deterministic polling with a deadline; a timeout PARKs the story and flags the lane |
-| 26 | The rename | Microsoft is expected to rename Power Platform; Ignite is 17 to 20 November 2026 | Product-neutral identifiers (section 1.1); prose-only change; re-check after Ignite |
-| 27 | Over-specified stories cascade errors | The Story Planner writes granular stories [talk 24:12 to 24:46] | What and why only; design-leak warning in the gate script; foggy work goes to a Wayfinder map first |
-| 28 | Credit mechanics or spend controls fail | Unsupported subscription types; paid usage on by default; org tokens ignore user budgets | Stage 0 invoice test; night envelope; per-story caps; cost centre budgets |
-| 29 | Operations: incidents, schedule drift, evidence loss, price and FX drift | Late schedules and runner incidents; retention deletes runs; costs in USD, prices in AUD | Idempotent tick and a lost hour budgeted; nightly export to Blob; nightly `dim_price` with an FX column |
-| 30 | Verifier and review cost grows faster than value | Extra verifiers and the second review pass add about USD 5.60 per accepted story (section 10.4) | Count tied to the pre-floor; cost per verifier in the ledger; alert above 40% of night AI cost; tune the count from catch rates |
-| 31 | The outer loop floods the day | Alert storms and noisy channels create many reports | Grouping first; 20 groups a day per client; `not_reproduced` share alert; a human decides every bug |
-| 32 | The findings list becomes a graveyard, or research notes are trusted too far | Buffers only help if someone reads them; research can be wrong | Weekly review step; age alert at four weeks; research notes cite primary sources and are hints until a human reads them |
+| 12 | A headless YAML export may not work | Live build makes the driver's export the PR's source, and Microsoft's pages disagree: the format reference says `pac solution clone` and `sync` write YAML; the Git integration FAQ says `unpack`, `clone` and `sync` do not support it yet (section 5.6) | Spike 0.18 before Stage 3; if it fails, the XML layout for flows and tables, with canvas apps kept out of the night; one format per repo |
+| 13 | Dataverse throttling and the tenant daily pool | 52 concurrent per user; one 25,000-request pool for all application users on Power Apps tenants ([request limits](https://learn.microsoft.com/en-us/power-platform/admin/api-request-limits-allocations)) | Per-lane application users; backoff helper; serial imports; pool monitoring in preflight |
+| 14 | Test Engine dependency | Deprecated April 2026, repo unmaintained ([deprecations](https://learn.microsoft.com/power-platform/important-changes-coming#deprecation-of-test-engine)) | Playwright toolkit only; no `pac test run` |
+| 15 | Preview components change or break | `pa` CLI and `code-apps-preview`, `pac code`, `pac copilot` CLI mode, `pac copilot-studio`, the Dataverse CLI, MCP servers, Git integration, low-code plug-ins, dynamic workflows | Pin versions (npm packages by tarball hash, as the Dataverse CLI in spike 0.3); vendored plugins; register review monthly; no dependence on preview parts for locked tests |
+| 16 | Interactive steps cannot run at night | OAuth consent, first code-app share, agent accounts, canvas authoring | Bootstrap runbook; PARK protocol; route canvas authoring to day work |
+| 17 | The lane holds changes the PR does not show | Under live build the lane is the work: an MCP or Web API write outside the solution, a change after the driver's export, or a leftover from an earlier story (an unmanaged import never deletes components) | The driver exports, not the agent; the reset removes leftovers and proves the lane equals its reset commit (section 5.4, spike 0.19); the lane drift check compares a second export with the PR head and queries for components outside the solution |
+| 18 | Lane state decays | Expired connections, removed permissions, lost exclusions | Nightly preflight marks the lane Offline and raises a bug |
+| 19 | The Test environment becomes the bottleneck | About 36 minutes per PR with verifiers, serial: 7.2 hours for 12 runs (section 5.5) | Verifiers in parallel inside the lock; watch queue length; a second Test environment at three lanes |
+| 20 | Capacity runs out | Create, copy and restore each need 1 GB free ([backup FAQ](https://learn.microsoft.com/power-platform/admin/backup-restore-environments#faq)) | Capacity check in preflight; short audit retention in lanes |
+| 21 | Service-principal-owned premium flows suspended | "Flows owned by service principals are not compliant" without a licence ([SP-owned flows](https://learn.microsoft.com/power-automate/service-principal-support)) | Designated licensed user in lanes and Test; Process licence in Prod |
+| 22 | Federated credential subject mismatch | A wrong subject is accepted and "the exchange fails without error" ([FIC considerations](https://learn.microsoft.com/entra/workload-id/workload-identity-federation-considerations)); new repos use immutable subjects | Read the real `sub` first; preflight checks every credential |
+| 23 | Captured traces or mined sessions contain client metadata or secrets | Content capture stores prompts and tool data; human sessions may hold client data | Short retention; RBAC; resource per client; redaction tested. Human sessions exported only by choice, client data removed, capture stays off |
+| 24 | Bypass list drift | One bypass entry undoes the gate | Nightly audit fails the kickoff |
+| 25 | Third-party skills change under us, phone home, or carry instructions we never read | The installer auto-updates; telemetry is on by default ([power-platform-skills](https://github.com/microsoft/power-platform-skills)); Pocock's and Tan's skills are adopted by copying | Third-party skills policy (section 8.3): read in full, pin, review updates as PRs, record source and licence, prefer our own adaptations |
+| 26 | Entra eventual consistency | Reported 5 to 15 minutes [unverified] | Deterministic polling with a deadline; a timeout PARKs the story and flags the lane |
+| 27 | The rename | Microsoft is expected to rename Power Platform; Ignite is 17 to 20 November 2026 | Product-neutral identifiers (section 1.1); prose-only change; re-check after Ignite |
+| 28 | Over-specified stories cascade errors | The Story Planner writes granular stories [talk 24:12 to 24:46] | What and why only; design-leak warning in the gate script; foggy work goes to a Wayfinder map first |
+| 29 | Credit mechanics or spend controls fail | Unsupported subscription types; paid usage on by default; org tokens ignore user budgets | Stage 0 invoice test; night envelope; per-story caps; cost centre budgets |
+| 30 | Operations: incidents, schedule drift, evidence loss, price and FX drift | Late schedules and runner incidents; retention deletes runs; costs in USD, prices in AUD | Idempotent tick and a lost hour budgeted; nightly export to Blob; nightly `dim_price` with an FX column |
+| 31 | Verifier and review cost grows faster than value | Extra verifiers and the second review pass add about USD 5.60 per accepted story (section 10.4) | Count tied to the pre-floor; cost per verifier in the ledger; alert above 40% of night AI cost; tune the count from catch rates |
+| 32 | The outer loop floods the day | Alert storms and noisy channels create many reports | Grouping first; 20 groups a day per client; `not_reproduced` share alert; a human decides every bug |
+| 33 | The findings list becomes a graveyard, or research notes are trusted too far | Buffers only help if someone reads them; research can be wrong | Weekly review step; age alert at four weeks; research notes cite primary sources and are hints until a human reads them |
 
 ## 13. The accelerator and IP
 
@@ -1532,6 +1546,7 @@ Board lens: these are reusable IP, Power Platform depth strengthens the Microsof
 | **Action pins in the gate workflow** | Version tags such as `@v5` | Full commit IDs with the version as a comment, kept fresh by Dependabot pull requests (Boroon, 3 November 2026). `factory-gates` holds the IDs; this appendix keeps the tags for readability | A tag can be moved to other code. Two of these actions handle the gate App key and checkout tokens |
 | **Hash manifest scope** | Scripts only | Every file in the gate repo that a job reads: scripts, prompts, rubrics, agent definitions, `danger-rules.yml`, `trust.yml`, project settings. Not hashed: tests, docs, test-only files, the workflow folder (Boroon, 3 November 2026) | Rule 17 names prompts, rubrics and agents alongside gate scripts. The rules file sets the deterministic floor (rule 11) and `trust.yml` decides auto-merge (rule 12). A whole-repo scan means nothing added later is forgotten |
 | **Appendix A `build` and `map` jobs** | Inline bash in `build`: a loop over the builders, `git diff --exit-code`, two `pac solution pack` calls and a `pac copilot pack` loop | `build` runs the tested `check_builders.py` and `pack_offline.py`, with the PR checked out at `pr/`. `map` hands it those two hash-checked scripts as a one-day artifact. The drift check also fails on a new file a builder wrote that is not committed (Boroon, 3 November 2026; edited in Build 3) | `build` holds no credentials, so it cannot check out the private gate repo; an inline copy would have been a second copy of the logic. `git diff` ignores untracked files, so an output file the agent forgot to commit would be packed and shipped without review. The old loop also failed a project with no builders |
+| **How agents build in lane B (low-code)** | Agents edit builder inputs and per-component builders, never generated output; the gate re-runs every builder and fails on drift; `create_schema.py --plan` and `create_security.py --plan` check tables and roles against Test (sections 5.6, 5.7, Appendix B.1). Supersedes the "builder protection" row in 14.1 and narrows the Build 3 row above to generator-backed parts | Agents build live in the lane through pac, the Web API, Dataverse MCP and the App Spec apply. A trusted driver step, not the agent, exports and unpacks the solution, and that export is the PR's source. Builders stay only where Microsoft ships a generator: App Spec, `pac copilot`, code apps, PCF and plug-in source. The plan check diffs the export against the PR's base commit, in `static`. The reset proves the lane equals its reset commit; the lane drift check compares a second export with the PR head (Boroon, 7 November 2026; Session 15). Builders are a low-code idea only, so nothing changes for pro-code: in Lane B's code profile the cloud agent edits the source and the gate builds and tests it, and in Lane A the SDK session writes the code | It is the loop Microsoft supports: change through tools, export, extract; Microsoft does not support hand edits to extracted files, which per-component builders make by script. The Get AI Engineer built this way for six months on a past engagement, and spikes 0.2 and 0.3 proved the lane identity can act headless. It drops the plan's biggest unbuilt piece, the builder library and its plan checks. Still unproven: headless YAML export (spike 0.18), reset fidelity (spike 0.19), and flows, the App Spec apply and FlowAgent as the lane identity (spike 0.14). Basis: `docs/analysis/delivery-vault-assessment.md` sections 3 and 3.5 |
 
 ## 15. Open questions and evidence quality
 
@@ -1545,6 +1560,7 @@ Board lens: these are reusable IP, Power Platform depth strengthens the Microsof
 | Org-metered `GITHUB_TOKEN` or a machine account for CLI billing? | Boroon and platform team | Spike 0.6 |
 | Does the Dataverse MCP server accept an app-only token? | Platform team | Spike 0.3, 6 November 2026: yes, through the local proxy and the remote endpoint, once the app is on the allowed MCP clients list. Billing unchecked |
 | Do `pac copilot` sync commands and evaluation APIs accept service principals? | Platform team | Spikes 0.4 and 0.12 |
+| Under live build: does a headless export write YAML as the lane identity, does the reset leave the lane equal to `integration`, and do flows by the Web API, the App Spec apply and FlowAgent work as the lane identity? | Platform team | Spikes 0.18, 0.19 and 0.14, before Stage 3 |
 | Which Azure OpenAI models are available as Standard deployments in Australia East, and does BYOK send telemetry to GitHub? | Platform team | Stage 8 T3 trial |
 | Lanes in the client's tenant or ours, per client? | Boroon with each client | Before each engagement |
 | Power Platform licence, capacity and meter prices in AUD | Commercial | Partner price list |
@@ -1573,7 +1589,7 @@ Board lens: these are reusable IP, Power Platform depth strengthens the Microsof
 
 ## Appendix A: The gate workflow for the Power Platform profile (untested starting point)
 
-**Status: untested.** The YAML parses, but nobody has run it. Every action version, CLI flag, claim format, path and script name must be checked in stage 0 and stage 1. It assumes this layout in the project repo: per-component builders in `workflows/build/*.py`, the YAML-format solution in `src/`, Copilot Studio workspaces in `agents/<name>/`, locked scenarios in `tests/scenarios/` and `tests/acceptance/{api,ui,agents}/`. Adjust to the real repo.
+**Status: untested.** The YAML parses, but nobody has run it. Every action version, CLI flag, claim format, path and script name must be checked in stage 0 and stage 1. It assumes this layout in the project repo: the YAML-format solution in `src/`, written only by the driver's export (live build, 7 November 2026; `src/solutions/<Name>/`, `src/publishers/` and component folders such as `src/entities/` and `src/workflows/`), the driver's inventories beside it, generator inputs and code parts (the App Spec, `apps/`, `plugins/`, PCF source) in their own folders, Copilot Studio workspaces in `agents/<name>/`, locked scenarios in `tests/scenarios/` and `tests/acceptance/{api,ui,agents}/`. Adjust to the real repo.
 
 What it does, job by job:
 
@@ -1581,9 +1597,9 @@ What it does, job by job:
 |---|---|---|
 | `map` | Read-only gate App token | Lane and story from the branch name by the trusted `lane_map.py`, validated against `vars.LCP_LANES`; hashes verified first; then hands `check_builders.py` and `pack_offline.py` to `build` as a one-day artifact |
 | `locks` | Read-only gate App token | Second lock on protected paths, against the base commit, by the trusted `check_protected_paths.py` (a rename counts as a delete plus an add); hashes verified first |
-| `build` | None | PR builders and the drift check (`check_builders.py`: a changed, deleted or new file fails), offline `pac solution pack` and `pac copilot pack` (`pack_offline.py`). The PR sits at `pr/`, the scripts at `gate/lcp/` |
-| `static` | Read-only gate App token | Trusted manifest check, lints, criteria trace; hashes verified first |
-| `verify-in-test` | OIDC for `getai-<proj>-test` only; held-out reader App; Key Vault | Plan against the Test baseline, checker SARIF, import, locked scenarios, Playwright, Copilot Studio conversations, held-out set, pre-floor, one to three verifier sessions, evidence hashes to Blob |
+| `build` | None | The PR's generator-backed builders and their drift check (`check_builders.py`: a changed, deleted or new file fails), offline `pac solution pack` and `pac copilot pack` (`pack_offline.py`). The PR sits at `pr/`, the scripts at `gate/lcp/` |
+| `static` | Read-only gate App token | Trusted manifest check, the export-diff plan against the base commit (`plan_from_export.py`), lints, criteria trace; hashes verified first |
+| `verify-in-test` | OIDC for `getai-<proj>-test` only; held-out reader App; Key Vault | Checker SARIF, import, locked scenarios, Playwright, Copilot Studio conversations, held-out set, pre-floor, one to three verifier sessions, evidence hashes to Blob |
 | `danger` | Job token with `checks: write` | Deterministic floor, two raise-only review passes, combined score, merge policy by rung |
 
 Three things to know before using it:
@@ -1731,14 +1747,14 @@ jobs:
         run: python3 -I ../gate/lcp/check_protected_paths.py --lane "$LANE" --base "$BASE_SHA"
 
   build:
-    name: builders, drift and pack (PR code, no credentials)
+    name: generators, drift and pack (PR code, no credentials)
     runs-on: ubuntu-latest
     needs: map
     permissions:
       contents: read
     steps:
       # The PR goes in pr/, so nothing the gate adds (gate/, out/) is inside the tree
-      # the builder check compares.
+      # the generator check compares.
       - uses: actions/checkout@v5
         with:
           path: pr
@@ -1757,9 +1773,11 @@ jobs:
           dotnet-version: 10.0.x   # pac 2.4.1 ships for net10.0 only (spike 0.2)
       - name: Install pinned pac
         run: dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version "$PAC_VERSION"
-      # Runs every workflows/build/*.py, then fails on any drift from the commit,
-      # including a generated file that was never committed.
-      - name: Run every builder, then fail on any diff
+      # Live build (7 November 2026): src/ comes from the driver's export, so no
+      # per-component builder runs here. Runs the generator-backed builders the project
+      # declares (App Spec, code apps, PCF, plug-ins), then fails on any drift from the
+      # commit, including a generated file that was never committed.
+      - name: Run every generator-backed builder, then fail on any diff
         run: python3 -I gate/lcp/check_builders.py --root pr
       - name: Pack the solution offline (YAML source format)
         run: python3 -I gate/lcp/pack_offline.py solution --source pr/src --out out
@@ -1773,7 +1791,7 @@ jobs:
           retention-days: 30
 
   static:
-    name: trusted manifest check and lints (no Dataverse credentials)
+    name: trusted manifest check, export-diff plan and lints (no Dataverse credentials)
     runs-on: ubuntu-latest
     needs: [map, locks, build]
     permissions:
@@ -1782,6 +1800,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           path: pr
+          fetch-depth: 0              # the export-diff plan reads the base commit
           persist-credentials: false
       - id: gate-token
         uses: actions/create-github-app-token@v2
@@ -1809,6 +1828,24 @@ jobs:
           python-version: ${{ env.PY_VERSION }}
       - name: Manifest check (pack exits 0 even when it drops a component)
         run: python3 -I gate/lcp/check_manifest.py --source pr/src --zip out/solution_unmanaged.zip
+      # Replaces create_schema.py --plan and create_security.py --plan (live build,
+      # 7 November 2026). Diffs the exported table, column, choice and role definitions
+      # against the PR's base commit, not the Test environment, which holds whichever PR
+      # was imported last. Reads files only, with git; feeds Appendix B.2.
+      - name: Export-diff plan against the base commit (feeds Merge Danger)
+        working-directory: pr
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p ../plan
+          python3 -I ../gate/lcp/plan_from_export.py --source src --base "$BASE_SHA" --out ../plan/export-plan.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: export-plan
+          path: plan/export-plan.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Lints and limits
         run: |
           set -euo pipefail
@@ -1896,12 +1933,12 @@ jobs:
           client-id: ${{ vars.LCP_TEST_APP_ID }}
           tenant-id: ${{ vars.TENANT_ID }}
           allow-no-subscriptions: true
-      - name: Schema and security plan against the Test baseline (read only, feeds Merge Danger)
-        run: |
-          set -euo pipefail
-          mkdir -p evidence
-          python3 -I gate/lcp/create_schema.py --plan --source pr/src --env "$TEST_ENV_URL" --out evidence/schema-plan.json
-          python3 -I gate/lcp/create_security.py --plan --source pr/src --env "$TEST_ENV_URL" --out evidence/security-plan.json
+      # The export-diff plan from static joins this job's evidence, so the pre-floor,
+      # the verifier plan and danger read it from evidence/.
+      - uses: actions/download-artifact@v4
+        with:
+          name: export-plan
+          path: evidence
       - name: Solution checker, no exclusions or overrides (matches Managed Environment enforcement)
         run: |
           set -euo pipefail
@@ -1964,11 +2001,11 @@ jobs:
           set -euo pipefail
           python3 -I gate/lcp/merge_danger_floor.py --pre --repo pr --base "$BASE_SHA" \
             --rules gate/lcp/danger-rules.yml \
-            --schema-plan evidence/schema-plan.json --security-plan evidence/security-plan.json \
+            --plan evidence/export-plan.json \
             --out evidence/danger-prefloor.json
           # Writes one focus per line: acceptance, then exploratory and regression as the pre-floor requires
           python3 -I gate/lcp/verifier_plan.py --prefloor evidence/danger-prefloor.json \
-            --blast-radius-hint evidence/schema-plan.json --out evidence/verifier-plan.txt
+            --blast-radius-hint evidence/export-plan.json --out evidence/verifier-plan.txt
       - name: Verifier sessions (fresh, read only, use the app; one per focus, in parallel)
         # Playwright MCP loads the test user's storage state written by the Playwright step.
         # Each session gets its own browser context and run tag (spike 0.16).
@@ -2074,7 +2111,7 @@ jobs:
         run: |
           python3 -I gate/lcp/merge_danger_floor.py --repo pr --base "$BASE_SHA" \
             --rules gate/lcp/danger-rules.yml \
-            --schema-plan evidence/schema-plan.json --security-plan evidence/security-plan.json \
+            --plan evidence/export-plan.json \
             --gate-dir evidence --out evidence/danger-floor.json
       - name: Review agent, standards and spec passes in parallel (read only; may raise, never lower)
         working-directory: gate
@@ -2128,10 +2165,10 @@ The floor comes from `gate/lcp/danger-rules.yml`, run by a trusted script. Final
 | `docs/**` (including `docs/research/**`), `handoff/**`, `docs/lessons-learned.md` | 0 | L2 |
 | `tests/dev/**`: the executor's own red-green checks | 1 | L2 |
 | Localisation files (for example output of `pac copilot extract-translation`) for wording already approved | 1 | L2 |
-| Builder inputs for views, form layout, sitemap entries or new optional columns, where the schema plan is additive only and a locked scenario covers the change | 2 | L2 |
-| Generated solution files under `src/**` that match a builder change in the same PR | Inherits the builder input's floor | As the input |
-| Per-component builders `workflows/build/*.py` | 3 | Never |
-| Flow definition inputs that change logic | 3 | L3 candidate [untested] |
+| Exported views, form layout, sitemap entries or new optional columns under `src/**` (and the App Spec input that made them), where the export-diff plan is additive only and a locked scenario covers the change | 2 | L2 |
+| Exported cloud flows under `src/**` that change logic | 3 | L3 candidate [untested] |
+| Any other exported solution file under `src/**` | 3 | Never |
+| Generator inputs and wrappers not listed below | 3 | Never |
 | Copilot Studio workspace changes: topics, instructions, tools, knowledge (`agents/**`) | 3 | L3 candidate [untested] |
 | Code app source (`apps/**`) | 3 | L3 candidate [untested] |
 | Interface changes that need `sync_agent_tools.py` | 4 | Never |
@@ -2144,7 +2181,9 @@ The floor comes from `gate/lcp/danger-rules.yml`, run by a trusted script. Final
 | Credentials, secrets, connection secrets | 10 | Never, and protected |
 | `tests/acceptance/**` (locked, including verify profiles), `tests/scenarios/**`, `scripts/**`, `.github/**` (workflows, hooks, agents, instructions), `AGENTS.md`, `CLAUDE.md`, `glossary.md`, `docs/adr/**`, `coding-standards.md`, `.specify/**`, `.claude/**`, `.mcp/**`, `builders/lib/**` | 10 | Never, and protected |
 
-### B.2 Plan rules (from `--plan` against the Test baseline)
+These are the low-code path rules, remapped to the driver's exported folders for live build (7 November 2026). The exact folder names under `src/` follow the YAML layout and are confirmed by spike 0.18. The pro-code Merge Danger path rules come at Stage 5 and stay separate.
+
+### B.2 Plan rules (from `plan_from_export.py`: the PR's export against its base commit)
 
 | Plan finding | Floor | Door |
 |---|---|---|
@@ -2173,7 +2212,7 @@ The floor comes from `gate/lcp/danger-rules.yml`, run by a trusted script. Final
 
 Each pass raises only for its own axis.
 
-- **Spec pass.** Missing scenario coverage for new logic. Generated output that does not correspond to its builder. A blast radius wider than the paths suggest (a shared flow, a table used by other apps). A breach of a decision record in `docs/adr/`. Unrequested features. Security-relevant logic in an innocent-looking file. Domain terms used against `glossary.md`.
+- **Spec pass.** Missing scenario coverage for new logic. Exported changes that `state.md` does not record, or that fall outside the story; generator output that does not match its input. A blast radius wider than the paths suggest (a shared flow, a table used by other apps). A breach of a decision record in `docs/adr/`. Unrequested features. Security-relevant logic in an innocent-looking file. Domain terms used against `glossary.md`.
 - **Standards pass.** Breaches of `coding-standards.md`, and the named smells below when they will cost maintenance.
 - **Both.** Any doubt it cannot resolve from the evidence, listed under `unknowns`.
 
@@ -2240,12 +2279,12 @@ sample:
   random_share: 0.20            # assumption; plus every PR with unknowns or a wide blast radius
 classes:
   views-forms-additive:
-    rules: [builder-inputs-additive, localisation, docs]
+    rules: [export-additive, localisation, docs]
     rung: L2
     since: "2027-02-10"
     signed_off_by: boroon
   flow-logic:
-    rules: [flow-definition-logic]
+    rules: [export-flow-logic]
     rung: L1                    # L3 candidate once the verify profile covers every key flow
 drop_back:
   escaped_defect: immediate
@@ -2268,23 +2307,29 @@ description: GET AI execution agent for one Power Platform story in one factory 
 model: claude-sonnet-5.5
 tools: ["read", "edit", "search", "shell"]
 ---
-You are the GET AI execution agent. You build one story, in one lane environment,
-using builders, pac and the Dataverse Web API. You do not decide when the work is done:
-the gate does.
+You are the GET AI execution agent. You build one story, live in one lane environment,
+through pac, the Dataverse Web API, Dataverse MCP and the App Spec apply. The driver
+exports the solution after you stop; you do not. You do not decide when the work is
+done: the gate does.
 
 Start of session
 1. Read AGENTS.md, specs/<NNN>/spec.md, the locked scenarios for this story,
    glossary.md, docs/adr/, handoff/<ado-id>/ (state.md, learnings.json, findings.md if
    present) and the last 50 entries of docs/lessons-learned.md. Lessons are hints, not
-   rules. Use the glossary's terms and schema names.
+   rules. Use the glossary's terms and schema names. Read the driver's inventories
+   (components, environment variables, connection references) before the source in src/.
 2. Confirm the work item holds an approved mock or prototype if the story changes
    anything a user sees (screens, cards, agent wording). If not, write a Markdown mock
    to handoff/<ado-id>/mock.md and PARK with type design_approval.
 3. Run lcp-verify smoke. If it fails, stop and report; do not build on a broken lane.
 
 Rules
-- Code over click-ops. Change builder inputs and per-component builders, then run them.
-  Never edit generated files or customizations.xml by hand.
+- Code over click-ops, live in the lane. Change the lane through pac, the Web API (a
+  solution-aware flow is a workflows row), Dataverse MCP or the App Spec apply, and keep
+  every component in the story's solution. Never edit the exported files in src/ or
+  customizations.xml: the driver overwrites src/ with its own export. For generator-backed
+  parts (the App Spec, agents/, apps/, PCF, plugins/), edit the inputs and run the generator.
+- Use the lcp-flow-patterns skill for every flow you create or change.
 - If a step needs the portal or an interactive consent (OAuth connection, admin consent,
   first share of a code app, agent account), STOP. Write handoff/<ado-id>/park.json with
   type portal_step and exact steps for a human, print "PARK: <instruction>" as your last
@@ -2301,27 +2346,34 @@ Rules
 - Never edit tests/acceptance/, tests/scenarios/, scripts/, .github/, AGENTS.md,
   CLAUDE.md, glossary.md, docs/adr/, coding-standards.md, builders/lib/ or deploy/.
   The gate will reject it.
-- Never run git push, pac auth, pac admin or pac solution delete. The driver pushes.
+- Never run git push, pac auth, pac admin, pac solution delete, pac solution export,
+  pac solution unpack or pac solution clone. The driver exports and pushes.
 - Use the dataverse-safe-api skill for every Web API call: honour Retry-After, keep
   concurrency at 8 or less, batch 10 at a time, tag every test row with the run tag.
 - After any Entra change, poll for the expected state with a deadline before testing.
 - Stop when the credit cap is reached. Do not ask for more.
+- Context cap: keep the session under about a third of the context window. Near it, bring
+  handoff/<ado-id>/state.md and learnings.json up to date and end the session; the driver
+  starts a fresh one from them, within the same story budget.
 
 How to build (TDD at the seams)
 - Red before green, one slice at a time. At each seam the testability contract names,
   first write a check in tests/dev/<ado-id>/ or an lcp-verify call, and see it fail.
   Then build until it passes. Your own checks are not acceptance evidence.
-- Run builders and lints often. Run one scenario at a time while building.
+- Run lcp-verify and lints often. Run one scenario at a time while building.
 - Run the full lane suite once at the end: the locked scenarios and the profile's
   journeys, through lcp-verify.
 - Do not refactor outside the story. List refactor candidates in the PR body instead.
 
 Each loop
-- Run the builders, git diff, pac solution pack and the fast checks. Fix what fails.
-  At most 5 loops. Commit after each loop with the trailer Factory-Run-Id: <run_id>.
+- Run lcp-verify against the lane, then stop for the driver's fast checks (export, pack,
+  manifest check, lints, generator check). Fix what fails, in the lane. At most 5 loops.
+  Commit your own files (handoff/, tests/dev/, generator inputs) after each loop with the
+  trailer Factory-Run-Id: <run_id>. The driver commits the export.
 - Use lcp-verify to see what you built: open the route, query the rows, run the flow.
   Keep its evidence.json files in handoff/<ado-id>/evidence/verify/.
 - Record every change applied to the lane in handoff/<ado-id>/state.md, with the command.
+  The reviewer checks the export against this record, so an unrecorded change is a finding.
 - Append what you tried to handoff/<ado-id>/learnings.json, and new gotchas to
   docs/lessons-learned.md. Update docs/architecture.md if the structure changed.
 
@@ -2387,11 +2439,14 @@ You are the GET AI code review agent. A trusted script has already computed the 
 Danger floor. You may raise the score. You may never lower it. You run as one of two
 parallel passes; your axis is set at the end of this prompt.
 
-Read: the diff against the base, evidence/danger-floor.json, both plans, the verifier
-verdicts, AGENTS.md, glossary.md, docs/adr/, coding-standards.md and the spec.
+Read: the diff against the base, evidence/danger-floor.json, evidence/export-plan.json,
+the driver's inventories, handoff/<ado-id>/state.md, the verifier verdicts, AGENTS.md,
+glossary.md, docs/adr/, coding-standards.md and the spec. Read the inventories before
+the exported source.
 
 Spec axis: does the code faithfully implement the story, and only the story?
-1. Generated files correspond to their builder changes.
+1. The exported files under src/ match the changes recorded in state.md, and generator
+   output matches its inputs. An exported change state.md does not explain is a finding.
 2. Every new or changed behaviour has a locked scenario. Name any that do not.
 3. The blast radius: tables, flows, apps, agents, roles and integrations touched, and who
    else uses them.
@@ -2416,7 +2471,7 @@ request review.
 
 ### C.4 `AGENTS.md` (project repo; `CLAUDE.md` holds one line pointing here)
 
-About 100 lines, and a map, not a manual: the repo layout (`src/` generated, `workflows/build/` editable, `builders/lib/`, `tests/acceptance/` and `tests/scenarios/` protected, `tests/dev/` yours, `agents/`, `apps/`, `plugins/`, `handoff/<ado-id>/`); where the glossary, decision records and coding standards live, without copying them in; which skill covers which job (`builder-pattern`, `dataverse-safe-api`, `park-protocol`, `lcp-verify`, `pr-body`, the vendored Microsoft plugins); and one line on done: "The gate passes and the merge policy allows it. Not before, and never by you." The `trace-reviewer` agent (V2.1) is unchanged, with parked stories, drift detections, evaluator disagreements and sampled L2 defects added to its reading list.
+About 100 lines, and a map, not a manual: the repo layout (`src/` exported by the driver and never edited, with its inventories; generator inputs and code parts editable; `builders/lib/`, `tests/acceptance/` and `tests/scenarios/` protected, `tests/dev/` yours, `agents/`, `apps/`, `plugins/`, `handoff/<ado-id>/`); where the glossary, decision records and coding standards live, without copying them in; which skill covers which job (`lcp-live-build`, `lcp-flow-patterns`, `dataverse-safe-api`, `park-protocol`, `lcp-verify`, `pr-body`, the vendored Microsoft plugins); and one line on done: "The gate passes and the merge policy allows it. Not before, and never by you." The `trace-reviewer` agent (V2.1) is unchanged, with parked stories, drift detections, evaluator disagreements and sampled L2 defects added to its reading list.
 
 ### C.5 The `lcp-verify` skill (`factory-gates/lcp/verify/`, vendored to `.claude/skills/lcp-verify/`)
 
@@ -2577,7 +2632,7 @@ Tags: `factory-eligible`, `discovery-map` (Wayfinder parent), `triage-inbox` (ra
 | Integrated, UAT Ready, In UAT, Prod Ready | Resolved |
 | Done | Completed |
 
-Triaged bugs use the same states: the orchestrator files a draft bug in New with its triage fields, and a human moves it on. Raw `triage-inbox` items close as Done (grouped) once their group has a draft bug. A `Finding` is a separate work item type with New, Decided (lint, builder change, ticket or no action) and Done.
+Triaged bugs use the same states: the orchestrator files a draft bug in New with its triage fields, and a human moves it on. Raw `triage-inbox` items close as Done (grouped) once their group has a draft bug. A `Finding` is a separate work item type with New, Decided (lint, skill or standards change, ticket or no action) and Done.
 
 ### D.3 Events
 
