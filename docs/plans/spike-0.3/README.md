@@ -45,6 +45,22 @@ Local checks before any run (5 November 2026, scratch harness, not committed): 4
 - **Billing.** Microsoft: since 15 December 2025, Dataverse MCP tools "are charged when accessed by AI agents created outside of Microsoft Copilot Studio", in Copilot Credits (the basic rate per 10 responses for every tool used here). A create may be refused if `factory-lane-1` has no Copilot Credit source. Not set up in advance; only if a run says so.
 - **`dataverse mcp allow <appId>`** can add an app to the allowed clients list from code, as a Dataverse admin. The probe does not use it; the list is changed in the portal (step C).
 
+## Findings so far (after run 2, 6 November 2026)
+
+The exit test (a read and a create through each path) is run 3. What runs 1 and 2 and the portal steps already show:
+
+1. **`/api/mcp` accepts an app-only token as a sign-in.** Before `getai-fl1-exec` was on the list, it answered 403, not 401, with "The application '<app id>' is not authorized to access MCP". The token had no `roles` and no `scp` (the API publishes `mcp.tools` only as a delegated scope), and that was not the first thing refused. Whether tool calls then work is run 3.
+2. **The allowed list is checked against the token's app ID.** For both paths the entry needed is the lane's own app (`getai-fl1-exec`). The Dataverse CLI's own app (`0c412cc3-...`), its admin consent and its list entry are not needed when the job signs in as our app.
+3. **The local proxy forwards the job's token.** It answers `initialize` itself and opens the real session on the first call that needs the server. An upstream error reaches the MCP client only as `-32603 An error occurred`; the cause (here `403 Forbidden`) is only in the proxy's stderr. A lane must keep the proxy's stderr in the night's trace (rule 16), or a failure is unreadable.
+4. **The Dataverse CLI does not share pac's profiles,** at least for a federated profile on Linux: it saw none after `pac auth create`. It needs its own `dataverse auth create --githubFederated`, which works first time and needs no secret.
+5. **The Dataverse CLI keeps its token cache unencrypted on Linux** (`~/.local/share/Microsoft/DataverseCli/tokencache_spn_msalv3.dat`), with a warning on every command, because a hosted runner has no keyring. Any process in the job can read it. In a lane the builder agent runs in that job by design, as the execute identity, so this adds no new reach; the job must still remove the profile at the end (`dataverse auth remove --all`, which also clears the cache).
+6. **`dataverse mcp --validate` gives the wrong advice for an app sign-in:** it tells you to allow the CLI's app, not the one in the token. Do not use it as a gate check.
+7. **The Dataverse CLI sends usage data by default.** Set `DATAVERSE_TELEMETRY_OPT_OUT=1` in every job that runs it.
+8. **An allowed MCP client is a solution component** (table `allowedmcpclient`). Its unique name must start with a publisher's customisation prefix (`new_getaifl1exec` here; plain `getaifl1exec` was refused). So the entry for each lane app can ship in a GET AI solution with the `getai` publisher, or be added by `dataverse mcp allow <app id>`, instead of by hand in the portal (rule 8). Not tried here.
+9. **The package can be pinned properly.** `@microsoft/dataverse` has no dependencies and no install scripts; fetching the tarball, checking it against the registry's `sha512`, and `npm install --global --offline --ignore-scripts` from that file works on a GitHub-hosted runner. `npx` would skip the hash check.
+10. **Read a federated credential back before the first run.** Entra accepts any subject string; a lost first letter (`epo:` for `repo:`) was caught only by reading it back with `az ad app federated-credential list`.
+11. **Still open until run 3:** whether `read_query` and `create_record` work for an app-only caller, whether a create is refused for want of Copilot Credits (billing), and the tool argument names.
+
 ## Portal steps (Boroon)
 
 ### A. Federated credential on `getai-fl1-exec` (after run 1)
@@ -95,9 +111,10 @@ Needs: Power Platform Administrator. The Advanced Settings page opens a list ins
 1. As B steps 1 and 2, then **Advanced Settings** under Dataverse Model Context Protocol.
 2. **New** (a new client entry):
    - Name: `getai-fl1-exec`
+   - Unique Name: `new_getaifl1exec`. It must start with a publisher's customisation prefix: `getaifl1exec` on its own was refused on 6 November 2026 with "Export key attribute uniquename for component allowedmcpclient must start with a valid customization prefix" (error `0x800608ad`). `new` is the usual prefix of "Default Publisher for <environment>"; if refused, read the prefix from make.powerapps.com, Solutions, Publishers. The Microsoft entries have no prefix because they come from Microsoft's own solutions. **Finding:** an allowed MCP client is a solution component (`allowedmcpclient`), so the entry can ship in a solution or be added by code (`dataverse mcp allow`), not by hand per lane
    - Application (client) ID: `getai-fl1-exec`'s Application (client) ID
    - **Is Enabled**: Yes
-3. **Save & Close**. Give it five minutes before run 3 (a cache delay is likely; Microsoft documents about five minutes for the Finance and Operations list).
+3. **Save & Close**. Done by Boroon on 6 November 2026 at 01:10:58 UTC. Read back (read-only, Web API under Boroon's own sign-in, table `allowedmcpclient`, entity set `allowedmcpclients`): name `getai-fl1-exec`, unique name `new_getaifl1exec`, `isenabled` true, state active, `applicationid` equal to `getai-fl1-exec`'s app ID. Give it five minutes before run 3 (a cache delay is likely; Microsoft documents about five minutes for the Finance and Operations list).
 
 ### D. Only if a run asks for it
 
