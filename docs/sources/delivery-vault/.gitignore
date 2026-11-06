@@ -1,0 +1,17 @@
+# Defensive ignores, not permitted project storage locations.
+# Project connections and client work belong outside this checkout.
+.local/
+.cache/
+raw-client-payloads/
+*.tmp
+*.log
+
+# Credentials must never enter the vault, even when ignored
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+credentials.json
