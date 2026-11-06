@@ -1,6 +1,8 @@
 # Spike 0.3: Dataverse MCP with an app-only token
 
-Plan section 11.1, row 0.3. Session 13, 5 November 2026. The result goes in `docs/progress.md` (Session 13).
+Plan section 11.1, row 0.3. Session 13, 5 and 6 November 2026. The result is in `docs/progress.md` (Session 13).
+
+**Result: pass on both paths** (run 36819036, 6 November 2026). A read and a create succeeded headless through the local proxy and through the remote endpoint, signed in as `getai-fl1-exec` with no secret. Findings below.
 
 Exit test: a read and a create succeed headless. Record which of the two paths work:
 
@@ -45,11 +47,11 @@ Local checks before any run (5 November 2026, scratch harness, not committed): 4
 - **Billing.** Microsoft: since 15 December 2025, Dataverse MCP tools "are charged when accessed by AI agents created outside of Microsoft Copilot Studio", in Copilot Credits (the basic rate per 10 responses for every tool used here). A create may be refused if `factory-lane-1` has no Copilot Credit source. Not set up in advance; only if a run says so.
 - **`dataverse mcp allow <appId>`** can add an app to the allowed clients list from code, as a Dataverse admin. The probe does not use it; the list is changed in the portal (step C).
 
-## Findings so far (after run 2, 6 November 2026)
+## Findings (after run 3, 6 November 2026)
 
-The exit test (a read and a create through each path) is run 3. What runs 1 and 2 and the portal steps already show:
+**Result: pass on both paths.** A read and a create succeeded headless through the local proxy and through the remote endpoint, signed in as `getai-fl1-exec` with no secret (run 3).
 
-1. **`/api/mcp` accepts an app-only token as a sign-in.** Before `getai-fl1-exec` was on the list, it answered 403, not 401, with "The application '<app id>' is not authorized to access MCP". The token had no `roles` and no `scp` (the API publishes `mcp.tools` only as a delegated scope), and that was not the first thing refused. Whether tool calls then work is run 3.
+1. **`/api/mcp` accepts an app-only token, and tool calls work with it.** The token has no `roles` and no `scp` (the API publishes `mcp.tools` only as a delegated scope), yet `read_query` and `create_record` both worked once the app was on the allowed list. Before that, the answer was 403, not 401: "The application '<app id>' is not authorized to access MCP".
 2. **The allowed list is checked against the token's app ID.** For both paths the entry needed is the lane's own app (`getai-fl1-exec`). The Dataverse CLI's own app (`0c412cc3-...`), its admin consent and its list entry are not needed when the job signs in as our app.
 3. **The local proxy forwards the job's token.** It answers `initialize` itself and opens the real session on the first call that needs the server. An upstream error reaches the MCP client only as `-32603 An error occurred`; the cause (here `403 Forbidden`) is only in the proxy's stderr. A lane must keep the proxy's stderr in the night's trace (rule 16), or a failure is unreadable.
 4. **The Dataverse CLI does not share pac's profiles,** at least for a federated profile on Linux: it saw none after `pac auth create`. It needs its own `dataverse auth create --githubFederated`, which works first time and needs no secret.
@@ -59,7 +61,9 @@ The exit test (a read and a create through each path) is run 3. What runs 1 and 
 8. **An allowed MCP client is a solution component** (table `allowedmcpclient`). Its unique name must start with a publisher's customisation prefix (`new_getaifl1exec` here; plain `getaifl1exec` was refused). So the entry for each lane app can ship in a GET AI solution with the `getai` publisher, or be added by `dataverse mcp allow <app id>`, instead of by hand in the portal (rule 8). Not tried here.
 9. **The package can be pinned properly.** `@microsoft/dataverse` has no dependencies and no install scripts; fetching the tarball, checking it against the registry's `sha512`, and `npm install --global --offline --ignore-scripts` from that file works on a GitHub-hosted runner. `npx` would skip the hash check.
 10. **Read a federated credential back before the first run.** Entra accepts any subject string; a lost first letter (`epo:` for `repo:`) was caught only by reading it back with `az ad app federated-credential list`.
-11. **Still open until run 3:** whether `read_query` and `create_record` work for an app-only caller, whether a create is refused for want of Copilot Credits (billing), and the tool argument names.
+11. **MCP writes are attributed to the lane's application user,** like Web API writes, so audit stays per lane. They still change the environment, so the lane drift check (plan 5.5) must catch them if they skip the builders.
+12. **The tool list differs from Microsoft's page:** 15 tools on both paths, no `search_data` (needs Dataverse search), no `invoke_api`, an undocumented `create_skill_resource`. `create_record` takes `item` as an object. Agent instructions should read the tool list, not the docs.
+13. **Billing is unclear.** Reads and creates were not refused with no Copilot Credit source set up. Whether they were metered, and to what, is not checked (Power Platform admin centre, Licensing).
 
 ## Portal steps (Boroon)
 
@@ -156,6 +160,25 @@ IDs are shown as `<app id>` here; the private run log has them.
 - **Remote path:** the app-only token had `aud` `https://factory-lane-1.crm6.dynamics.com`, `appid` `<app id>`, `idtyp` `app`, `roles` none, `scp` none, `ver` 1.0. `/api/mcp` answered **HTTP 403**, body: `The application '<app id>' is not authorized to access MCP. For details on approved clients and instructions to enable additional applications, see: https://aka.ms/configuremcpclientlist`. Not 401: the token was accepted as a sign-in, and the refusal is the allowed-clients check, by the token's app ID.
 - Both paths are blocked by the same thing: `getai-fl1-exec` is not on the list. The Dataverse CLI app entry is not involved when the profile is our own app.
 - No token-shaped string (`eyJ`) in the log. Profiles cleared at the end ("Removed all 1 authentication profile(s)", "Authentication profiles and token cache removed").
+
+### Run 3: both paths with a create, `getai-fl1-exec` on the allowed list (run 36819036, 6 November 2026): **pass on both paths**
+
+Started at 03:22 UTC, about two hours after the list entry was saved.
+
+| Path | initialize | tools | read | create | read back |
+|---|---|---|---|---|---|
+| Local proxy (`dataverse mcp`, own federated profile) | pass | 15 | pass | pass | pass |
+| Remote `/api/mcp`, app-only token | pass | 15 | pass | pass | pass |
+
+- **`--validate`** now says "GA endpoint is valid, but Preview endpoint is not configured" (the Preview toggle is off, as intended).
+- **Servers:** the local proxy reports `dataverse 1.0.88.0` with capabilities logging, prompts, resources and tools; the remote endpoint reports `Microsoft Dataverse MCP Server 1.0.0` with tools only. Both list the same 15 tools: `commit_file_upload`, `create_record`, `create_skill_resource`, `create_table`, `delete_record`, `delete_skill`, `delete_table`, `describe`, `file_download`, `init_file_upload`, `read_query`, `search`, `update_record`, `update_table`, `upsert_skill`. Against Microsoft's list: no `search_data` (it needs Dataverse search on), no `invoke_api`, and an undocumented `create_skill_resource`.
+- **Argument names:** `read_query` takes `querytext` (string, required) and `top` (integer, optional). `create_record` takes `tablename` (string) and `item` (an **object** of column values, not a JSON string).
+- **Read:** `SELECT TOP 1 name FROM organization` returned `factory-lane-1` on both paths.
+- **Create:** `create_record` on `account` replied "Created record with ID <guid>" on both paths; the read-back by name found each row.
+- **Who made the rows:** the clean-up found both by `_createdby_value` = `getai-fl1-exec`'s application user. So MCP writes are attributed to the lane's own identity, which keeps audit per lane.
+- **Billing:** neither the reads nor the creates were refused, though no Copilot Credit source was set up for `factory-lane-1`. Whether they were metered is not checked yet.
+- **Clean-up:** "Probe rows created by this app user: 2", each deleted with HTTP 204, "Probe rows left: 0". Checked again afterwards, read-only under Boroon's own sign-in: no `account` row starting `spike-0.3`, and the `account` table is empty.
+- No token-shaped string (`eyJ`) in the log. Profiles cleared.
 
 ## Clean-up after the spike
 
