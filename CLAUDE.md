@@ -75,7 +75,7 @@ Everything the plan cites is now in the repo. Boroon supplied the full research 
 
 ## Where to find what in the main plan
 
-Line numbers are as at 4 November 2026 (Session 12; unchanged since Build 3). If the file has changed, run `grep -n '^## ' docs/sources/plan-v3.1.md`.
+Line numbers are as at 6 November 2026 (Session 13; unchanged since Build 3; spikes 0.2 and 0.3 edited lines in place). If the file has changed, run `grep -n '^## ' docs/sources/plan-v3.1.md`.
 Read by line range, for example offset 379 and limit 200.
 
 | Lines | Section |
