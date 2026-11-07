@@ -27,12 +27,12 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 | Wed 11 Nov | Thu 12 Nov | 2463 | Spike 0.19: reset fidelity | Laptop | 2462 | |
 | Sat 7 Nov | Sat 7 Nov | 2543 | Plan the rest of Stage 1 in its own planning session (brought forward; the gate scripts left for after 2462) | Documents | | **Done 7 Nov** (Session 17; `docs/plans/stage-1-day-gate-plan.md`) |
 | Sat 7 Nov | Sat 7 Nov | 2545 | Templates: `glossary.md`, `docs/adr/`, `coding-standards.md` header (day-gate DG1, in `staging/`; brought forward from Thu 12 Nov) | Documents | 2543 | **Done 7 Nov** (Session 18; `staging/`) |
+| Thu 12 Nov | Fri 13 Nov | 2549 | Apply the third-party skills policy to every vendored skill (moved from Thu 19 to Fri 20 Nov) | Documents | | |
 | Fri 13 Nov | Fri 13 Nov | 2433 | Check Dataverse MCP billing for `factory-lane-1` | Laptop (portal) | | |
 | Fri 13 Nov | Fri 13 Nov | 2505 | Review and merge Dependabot PRs #9, #10 and #11 | Laptop | | |
 | Mon 16 Nov | Tue 17 Nov | 2461 | Spike 0.14: skills and lane tools headless, as the lane identity | Laptop | 2462 | |
 | Wed 18 Nov | Thu 19 Nov | 2511 | Bring `factory-gates` in line with the live-build plan | Laptop | 2462 | |
 | Wed 18 Nov | Wed 18 Nov | 2466 | Spike 0.17: session export for mining (DG2; the export how-to and the SharePoint folder) | Laptop (apps only, no tenant) | | |
-| Thu 19 Nov | Fri 20 Nov | 2549 | Apply the third-party skills policy to every vendored skill | Documents | | |
 | Fri 20 Nov | Fri 20 Nov | 2509 | Pin the Copilot CLI install in `verify-in-test` | Laptop | | |
 | Fri 20 Nov | Fri 20 Nov | 2545 | The 46 standards, anonymised, into a new private `GetAI-IP/factory-manifestos`; read the older vault's retro workflow and design template (DG3). 2545 finishes here, not on Tue 17 Nov | Laptop | 2545 templates (done 7 Nov) | |
 | Mon 23 Nov | Fri 27 Nov | 2538 | Write the remaining Stage 1 gate scripts (now also the `check_spec.py` job, D3) | Laptop | 2511, 2543 | |
@@ -81,4 +81,5 @@ Date them when Stage 4 ends.
 ## Changes
 
 - **7 November 2026 (Session 17, cloud).** 2543 done early. 2545 split: templates move into the freed slot (Thu 12 Nov); the standards seed moves to Fri 20 Nov, so 2545 finishes on 20 Nov, not 17 Nov. 2466 is on the laptop (it needs the apps). 2544 pins 1.3.x. 2546 now also needs 2541 and 2538. New: the move on Fri 4 Dec, the retention checkpoint on Mon 9 Nov, and the mining cut-off on Fri 4 Dec. 2539 now also needs the move. The detail is in `docs/plans/stage-1-day-gate-plan.md`. ADO is not yet updated (cloud session); the next laptop session does it.
-- **7 November 2026 (Session 18, cloud).** DG1, the templates half of 2545, done on Sat 7 Nov, brought forward from Thu 12 Nov. 2545 now starts Sat 7 Nov, not Thu 12 Nov, and still finishes Fri 20 Nov (DG3). Thu 12 Nov's documents slot is now free; nothing has moved into it. ADO is not yet updated (cloud session); the next laptop session does it.
+- **7 November 2026 (Session 18, cloud).** DG1, the templates half of 2545, done on Sat 7 Nov, brought forward from Thu 12 Nov. 2545 now starts Sat 7 Nov, not Thu 12 Nov, and still finishes Fri 20 Nov (DG3). Thu 12 Nov's documents slot is now free. ADO is not yet updated (cloud session); the next laptop session does it.
+- **7 November 2026 (Session 18, later, at Boroon's word).** 2549 moves into the free slot: Thu 12 to Fri 13 Nov, from Thu 19 to Fri 20 Nov, still two days. It needs nothing first and nothing waits on it. Fri 20 Nov now holds only laptop work (2509 and 2545's DG3). ADO not yet updated.

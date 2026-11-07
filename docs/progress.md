@@ -117,18 +117,24 @@ Time and tokens: **not recorded.** This was a cloud session, which has no local 
 2. Then re-run the schedule-order query (Session 17's item 11) and check it matches `docs/plans/schedule.md`.
 
 Open items:
-- **Thu 12 Nov's documents slot is free.** 2549 (third-party skills policy, Thu 19 to Fri 20 Nov, needs nothing first) could move into it, which would also ease Fri 20 Nov. Boroon to decide; nothing moved.
+- **Thu 12 Nov's documents slot was free.** Boroon moved 2549 (third-party skills policy) into it, later in this session: see below.
 - **The skill's glossary example breaks its own rule.** In `glossary-format.md`, the term "Customer" has no `_Schema_` line, though the rules say one per term. Not changed here (rule 17). The template does not use that term.
 - **"Change both in the same PR" stops working after DG8.** The skill stays in this repo on github.com; the templates move to `GetAI-IP/factory-manifestos` on GHE. DG8 should decide how to keep them in step, for example paired PRs that link each other.
 
 Next steps:
 1. Boroon: review this branch. A pull request when he asks.
 2. Monday 9 November, laptop, **Session 19**: the ADO updates from Sessions 17 and 18, and raise `cleanupPeriodDays`, at Boroon's word. Then spike 0.18 (2462), then 0.19 (2463), on `claude/session-19-2462-yaml-export`.
-3. Next on the documents track: 2549 on Thu 19 Nov (or Thu 12 Nov, if Boroon moves it). Then DG3 on the laptop on Fri 20 Nov.
+3. Next on the documents track: 2549 on Thu 12 and Fri 13 Nov (moved, see below), a cloud session. Then DG3 on the laptop on Fri 20 Nov.
 
 Later (same session, at Boroon's word: "make sure we have these two gotchas recorded"): the skill's missing `_Schema_` line and the split of the two format copies after 4 December are now in Open items at the top of this file. The second is also step 5 and the "done when" of DG8 in `docs/plans/stage-1-day-gate-plan.md`, and both staging READMEs say the "same PR" rule holds only until the move.
 
 Later again (same session, at Boroon's word: "add the Customer fix to this branch"): `.claude/skills/getai-domain-modeling/glossary-format.md` now gives the example term "Customer" the line `_Schema_: none yet`. That closes the first gotcha. The template needed no change.
+
+Then Boroon merged PR 28 (https://github.com/boroonmahanta/overnight-ai-factory/pull/28, merge commit `a5f70e3`), which holds everything above. The branch was restarted from `main` at that merge for the change below.
+
+Later still (same session, at Boroon's word: "move 2549 to Thursday 12 November"):
+- `docs/plans/schedule.md`: 2549 now runs Thu 12 to Fri 13 Nov, from Thu 19 to Fri 20 Nov, still two days. It needs nothing first and nothing waits on it. A "Changes" line.
+- **One more ADO update for the next laptop session:** 2549, Start Date Thu 12 Nov 2026 and Finish Date Fri 13 Nov 2026 (were Thu 19 and Fri 20 Nov). It has no predecessor or successor links to change. Then the schedule-order query (Session 17's item 11) should still match `docs/plans/schedule.md`.
 
 ## Session 17, 2026-11-07, branch `claude/session-17-2543-day-gate-plan`
 
