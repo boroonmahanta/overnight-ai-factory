@@ -185,7 +185,8 @@ Later (7 November 2026, same branch, each at Boroon's word in this chat):
   - Every story of Sessions 10 to 15 and the Ways-of-Working page has its session's totals in its body.
   - Sessions 1 to 9 ran in Claude's cloud, so their stories say "not recorded".
   - `CLAUDE.md` now has an end-of-session step to do this every time.
-  - Session 15's numbers were recorded mid-session and are refreshed at close.
+  - Session 15's numbers were refreshed at close on its four stories (ADO 2666, 2668, 2674, 2724): active 1 h 21 min, from 09:54 to 11:50 AEDT; 291,012 output tokens; 44,432,129 processed in all, 43,226,145 of them cache reads; from this session and its three forks.
+- **ADO check after the load:** all 312 items (IDs 2425 to 2736) match the draft on type, state, title and parent. 26 Stories are Done and 108 Proposed; 78 Tasks are Closed and 51 New.
 
 ## Session 14, 2026-11-06, branch `claude/session-14-vault-assessment`
 
