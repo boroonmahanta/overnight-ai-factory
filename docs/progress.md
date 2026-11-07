@@ -68,6 +68,7 @@ Next steps:
 - **Sources are complete.** Boroon uploaded the whole research folder as a zip. Every file was checked by checksum against the repo, duplicates were skipped, and the rest were added. The other session ("Overnight AI software factory", id `session_019bVvHWrUECf7G5YiXU3fKW`) is no longer needed for sources and can be deleted.
 - **Not read in full.** The files added from the zip were saved but not read in this session: the reports V1 and V2, the runtime and costs note, the eight GitHub and Azure notes, the five Power Platform notes and the one-pager. The five workshop slide images were saved but not viewed. The plan condenses most of them. Read one only when a task needs its detail.
 - **Decisions still waiting on Boroon** (from `docs/analysis/tshirt-sizing.md`): approve the shortlist of skills to read in full before any are adopted (plan section 8.3); decide whether to write a GET AI router skill that routes by size. The sizes themselves are approved, and the ADO field `Custom.WorkSize` is decided (7 November 2026, Session 16).
+- **A second approver is needed by Friday 4 December 2026** (Session 16 schedule). 2520 (undo the stopgaps) and 2521 (apply the rulesets) need a second person and the three CODEOWNERS teams; without them the Stage 1 exit test (2539, Friday 18 December) cannot happen. The dated order is in `docs/plans/schedule.md`.
 - **Spike 0.20, time and tokens per story on every engine, is not run** (Session 16). ADO story 2738 under Feature 2737 (Stage 1). It needs Claude Code's OpenTelemetry turned on through managed settings and somewhere to send it: Application Insights does not exist yet, so use a local collector first. The docs do not say whether the VS Code extension or the desktop app export it; this session runs in the desktop app, so test there first.
 - The Pocock v1.3 transcript ends mid-sentence at 14:28. The zip copy is the same, so the source itself is cut off.
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
@@ -94,14 +95,14 @@ Done:
   - **14.4:** a decision row. **15.1:** an open question for spike 0.20.
 - Updated `CLAUDE.md` (plan row, tshirt-sizing row, tool row, line map, rule 13, work sizes, stage 0 row, open questions) and `docs/analysis/tshirt-sizing.md` (the field is decided).
 - **ADO** (`getai-overnight-ai-factory`): created Feature **2737** "Time and tokens per story, every engine" under the Stage 1 epic (2467), and User Story **2738** "Spike 0.20: Record time and tokens on each story, every engine" under it, Proposed, tagged `factory-build`, `spike`, `stage-1`, `session-16`, related to 2666.
-- **Time and tokens** (in story 2738's body, planning only): active 0 h 24 min, from 11:56 to 12:20 AEDT; 49,180 output tokens; 7,139,130 processed in all, 6,745,384 of them cache reads; one local transcript.
+- **Time and tokens** (in story 2738's body, refreshed at close, including the schedule work): active 0 h 41 min, from 11:56 to 12:56 AEDT; 96,087 output tokens; 17,286,969 processed in all, 16,695,128 of them cache reads; one local transcript.
 
 Decisions:
 - **Time and tokens per story on every engine** (Boroon, 7 November 2026), as in plan 10.1 and 14.4. The transcript tool stays a fallback and out of the gate repo.
 - **`Custom.WorkSize` is added to Appendix D**, which settles that open sizing decision.
 - Spike 0.20 sits in the plan's spike table (stage 0 runs alongside stage 1) and in ADO under the Stage 1 epic, as Boroon named it.
 
-Files changed: `docs/sources/plan-v3.1.md`, `CLAUDE.md`, `docs/analysis/tshirt-sizing.md`, `docs/progress.md`. `tools/session_usage.py` is unchanged.
+Files changed: `docs/sources/plan-v3.1.md`, `CLAUDE.md`, `docs/analysis/tshirt-sizing.md`, `docs/progress.md`, and later the new `docs/plans/schedule.md`. `tools/session_usage.py` is unchanged.
 
 Open items:
 - Spike 0.20 is not run (Open items, top of this file).
@@ -110,8 +111,26 @@ Open items:
 - The one-pager and the Ways-of-Working page do not mention this. Refresh them only if they are shared again.
 
 Next steps:
-1. Boroon: review this branch; a planning pull request when he asks.
-2. Spike 0.20 in a later session: Claude Code's telemetry to a local collector from this desktop app, then the CLI, against one story whose branch carries its ADO ID.
+1. Boroon: review PR 25 (https://github.com/boroonmahanta/overnight-ai-factory/pull/25) and merge it.
+2. Follow `docs/plans/schedule.md`. Session 17, Monday 9 November: ADO 2462 (spike 0.18), then 2463 (spike 0.19), as a local session on the laptop, on a branch that carries the ADO ID (`claude/session-17-2462-yaml-export`).
+3. Spike 0.20 is dated 3 December, after spike 0.6.
+
+Later (7 November 2026, same branch, at Boroon's word in this chat):
+- Opened PR 25 into `main` (ready for review). The repo runs no CI on it.
+- Wrote the message to start Session 17 on ADO 2462 and 2463 (in the chat; the schedule holds the same order).
+- Set out the logical order of the 35 open stage 0 and stage 1 stories. Boroon asked for it to be recorded with a date against each, from Monday 9 November 2026.
+- **New `docs/plans/schedule.md`:**
+  - every open stage 0 and stage 1 story, dated from 9 November, on two tracks: laptop and documents;
+  - the Stage 1 exit test (2539) on Friday 18 December;
+  - 21 December to 8 January left as buffer and holidays;
+  - stage 2 starting Monday 11 January with spike 0.13 (2448), then spikes 0.4 and 0.12 after the Ignite re-check;
+  - three checkpoints that are not ADO stories (engineers' session exports by 20 November, the Ignite re-check on 23 November, a second approver and the three CODEOWNERS teams by 4 December);
+  - 2450 and 2454 left undated (stages 5 and 6).
+- **ADO:**
+  - Start Date and Finish Date set on 33 User Stories (09:00 to 17:00 Sydney time);
+  - 32 predecessor links added for the real dependencies, as in the schedule's "Needs first" column;
+  - checked by a query: all 33 come back in schedule order.
+- `CLAUDE.md`: start step 2 points at the schedule, and the repo table has a row for it.
 
 ## Session 15, 2026-11-07, branch `claude/session-15-live-build`
 
