@@ -111,12 +111,12 @@ Open items:
 - The one-pager and the Ways-of-Working page do not mention this. Refresh them only if they are shared again.
 
 Next steps:
-1. Boroon: review PR 25 (https://github.com/boroonmahanta/overnight-ai-factory/pull/25) and merge it.
+1. Done: Boroon merged PR 25 (the plan edits, https://github.com/boroonmahanta/overnight-ai-factory/pull/25) at 12:29 AEDT on 7 November 2026. The schedule commit was pushed after that merge, so it goes in a second pull request.
 2. Follow `docs/plans/schedule.md`. Session 17, Monday 9 November: ADO 2462 (spike 0.18), then 2463 (spike 0.19), as a local session on the laptop, on a branch that carries the ADO ID (`claude/session-17-2462-yaml-export`).
 3. Spike 0.20 is dated 3 December, after spike 0.6.
 
 Later (7 November 2026, same branch, at Boroon's word in this chat):
-- Opened PR 25 into `main` (ready for review). The repo runs no CI on it.
+- Opened PR 25 into `main` (ready for review). The repo runs no CI on it. Boroon merged it at 12:29 AEDT, with the plan edits only.
 - Wrote the message to start Session 17 on ADO 2462 and 2463 (in the chat; the schedule holds the same order).
 - Set out the logical order of the 35 open stage 0 and stage 1 stories. Boroon asked for it to be recorded with a date against each, from Monday 9 November 2026.
 - **New `docs/plans/schedule.md`:**
