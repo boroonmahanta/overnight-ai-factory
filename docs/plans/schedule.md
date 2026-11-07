@@ -25,23 +25,25 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 |---|---|---|---|---|---|---|
 | Mon 9 Nov | Tue 10 Nov | 2462 | Spike 0.18: headless YAML export as the lane identity | Laptop | | |
 | Wed 11 Nov | Thu 12 Nov | 2463 | Spike 0.19: reset fidelity | Laptop | 2462 | |
-| Thu 12 Nov | Fri 13 Nov | 2543 | Plan the rest of Stage 1 in its own planning session | Documents | 2462 (its result shapes the gate scripts) | |
+| Sat 7 Nov | Sat 7 Nov | 2543 | Plan the rest of Stage 1 in its own planning session (brought forward; the gate scripts left for after 2462) | Documents | | **Done 7 Nov** (Session 17; `docs/plans/stage-1-day-gate-plan.md`) |
+| Thu 12 Nov | Thu 12 Nov | 2545 | Templates: `glossary.md`, `docs/adr/`, `coding-standards.md` header (day-gate DG1, in `staging/`) | Documents | 2543 | |
 | Fri 13 Nov | Fri 13 Nov | 2433 | Check Dataverse MCP billing for `factory-lane-1` | Laptop (portal) | | |
 | Fri 13 Nov | Fri 13 Nov | 2505 | Review and merge Dependabot PRs #9, #10 and #11 | Laptop | | |
 | Mon 16 Nov | Tue 17 Nov | 2461 | Spike 0.14: skills and lane tools headless, as the lane identity | Laptop | 2462 | |
-| Mon 16 Nov | Tue 17 Nov | 2545 | `glossary.md`, `docs/adr/` templates and the coding standards seed | Documents | 2543 | |
 | Wed 18 Nov | Thu 19 Nov | 2511 | Bring `factory-gates` in line with the live-build plan | Laptop | 2462 | |
-| Wed 18 Nov | Wed 18 Nov | 2466 | Spike 0.17: session export for mining | Documents | | |
+| Wed 18 Nov | Wed 18 Nov | 2466 | Spike 0.17: session export for mining (DG2; the export how-to and the SharePoint folder) | Laptop (apps only, no tenant) | | |
 | Thu 19 Nov | Fri 20 Nov | 2549 | Apply the third-party skills policy to every vendored skill | Documents | | |
 | Fri 20 Nov | Fri 20 Nov | 2509 | Pin the Copilot CLI install in `verify-in-test` | Laptop | | |
-| Mon 23 Nov | Fri 27 Nov | 2538 | Write the remaining Stage 1 gate scripts | Laptop | 2511, 2543 | |
-| Mon 23 Nov | Wed 25 Nov | 2544 | Pin Spec Kit 1.2.x; GET AI and `getai-lcp` presets v0 | Documents | 2543, 2545 | |
-| Thu 26 Nov | Fri 11 Dec | 2548 | Mine at least 20 human-led sessions | Documents | 2543, 2466, engineers' exports | |
+| Fri 20 Nov | Fri 20 Nov | 2545 | The 46 standards, anonymised, into a new private `GetAI-IP/factory-manifestos`; read the older vault's retro workflow and design template (DG3). 2545 finishes here, not on Tue 17 Nov | Laptop | 2545 templates (12 Nov) | |
+| Mon 23 Nov | Fri 27 Nov | 2538 | Write the remaining Stage 1 gate scripts (now also the `check_spec.py` job, D3) | Laptop | 2511, 2543 | |
+| Mon 23 Nov | Wed 25 Nov | 2544 | Pin Spec Kit 1.3.x (D2); GET AI and `getai-lcp` presets v0; the spec check script (D3) (DG4, DG5) | Documents | 2543, 2545, the Ignite re-check | |
+| Thu 26 Nov | Fri 11 Dec | 2548 | Mine at least 20 human-led sessions, in four batches: 26 Nov, 3 Dec, 8 Dec, 11 Dec (DG6) | Documents, or laptop if a cloud session cannot read the exports | 2543, 2466, engineers' exports | |
 | Mon 30 Nov | Mon 30 Nov | 2537 | Create the gate reader and holdout reader token Apps | Laptop | | |
-| Mon 30 Nov | Tue 15 Dec | 2546 | Locked scenario conventions and the Playwright kit v0 (draft 30 Nov to 2 Dec; test against `factory-test` 14 to 15 Dec) | Documents | 2543, 2447 | |
+| Mon 30 Nov | Tue 15 Dec | 2546 | Locked scenario conventions and the Playwright kit v0 (draft 30 Nov to 2 Dec, DG7; test against `factory-test` on Northwind 14 to 15 Dec, DG9) | Documents, then laptop | 2543, 2447, 2541, 2538 (the YAML runner) | |
 | Tue 1 Dec | Wed 2 Dec | 2451 | Spike 0.6: Copilot CLI on GHE.com | Laptop | | |
 | Thu 3 Dec | Thu 3 Dec | 2738 | Spike 0.20: time and tokens on each story, every engine | Laptop | 2451 | |
 | Fri 4 Dec | Fri 4 Dec | 2432 | Spike 0.7: nano AIU against billing | Laptop | 2451 (a day of runs) | |
+| Fri 4 Dec | Fri 4 Dec | new | Move `staging/` to `GetAI-IP/factory-manifestos` and `factory-gates` (DG8, D1) | Laptop | 2544, 2546 draft | |
 | Mon 7 Dec | Mon 7 Dec | 2465 | Spike 0.15: redaction and Universe | Laptop | 2451 | |
 | Mon 7 Dec | Mon 7 Dec | 2427 | Spike 0.1: credit ruling, the invoice check | Boroon | The credited subscription connected to a cost centre | |
 | Tue 8 Dec | Tue 8 Dec | 2541 | Bootstrap `factory-test` with its test identity and test user | Laptop | | |
@@ -52,7 +54,7 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 | Thu 17 Dec | Thu 17 Dec | 2520 | Undo the second-approver stopgaps | Laptop | The second approver | |
 | Thu 17 Dec | Thu 17 Dec | 2529 | Make `self-test` a required status check | Laptop | The second approver | |
 | Thu 17 Dec | Thu 17 Dec | 2521 | Apply the four rulesets (move step 12), Evaluate mode | Laptop | 2520, 2531, the three teams | |
-| Fri 18 Dec | Fri 18 Dec | 2539 | Run the full gate on a human PR in Test: **Stage 1 exit test** | Laptop | 2521, 2537, 2538, 2451, 2459, 2544, 2546, 2548 | |
+| Fri 18 Dec | Fri 18 Dec | 2539 | Run the full gate on a human PR in Test, on the Northwind sample solution (D6): **Stage 1 exit test** | Laptop | 2521, 2537, 2538, 2451, 2459, 2544, 2546, 2548, the move | |
 | Mon 11 Jan | Tue 12 Jan | 2448 | Spike 0.13: ADO and GHE.com (**Stage 2 starts**) | Laptop | 2539 | |
 | Wed 13 Jan | Thu 14 Jan | 2457 | Spike 0.4: `pac copilot` under federated login | Laptop | The Ignite re-check | |
 | Fri 15 Jan | Mon 18 Jan | 2460 | Spike 0.12: Copilot Studio evaluation from code | Laptop | The Ignite re-check | |
@@ -61,9 +63,11 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 
 | Date | What | Who |
 |---|---|---|
+| Mon 9 Nov | Raise Claude Code's transcript retention on the laptop (`cleanupPeriodDays`, 30 days by default), so sessions from 4 November survive for mining and time records | Boroon, in the laptop session |
 | Fri 20 Nov | Ask the engineers for their session exports, using what spike 0.17 shows | Boroon |
-| Mon 23 Nov | Ignite re-check, after 17 to 20 November: product names, Copilot Studio evaluation APIs, Git integration (`CLAUDE.md`, dates) | Boroon with Claude |
+| Mon 23 Nov | Ignite re-check, after 17 to 20 November: product names, Copilot Studio evaluation APIs, Git integration (`CLAUDE.md`, dates). Also the first pass of A1: check every pinned kit for updates | Boroon with Claude |
 | Fri 4 Dec | A second approver named, and the three CODEOWNERS teams created. Without them, 2520, 2521 and the Stage 1 exit test cannot happen | Boroon |
+| Fri 4 Dec | Mining cut-off (D5): if fewer than 20 engineers' sessions have arrived, pick up to 10 of Boroon's own to top up | Boroon |
 
 ## Not dated yet
 
@@ -71,3 +75,9 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 - 2454, spike 0.8 (Container Apps long run and resume): Stage 6.
 
 Date them when Stage 4 ends.
+
+- A1, keep pinned kits current (Boroon, 7 November 2026; `docs/plans/stage-1-day-gate-plan.md`): a pin register, Dependabot where it can, and a monthly manual pass. Only its first pass is dated (23 November). The story is created in the next laptop session.
+
+## Changes
+
+- **7 November 2026 (Session 17, cloud).** 2543 done early. 2545 split: templates move into the freed slot (Thu 12 Nov); the standards seed moves to Fri 20 Nov, so 2545 finishes on 20 Nov, not 17 Nov. 2466 is on the laptop (it needs the apps). 2544 pins 1.3.x. 2546 now also needs 2541 and 2538. New: the move on Fri 4 Dec, the retention checkpoint on Mon 9 Nov, and the mining cut-off on Fri 4 Dec. 2539 now also needs the move. The detail is in `docs/plans/stage-1-day-gate-plan.md`. ADO is not yet updated (cloud session); the next laptop session does it.

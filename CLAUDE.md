@@ -2,7 +2,7 @@
 
 This repo holds the plan and the start of the build of GET AI's overnight software factory.
 Mostly documents. The first code, the gate, lives in its own repo `GetAI-IP/factory-gates` on `getai.ghe.com` (stage 1: slice 1 and Builds 1 to 3; moved out of this repo 3 November 2026; tested, not yet run as a gate or on a tenant).
-**Where things live (Boroon, 4 November 2026):** this planning repo stays on github.com, `boroonmahanta/overnight-ai-factory`, for good. Only the workflows and the automation Apps go on `getai.ghe.com`: the gate, the held-out tests, the caller repos and the GitHub Apps. This repo is public (checked 4 November 2026); whether to make it private is open (`docs/progress.md`). **ADO (Boroon, 7 November 2026):** GET AI's Azure DevOps (`getai` organisation) holds Kanban boards only, one project per engagement on the process "Agile build v1", plus one internal project for the factory's own build; repos stay on GET AI's GitHub Enterprise, with pipelines and tests on GitHub Actions (plan 6.4). **The internal project is `getai-overnight-ai-factory`** (created 7 November 2026, private, boards only): Epics per stage 0 to 9 plus "Planning, research and skills", with past work as Done and future work as Proposed, tagged `factory-build` and `seeded-2026-11-07`. Spikes are User Stories tagged `spike` (the process has no Spike type).
+**Where things live (Boroon, 4 November 2026):** this planning repo stays on github.com, `boroonmahanta/overnight-ai-factory`, for good. Only the workflows and the automation Apps go on `getai.ghe.com`: the gate, the held-out tests, the caller repos and the GitHub Apps. **The day-gate files go there too (D1, Boroon, 7 November 2026):** presets, templates and scenario rules to `GetAI-IP/factory-manifestos` (private), the spec check and the Playwright kit to `factory-gates`. Until Friday 4 December 2026 they are drafted in `staging/` here; the 46 standards go only to GHE (`docs/plans/stage-1-day-gate-plan.md`). This repo is public (checked 4 November 2026); whether to make it private is open (`docs/progress.md`). **ADO (Boroon, 7 November 2026):** GET AI's Azure DevOps (`getai` organisation) holds Kanban boards only, one project per engagement on the process "Agile build v1", plus one internal project for the factory's own build; repos stay on GET AI's GitHub Enterprise, with pipelines and tests on GitHub Actions (plan 6.4). **The internal project is `getai-overnight-ai-factory`** (created 7 November 2026, private, boards only): Epics per stage 0 to 9 plus "Planning, research and skills", with past work as Done and future work as Proposed, tagged `factory-build` and `seeded-2026-11-07`. Spikes are User Stories tagged `spike` (the process has no Spike type).
 
 This file loads at the start of every session. It is a map, not the full plan.
 Keep it short. Detail lives in `docs/sources/`.
@@ -35,7 +35,7 @@ End:
 |---|---|
 | `CLAUDE.md` | This map |
 | `docs/progress.md` | Running log and next steps. Read second, update last |
-| `docs/sources/plan-v3.1.md` | The main plan, "Lock the Gate, Pool the Lanes, Merge by Day", V3.1, 1 November 2026. 2,706 lines. Edited in place since, each time at Boroon's word; the largest edit is live build in lane B (low-code), 7 November 2026 (Session 15). Session 16 added time and tokens per story on every engine (rule 13, 10.1 to 10.3, spike 0.20, Appendix D) |
+| `docs/sources/plan-v3.1.md` | The main plan, "Lock the Gate, Pool the Lanes, Merge by Day", V3.1, 1 November 2026. 2,707 lines. Edited in place since, each time at Boroon's word; the largest edit is live build in lane B (low-code), 7 November 2026 (Session 15). Session 16 added time and tokens per story on every engine (rule 13, 10.1 to 10.3, spike 0.20, Appendix D). Session 17 added the day-gate decisions D1 to D6 (6.1, 5.8, 5.12, 11.2, 14.4), including the Spec Kit pin, now 1.3.x |
 | `docs/sources/plan-v3.md` | The previous version, V3, 1 November 2026. 1,976 lines. Superseded by V3.1. Kept only to see what changed. V3 differs from V3.1 in: Wayfinder named the planning agent (now Story Planner); auto-merge framed as "Phase 4" (now the trust ladder L0 to L3); one evaluator per PR (now one to three verifiers); one review pass (now two); no `lcp-verify`, outer loop, gardening or prototypes; cost USD 11 per story and USD 144 accepted (now about 15 and 150); a Test queue of 30 minutes per PR (now about 36) |
 | `docs/sources/uploaded-plan-software-factory.md` | Boroon's original plan (also as `.docx`). Part A: "End-to-End Specification: The GET AI Microsoft Software Factory". Part B: "Copilot Studio Agents & App Builds". 320 lines. Section 14.1 of the main plan lists every change made to it |
 | `docs/sources/transcript-anthropic-agents-run-for-hours.md` | Anthropic workshop, "How to Build Agents That Run for Hours". 1,213 lines |
@@ -60,6 +60,7 @@ End:
 | `docs/sources/report-v2.1-two-lanes-one-gate.md` | Earlier report V2.1, "Two Lanes, One Gate, Priced at List". 925 lines. The GitHub and Azure design the main plan builds on: two lanes, harness parity, Spec Kit day gate, traces, credits, ledger schema, Lane A and B cost models, 8-stage plan. Still the best source for Lane A, ACA jobs, the ledger SQL schema and GitHub-side limits |
 | `docs/sources/report-grill-the-spec-lock-the-tests.md` | The first report, "Grill the Spec, Lock the Tests". 195 lines. Original evidence base: what each harness resource teaches, the verifier-is-the-weak-point research, the grill gate, Claude Code facts, first design and stages |
 | `docs/plans/schedule.md` | The dated order of the remaining stage 0 and stage 1 stories, from Monday 9 November 2026 to the Stage 1 exit test on Friday 18 December, then the start of stage 2 in January (Session 16, at Boroon's word). Two tracks (laptop, documents), checkpoints, and what depends on other people (a second approver by 4 December). ADO holds the same dates as Start and Finish Date and the dependencies as predecessor links. At each session's end, mark finished stories and move later dates if one slipped, here and in ADO |
+| `docs/plans/stage-1-day-gate-plan.md` | The plan for the day-gate builds of Stage 1 (Session 17, 7 November 2026, ADO 2543): 2545 templates and the standards seed, 2544 Spec Kit pin, presets and the spec check, 2546 scenario conventions and the Playwright kit, 2548 mining with spike 0.17. Nine sessions DG1 to DG9, dated 12 November to 15 December, and Boroon's decisions D1 to D6 plus action A1 (keep pinned kits current). Read it at the start of any of those sessions. The gate scripts (2538) are not in it |
 | `docs/plans/stage-1-gate-build-plan.md` | The plan for three build sessions (workflow file, rulesets and CODEOWNERS, offline build checks). Read it at the start of any Stage 1 build session. D1 to D3 decided. Builds 1 to 3 done 3 November 2026, then moved to `GetAI-IP/factory-gates` (Session 9). Paths in it that start `factory-gates/` now mean that repo's root |
 | `docs/plans/spike-0.2/` | Spike 0.2, GHE.com OIDC with pac: **passed 4 November 2026** (Session 12). `README.md` has the portal steps for an Entra app, a federated credential, a lane environment and an application user (reuse for lanes 2 and 3), the claims seen and the clean-up list. `probe.yml` and `required.yml` are copies of the workflows that ran in the scratch repos `GetAI-IP/oidc-probe` and `oidc-probe-target`, with placeholders for the IDs. The scratch repos, their ruleset and the two scratch credentials were deleted on 4 November 2026; `getai-fl1-exec`, its application user and `factory-lane-1` stay |
 | `docs/plans/spike-0.3/` | Spike 0.3, Dataverse MCP with an app-only token: **passed on both paths 6 November 2026** (Session 13), the local proxy (`dataverse mcp`) and the remote `/api/mcp`, as `getai-fl1-exec` by GitHub OIDC. `README.md` has the portal steps (federated credential, the GA MCP toggle, the allowed MCP clients entry and its publisher prefix), the allowed-clients list as it was before the spike, three runs and 13 findings. `probe.yml` and `mcp_probe.py` are copies of what ran in the scratch repo `GetAI-IP/mcp-probe` (deleted 6 November 2026, with its credential). The allowed-clients entry `new_getaifl1exec` stays in `factory-lane-1` for Stage 3 |
@@ -81,7 +82,7 @@ Everything the plan cites is now in the repo. Boroon supplied the full research 
 
 ## Where to find what in the main plan
 
-Line numbers are as at 7 November 2026 (Session 16, after the time and tokens edits). If the file has changed, run `grep -n '^## ' docs/sources/plan-v3.1.md`.
+Line numbers are as at 7 November 2026 (Session 17, after the day-gate decisions). If the file has changed, run `grep -n '^## ' docs/sources/plan-v3.1.md`.
 Read by line range, for example offset 379 and limit 200.
 
 | Lines | Section |
@@ -100,19 +101,19 @@ Read by line range, for example offset 379 and limit 200.
 | 1409 to 1455 | 11. Staged build plan, stage 0 spikes (20), stages 1 to 9 |
 | 1456 to 1493 | 12. Risks, most serious first (33) |
 | 1494 to 1509 | 13. Accelerator and IP |
-| 1510 to 1588 | 14. Decision log (14.4 holds the decisions after V3.1: live build, the precedence rule, ADO projects, assessment items, time and tokens per story) |
-| 1589 to 1628 | 15. Open questions and evidence quality |
-| 1629 to 2196 | Appendix A: gate workflow YAML (untested; tags shown, `factory-gates` holds commit pins). `map` and `locks` match `factory-gates` as at Build 3, 3 November 2026. Since 7 November 2026 (live build) the plan is ahead of `factory-gates` in three places: `build` runs only generator-backed builders, `static` runs the export-diff plan (`plan_from_export.py`), and `verify-in-test` no longer runs the two Test plan scripts. Since 4 November 2026 it sets up .NET `10.0.x` (spike 0.2), as `factory-gates` does since gate PR 12 |
-| 2197 to 2337 | Appendix B: Merge Danger rubric (B.1 low-code path rules), verifier count, `trust.yml` |
-| 2338 to 2625 | Appendix C: agent definitions, `AGENTS.md`, `lcp-verify` skill, PR body template |
-| 2626 to 2687 | Appendix D: ADO fields (including Work Size, AI Tokens, Agent Minutes, and human minutes split into spec, review and PARK) and states |
-| 2688 to 2706 | Appendix E: sources used |
+| 1510 to 1589 | 14. Decision log (14.4 holds the decisions after V3.1: live build, the precedence rule, ADO projects, assessment items, the day gate (D1 to D6), time and tokens per story) |
+| 1590 to 1629 | 15. Open questions and evidence quality |
+| 1630 to 2197 | Appendix A: gate workflow YAML (untested; tags shown, `factory-gates` holds commit pins). `map` and `locks` match `factory-gates` as at Build 3, 3 November 2026. Since 7 November 2026 (live build) the plan is ahead of `factory-gates` in three places: `build` runs only generator-backed builders, `static` runs the export-diff plan (`plan_from_export.py`), and `verify-in-test` no longer runs the two Test plan scripts. Since 4 November 2026 it sets up .NET `10.0.x` (spike 0.2), as `factory-gates` does since gate PR 12 |
+| 2198 to 2338 | Appendix B: Merge Danger rubric (B.1 low-code path rules), verifier count, `trust.yml` |
+| 2339 to 2626 | Appendix C: agent definitions, `AGENTS.md`, `lcp-verify` skill, PR body template |
+| 2627 to 2688 | Appendix D: ADO fields (including Work Size, AI Tokens, Agent Minutes, and human minutes split into spec, review and PARK) and states |
+| 2689 to 2707 | Appendix E: sources used |
 
 The two transcripts are already digested in plan sections 3.5 (workshop) and 3.6 (Spec Kit). Read the full text only when quoting.
 
 ## The plan in brief
 
-Build the Power Platform profile of "Lane B" first. By day, humans shape a high-level spec on Spec Kit 1.2.
+Build the Power Platform profile of "Lane B" first. By day, humans shape a high-level spec on Spec Kit (pinned at the newest 1.3.x, D2, 7 November 2026).
 Someone other than the worker writes and locks the acceptance scenarios. A human then sets "Factory Eligible" in Azure DevOps (ADO).
 At night, Copilot CLI runs headless on a GitHub Actions runner in Australia, one story per lane, across three long-lived Sandbox environments that are Managed Environments.
 The agent builds live in its lane. The driver, a trusted step, then exports the solution, and that export is the PR's source (decided 7 November 2026).

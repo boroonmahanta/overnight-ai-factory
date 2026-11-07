@@ -31,6 +31,7 @@ Next steps:
 - **The Get AI Engineer's material is assessed** (Session 14, 6 November 2026): `docs/analysis/delivery-vault-assessment.md`. It found the Power Platform standards, patterns and export procedure in the Get AI Engineer's older vault in Azure DevOps, and recommends building live in the lane with the export as the record.
 - **Live build is decided (Boroon, 7 November 2026) and edited into the plan** (Session 15). In lane B (low-code), agents build live in the lane. A trusted driver step, not the agent, exports and unpacks the solution, and that export is the PR's source. Builders stay only where Microsoft ships a generator: App Spec, `pac copilot`, code apps, PCF and plug-in source. Pro-code is unchanged. Three spikes must pass before Stage 3: 0.18 (headless YAML export), 0.19 (reset fidelity) and the widened 0.14. `GetAI-IP/factory-gates` now lags the plan; the follow-ups are under Open items.
 - Spikes 0.2 and 0.3 are the only plan items tested on real services. Every other item marked `[untested]` in the plan is still untested. The plan is edited for spike 0.2's result (11 lines, Session 12), spike 0.3's (9 lines, Session 13) and the live-build decision (Session 15), each at Boroon's word.
+- **The rest of Stage 1's day gate is planned** (Session 17, 7 November 2026, a cloud session): `docs/plans/stage-1-day-gate-plan.md`, nine build sessions DG1 to DG9 for 2545, 2544, 2546 and 2548 with spike 0.17, dated 12 November to 15 December. Boroon decided D1 to D6, and the plan is edited for them. The gate scripts (2538) wait on spike 0.18.
 - Boroon said more context will be added in later sessions.
 - Work is sized with T-shirt sizes (XS to XL), approved on 1 November 2026. See `CLAUDE.md`.
 
@@ -50,6 +51,7 @@ Next steps:
   5. `templates/CODEOWNERS`: the commented `/workflows/build/` line. `builders/lib/**` stays protected in `check_protected_paths.py` and `rulesets/protected-paths.json`, as the plan keeps it.
   6. When `lcp/danger-rules.yml` is written: the new B.1 rows and the rule names `export-additive` and `export-flow-logic`.
   7. Regenerate `scripts.sha256` with `lcp/manifest.py` after the script changes.
+  8. (Added Session 17, D3.) A job in `lcp-gate.yml` that runs the gate's trusted `spec/check_spec.py` on spec PRs and checks the hash of the copy vendored under `.specify/`. The script itself is built in 2544 (DG5) and reaches `factory-gates` in the move (DG8). For 2538.
   - **Not on `pending-scripts.txt`:** `export_lane.py`, `reset_environment.py` (now with leftover removal and the proof) and the lane drift check. They run in the execution workflow in `factory-control`, not in `lcp-gate.yml`. They are Stage 3 builds, after spikes 0.18 and 0.19.
 - **This planning repo is public** (checked 4 November 2026 with `gh repo view`; a signed-out browser could also open it). Anyone can read the plan, the cost model, the org names, `getai.ghe.com`, the gate's design and the identity names. Boroon to decide. Advice: make it private (Settings, General, Danger Zone, Change visibility). The catch: on GitHub Free, rulesets are not enforced on private repos, so `main` loses its ruleset unless the account is on Pro; with Boroon as the only writer that matters less. Making it private stops new readers but does not undo copies already made.
 - **Gate work is laptop work (decided 3 November 2026).** Connecting `getai.ghe.com` to Claude's cloud (Git providers) needs a Claude Team or Enterprise plan, and Boroon is on an individual plan. So any change to `GetAI-IP/factory-gates` runs from his laptop: a local Claude Code session, a cloud session attached to a laptop folder by Remote Control, or a cloud session that prepares a patch he applies (as in Session 9). The steps below are kept only in case a Team plan comes later (the docs cover GitHub Enterprise Server and say nothing about `*.ghe.com`).
@@ -70,10 +72,102 @@ Next steps:
 - **Decisions still waiting on Boroon** (from `docs/analysis/tshirt-sizing.md`): approve the shortlist of skills to read in full before any are adopted (plan section 8.3); decide whether to write a GET AI router skill that routes by size. The sizes themselves are approved, and the ADO field `Custom.WorkSize` is decided (7 November 2026, Session 16).
 - **A second approver is needed by Friday 4 December 2026** (Session 16 schedule). 2520 (undo the stopgaps) and 2521 (apply the rulesets) need a second person and the three CODEOWNERS teams; without them the Stage 1 exit test (2539, Friday 18 December) cannot happen. The dated order is in `docs/plans/schedule.md`.
 - **Spike 0.20, time and tokens per story on every engine, is not run** (Session 16). ADO story 2738 under Feature 2737 (Stage 1). It needs Claude Code's OpenTelemetry turned on through managed settings and somewhere to send it: Application Insights does not exist yet, so use a local collector first. The docs do not say whether the VS Code extension or the desktop app export it; this session runs in the desktop app, so test there first.
+- **Keep pinned kits current (A1, Boroon, 7 November 2026, Session 17).** Spec Kit moved three releases in five days. Proposed shape in `docs/plans/stage-1-day-gate-plan.md`: a pin register, Dependabot where the ecosystem allows, and a monthly manual pass at the component register review (plan 8.2), the first with the Ignite re-check on 23 November. Not built; an ADO story is to be created.
+- **Claude Code deletes transcripts after 30 days by default** (`cleanupPeriodDays`; found in Session 17). The laptop's sessions from 4 November go on about 4 December, which loses them for mining (D5) and for `tools/session_usage.py`. Raise it in the next laptop session, at Boroon's word.
 - The Pocock v1.3 transcript ends mid-sentence at 14:28. The zip copy is the same, so the source itself is cut off.
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 17, 2026-11-07, branch `claude/session-17-2543-day-gate-plan`
+
+The rest of Stage 1's day gate planned (ADO 2543, brought forward from 12 November). **A cloud session**, started from `main` at PR 26's merge (`889d7f9`). It could not reach `getai.ghe.com`, the tenant or Azure DevOps, and did not try. Boroon answered on his phone, one decision at a time.
+
+Done:
+- Read `CLAUDE.md`, this log (current state, open items, Sessions 15 and 16), `docs/plans/schedule.md`, `docs/plans/stage-1-gate-build-plan.md` (the model for the new plan), plan 5.8, 6.1 to 6.4, 6.6, 6.7, 7.3, 8.2, 8.3 and the 11.1 and 11.2 rows, the assessment's verdicts, timeline and questions, and the delivery vault's standards, operating rules and three templates. Also the live skills `getai-domain-modeling` (its glossary and ADR formats become the templates).
+- Looked up facts (sources in the new plan's "Facts checked"):
+  - Spec Kit is at 1.3.2 (6 November); 1.2.6 (2 November) is the last 1.2. Presets, extensions, bundles and hooks as documented.
+  - Hooks are declared by extensions, not presets.
+  - Microsoft's Playwright toolkit is source to reference locally, not an npm package. Its samples test the Northwind Traders solution, and Microsoft advises one worker on a shared environment.
+  - Claude Code's `/export` writes plain text, and transcripts are deleted after 30 days by default.
+  - Not checked: VS Code and GitHub Copilot chat export. Their docs hosts did not resolve from this session, so spike 0.17 checks them by hand.
+- **New `docs/plans/stage-1-day-gate-plan.md`:** nine build sessions in order, DG1 to DG9, each with what to read, the steps and "done when":
+  - DG1 Thu 12 Nov, cloud: templates (2545).
+  - DG2 Wed 18 Nov, laptop apps: spike 0.17, the export how-to and a restricted SharePoint folder (2466).
+  - DG3 Fri 20 Nov, laptop: the 46 standards, anonymised, into a new private `GetAI-IP/factory-manifestos`, and the older vault's retro and design templates read (2545).
+  - DG4 and DG5, 23 to 25 Nov, cloud: Spec Kit pin, the two presets, the hook extension, the bundle and the spec check script (2544).
+  - DG6, 26 Nov to 11 Dec, four batches: mining (2548).
+  - DG7, 30 Nov to 2 Dec, cloud: scenario conventions, the schema and the Playwright kit draft (2546).
+  - DG8 Fri 4 Dec, laptop: move `staging/` to GHE.
+  - DG9, 14 to 15 Dec, laptop: test the kit in `factory-test` (2546).
+  - Also: the exit-test mapping, risks, and what is left for 2538.
+- **Plan edits** (`docs/sources/plan-v3.1.md`, now 2,707 lines), at Boroon's word ("Yes, edit now"):
+  - 6.1: the Spec Kit pin and the hook's home;
+  - 5.8: the server logic row;
+  - 5.12: where `factory-manifestos` lives;
+  - 11.2: the stage 1 build cell;
+  - 14.4: a new row for D1 to D6.
+- **`docs/plans/schedule.md`:**
+  - 2543 marked done;
+  - 2545 split (12 Nov and 20 Nov), so it finishes on 20 Nov, not 17 Nov;
+  - 2466 moved to the laptop track;
+  - 2544 now pins 1.3.x;
+  - 2546 needs 2541 and 2538 too;
+  - a new move story on 4 Dec;
+  - checkpoints on 9 Nov (transcript retention), 23 Nov (A1's first pass) and 4 Dec (D5 cut-off);
+  - a "Changes" section.
+- `CLAUDE.md`: where the day-gate files live (D1), the plan row, a row for the new file, the line map (Session 17) and the Spec Kit pin.
+
+Decisions (Boroon, 7 November 2026):
+- **D1.** The day-gate files are drafted in `staging/` here and moved to `GetAI-IP` on Fri 4 Dec: presets, templates and conventions to `factory-manifestos`, the spec check and Playwright kit to `factory-gates`. The 46 standards go only to GHE. Accepted: the staged presets stay in this public repo's history.
+- **D2.** Pin the newest 1.3.x of Spec Kit, not 1.2.x. Plus action **A1**: keep Spec Kit and the other pinned kits current (shape proposed, not built).
+- **D3.** The spec check script is built in 2544 with the presets; its gate job joins the 2538 list (Open items, item 8).
+- **D4.** Locked Web API tests are YAML in the workflow scenario schema, read by the trusted runner.
+- **D5.** Mining: engineers' sessions first; if fewer than 20 by Fri 4 Dec, Boroon's own top up, at most 10 of the 20.
+- **D6.** Microsoft's Northwind Traders sample solution is the test target for the kit and the Stage 1 exit PR.
+- Edit the main plan now for D1 to D6 (done, above).
+
+Files changed: `docs/plans/stage-1-day-gate-plan.md` (new), `docs/plans/schedule.md`, `docs/sources/plan-v3.1.md`, `CLAUDE.md`, `docs/progress.md`. `staging/` is not created yet (DG1).
+
+Time and tokens: **not recorded.** This was a cloud session, which has no local transcript for `tools/session_usage.py`.
+
+**ADO updates for the next laptop session** (project `getai-overnight-ai-factory`; this session could not reach ADO):
+1. **2543:**
+   - State to Done.
+   - Start Date and Finish Date to Sat 7 Nov 2026 (were 12 and 13 Nov).
+   - Remove its predecessor link from 2462: it no longer waits on spike 0.18.
+   - Add to its body: "Done 7 November 2026 in Session 17, a cloud session. Output: `docs/plans/stage-1-day-gate-plan.md`, nine build sessions DG1 to DG9, Boroon's decisions D1 to D6 and action A1. Also updated: `docs/plans/schedule.md`, `docs/sources/plan-v3.1.md` (6.1, 5.8, 5.12, 11.2, 14.4), `CLAUDE.md`. Branch `claude/session-17-2543-day-gate-plan`. Time and tokens: not recorded; cloud session, no local transcript."
+2. **2545:** Start Thu 12 Nov, Finish Fri 20 Nov. Body: DG1 (templates, cloud) and DG3 (standards seed, laptop).
+3. **2466:** body: DG2; a laptop step (VS Code and the other apps), no tenant. Dates unchanged.
+4. **2544:** title "Pin Spec Kit 1.3.x; GET AI and `getai-lcp` presets v0" (was 1.2.x). Body: DG4 and DG5, including the spec check script (D3). Dates unchanged.
+5. **2546:**
+   - Add predecessor links from 2541 and 2538.
+   - Body: DG7 and DG9, on Northwind (D6), API tests as YAML (D4).
+   - Dates unchanged.
+6. **2548:** body: DG6, the four batches and D5's cut-off. Dates unchanged.
+7. **2538:** body: add the `check_spec.py` gate job (Open items, `factory-gates` follow-ups, item 8).
+8. **2539:** body: on the Northwind sample solution (D6).
+9. **New User Story** "Move the staged day-gate files to GetAI-IP (DG8)":
+   - parent: the Feature that holds 2544;
+   - Start and Finish Fri 4 Dec;
+   - tags `factory-build`, `stage-1`, `session-17`;
+   - predecessors 2544 and 2546; successor 2539.
+10. **New User Story** "A1: keep pinned kits current":
+    - same Feature, Proposed, no dates;
+    - tags `factory-build`, `stage-1`, `session-17`;
+    - body: the A1 shape from the new plan.
+11. Re-run the schedule-order query and check it matches `docs/plans/schedule.md`.
+
+Open items:
+- A1 and the transcript retention setting (Open items, top of this file).
+- DG2 is the first real check of VS Code and Copilot chat export.
+- The project code for the Northwind pilot (for `getai-<proj>-test` and `gate/projects/<proj>/`) is set in 2541.
+- The Get AI Engineer's review of the standards seed is asked for in DG3 but does not block it.
+
+Next steps:
+1. Boroon: review this branch. A pull request when he asks.
+2. Monday 9 November, laptop, **Session 18** (not 17 as Session 16 wrote): spike 0.18 (2462), then 0.19 (2463), on `claude/session-18-2462-yaml-export`. First make the ADO updates above, and raise `cleanupPeriodDays`, at Boroon's word.
+3. Thursday 12 November, cloud: DG1 (2545 templates), on a branch with the ADO ID.
 
 ## Session 16, 2026-11-07, branch `claude/session-16-time-tokens`
 
