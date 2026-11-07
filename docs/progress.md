@@ -75,6 +75,8 @@ Next steps:
 - **Spike 0.20, time and tokens per story on every engine, is not run** (Session 16). ADO story 2738 under Feature 2737 (Stage 1). It needs Claude Code's OpenTelemetry turned on through managed settings and somewhere to send it: Application Insights does not exist yet, so use a local collector first. The docs do not say whether the VS Code extension or the desktop app export it; this session runs in the desktop app, so test there first.
 - **Keep pinned kits current (A1, Boroon, 7 November 2026, Session 17).** Spec Kit moved three releases in five days. Proposed shape in `docs/plans/stage-1-day-gate-plan.md`: a pin register, Dependabot where the ecosystem allows, and a monthly manual pass at the component register review (plan 8.2), the first with the Ignite re-check on 23 November. Not built; an ADO story is to be created.
 - **Claude Code deletes transcripts after 30 days by default** (`cleanupPeriodDays`; found in Session 17). The laptop's sessions from 4 November go on about 4 December, which loses them for mining (D5) and for `tools/session_usage.py`. Raise it in the next laptop session, at Boroon's word.
+- **Gotcha: the skill's glossary example breaks its own rule** (found in Session 18). In `.claude/skills/getai-domain-modeling/glossary-format.md`, the example term "Customer" has no `_Schema_` line, though the rules say every term has one. The DG1 template does not use that term, so it is not affected. Fix: add a `_Schema_` line (for example `none yet`) by a reviewed PR here (rule 17). A one-line change any documents session can make.
+- **Gotcha: the two copies of the glossary and ADR formats split on Friday 4 December** (found in Session 18). Until then the skill (`.claude/skills/getai-domain-modeling/`) and the templates (`staging/factory-manifestos/templates/project/`) sit in this repo, so one PR changes both, as the staging rules say. After the move (DG8) the templates are in `GetAI-IP/factory-manifestos` on GHE and the skill stays here, so one PR cannot change both and the copies can drift. DG8 settles how to keep them the same, for example two PRs that link each other (step 5 of DG8 in `docs/plans/stage-1-day-gate-plan.md`).
 - The Pocock v1.3 transcript ends mid-sentence at 14:28. The zip copy is the same, so the source itself is cut off.
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
@@ -123,6 +125,8 @@ Next steps:
 1. Boroon: review this branch. A pull request when he asks.
 2. Monday 9 November, laptop, **Session 19**: the ADO updates from Sessions 17 and 18, and raise `cleanupPeriodDays`, at Boroon's word. Then spike 0.18 (2462), then 0.19 (2463), on `claude/session-19-2462-yaml-export`.
 3. Next on the documents track: 2549 on Thu 19 Nov (or Thu 12 Nov, if Boroon moves it). Then DG3 on the laptop on Fri 20 Nov.
+
+Later (same session, at Boroon's word: "make sure we have these two gotchas recorded"): the skill's missing `_Schema_` line and the split of the two format copies after 4 December are now in Open items at the top of this file. The second is also step 5 and the "done when" of DG8 in `docs/plans/stage-1-day-gate-plan.md`, and both staging READMEs say the "same PR" rule holds only until the move.
 
 ## Session 17, 2026-11-07, branch `claude/session-17-2543-day-gate-plan`
 

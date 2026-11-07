@@ -17,4 +17,4 @@ On Friday 4 December 2026, one laptop session (DG8) moves everything here to `Ge
 - The 46 coding standards never come here. They go only to GHE (DG3).
 - Machine-read names stay product-neutral (rule 18).
 - Python is standard library only, run with `python3 -I`, tested with `unittest`, as in `factory-gates`.
-- The `glossary.md` and ADR templates are copies of the formats in `.claude/skills/getai-domain-modeling/`. When one changes, change both in the same pull request.
+- The `glossary.md` and ADR templates are copies of the formats in `.claude/skills/getai-domain-modeling/`. When one changes, change both in the same pull request. After the move they sit in two repos, so DG8 settles how they stay the same.

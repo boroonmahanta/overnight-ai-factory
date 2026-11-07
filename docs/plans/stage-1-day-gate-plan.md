@@ -218,9 +218,10 @@ Read: Session 9's entry in `docs/progress.md` (how `factory-gates` moved).
 2. `staging/factory-manifestos/` into `GetAI-IP/factory-manifestos` with its history (a subtree split, merged by PR beside DG3's standards).
 3. `staging/factory-gates/` into `GetAI-IP/factory-gates` by PR: `spec/`, its tests and fixtures, and `playwright/`. Regenerate `scripts.sha256`; run every test; check `self-test` is green.
 4. A PR here deleting `staging/`, leaving a pointer in `CLAUDE.md`.
-5. Boroon merges all three.
+5. Settle how the two copies of the glossary and ADR formats stay the same (added Session 18). After the move, the skill (`.claude/skills/getai-domain-modeling/`) stays here and the templates are in `factory-manifestos`, so the staging rule "change both in the same PR" no longer works. Agree a way with Boroon, for example two PRs that link each other, and write it into the `factory-manifestos` README and `CLAUDE.md`.
+6. Boroon merges all three.
 
-Done when: both GHE repos hold the files with tests passing, and `staging/` is gone from `main` here.
+Done when: both GHE repos hold the files with tests passing, `staging/` is gone from `main` here, and the way the two format copies stay the same is written down.
 
 ### DG9. Test the kit against `factory-test` (2546, part 2). Monday 14 and Tuesday 15 December. Laptop
 

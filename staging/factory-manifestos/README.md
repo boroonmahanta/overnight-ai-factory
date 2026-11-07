@@ -31,4 +31,4 @@ The coding standards themselves are not here. The low-code standards go straight
 
 - Nothing here may name a client, a person or an engagement. This repo is public, and the files stay in its history after the move (accepted in D1).
 - Machine-read names stay product-neutral (rule 18).
-- The glossary and ADR templates are copies of the formats in `.claude/skills/getai-domain-modeling/` (`glossary-format.md` and `adr-format.md`). When one changes, change both in the same pull request.
+- The glossary and ADR templates are copies of the formats in `.claude/skills/getai-domain-modeling/` (`glossary-format.md` and `adr-format.md`). When one changes, change both in the same pull request. That works only while both sit in the planning repo; after the move they are in two repos, and DG8 settles how they stay the same.
