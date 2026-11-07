@@ -15,7 +15,7 @@ Left out: the gate scripts (2538). Their order waits on spike 0.18 (2462, Monday
 
 ## Where things stand
 
-- None of these pieces exists yet. The plan describes them in 6.1 to 6.4, 5.8 and 7.3.
+- None of these pieces existed when this plan was written. The plan describes them in 6.1 to 6.4, 5.8 and 7.3. The DG1 templates exist since 7 November (Session 18).
 - Two live skills already hold the formats we need: `getai-domain-modeling` (the `glossary.md` and ADR formats, adapted 2 November 2026) and `getai-grilling` (the grilling rules). Use them; do not write new formats.
 - The Get AI Engineer's material is the default where the plan does not settle a point (plan 14.4). From the delivery vault copy (`docs/sources/delivery-vault/`): the solution design, build handoff and backlog coverage templates, and the rule that business designs stay in SharePoint, approved by exact version. From the older ADO vault (laptop only): the 46 standards, the retro and "suggest patterns and skills" workflows, the design template and the per-story build brief.
 - `GetAI-IP/factory-manifestos` does not exist yet. It is created in DG3.
@@ -84,7 +84,9 @@ Rules for the staging folder:
 
 ## The build sessions, in order
 
-### DG1. Templates (2545, part 1). Thursday 12 November. Cloud
+### DG1. Templates (2545, part 1). Saturday 7 November (brought forward from Thursday 12 November). Cloud
+
+**Done 7 November 2026** (Session 18, branch `claude/session-18-2545-templates`): `staging/README.md`, `staging/factory-manifestos/README.md` and the three files in `staging/factory-manifestos/templates/project/`.
 
 Read: plan 6.2 (lines 959 to 973), 5.10 standards pass (line 782), 5.12 (lines 870 to 897), the two format files in `.claude/skills/getai-domain-modeling/`.
 
