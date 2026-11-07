@@ -32,6 +32,7 @@ Next steps:
 - **Live build is decided (Boroon, 7 November 2026) and edited into the plan** (Session 15). In lane B (low-code), agents build live in the lane. A trusted driver step, not the agent, exports and unpacks the solution, and that export is the PR's source. Builders stay only where Microsoft ships a generator: App Spec, `pac copilot`, code apps, PCF and plug-in source. Pro-code is unchanged. Three spikes must pass before Stage 3: 0.18 (headless YAML export), 0.19 (reset fidelity) and the widened 0.14. `GetAI-IP/factory-gates` now lags the plan; the follow-ups are under Open items.
 - Spikes 0.2 and 0.3 are the only plan items tested on real services. Every other item marked `[untested]` in the plan is still untested. The plan is edited for spike 0.2's result (11 lines, Session 12), spike 0.3's (9 lines, Session 13) and the live-build decision (Session 15), each at Boroon's word.
 - **The rest of Stage 1's day gate is planned** (Session 17, 7 November 2026, a cloud session): `docs/plans/stage-1-day-gate-plan.md`, nine build sessions DG1 to DG9 for 2545, 2544, 2546 and 2548 with spike 0.17, dated 12 November to 15 December. Boroon decided D1 to D6, and the plan is edited for them. The gate scripts (2538) wait on spike 0.18.
+- **DG1 is done** (Session 18, 7 November 2026, a cloud session, brought forward from 12 November): `staging/` with its README, and `staging/factory-manifestos/` with its README and the three project templates (`glossary.md`, `docs/adr/README.md`, the `coding-standards.md` header). 2545 stays open until DG3 (Friday 20 November).
 - Boroon said more context will be added in later sessions.
 - Work is sized with T-shirt sizes (XS to XL), approved on 1 November 2026. See `CLAUDE.md`.
 
@@ -74,10 +75,60 @@ Next steps:
 - **Spike 0.20, time and tokens per story on every engine, is not run** (Session 16). ADO story 2738 under Feature 2737 (Stage 1). It needs Claude Code's OpenTelemetry turned on through managed settings and somewhere to send it: Application Insights does not exist yet, so use a local collector first. The docs do not say whether the VS Code extension or the desktop app export it; this session runs in the desktop app, so test there first.
 - **Keep pinned kits current (A1, Boroon, 7 November 2026, Session 17).** Spec Kit moved three releases in five days. Proposed shape in `docs/plans/stage-1-day-gate-plan.md`: a pin register, Dependabot where the ecosystem allows, and a monthly manual pass at the component register review (plan 8.2), the first with the Ignite re-check on 23 November. Not built; an ADO story is to be created.
 - **Claude Code deletes transcripts after 30 days by default** (`cleanupPeriodDays`; found in Session 17). The laptop's sessions from 4 November go on about 4 December, which loses them for mining (D5) and for `tools/session_usage.py`. Raise it in the next laptop session, at Boroon's word.
+- **Fixed: the skill's glossary example broke its own rule** (found and fixed in Session 18, at Boroon's word). In `.claude/skills/getai-domain-modeling/glossary-format.md`, the example term "Customer" had no `_Schema_` line, though the rules say every term has one. It now has `_Schema_: none yet`. It reaches `main` when Boroon merges the Session 18 branch (rule 17). The DG1 template does not use that term, so it needed no change. Kept here one session for the record.
+- **Gotcha: the two copies of the glossary and ADR formats split on Friday 4 December** (found in Session 18). Until then the skill (`.claude/skills/getai-domain-modeling/`) and the templates (`staging/factory-manifestos/templates/project/`) sit in this repo, so one PR changes both, as the staging rules say. After the move (DG8) the templates are in `GetAI-IP/factory-manifestos` on GHE and the skill stays here, so one PR cannot change both and the copies can drift. DG8 settles how to keep them the same, for example two PRs that link each other (step 5 of DG8 in `docs/plans/stage-1-day-gate-plan.md`).
 - The Pocock v1.3 transcript ends mid-sentence at 14:28. The zip copy is the same, so the source itself is cut off.
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 18, 2026-11-07, branch `claude/session-18-2545-templates`
+
+DG1 of the day-gate plan: the templates half of ADO 2545, brought forward from Thursday 12 November. **A cloud session**, started from `main` at PR 27's merge (`aae617e`). It could not reach `getai.ghe.com`, the tenant or Azure DevOps, and did not try. Boroon followed on his phone. The session opened on another of his repos; this one was attached at his word.
+
+Done:
+- Read `CLAUDE.md`, this log (current state, open items, Session 17), `docs/plans/schedule.md`, `docs/plans/stage-1-day-gate-plan.md`, plan 6.2, 5.10 (standards pass), 5.12, the protected paths (5.7 and Appendix B.1), the executor and reviewer prompts (Appendix C), and the two format files in `.claude/skills/getai-domain-modeling/`.
+- **New `staging/README.md`:** what the folder is, where each part moves on Fri 4 Dec (DG8), and the folder's rules.
+- **New `staging/factory-manifestos/README.md`:** what the repo will hold (plan 5.12), what is here and which DG builds the rest, and how a project repo takes the templates: copied in at the same paths by a reviewed daytime PR, into protected paths, with the template notes deleted.
+- **New templates in `staging/factory-manifestos/templates/project/`:**
+  - `glossary.md`: the skill's format with one example term (Invoice, from the skill's own example). A template note at the top gives the `_Schema_` line for low-code, pro-code and "none yet", and is deleted on copy.
+  - `docs/adr/README.md`: the skill's ADR format and the three tests. No `0000` record; records start at `0001`.
+  - `coding-standards.md`: the header only. Who reads the file, "rule" items as gate lints that can raise the floor, "judgement" items for the reviewer, protected and changed only by a reviewed daytime PR, kept out of `AGENTS.md`. No entry format: DG3 takes the Get AI Engineer's format as it is.
+- **Checked "Done when":**
+  - A diff against the skill's files: the glossary body is the skill's block with two of its three example terms left out. The ADR README differs from `adr-format.md` in three places only: the title, with a one-line intro added; the "create the folder lazily" line, replaced by "no example record" and the protected-path line; and the heading "When to write an ADR" (was "When to offer an ADR").
+  - A search of `staging/` found no client, person or engagement names.
+- `docs/plans/schedule.md`: DG1 done on Sat 7 Nov; 2545 now starts Sat 7 Nov and still finishes Fri 20 Nov; a "Changes" line.
+- `docs/plans/stage-1-day-gate-plan.md`: DG1's date and a done line.
+- `CLAUDE.md`: the day-gate plan row's dates, and a row for `staging/`.
+- This log: Session 17's next steps now name the Monday laptop session as Session 19.
+
+Decisions:
+- None asked. One choice taken from the sources, for Boroon to change in review if he wants: **when a project copies each template.** `glossary.md` when the first term is resolved and `docs/adr/README.md` with the first record (the skill creates both lazily); `coding-standards.md` at project set-up, because the reviewer reads it on every PR (plan 5.10).
+
+Files changed: `staging/README.md`, `staging/factory-manifestos/README.md`, `staging/factory-manifestos/templates/project/glossary.md`, `staging/factory-manifestos/templates/project/docs/adr/README.md`, `staging/factory-manifestos/templates/project/coding-standards.md` (all new), `docs/plans/schedule.md`, `docs/plans/stage-1-day-gate-plan.md`, `CLAUDE.md`, `docs/progress.md`.
+
+Time and tokens: **not recorded.** This was a cloud session, which has no local transcript for `tools/session_usage.py`.
+
+**ADO updates for the next laptop session** (project `getai-overnight-ai-factory`; this session could not reach ADO). Do Session 17's list first, with its item 2 replaced by item 1 here:
+1. **2545:**
+   - Start Date to Sat 7 Nov 2026 (Session 17's list said Thu 12 Nov). Finish Date stays Fri 20 Nov.
+   - State to the process's in-progress state. Done after DG3.
+   - Add to its body: "DG1 (templates) done 7 November 2026 in Session 18, a cloud session, brought forward from 12 November. Output: `staging/README.md`, `staging/factory-manifestos/README.md` and `staging/factory-manifestos/templates/project/` (`glossary.md`, `docs/adr/README.md`, the `coding-standards.md` header). Branch `claude/session-18-2545-templates`. Time and tokens: not recorded; cloud session, no local transcript. DG3 (the standards seed, laptop, Fri 20 Nov) finishes the story."
+2. Then re-run the schedule-order query (Session 17's item 11) and check it matches `docs/plans/schedule.md`.
+
+Open items:
+- **Thu 12 Nov's documents slot is free.** 2549 (third-party skills policy, Thu 19 to Fri 20 Nov, needs nothing first) could move into it, which would also ease Fri 20 Nov. Boroon to decide; nothing moved.
+- **The skill's glossary example breaks its own rule.** In `glossary-format.md`, the term "Customer" has no `_Schema_` line, though the rules say one per term. Not changed here (rule 17). The template does not use that term.
+- **"Change both in the same PR" stops working after DG8.** The skill stays in this repo on github.com; the templates move to `GetAI-IP/factory-manifestos` on GHE. DG8 should decide how to keep them in step, for example paired PRs that link each other.
+
+Next steps:
+1. Boroon: review this branch. A pull request when he asks.
+2. Monday 9 November, laptop, **Session 19**: the ADO updates from Sessions 17 and 18, and raise `cleanupPeriodDays`, at Boroon's word. Then spike 0.18 (2462), then 0.19 (2463), on `claude/session-19-2462-yaml-export`.
+3. Next on the documents track: 2549 on Thu 19 Nov (or Thu 12 Nov, if Boroon moves it). Then DG3 on the laptop on Fri 20 Nov.
+
+Later (same session, at Boroon's word: "make sure we have these two gotchas recorded"): the skill's missing `_Schema_` line and the split of the two format copies after 4 December are now in Open items at the top of this file. The second is also step 5 and the "done when" of DG8 in `docs/plans/stage-1-day-gate-plan.md`, and both staging READMEs say the "same PR" rule holds only until the move.
+
+Later again (same session, at Boroon's word: "add the Customer fix to this branch"): `.claude/skills/getai-domain-modeling/glossary-format.md` now gives the example term "Customer" the line `_Schema_: none yet`. That closes the first gotcha. The template needed no change.
 
 ## Session 17, 2026-11-07, branch `claude/session-17-2543-day-gate-plan`
 
@@ -166,8 +217,8 @@ Open items:
 
 Next steps:
 1. Boroon: review this branch. A pull request when he asks.
-2. Monday 9 November, laptop, **Session 18** (not 17 as Session 16 wrote): spike 0.18 (2462), then 0.19 (2463), on `claude/session-18-2462-yaml-export`. First make the ADO updates above, and raise `cleanupPeriodDays`, at Boroon's word.
-3. Thursday 12 November, cloud: DG1 (2545 templates), on a branch with the ADO ID.
+2. Monday 9 November, laptop, **Session 19** (renumbered in Session 18, a cloud session on 7 November that took the number 18): spike 0.18 (2462), then 0.19 (2463), on `claude/session-19-2462-yaml-export`. First make the ADO updates above, and raise `cleanupPeriodDays`, at Boroon's word.
+3. Done early: DG1 (2545 templates) ran on 7 November in Session 18, not on Thursday 12 November.
 
 ## Session 16, 2026-11-07, branch `claude/session-16-time-tokens`
 

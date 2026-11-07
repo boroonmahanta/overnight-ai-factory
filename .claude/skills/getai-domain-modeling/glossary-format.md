@@ -21,6 +21,7 @@ _Avoid_: Bill, payment request
 
 **Customer**:
 A person or organization that places orders.
+_Schema_: none yet
 _Avoid_: Client, buyer, account
 ```
 

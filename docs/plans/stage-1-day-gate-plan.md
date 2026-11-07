@@ -15,7 +15,7 @@ Left out: the gate scripts (2538). Their order waits on spike 0.18 (2462, Monday
 
 ## Where things stand
 
-- None of these pieces exists yet. The plan describes them in 6.1 to 6.4, 5.8 and 7.3.
+- None of these pieces existed when this plan was written. The plan describes them in 6.1 to 6.4, 5.8 and 7.3. The DG1 templates exist since 7 November (Session 18).
 - Two live skills already hold the formats we need: `getai-domain-modeling` (the `glossary.md` and ADR formats, adapted 2 November 2026) and `getai-grilling` (the grilling rules). Use them; do not write new formats.
 - The Get AI Engineer's material is the default where the plan does not settle a point (plan 14.4). From the delivery vault copy (`docs/sources/delivery-vault/`): the solution design, build handoff and backlog coverage templates, and the rule that business designs stay in SharePoint, approved by exact version. From the older ADO vault (laptop only): the 46 standards, the retro and "suggest patterns and skills" workflows, the design template and the per-story build brief.
 - `GetAI-IP/factory-manifestos` does not exist yet. It is created in DG3.
@@ -84,7 +84,9 @@ Rules for the staging folder:
 
 ## The build sessions, in order
 
-### DG1. Templates (2545, part 1). Thursday 12 November. Cloud
+### DG1. Templates (2545, part 1). Saturday 7 November (brought forward from Thursday 12 November). Cloud
+
+**Done 7 November 2026** (Session 18, branch `claude/session-18-2545-templates`): `staging/README.md`, `staging/factory-manifestos/README.md` and the three files in `staging/factory-manifestos/templates/project/`.
 
 Read: plan 6.2 (lines 959 to 973), 5.10 standards pass (line 782), 5.12 (lines 870 to 897), the two format files in `.claude/skills/getai-domain-modeling/`.
 
@@ -216,9 +218,10 @@ Read: Session 9's entry in `docs/progress.md` (how `factory-gates` moved).
 2. `staging/factory-manifestos/` into `GetAI-IP/factory-manifestos` with its history (a subtree split, merged by PR beside DG3's standards).
 3. `staging/factory-gates/` into `GetAI-IP/factory-gates` by PR: `spec/`, its tests and fixtures, and `playwright/`. Regenerate `scripts.sha256`; run every test; check `self-test` is green.
 4. A PR here deleting `staging/`, leaving a pointer in `CLAUDE.md`.
-5. Boroon merges all three.
+5. Settle how the two copies of the glossary and ADR formats stay the same (added Session 18). After the move, the skill (`.claude/skills/getai-domain-modeling/`) stays here and the templates are in `factory-manifestos`, so the staging rule "change both in the same PR" no longer works. Agree a way with Boroon, for example two PRs that link each other, and write it into the `factory-manifestos` README and `CLAUDE.md`.
+6. Boroon merges all three.
 
-Done when: both GHE repos hold the files with tests passing, and `staging/` is gone from `main` here.
+Done when: both GHE repos hold the files with tests passing, `staging/` is gone from `main` here, and the way the two format copies stay the same is written down.
 
 ### DG9. Test the kit against `factory-test` (2546, part 2). Monday 14 and Tuesday 15 December. Laptop
 
