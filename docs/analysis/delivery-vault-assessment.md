@@ -354,4 +354,4 @@ Markers: 🟢 better than our plan now, ⚪ no real change, 🔴 worse or a new 
 **Decided (Boroon, 7 November 2026), and made in plan 5.6, 5.10, 11.2, Appendices A and B, and 14.4:**
 1. The two floor rules (shared use raises the floor to at least 3), one per profile: agreed.
 2. Pro-code inventories made by the gate and never committed: agreed.
-3. A lint that fails any inventory holding a value: agreed, "with reasons". The plan reads this as a lint whose failure gives its reasons: the entry, why values are barred, and the fix.
+3. A lint that fails any inventory holding a value: agreed, "with reasons". This means a lint whose failure gives its reasons: the entry, why values are barred, and the fix (Boroon confirmed this reading).
