@@ -36,6 +36,11 @@ Next steps:
 
 ## Open items
 
+- **"Agile build v1" differs from plan Appendix D.2** (seen 7 November 2026, Session 15). The process exists in the `getai` organisation, but its User Story states are not D.2's, it has no Spike type, and the D.1 custom fields were not checked. Before Stage 2 changes it, find which projects already use it.
+- **Inventories, item 15: three decisions for Boroon** (`docs/analysis/delivery-vault-assessment.md` section 10.2):
+  1. a floor of at least 3 for a change to something other components use, in each profile;
+  2. pro-code inventories made by the gate and never committed;
+  3. a lint that fails any inventory holding a value.
 - **`GetAI-IP/factory-gates` lags the plan after live build** (Session 15, 7 November 2026). A laptop gate slice, by pull request there; Boroon merges. Not started. Before any local check, delete Finder's `.DS_Store` files in the clone. What to change (read from the clone at `85ad2b5`, the same as `release`):
   1. `pending-scripts.txt`: delete `lcp/create_schema.py` and `lcp/create_security.py` (verify-in-test); add `lcp/plan_from_export.py` under `# static`. `tests/test_workflow.py` keeps this list and the workflow in step.
   2. `.github/workflows/lcp-gate.yml`, to match plan Appendix A:
@@ -139,13 +144,35 @@ Files changed: `docs/sources/plan-v3.1.md`, `CLAUDE.md`, `docs/progress.md`. The
 Open items:
 - The factory-gates follow-ups (Open items, top of this file). A laptop gate slice for later.
 - Spikes 0.18, 0.19 and the widened 0.14 must pass before Stage 3. If 0.18 fails, the plan's fallback is XML for flows and tables, with canvas apps kept out of the night.
-- Assessment section 7 items 8, 9, 10, 12, 14 and 15 are still proposals (standards seed, `getai-lcp` preset additions, one ADO project per engagement, mining set, "start my day", inventories as a blast-radius input; the last is partly done: the reviewer now reads the inventories).
+- (Since decided the same day, except item 15; see "Later" below.) Assessment section 7 items 8, 9, 10, 12, 14 and 15 are still proposals (standards seed, `getai-lcp` preset additions, one ADO project per engagement, mining set, "start my day", inventories as a blast-radius input; the last is partly done: the reviewer now reads the inventories).
 - The one-pager and the Ways-of-Working page do not mention live build. Refresh them only if they are to be shared again.
 
 Next steps:
 1. Boroon: review this branch; a planning pull request when he asks.
 2. A spike session in `factory-lane-1`: 0.18 and 0.19 together, then the widened 0.14 (flow by the Web API as `getai-fl1-exec`).
 3. The factory-gates slice, on the laptop.
+
+Later (7 November 2026, same branch, each at Boroon's word in this chat):
+- **Precedence rule** (sent by a forked session, then agreed here): our plan wins on design. The Get AI Engineer's material is the default source for anything the plan does not settle: use it as it is or with the least change, and do not write our own. Where they clash, ours applies. Anything from the older ADO vault comes over anonymised, by a reviewed PR. Recorded in plan 14.4 and `CLAUDE.md`.
+- **Item 10, ADO projects, all lanes:**
+  - one ADO project per engagement, on "Agile build v1", and the vault's engagement projects can take it;
+  - ADO is GET AI's and holds Kanban boards only;
+  - code repos sit on GET AI's GitHub Enterprise, with pipelines and tests on GitHub Actions;
+  - a project manifest `gate/projects/<proj>/project.json`;
+  - one internal project for the factory's own build.
+  Made in plan 6.4, Appendix D, the 5.1 work-queue row and 14.4.
+- **Item 8** (low-code): `coding-standards.md` starts from the Get AI Engineer's 46 standards. "Rule" items become lints that can raise the floor; "judgement" items go to the reviewer. Plan 5.10 and 5.12.
+- **Item 9** (low-code): five additions to the `getai-lcp` preset in plan 6.3: the values table, names at design time, reference components, the inventory check, and open questions split by who answers.
+- **Item 12:** moved out of the current stages into a new last stage, **stage 9, "Learning from past engagements"**, with a mining agent of its own for every engagement type (plan 11.2, 7.3; heading now "Stages 1 to 9").
+- **Item 14** (low-code): the delivery vault's "start my day", extended with the least change, is the reviewer's morning entry point (plan 2.1).
+- **Item 15:** assessed for low-code and pro-code as a decision matrix in `docs/analysis/delivery-vault-assessment.md` section 10. Not in the plan yet; three decisions are waiting on Boroon. Section 7 of the assessment now has a status note.
+- **ADO, read only, through Boroon's Azure CLI sign-in:**
+  - No factory project exists in the `getai` organisation yet.
+  - **"Agile build v1" exists**, inherited from Agile. Its types are Epic, Feature, User Story, Task, Bug, Risk, Issue and a few custom ones. It has **no Spike type**.
+  - **Its User Story states do not match plan D.2.** Live: Proposed, Analysis, Awaiting business, Ready to build, Building, Testing, UAT Ready, In UAT, PROD Ready, In PVT, Blocked, Done. D.2 also has Queued, Awaiting review, Needs rework and Integrated, and has no Analysis, In PVT or Blocked.
+  - Other projects may already use this process, so changing it is a Stage 2 job, to check first.
+  - The organisation's project list names clients, so it is not copied here.
+- A backlog seed for the internal project (past work done, future work from plan 11 and the open items) is being drafted in the session scratchpad, for creating the project and its items once Boroon names it.
 
 ## Session 14, 2026-11-06, branch `claude/session-14-vault-assessment`
 

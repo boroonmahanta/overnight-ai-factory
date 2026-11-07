@@ -2,7 +2,7 @@
 
 This repo holds the plan and the start of the build of GET AI's overnight software factory.
 Mostly documents. The first code, the gate, lives in its own repo `GetAI-IP/factory-gates` on `getai.ghe.com` (stage 1: slice 1 and Builds 1 to 3; moved out of this repo 3 November 2026; tested, not yet run as a gate or on a tenant).
-**Where things live (Boroon, 4 November 2026):** this planning repo stays on github.com, `boroonmahanta/overnight-ai-factory`, for good. Only the workflows and the automation Apps go on `getai.ghe.com`: the gate, the held-out tests, the caller repos and the GitHub Apps. This repo is public (checked 4 November 2026); whether to make it private is open (`docs/progress.md`).
+**Where things live (Boroon, 4 November 2026):** this planning repo stays on github.com, `boroonmahanta/overnight-ai-factory`, for good. Only the workflows and the automation Apps go on `getai.ghe.com`: the gate, the held-out tests, the caller repos and the GitHub Apps. This repo is public (checked 4 November 2026); whether to make it private is open (`docs/progress.md`). **ADO (Boroon, 7 November 2026):** GET AI's Azure DevOps (`getai` organisation) holds Kanban boards only, one project per engagement on the process "Agile build v1", plus one internal project for the factory's own build; repos stay on GET AI's GitHub Enterprise, with pipelines and tests on GitHub Actions (plan 6.4).
 
 This file loads at the start of every session. It is a map, not the full plan.
 Keep it short. Detail lives in `docs/sources/`.
@@ -34,7 +34,7 @@ End:
 |---|---|
 | `CLAUDE.md` | This map |
 | `docs/progress.md` | Running log and next steps. Read second, update last |
-| `docs/sources/plan-v3.1.md` | The main plan, "Lock the Gate, Pool the Lanes, Merge by Day", V3.1, 1 November 2026. 2,659 lines. Edited in place since, each time at Boroon's word; the largest edit is live build in lane B (low-code), 7 November 2026 (Session 15) |
+| `docs/sources/plan-v3.1.md` | The main plan, "Lock the Gate, Pool the Lanes, Merge by Day", V3.1, 1 November 2026. 2,682 lines. Edited in place since, each time at Boroon's word; the largest edit is live build in lane B (low-code), 7 November 2026 (Session 15) |
 | `docs/sources/plan-v3.md` | The previous version, V3, 1 November 2026. 1,976 lines. Superseded by V3.1. Kept only to see what changed. V3 differs from V3.1 in: Wayfinder named the planning agent (now Story Planner); auto-merge framed as "Phase 4" (now the trust ladder L0 to L3); one evaluator per PR (now one to three verifiers); one review pass (now two); no `lcp-verify`, outer loop, gardening or prototypes; cost USD 11 per story and USD 144 accepted (now about 15 and 150); a Test queue of 30 minutes per PR (now about 36) |
 | `docs/sources/uploaded-plan-software-factory.md` | Boroon's original plan (also as `.docx`). Part A: "End-to-End Specification: The GET AI Microsoft Software Factory". Part B: "Copilot Studio Agents & App Builds". 320 lines. Section 14.1 of the main plan lists every change made to it |
 | `docs/sources/transcript-anthropic-agents-run-for-hours.md` | Anthropic workshop, "How to Build Agents That Run for Hours". 1,213 lines |
@@ -44,7 +44,7 @@ End:
 | `docs/analysis/skills-comparison.md` | Our own analysis, 1 November 2026. Compares the skill packs of Addy Osmani, Matt Pocock and Lauren Tan: full list of every skill, overlaps, which fit GET AI, where they conflict with the 19 rules. Verdicts are proposals. 428 lines |
 | `docs/analysis/tshirt-sizing.md` | Our own analysis, 1 November 2026. The T-shirt size approach (XS, S, M, L, XL) that sets ceremony by risk, mapped to the plan's Merge Danger bands and to the skills to use at each size. The sizes and the largest-answer rule were approved by Boroon on 1 November 2026. The skills per size and the next steps are still proposals. 52 lines |
 | `docs/analysis/delivery-vault-fast-track.md` | Our own analysis, 6 November 2026 (Session 13). What lane 1 can take from a lane 1 engineer's delivery vault (a day-time kit: four skills, operating rules, design and handoff templates) and from a call with its author, combined with `factory-lane-1`: a mapping to plan stages, five fast-track steps, a pilot scoped to work with no client connections, and five differences to settle (chiefly: build live then export, versus the plan's builders). The Power Platform pieces described on the call are not in the vault yet. Client names left out (public repo). Proposals only; the plan is not changed. Partly superseded by `delivery-vault-assessment.md` (Session 14) |
-| `docs/analysis/delivery-vault-assessment.md` | Our own assessment, 6 November 2026 (Session 14), for lane B (low-code). Verdict table first: 37 pieces of the Get AI Engineer's material judged combine, replace, keep ours or gap. Sources: the GHE delivery vault; the Get AI Engineer's older Power Platform vault in Azure DevOps (`getai` org, project `GETAI-PowerPlatform`, repo `vault`; it holds 46 standards with IDs, 8 flow patterns, an export procedure and past engagement records, and names clients, so it is not copied here); Microsoft's `power-platform-skills`. Recommends building live in the lane with the driver's export as the record. Also day versus night, dates by scenario, questions for the Get AI Engineer, 15 proposed plan edits, and differences from Session 13. The build method was decided on 7 November 2026 and edited into the plan (Session 15: items 1 to 7, 11 and 13 of section 7). The other proposals stay open |
+| `docs/analysis/delivery-vault-assessment.md` | Our own assessment, 6 November 2026 (Session 14), for lane B (low-code). Verdict table first: 37 pieces of the Get AI Engineer's material judged combine, replace, keep ours or gap. Sources: the GHE delivery vault; the Get AI Engineer's older Power Platform vault in Azure DevOps (`getai` org, project `GETAI-PowerPlatform`, repo `vault`; it holds 46 standards with IDs, 8 flow patterns, an export procedure and past engagement records, and names clients, so it is not copied here); Microsoft's `power-platform-skills`. Recommends building live in the lane with the driver's export as the record. Also day versus night, dates by scenario, questions for the Get AI Engineer, 15 proposed plan edits, and differences from Session 13. Decided 7 November 2026 and edited into the plan in Session 15: section 7 items 1 to 7, 11 and 13 (live build), items 8, 9 and 14 (low-code), item 10 (all lanes) and item 12 (moved to a new stage 9). Section 7 has the status. Section 10 holds the item 15 decision matrix (inventories, low-code and pro-code), still for Boroon to decide |
 | `docs/sources/delivery-vault/` | Verbatim copy of `AI-Business-Solutions/delivery-vault` (private, `getai.ghe.com`) at commit `19877b8`, copied read-only 6 November 2026; all 19 files match the source's blob hashes. `PROVENANCE.md` says what it is. A source, not adopted: its nested skills do not load. The source repo stays the truth. The source moved to `51fdde5` on 6 November (onboarding guides only); this copy is not refreshed |
 | `docs/sources/transcript-skills-comparison-addy-pocock-tan.md` | A YouTube video comparing the three skill packs (https://www.youtube.com/watch?v=sU9MW8Ycq2M). Source for the effort-level idea behind the T-shirt sizes. 744 lines. Added 1 November 2026 |
 | `docs/sources/transcript-pstack-skills-review.md` | A YouTube review of Lauren Tan's pstack skills (https://www.youtube.com/watch?v=lUhXa8GiXns; skills at https://github.com/cursor/plugins/tree/main/pstack). 769 lines. Not cited in the plan. Added 1 November 2026. Covers potato mode, arena, swarm, why, recall, interrogate, create and maintain verification, unslop and bro |
@@ -89,21 +89,21 @@ Read by line range, for example offset 379 and limit 200.
 | 168 to 305 | 3. What the research teaches, including what each transcript added |
 | 306 to 378 | 4. Lanes and routing, the outer loop (triage), night and background workloads |
 | 379 to 936 | 5. Lane B for Power Platform in depth: architecture and the driver (5.1), engine, identities, environment pool and reset (5.4), night timeline, live build and code over click-ops (5.6), the gate (5.7 at 633), locked scenarios, `lcp-verify`, Merge Danger and trust ladder, ADO state machine, agent instructions, throttling, licensing, promotion, residency |
-| 937 to 1048 | 6. The day gate: Spec Kit presets, grilling rules, Factory Eligible, intake, Wayfinder maps, prototypes |
-| 1049 to 1141 | 7. Handoff files, traces, weekly routine, gardening |
-| 1142 to 1191 | 8. Harness parity, component register, third-party skills policy |
-| 1192 to 1256 | 9. Credits, billing modes, model choice, data residency tiers |
-| 1257 to 1377 | 10. Cost ledger, story cost model, cost envelope |
-| 1378 to 1422 | 11. Staged build plan, stage 0 spikes (19) |
-| 1423 to 1460 | 12. Risks, most serious first (33) |
-| 1461 to 1476 | 13. Accelerator and IP |
-| 1477 to 1550 | 14. Decision log (14.4 holds the decisions after V3.1, including live build) |
-| 1551 to 1589 | 15. Open questions and evidence quality |
-| 1590 to 2156 | Appendix A: gate workflow YAML (untested; tags shown, `factory-gates` holds commit pins). `map` and `locks` match `factory-gates` as at Build 3, 3 November 2026. Since 7 November 2026 (live build) the plan is ahead of `factory-gates` in three places: `build` runs only generator-backed builders, `static` runs the export-diff plan (`plan_from_export.py`), and `verify-in-test` no longer runs the two Test plan scripts. Since 4 November 2026 it sets up .NET `10.0.x` (spike 0.2), as `factory-gates` does since gate PR 12 |
-| 2157 to 2296 | Appendix B: Merge Danger rubric (B.1 low-code path rules), verifier count, `trust.yml` |
-| 2297 to 2584 | Appendix C: agent definitions, `AGENTS.md`, `lcp-verify` skill, PR body template |
-| 2585 to 2640 | Appendix D: ADO fields and states |
-| 2641 to 2659 | Appendix E: sources used |
+| 937 to 1065 | 6. The day gate: Spec Kit presets (6.3 `getai-lcp`), grilling rules, Factory Eligible and one ADO project per engagement (6.4), intake, Wayfinder maps, prototypes |
+| 1066 to 1160 | 7. Handoff files, traces, weekly routine, gardening |
+| 1161 to 1210 | 8. Harness parity, component register, third-party skills policy |
+| 1211 to 1275 | 9. Credits, billing modes, model choice, data residency tiers |
+| 1276 to 1396 | 10. Cost ledger, story cost model, cost envelope |
+| 1397 to 1442 | 11. Staged build plan, stage 0 spikes (19), stages 1 to 9 |
+| 1443 to 1480 | 12. Risks, most serious first (33) |
+| 1481 to 1496 | 13. Accelerator and IP |
+| 1497 to 1573 | 14. Decision log (14.4 holds the decisions after V3.1: live build, the precedence rule, ADO projects, assessment items) |
+| 1574 to 1612 | 15. Open questions and evidence quality |
+| 1613 to 2179 | Appendix A: gate workflow YAML (untested; tags shown, `factory-gates` holds commit pins). `map` and `locks` match `factory-gates` as at Build 3, 3 November 2026. Since 7 November 2026 (live build) the plan is ahead of `factory-gates` in three places: `build` runs only generator-backed builders, `static` runs the export-diff plan (`plan_from_export.py`), and `verify-in-test` no longer runs the two Test plan scripts. Since 4 November 2026 it sets up .NET `10.0.x` (spike 0.2), as `factory-gates` does since gate PR 12 |
+| 2180 to 2319 | Appendix B: Merge Danger rubric (B.1 low-code path rules), verifier count, `trust.yml` |
+| 2320 to 2607 | Appendix C: agent definitions, `AGENTS.md`, `lcp-verify` skill, PR body template |
+| 2608 to 2663 | Appendix D: ADO fields and states |
+| 2664 to 2682 | Appendix E: sources used |
 
 The two transcripts are already digested in plan sections 3.5 (workshop) and 3.6 (Spec Kit). Read the full text only when quoting.
 
@@ -113,6 +113,7 @@ Build the Power Platform profile of "Lane B" first. By day, humans shape a high-
 Someone other than the worker writes and locks the acceptance scenarios. A human then sets "Factory Eligible" in Azure DevOps (ADO).
 At night, Copilot CLI runs headless on a GitHub Actions runner in Australia, one story per lane, across three long-lived Sandbox environments that are Managed Environments.
 The agent builds live in its lane. The driver, a trusted step, then exports the solution, and that export is the PR's source (decided 7 November 2026).
+Our plan wins on design. The Get AI Engineer's material (the delivery vault and the older ADO vault) is the default for anything the plan does not settle: use it as it is or with the least change, and do not write our own (Boroon, 7 November 2026). Anything from the older ADO vault comes over anonymised, by a reviewed PR.
 A required workflow in a separate gate repo runs only trusted checks, imports each PR into a Test environment the worker cannot touch,
 runs locked and held-out scenarios, then one to three fresh verifier sessions click through the app.
 A deterministic Merge Danger score is computed for every PR. An AI reviewer may raise it, never lower it.
@@ -243,6 +244,7 @@ The 45 days build the factory. They move no project up a trust rung. Do not star
 | 6 | 60 to 90 | Lane A |
 | 7 | about day 75 earliest | Rung L2 per change class, on evidence |
 | 8 | ongoing | Scale, bake-offs, accelerator |
+| 9 | last, no date | Learning from past engagements: a mining agent of its own, every engagement type, anonymised findings only (added 7 November 2026) |
 
 ## Open questions (owner)
 
