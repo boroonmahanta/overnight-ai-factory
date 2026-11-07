@@ -269,6 +269,21 @@ Ask them to send:
 14. **2.1, morning**: name "start my day" as the reviewer's entry point.
 15. **5.10**: add generated inventories as an input to blast radius and the reviewer.
 
+**Status, 7 November 2026 (Session 15).** Boroon decided:
+- **Items 1 to 7, 11 and 13:** made, as live build in the lane.
+- **Item 8:** agreed for low-code; made in plan 5.10 and 5.12.
+- **Item 9:** agreed for low-code; made in plan 6.3.
+- **Item 10:** agreed for every lane; made in plan 6.4, Appendix D and 14.4:
+  - ADO is GET AI's and holds Kanban boards only;
+  - repos sit on GET AI's GitHub Enterprise, with pipelines and tests on GitHub Actions;
+  - the vault's engagement projects take our process;
+  - there is one internal project for the factory.
+- **Item 12:** moved out of the current stages into a new last stage 9, with a mining agent of its own for every engagement type.
+- **Item 14:** agreed for low-code; made in plan 2.1.
+- **Item 15:** assessed for both profiles in section 10, for Boroon to decide.
+- **Overall rule:** our plan wins on design, and the Get AI Engineer's material is the default source for anything it does not settle (plan 14.4).
+- **Anonymising:** anything from the older ADO vault comes over anonymised, by a reviewed PR.
+
 ## 8. Where this differs from Session 13's quick take
 
 Sections 1 to 7 were drafted before reading `docs/analysis/delivery-vault-fast-track.md`. Compared afterwards:
@@ -297,3 +312,46 @@ Sections 1 to 7 were drafted before reading `docs/analysis/delivery-vault-fast-t
 - **Microsoft Learn**: source control with solution files; the YAML format reference; the `pac solution` reference; the Git integration FAQ; working with cloud flows using code.
 - Read-only throughout. Nothing changed on `getai.ghe.com`, in Azure DevOps or in the tenant.
 - Effort and dates are my estimates from the plan's stage contents and the Session 13 baseline, not measurements.
+
+## 10. Inventories for low-code and pro-code: decision matrix (item 15)
+
+Added 7 November 2026 (Session 15), at Boroon's request. A proposal; nothing here is in the plan yet beyond what Session 15 already made.
+
+**The idea.** A generated, deterministic list of the things a diff does not show: what else uses a changed component, and which settings and connections it touches. People and agents read the list before the source. It should be cheaper and steadier than asking an LLM to work out the blast radius from the diff alone.
+
+### 10.1 What each profile's inventory would hold
+
+| | Low-code (lane B, `lcp`) | Pro-code (lane B code profile, `pcp`, and Lane A) |
+|---|---|---|
+| What it lists | Components and what uses them (tables, columns, flows, apps, agents, roles), environment variables, connection references. Names and types only; values redacted | Config keys and secret references (names only); infrastructure resources; database tables from migrations; public routes or contracts where a spec file exists; the internal import graph of changed files [inference] |
+| Source | The driver's export (YAML), following the Get AI Engineer's inventory procedure, with the least change (the precedence rule) | The PR's own files, parsed without running them |
+| Who makes it | The driver, after each export; trusted | A trusted gate step, in a job with no credentials (rule 5); the agent wrote the code, so it must not write the inventory |
+| Where it lives | Committed beside `src/` by the driver; the gate regenerates it and fails on a mismatch | Gate evidence only, never committed |
+| Effort | Small: parse the export the driver already makes | Medium: one parser per stack (TypeScript, Python, .NET), plus infrastructure files and migrations [inference] |
+| When | Stage 3, with the driver | Stage 5 (code profile), Stage 6 (Lane A) |
+
+### 10.2 Decision matrix against our plan
+
+Markers: 🟢 better than our plan now, ⚪ no real change, 🔴 worse or a new risk.
+
+| Use | Our plan now (after Session 15) | Low-code with inventories | Pro-code with inventories | Proposed decision |
+|---|---|---|---|---|
+| Reviewer's blast radius (B.4 spec pass) | Low-code: the reviewer reads the inventories (C.3) and judges. Pro-code: the reviewer judges from the diff | ⚪ Already done | 🟢 The reviewer sees who else imports a changed file, and which config and migrations it touches | Low-code: keep. Pro-code: adopt at Stage 5 |
+| Deterministic floor (rule 11) | Paths (B.1) and the export-diff plan (B.2). Nothing about shared use | 🟢 New rule: a change to a component the inventory shows another app, flow or agent uses has a floor of at least 3. This matches size M, "shared table" | 🟢 Same pattern: a change to a file other packages import, a public contract, a config key, a migration or an infrastructure resource has a floor of at least 3 | Adopt for both. Low-code at Stage 3; pro-code with its Stage 5 path rules |
+| Verifier count (B.6) | "3 when the blast radius names another app or flow", fed by the export-diff plan | 🟢 The "used by" links make that test deterministic | ⚪ Pro-code has one evaluator, not one to three verifiers. The inventory sets its regression focus instead | Low-code: adopt. Pro-code: use for regression focus only |
+| Executor facts first (rule 9) | Low-code: read the inventories before the source (C.1). Pro-code: the agent searches the code | ⚪ Already done | ⚪ The cloud agent and the SDK session search code well. A gate-made inventory reaches them only after the PR | Low-code: keep. Pro-code: skip for now |
+| Day spec: check before proposing a new component | Low-code: the `getai-lcp` preset's inventory check (6.3, item 9) | ⚪ Already done | 🟢 Stops a duplicate service, table or config key being specified | Pro-code: add to the GET AI preset at Stage 5 |
+| Triage (outer loop, 4.5) | The triage agent finds components by search | 🟢 Maps a client report to the components and flows it touches | 🟢 Maps a report to the routes and services it touches | Adopt for both at the Stage 4 outer-loop pilot |
+| Gardening (7.4) | Scans for smells | 🟢 Finds orphans: unused environment variables and connection references | 🟢 Finds unused config keys and dead routes | Adopt for both with gardening at Stage 4 |
+| Data exposure | No inventories for pro-code | 🔴 Values could leak. Names and types only; never values | 🔴 Same: config key names only, never values or secrets | A lint fails any inventory that holds a value |
+| Trust | n/a | 🔴 An agent commit could alter a committed inventory. The gate regenerates it and fails on any difference | ⚪ Gate-made, so the agent cannot touch it | Low-code: the gate regenerates and compares. Pro-code: never committed |
+| Build effort | None | ⚪ Small; the procedure exists | 🔴 A parser per stack | Pro-code: start with config keys, infrastructure and migrations, plus the import graph for the main stack |
+
+**Counts.** Low-code: 4 better, 4 no change, 2 new risks, each with its answer. Pro-code: 5 better, 3 no change, 2 new risks, each with its answer.
+
+**What it means.** For low-code, Session 15 already did most of item 15. What is left is one floor rule, the verifier test, and the gate's regeneration check. For pro-code, inventories pay off in review, the floor, triage and gardening. They do not help the agent while it builds. Start small at Stage 5.
+
+**Decided (Boroon, 7 November 2026), and made in plan 5.6, 5.10, 11.2, Appendices A and B, and 14.4:**
+1. The two floor rules (shared use raises the floor to at least 3), one per profile: agreed.
+2. Pro-code inventories made by the gate and never committed: agreed.
+3. A lint that fails any inventory holding a value: agreed, "with reasons". This means a lint whose failure gives its reasons: the entry, why values are barred, and the fix (Boroon confirmed this reading).
