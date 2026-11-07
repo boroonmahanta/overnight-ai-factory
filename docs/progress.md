@@ -67,11 +67,51 @@ Next steps:
 - **The gate installs Copilot CLI unpinned** (seen in Session 13, not changed): `lcp-gate.yml` on `release`, `verify-in-test`, runs `npm install --global @github/copilot` with no version or hash. Spike 0.3 shows a pattern that works on a hosted runner for a package with no dependencies: fetch the tarball, check it against the registry's `sha512`, `npm install --global --offline --ignore-scripts` from the file. Check first whether `@github/copilot` has dependencies (if so, pin with a lockfile instead). A gate slice, by pull request there.
 - **Sources are complete.** Boroon uploaded the whole research folder as a zip. Every file was checked by checksum against the repo, duplicates were skipped, and the rest were added. The other session ("Overnight AI software factory", id `session_019bVvHWrUECf7G5YiXU3fKW`) is no longer needed for sources and can be deleted.
 - **Not read in full.** The files added from the zip were saved but not read in this session: the reports V1 and V2, the runtime and costs note, the eight GitHub and Azure notes, the five Power Platform notes and the one-pager. The five workshop slide images were saved but not viewed. The plan condenses most of them. Read one only when a task needs its detail.
-- **Decisions still waiting on Boroon** (from `docs/analysis/tshirt-sizing.md`): approve the shortlist of skills to read in full before any are adopted (plan section 8.3); decide whether to add a work-size field to ADO (Appendix D); decide whether to write a GET AI router skill that routes by size. The sizes themselves are approved.
+- **Decisions still waiting on Boroon** (from `docs/analysis/tshirt-sizing.md`): approve the shortlist of skills to read in full before any are adopted (plan section 8.3); decide whether to write a GET AI router skill that routes by size. The sizes themselves are approved, and the ADO field `Custom.WorkSize` is decided (7 November 2026, Session 16).
+- **Spike 0.20, time and tokens per story on every engine, is not run** (Session 16). ADO story 2738 under Feature 2737 (Stage 1). It needs Claude Code's OpenTelemetry turned on through managed settings and somewhere to send it: Application Insights does not exist yet, so use a local collector first. The docs do not say whether the VS Code extension or the desktop app export it; this session runs in the desktop app, so test there first.
 - The Pocock v1.3 transcript ends mid-sentence at 14:28. The zip copy is the same, so the source itself is cut off.
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 16, 2026-11-07, branch `claude/session-16-time-tokens`
+
+Time and tokens per story, on every engine, written into the plan. A local session on Boroon's laptop, in the desktop app. Started from `main` at PR 24's merge (`a11c913`).
+
+Done:
+- Boroon pasted a note (from another chat) proposing three additions: a rule that every engagement records time and tokens per story; moving `tools/session_usage.py` into the gate repo as a shared tool that writes ledger rows; and a baseline view by size and lane.
+- Checked the note against the plan (10.1, 7.2, 11.2 stage 2, Appendix D) and the V2.1 ledger schema. Its gaps are real. Found four more: day spec time was not recorded in ADO (Human Minutes held review and PARK only, while the model counts 30 of 50 human minutes as day spec work); no work size on the story; no story key for day sessions; agent time is not human time. Correction to what I said in chat: the V2.1 `fact_human_time` table already has activities for spec work; only `scenarios` and `park` were missing.
+- Checked Claude Code's telemetry in its docs (a helper agent read the monitoring and settings pages, in part): native OpenTelemetry with token use by type and model, a cost estimate, active time split into user and CLI time, an event per API request, custom keys in `OTEL_RESOURCE_ATTRIBUTES`, managed settings for every user, prompts redacted by default. Silent on the VS Code extension and the desktop app. Not checked: the macOS path of the managed settings file.
+- Advised against point 2: a laptop tool reads files the engineer controls, so its numbers are self-reported wherever the copy lives, and ledger rows from laptops would mean ledger keys on every laptop. Proposed Claude Code's own OpenTelemetry instead, with the script as the fallback writing a ledger-shaped file for a trusted loader. Boroon said "Yes, as proposed".
+- Edited `docs/sources/plan-v3.1.md` (now 2,706 lines):
+  - **Rule 13:** every story's time and tokens recorded, by day and night, on every engine.
+  - **10.1:** new paragraph "Time and tokens per story, on every engine, from day one": engines with OpenTelemetry send it (Copilot; Claude Code, cited, `[snippet]`); the transcript tool as the fallback, out of the gate repo, with a `fact_usage`-shaped output at Stage 2 and `measure_source = transcript`; the story key from day branches; agent time versus human time.
+  - **10.2:** `fact_run` gains engine `copilot-vscode`, `active_user_min` and `active_agent_min`; `fact_usage.measure_source` gains `transcript`; a new `fact_human_time` row (activities `scenarios` and `park`); `fact_outcome.work_size`.
+  - **10.3:** the baseline page: per accepted story, by size and profile, at P50 and P80 with the count; under 10 stories is too few to price from (assumed). **10.5:** the pricing rule takes its P80 from that page.
+  - **6.4:** day branches carry the ADO ID, for example `<ado-id>-<slug>`.
+  - **11.1:** spike 0.20 (run in stage 1). **11.2:** stage 2 build and exit test, stage 4 matrix.
+  - **5.11 field list and Appendix D.1:** AI Tokens, Agent Minutes, Human Minutes as the total of Spec, Review and PARK Minutes, and Work Size.
+  - **14.4:** a decision row. **15.1:** an open question for spike 0.20.
+- Updated `CLAUDE.md` (plan row, tshirt-sizing row, tool row, line map, rule 13, work sizes, stage 0 row, open questions) and `docs/analysis/tshirt-sizing.md` (the field is decided).
+- **ADO** (`getai-overnight-ai-factory`): created Feature **2737** "Time and tokens per story, every engine" under the Stage 1 epic (2467), and User Story **2738** "Spike 0.20: Record time and tokens on each story, every engine" under it, Proposed, tagged `factory-build`, `spike`, `stage-1`, `session-16`, related to 2666.
+- **Time and tokens** (in story 2738's body, planning only): active 0 h 24 min, from 11:56 to 12:20 AEDT; 49,180 output tokens; 7,139,130 processed in all, 6,745,384 of them cache reads; one local transcript.
+
+Decisions:
+- **Time and tokens per story on every engine** (Boroon, 7 November 2026), as in plan 10.1 and 14.4. The transcript tool stays a fallback and out of the gate repo.
+- **`Custom.WorkSize` is added to Appendix D**, which settles that open sizing decision.
+- Spike 0.20 sits in the plan's spike table (stage 0 runs alongside stage 1) and in ADO under the Stage 1 epic, as Boroon named it.
+
+Files changed: `docs/sources/plan-v3.1.md`, `CLAUDE.md`, `docs/analysis/tshirt-sizing.md`, `docs/progress.md`. `tools/session_usage.py` is unchanged.
+
+Open items:
+- Spike 0.20 is not run (Open items, top of this file).
+- The transcript tool's ledger output is a Stage 2 change; not written.
+- The "Agile build v1" process does not have the new D.1 fields yet, like the rest of D.1 (a Stage 2 job, after checking which projects use the process).
+- The one-pager and the Ways-of-Working page do not mention this. Refresh them only if they are shared again.
+
+Next steps:
+1. Boroon: review this branch; a planning pull request when he asks.
+2. Spike 0.20 in a later session: Claude Code's telemetry to a local collector from this desktop app, then the CLI, against one story whose branch carries its ADO ID.
 
 ## Session 15, 2026-11-07, branch `claude/session-15-live-build`
 
