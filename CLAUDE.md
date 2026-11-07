@@ -35,7 +35,7 @@ End:
 |---|---|
 | `CLAUDE.md` | This map |
 | `docs/progress.md` | Running log and next steps. Read second, update last |
-| `docs/sources/plan-v3.1.md` | The main plan, "Lock the Gate, Pool the Lanes, Merge by Day", V3.1, 1 November 2026. 2,686 lines. Edited in place since, each time at Boroon's word; the largest edit is live build in lane B (low-code), 7 November 2026 (Session 15) |
+| `docs/sources/plan-v3.1.md` | The main plan, "Lock the Gate, Pool the Lanes, Merge by Day", V3.1, 1 November 2026. 2,706 lines. Edited in place since, each time at Boroon's word; the largest edit is live build in lane B (low-code), 7 November 2026 (Session 15). Session 16 added time and tokens per story on every engine (rule 13, 10.1 to 10.3, spike 0.20, Appendix D) |
 | `docs/sources/plan-v3.md` | The previous version, V3, 1 November 2026. 1,976 lines. Superseded by V3.1. Kept only to see what changed. V3 differs from V3.1 in: Wayfinder named the planning agent (now Story Planner); auto-merge framed as "Phase 4" (now the trust ladder L0 to L3); one evaluator per PR (now one to three verifiers); one review pass (now two); no `lcp-verify`, outer loop, gardening or prototypes; cost USD 11 per story and USD 144 accepted (now about 15 and 150); a Test queue of 30 minutes per PR (now about 36) |
 | `docs/sources/uploaded-plan-software-factory.md` | Boroon's original plan (also as `.docx`). Part A: "End-to-End Specification: The GET AI Microsoft Software Factory". Part B: "Copilot Studio Agents & App Builds". 320 lines. Section 14.1 of the main plan lists every change made to it |
 | `docs/sources/transcript-anthropic-agents-run-for-hours.md` | Anthropic workshop, "How to Build Agents That Run for Hours". 1,213 lines |
@@ -43,7 +43,7 @@ End:
 | `docs/sources/transcript-tan-pocock-podcast.md` | Matt Pocock's podcast with Lauren Tan ("poteto"): trust ladder, verification, outer and inner loop, Michelin Kitchen. 1,238 lines. Cited in the plan as [Tan podcast mm:ss] |
 | `docs/sources/transcript-pocock-skills-v1.3.md` | Matt Pocock on version 1.3 of his skills: implement spec, PR skill, glossary rename, retro. 796 lines. Cut off at 14:28, mid-sentence. Cited in the plan as [Pocock v1.3 mm:ss] |
 | `docs/analysis/skills-comparison.md` | Our own analysis, 1 November 2026. Compares the skill packs of Addy Osmani, Matt Pocock and Lauren Tan: full list of every skill, overlaps, which fit GET AI, where they conflict with the 19 rules. Verdicts are proposals. 428 lines |
-| `docs/analysis/tshirt-sizing.md` | Our own analysis, 1 November 2026. The T-shirt size approach (XS, S, M, L, XL) that sets ceremony by risk, mapped to the plan's Merge Danger bands and to the skills to use at each size. The sizes and the largest-answer rule were approved by Boroon on 1 November 2026. The skills per size and the next steps are still proposals. 52 lines |
+| `docs/analysis/tshirt-sizing.md` | Our own analysis, 1 November 2026. The T-shirt size approach (XS, S, M, L, XL) that sets ceremony by risk, mapped to the plan's Merge Danger bands and to the skills to use at each size. The sizes and the largest-answer rule were approved by Boroon on 1 November 2026, and the ADO field `Custom.WorkSize` on 7 November 2026 (plan Appendix D). The skills per size and the other next steps are still proposals |
 | `docs/analysis/delivery-vault-fast-track.md` | Our own analysis, 6 November 2026 (Session 13). What lane 1 can take from a lane 1 engineer's delivery vault (a day-time kit: four skills, operating rules, design and handoff templates) and from a call with its author, combined with `factory-lane-1`: a mapping to plan stages, five fast-track steps, a pilot scoped to work with no client connections, and five differences to settle (chiefly: build live then export, versus the plan's builders). The Power Platform pieces described on the call are not in the vault yet. Client names left out (public repo). Proposals only; the plan is not changed. Partly superseded by `delivery-vault-assessment.md` (Session 14) |
 | `docs/analysis/delivery-vault-assessment.md` | Our own assessment, 6 November 2026 (Session 14), for lane B (low-code). Verdict table first: 37 pieces of the Get AI Engineer's material judged combine, replace, keep ours or gap. Sources: the GHE delivery vault; the Get AI Engineer's older Power Platform vault in Azure DevOps (`getai` org, project `GETAI-PowerPlatform`, repo `vault`; it holds 46 standards with IDs, 8 flow patterns, an export procedure and past engagement records, and names clients, so it is not copied here); Microsoft's `power-platform-skills`. Recommends building live in the lane with the driver's export as the record. Also day versus night, dates by scenario, questions for the Get AI Engineer, 15 proposed plan edits, and differences from Session 13. Decided 7 November 2026 and edited into the plan in Session 15: section 7 items 1 to 7, 11 and 13 (live build), items 8, 9 and 14 (low-code), item 10 (all lanes) and item 12 (moved to a new stage 9). Section 7 has the status. Section 10 holds the item 15 decision matrix (inventories, low-code and pro-code), still for Boroon to decide |
 | `docs/sources/delivery-vault/` | Verbatim copy of `AI-Business-Solutions/delivery-vault` (private, `getai.ghe.com`) at commit `19877b8`, copied read-only 6 November 2026; all 19 files match the source's blob hashes. `PROVENANCE.md` says what it is. A source, not adopted: its nested skills do not load. The source repo stays the truth. The source moved to `51fdde5` on 6 November (onboarding guides only); this copy is not refreshed |
@@ -64,7 +64,7 @@ End:
 | `docs/plans/spike-0.3/` | Spike 0.3, Dataverse MCP with an app-only token: **passed on both paths 6 November 2026** (Session 13), the local proxy (`dataverse mcp`) and the remote `/api/mcp`, as `getai-fl1-exec` by GitHub OIDC. `README.md` has the portal steps (federated credential, the GA MCP toggle, the allowed MCP clients entry and its publisher prefix), the allowed-clients list as it was before the spike, three runs and 13 findings. `probe.yml` and `mcp_probe.py` are copies of what ran in the scratch repo `GetAI-IP/mcp-probe` (deleted 6 November 2026, with its credential). The allowed-clients entry `new_getaifl1exec` stays in `factory-lane-1` for Stage 3 |
 | `docs/plans/factory-gates-move-step-8.patch` | The record of move step 8 (the gate workflow pointed at `GetAI-IP`), merged in `GetAI-IP/factory-gates` 3 November 2026 |
 | `GetAI-IP/factory-gates` (not in this repo) | The gate repo on `getai.ghe.com`, protected branch `release`. Moved out of this repo's `factory-gates/` folder on 3 November 2026 with its history, and deleted here (Session 9). Enterprise `GetAI`; `GetAI-IP` is the central org and also holds the held-out tests (`factory-holdout`, not yet created). Four orgs (`AI-Business-Solutions`, `AI-Managed-Services`, `Cloud-AI-Platforms`, `GetAI-Knowledge`) will use the gate through small private caller repos, a later build. Cloud sessions cannot reach `getai.ghe.com` (Git providers needs a Team or Enterprise plan; Boroon is on an individual plan), so changes to it run from his laptop, by pull request there. Until a second approver exists, `release-protection` has 0 approvals and `factory-gates` is excluded from the org ruleset `protect-main`. Holds `.github/workflows/lcp-gate.yml` (Appendix A; every action pinned to a full commit ID; the comment on a `uses:` line is the version alone, or Dependabot leaves it stale; Dependabot runs; its first five pull requests merged 4 November 2026 (Session 11); for each new one, read the release notes, check the pin against the tag, and see `self-test` green first; Boroon merges), `.github/workflows/self-test.yml` (runs the tests, manifest verify and rulesets check on every pull request to `release`, read-only, no secrets; added by PR 7, merged 4 November 2026; not a required check until someone other than Boroon works on the factory, his choice on 4 November 2026; until then check it is green before merging), `lcp/` (`lane_map`, `check_protected_paths`, `manifest`, `make_rulesets`, `audit_bypass`, `apply_rulesets`, `check_builders`, `pack_offline`), `rulesets/` (`org.json` for `AI-Business-Solutions`, four generated rulesets, not applied), `templates/CODEOWNERS`, `scripts.sha256` (hashes every file a gate job reads), `pending-scripts.txt` (20 unwritten scripts; the live-build decision of 7 November 2026 changes that list and narrows `check_builders`, a laptop gate slice listed in `docs/progress.md`, Session 15) and 154 tests (gate PR 12, merged 4 November 2026, moved .NET to `10.0.x` for pac 2.4.1). Tests need Python 3.10 or later and a virtual environment outside the clone: `pip install --require-hashes -r requirements-test.txt`, then `python3 -B -m unittest discover -s tests`. **Boroon browses the laptop folders in Finder (4 November 2026), so before every local check, and whenever the local folders are used, delete Finder's files in the clone first:** `find . -name .DS_Store -not -path './.git/*' -type f -print -delete`. A root `.DS_Store` fails `manifest.py verify` and 2 tests as "unlisted"; it is not a real failure. Its README holds the findings, the move steps and the next slices. The plan still calls it `getai/factory-gates`, except in section 5.3 |
-| `tools/session_usage.py` | Time and tokens per Claude Code session, from the local transcripts (forks and subagents included, duplicates removed). Used at the end of every session for the ADO story bodies. Added 7 November 2026 |
+| `tools/session_usage.py` | Time and tokens per Claude Code session, from the local transcripts (forks and subagents included, duplicates removed). Used at the end of every session for the ADO story bodies. Added 7 November 2026. In the plan (10.1, Session 16) it is the fallback for sessions with no telemetry, not a gate script: it runs on a laptop over files the engineer controls, so its numbers are self-reported. At Stage 2 it gains a ledger-shaped output for a trusted loader |
 | `.claude/skills/bro/SKILL.md` | The `/bro` skill |
 | `.claude/skills/` | Live skills. `bro`. `ask-me` (router by size, adapted from `ask-matt`). Adopted unchanged: `constraint-driven-development`, `doubt-driven-development`, `source-driven-development`, `create-verification-skill`, `maintain-verification-skill`. Adapted for GET AI, all untested: `lcp-blast-radius`, `getai-decision-log`, `getai-correct`, `lcp-how`, `lcp-why`, `getai-intake`, `getai-wizard`, `getai-questionnaire`, `getai-grilling`, `getai-domain-modeling`, `lcp-triage`. Also adopted 2 November 2026 with a GET AI note each: `unslop` and 21 `principle-*` skills (three conflicting ones stay on the shelf). Pro-code versions, all untested: `pcp-blast-radius`, `pcp-how`, `pcp-why`, `pcp-triage` (the plan has no code-repo triage workflow yet). Decided by Boroon on 2 November 2026. The two verification skills were then edited to write to `.claude/skills/lcp-verify/`. All of them reviewed by him and merged to the default branch (rule 17 met). Still untested |
 | `skills/` | Third-party skills, the pinned originals of the first 16 (Addy 3, Tan 7, Pocock 4, Benny 2). A shelf: it does not auto-load, only `.claude/skills/` does. Provenance, commits and what became of each are in `skills/README.md` |
@@ -80,7 +80,7 @@ Everything the plan cites is now in the repo. Boroon supplied the full research 
 
 ## Where to find what in the main plan
 
-Line numbers are as at 7 November 2026 (Session 15, after the live-build edits). If the file has changed, run `grep -n '^## ' docs/sources/plan-v3.1.md`.
+Line numbers are as at 7 November 2026 (Session 16, after the time and tokens edits). If the file has changed, run `grep -n '^## ' docs/sources/plan-v3.1.md`.
 Read by line range, for example offset 379 and limit 200.
 
 | Lines | Section |
@@ -91,21 +91,21 @@ Read by line range, for example offset 379 and limit 200.
 | 168 to 305 | 3. What the research teaches, including what each transcript added |
 | 306 to 378 | 4. Lanes and routing, the outer loop (triage), night and background workloads |
 | 379 to 937 | 5. Lane B for Power Platform in depth: architecture and the driver (5.1), engine, identities, environment pool and reset (5.4), night timeline, live build and code over click-ops (5.6), the gate (5.7 at 633), locked scenarios, `lcp-verify`, Merge Danger and trust ladder, ADO state machine, agent instructions, throttling, licensing, promotion, residency |
-| 938 to 1066 | 6. The day gate: Spec Kit presets (6.3 `getai-lcp`), grilling rules, Factory Eligible and one ADO project per engagement (6.4), intake, Wayfinder maps, prototypes |
-| 1067 to 1161 | 7. Handoff files, traces, weekly routine, gardening |
-| 1162 to 1211 | 8. Harness parity, component register, third-party skills policy |
-| 1212 to 1276 | 9. Credits, billing modes, model choice, data residency tiers |
-| 1277 to 1397 | 10. Cost ledger, story cost model, cost envelope |
-| 1398 to 1443 | 11. Staged build plan, stage 0 spikes (19), stages 1 to 9 |
-| 1444 to 1481 | 12. Risks, most serious first (33) |
-| 1482 to 1497 | 13. Accelerator and IP |
-| 1498 to 1575 | 14. Decision log (14.4 holds the decisions after V3.1: live build, the precedence rule, ADO projects, assessment items) |
-| 1576 to 1614 | 15. Open questions and evidence quality |
-| 1615 to 2182 | Appendix A: gate workflow YAML (untested; tags shown, `factory-gates` holds commit pins). `map` and `locks` match `factory-gates` as at Build 3, 3 November 2026. Since 7 November 2026 (live build) the plan is ahead of `factory-gates` in three places: `build` runs only generator-backed builders, `static` runs the export-diff plan (`plan_from_export.py`), and `verify-in-test` no longer runs the two Test plan scripts. Since 4 November 2026 it sets up .NET `10.0.x` (spike 0.2), as `factory-gates` does since gate PR 12 |
-| 2183 to 2323 | Appendix B: Merge Danger rubric (B.1 low-code path rules), verifier count, `trust.yml` |
-| 2324 to 2611 | Appendix C: agent definitions, `AGENTS.md`, `lcp-verify` skill, PR body template |
-| 2612 to 2667 | Appendix D: ADO fields and states |
-| 2668 to 2686 | Appendix E: sources used |
+| 938 to 1067 | 6. The day gate: Spec Kit presets (6.3 `getai-lcp`), grilling rules, Factory Eligible and one ADO project per engagement (6.4, with day branches carrying the ADO ID), intake, Wayfinder maps, prototypes |
+| 1068 to 1162 | 7. Handoff files, traces, weekly routine, gardening |
+| 1163 to 1212 | 8. Harness parity, component register, third-party skills policy |
+| 1213 to 1277 | 9. Credits, billing modes, model choice, data residency tiers |
+| 1278 to 1408 | 10. Cost ledger (10.1 time and tokens per story on every engine), schema, the matrix and its baseline page (10.3), story cost model, cost envelope |
+| 1409 to 1455 | 11. Staged build plan, stage 0 spikes (20), stages 1 to 9 |
+| 1456 to 1493 | 12. Risks, most serious first (33) |
+| 1494 to 1509 | 13. Accelerator and IP |
+| 1510 to 1588 | 14. Decision log (14.4 holds the decisions after V3.1: live build, the precedence rule, ADO projects, assessment items, time and tokens per story) |
+| 1589 to 1628 | 15. Open questions and evidence quality |
+| 1629 to 2196 | Appendix A: gate workflow YAML (untested; tags shown, `factory-gates` holds commit pins). `map` and `locks` match `factory-gates` as at Build 3, 3 November 2026. Since 7 November 2026 (live build) the plan is ahead of `factory-gates` in three places: `build` runs only generator-backed builders, `static` runs the export-diff plan (`plan_from_export.py`), and `verify-in-test` no longer runs the two Test plan scripts. Since 4 November 2026 it sets up .NET `10.0.x` (spike 0.2), as `factory-gates` does since gate PR 12 |
+| 2197 to 2337 | Appendix B: Merge Danger rubric (B.1 low-code path rules), verifier count, `trust.yml` |
+| 2338 to 2625 | Appendix C: agent definitions, `AGENTS.md`, `lcp-verify` skill, PR body template |
+| 2626 to 2687 | Appendix D: ADO fields (including Work Size, AI Tokens, Agent Minutes, and human minutes split into spec, review and PARK) and states |
+| 2688 to 2706 | Appendix E: sources used |
 
 The two transcripts are already digested in plan sections 3.5 (workshop) and 3.6 (Spec Kit). Read the full text only when quoting.
 
@@ -145,7 +145,7 @@ Wayfinder discovery maps, overnight research tickets, gardening scans that feed 
 10. Design first. User-facing changes need an approved mock or throwaway prototype. Prototypes are never promoted.
 11. The Merge Danger floor is deterministic. An LLM may raise the score, never lower it.
 12. Auto-merge is a rung, not a phase. Only into `integration`, per change class, on evidence. An escaped defect drops the class to L1. Never on a date.
-13. Every run has a `run_id`, a credit cap and an iteration cap. Every cost goes in the ledger at list and cash.
+13. Every run has a `run_id`, a credit cap and an iteration cap. Every cost goes in the ledger at list and cash. Every story's time and tokens are recorded, by day and night, on every engine (plan 10.1, 7 November 2026).
 14. Price from the list column, never from credits.
 15. Client code and data follow the client's residency tier. No client production data in factory lanes.
 16. Every transcript, trace and evidence file reaches Blob within the night, tagged with `run_id`.
@@ -199,7 +199,7 @@ Ceremony matches the stakes. Detail and the skills per size are in `docs/analysi
 | L | One-way door: dropped data, security role, money logic, deploy settings | 6 to 10 |
 | XL | Too big or foggy for one session. Wayfinder map first, then split into S, M and L stories | Each child story gets its own |
 
-The size is the largest answer across reversibility, blast radius, clarity, verifiability, effort, and residency. It is not an average. The spec owner proposes it at intake. The gate can raise it, never lower it.
+The size is the largest answer across reversibility, blast radius, clarity, verifiability, effort, and residency. It is not an average. The spec owner proposes it at intake. The gate can raise it, never lower it. It is held in the ADO field `Custom.WorkSize` (plan Appendix D, decided 7 November 2026), and the matrix's baseline page groups time, tokens and cost per accepted story by size and profile, for sizing and pricing (plan 10.3).
 
 ## Dates that force action
 
@@ -237,7 +237,7 @@ The 45 days build the factory. They move no project up a trust rung. Do not star
 
 | Stage | Days | What |
 |---|---|---|
-| 0 | 1 to 14 | 19 spikes and the money question (credit ruling, OIDC with pac on GHE.com, MCP, `pac copilot`, cloud agent limits, billing, environment audit, headless YAML export (0.18), reset fidelity (0.19) and more) |
+| 0 | 1 to 14 | 20 spikes and the money question (credit ruling, OIDC with pac on GHE.com, MCP, `pac copilot`, cloud agent limits, billing, environment audit, headless YAML export (0.18), reset fidelity (0.19), time and tokens per story on every engine (0.20, run in stage 1) and more) |
 | 1 | 1 to 14 | Safety net: gate repo as required workflow, rulesets, Test environment, Spec Kit presets, humans keep using the AI by day |
 | 2 | 15 to 21 | ADO automation, `lcp-verify` v0, ledger v0 |
 | 3 | 22 to 30 | Night shift, one lane, rung L1 |
@@ -259,5 +259,6 @@ The 45 days build the factory. They move no project up a trust rung. Do not star
 - What did GitHub Universe and Ignite change? Is there a rename? (Boroon)
 - Which ITSM tools do AI Managed Services clients use? (AI Managed Services). For code repos so far: AutoTask tickets and PRTG alerts (read through their APIs or an MCP server, not built), ADO service hooks and service desk webhooks. Power Platform clients not yet known
 - Which change classes go in `trust.yml`, and is a 20% random sample at L2 right? (Boroon)
+- Do the Claude Code VS Code extension and desktop app export OpenTelemetry as the CLI does, and does Copilot in VS Code for day sessions? (Platform team, spike 0.20)
 
 The full list is in plan section 15.1.
