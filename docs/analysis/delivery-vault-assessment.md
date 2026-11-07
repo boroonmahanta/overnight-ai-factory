@@ -351,7 +351,7 @@ Markers: 🟢 better than our plan now, ⚪ no real change, 🔴 worse or a new 
 
 **What it means.** For low-code, Session 15 already did most of item 15. What is left is one floor rule, the verifier test, and the gate's regeneration check. For pro-code, inventories pay off in review, the floor, triage and gardening. They do not help the agent while it builds. Start small at Stage 5.
 
-**Needs a decision (Boroon):**
-1. The two floor rules (shared use raises the floor to at least 3), one per profile.
-2. Pro-code inventories made by the gate and never committed.
-3. A lint that fails any inventory holding a value.
+**Decided (Boroon, 7 November 2026), and made in plan 5.6, 5.10, 11.2, Appendices A and B, and 14.4:**
+1. The two floor rules (shared use raises the floor to at least 3), one per profile: agreed.
+2. Pro-code inventories made by the gate and never committed: agreed.
+3. A lint that fails any inventory holding a value: agreed, "with reasons". The plan reads this as a lint whose failure gives its reasons: the entry, why values are barred, and the fix.
