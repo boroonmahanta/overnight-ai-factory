@@ -1,0 +1,145 @@
+# Spike 0.18 (plan 11.1): headless YAML export as the lane identity.
+# Published as .github/workflows/probe.yml in GetAI-IP/export-probe (private, scratch),
+# next to probe/export_probe.py.
+#
+# One job per pac version, signed in as getai-fl1-exec through GitHub OIDC (no secret):
+#   claims    prints the OIDC token's claims (never the token); no sign-in
+#   setup     makes the test solution in the lane through the Web API
+#   probe     export and unpack, clone, sync, a second export, then pack offline;
+#             runs once on pac 2.14.1 (latest) and once on 2.4.1 (the gate's pin)
+#   envvar-repro  checks whether a one-column update clears the environment
+#             variable's default value (seen in the first probe run), and restores it
+#   teardown  deletes what setup made. Only at Boroon's word
+#
+# Hand start only (workflow_dispatch), and only from main: no pull request code
+# runs (rule 5). The checkout is this repo at the dispatched commit, for
+# probe/export_probe.py. No secrets. The tenant ID, app ID and Dataverse URL are
+# not secret; they come in as inputs so they stay out of the public planning repo.
+name: export-probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: claims, setup, probe, envvar-repro or teardown
+        type: choice
+        options: [claims, setup, probe, envvar-repro, teardown]
+        default: claims
+      tenant_id:
+        description: Entra tenant ID (not needed for claims)
+        type: string
+        default: ""
+      app_id:
+        description: Application (client) ID of getai-fl1-exec
+        type: string
+        default: ""
+      env_url:
+        description: Dataverse URL, https://<org>.crm6.dynamics.com/
+        type: string
+        default: ""
+
+permissions: {}
+
+concurrency:
+  group: export-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    # Plan 5.3: the execute job runs in environment fl<n>-exec. The subject is
+    # repo:<org>@<org-id>/<repo>@<repo-id>:environment:fl1-exec (spike 0.2).
+    environment: fl1-exec
+    timeout-minutes: 40
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        pac: ${{ fromJSON(inputs.mode == 'probe' && '["2.14.1", "2.4.1"]' || '["2.14.1"]') }}
+    env:
+      PAC_VERSION: ${{ matrix.pac }}
+      MODE: ${{ inputs.mode }}
+      TENANT_ID: ${{ inputs.tenant_id }}
+      APP_ID: ${{ inputs.app_id }}
+      ENV_URL: ${{ inputs.env_url }}
+      DOTNET_NOLOGO: "1"
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+    steps:
+      - name: Refuse any ref but main
+        run: |
+          [ "$GITHUB_REF" = "refs/heads/main" ] || { echo "::error::run this from main only"; exit 1; }
+
+      # Keep the comment on each uses line to the version alone, so Dependabot updates it.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Print the OIDC token's claims (never the token)
+        run: python3 -I probe/export_probe.py claims
+
+      - name: Check the sign-in inputs
+        if: env.MODE != 'claims'
+        run: |
+          set -euo pipefail
+          guid='^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+          [[ "$TENANT_ID" =~ $guid ]] || { echo "::error::tenant_id is not a GUID"; exit 1; }
+          [[ "$APP_ID" =~ $guid ]] || { echo "::error::app_id is not a GUID"; exit 1; }
+          # Australia only (rule 15): the Oceania Dataverse host is crm6.
+          [[ "$ENV_URL" =~ ^https://[a-z0-9-]+\.crm6\.dynamics\.com/?$ ]] \
+            || { echo "::error::env_url must be https://<org>.crm6.dynamics.com/"; exit 1; }
+
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+        with:
+          dotnet-version: 10.0.x   # pac 2.4.1 and later ship for net10.0 only (spike 0.2)
+
+      - name: Install pinned pac
+        run: |
+          set -euo pipefail
+          dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version "$PAC_VERSION"
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      - name: Turn pac telemetry off
+        run: pac telemetry disable || true
+
+      - name: Make the test solution through the Web API
+        if: env.MODE == 'setup'
+        run: python3 -I probe/export_probe.py setup
+
+      - name: Sign in with a federated pac profile (no secret)
+        if: env.MODE == 'probe'
+        run: |
+          set -euo pipefail
+          pac auth create --name probe --githubFederated --tenant "$TENANT_ID" --applicationId "$APP_ID" --environment "$ENV_URL"
+          pac org who
+
+      - name: Export, unpack, clone, sync, then pack offline
+        if: env.MODE == 'probe'
+        run: python3 -I probe/export_probe.py probe
+
+      - name: Does a one-column update clear the default value? (Leaves it restored)
+        if: env.MODE == 'envvar-repro'
+        run: python3 -I probe/export_probe.py envvar-repro
+
+      - name: Delete what setup made
+        if: env.MODE == 'teardown'
+        run: python3 -I probe/export_probe.py teardown
+
+      - name: Clear the sign-in profiles
+        if: always() && env.MODE != 'claims'
+        run: pac auth clear || true
+
+      # Scratch output only: the test solution's files, the zips and the logs. No credentials.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always() && env.MODE == 'probe'
+        with:
+          name: export-probe-pac-${{ matrix.pac }}
+          path: ${{ runner.temp }}/export-probe/
+          retention-days: 3
+          if-no-files-found: warn
+
+      - name: Result
+        if: always() && env.MODE == 'probe'
+        run: python3 -I probe/export_probe.py summary

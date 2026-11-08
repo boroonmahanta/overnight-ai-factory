@@ -23,8 +23,8 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 
 | Start | Finish | ADO | Story | Track | Needs first | Status |
 |---|---|---|---|---|---|---|
-| Mon 9 Nov | Tue 10 Nov | 2462 | Spike 0.18: headless YAML export as the lane identity | Laptop | | |
-| Wed 11 Nov | Thu 12 Nov | 2463 | Spike 0.19: reset fidelity | Laptop | 2462 | |
+| Sun 8 Nov | Sun 8 Nov | 2462 | Spike 0.18: headless YAML export as the lane identity (brought forward from Mon 9 to Tue 10 Nov) | Laptop | | **Done 8 Nov** (Session 19; `docs/plans/spike-0.18/`: YAML fails, the XML fallback passes) |
+| Mon 9 Nov | Tue 10 Nov | 2463 | Spike 0.19: reset fidelity (moved from Wed 11 to Thu 12 Nov; reuses 0.18's scratch solution and repo) | Laptop | 2462 | |
 | Sat 7 Nov | Sat 7 Nov | 2543 | Plan the rest of Stage 1 in its own planning session (brought forward; the gate scripts left for after 2462) | Documents | | **Done 7 Nov** (Session 17; `docs/plans/stage-1-day-gate-plan.md`) |
 | Sat 7 Nov | Sat 7 Nov | 2545 | Templates: `glossary.md`, `docs/adr/`, `coding-standards.md` header (day-gate DG1, in `staging/`; brought forward from Thu 12 Nov) | Documents | 2543 | **Done 7 Nov** (Session 18; `staging/`) |
 | Thu 12 Nov | Fri 13 Nov | 2549 | Apply the third-party skills policy to every vendored skill (moved from Thu 19 to Fri 20 Nov) | Documents | | |
@@ -43,7 +43,7 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 | Tue 1 Dec | Wed 2 Dec | 2451 | Spike 0.6: Copilot CLI on GHE.com | Laptop | | |
 | Thu 3 Dec | Thu 3 Dec | 2738 | Spike 0.20: time and tokens on each story, every engine | Laptop | 2451 | |
 | Fri 4 Dec | Fri 4 Dec | 2432 | Spike 0.7: nano AIU against billing | Laptop | 2451 (a day of runs) | |
-| Fri 4 Dec | Fri 4 Dec | new | Move `staging/` to `GetAI-IP/factory-manifestos` and `factory-gates` (DG8, D1) | Laptop | 2544, 2546 draft | |
+| Fri 4 Dec | Fri 4 Dec | 2739 | Move `staging/` to `GetAI-IP/factory-manifestos` and `factory-gates` (DG8, D1) | Laptop | 2544, 2546 draft | |
 | Mon 7 Dec | Mon 7 Dec | 2465 | Spike 0.15: redaction and Universe | Laptop | 2451 | |
 | Mon 7 Dec | Mon 7 Dec | 2427 | Spike 0.1: credit ruling, the invoice check | Boroon | The credited subscription connected to a cost centre | |
 | Tue 8 Dec | Tue 8 Dec | 2541 | Bootstrap `factory-test` with its test identity and test user | Laptop | | |
@@ -63,7 +63,7 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 
 | Date | What | Who |
 |---|---|---|
-| Mon 9 Nov | Raise Claude Code's transcript retention on the laptop (`cleanupPeriodDays`, 30 days by default), so sessions from 4 November survive for mining and time records | Boroon, in the laptop session |
+| Mon 9 Nov | Raise Claude Code's transcript retention on the laptop (`cleanupPeriodDays`, 30 days by default), so sessions from 4 November survive for mining and time records. **Done 8 Nov** (Session 19): 365 days, in `~/.claude/settings.json` | Boroon, in the laptop session |
 | Fri 20 Nov | Ask the engineers for their session exports, using what spike 0.17 shows | Boroon |
 | Mon 23 Nov | Ignite re-check, after 17 to 20 November: product names, Copilot Studio evaluation APIs, Git integration (`CLAUDE.md`, dates). Also the first pass of A1: check every pinned kit for updates | Boroon with Claude |
 | Fri 4 Dec | A second approver named, and the three CODEOWNERS teams created. Without them, 2520, 2521 and the Stage 1 exit test cannot happen | Boroon |
@@ -76,10 +76,11 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 
 Date them when Stage 4 ends.
 
-- A1, keep pinned kits current (Boroon, 7 November 2026; `docs/plans/stage-1-day-gate-plan.md`): a pin register, Dependabot where it can, and a monthly manual pass. Only its first pass is dated (23 November). The story is created in the next laptop session.
+- A1, keep pinned kits current (Boroon, 7 November 2026; `docs/plans/stage-1-day-gate-plan.md`): a pin register, Dependabot where it can, and a monthly manual pass. Only its first pass is dated (23 November). ADO 2740, created 8 November 2026 (Session 19), Proposed, no dates.
 
 ## Changes
 
 - **7 November 2026 (Session 17, cloud).** 2543 done early. 2545 split: templates move into the freed slot (Thu 12 Nov); the standards seed moves to Fri 20 Nov, so 2545 finishes on 20 Nov, not 17 Nov. 2466 is on the laptop (it needs the apps). 2544 pins 1.3.x. 2546 now also needs 2541 and 2538. New: the move on Fri 4 Dec, the retention checkpoint on Mon 9 Nov, and the mining cut-off on Fri 4 Dec. 2539 now also needs the move. The detail is in `docs/plans/stage-1-day-gate-plan.md`. ADO is not yet updated (cloud session); the next laptop session does it.
 - **7 November 2026 (Session 18, cloud).** DG1, the templates half of 2545, done on Sat 7 Nov, brought forward from Thu 12 Nov. 2545 now starts Sat 7 Nov, not Thu 12 Nov, and still finishes Fri 20 Nov (DG3). Thu 12 Nov's documents slot is now free. ADO is not yet updated (cloud session); the next laptop session does it.
 - **7 November 2026 (Session 18, later, at Boroon's word).** 2549 moves into the free slot: Thu 12 to Fri 13 Nov, from Thu 19 to Fri 20 Nov, still two days. It needs nothing first and nothing waits on it. Fri 20 Nov now holds only laptop work (2509 and 2545's DG3). ADO not yet updated.
+- **8 November 2026 (Session 19, laptop).** ADO now matches this file: Sessions 17 and 18's updates are made, the DG8 move is 2739 and A1 is 2740, and the schedule-order query gives every date above. 2462 (spike 0.18) done on Sun 8 Nov, two days early, which unblocks 2463, 2461 and 2511. At Boroon's word, 2463 (spike 0.19) moves forward to Mon 9 to Tue 10 Nov, from Wed 11 to Thu 12 Nov. Wed 11 and Thu 12 Nov are now free on the laptop track; nothing else moves. The retention checkpoint is done (365 days).
