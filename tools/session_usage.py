@@ -25,6 +25,8 @@ Usage:
   python3 -I tools/session_usage.py --session ee02cc9a 45b27b0d
                                                     # these sessions, plus one line
                                                     # for their total, ready for ADO
+  python3 -I tools/session_usage.py --json          # every session as JSON rows, for
+                                                    # tools/progress_snapshot.py
 Options: --root <transcript folder>, --idle-cap <minutes>, --utc-offset <hours>
 (default 11, Sydney daylight time).
 """
@@ -96,10 +98,18 @@ def main():
     ap.add_argument("--latest", action="store_true")
     ap.add_argument("--idle-cap", type=float, default=10)
     ap.add_argument("--utc-offset", type=float, default=11)
+    ap.add_argument("--json", action="store_true", help="print every session as JSON rows")
     a = ap.parse_args()
     if not a.root.is_dir():
         sys.exit(f"session_usage: no transcript folder at {a.root}")
     rows = collect(a.root, a.idle_cap)
+    if a.json:
+        print(json.dumps([{
+            "session": r["session"][:8], "first": r["first"].isoformat(), "last": r["last"].isoformat(),
+            "active_min": r["active_min"], "output": r["output"], "cache_read": r["cache_read"],
+            "processed": r["processed"], "branch": r["branch"],
+        } for r in rows], indent=1))
+        return
     if a.latest:
         rows = [max(rows, key=lambda r: r["last"])]
     elif a.session:
