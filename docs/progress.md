@@ -82,10 +82,40 @@ Next steps:
 - **Keep spike runs in one session.** In Session 19 a "btw" side chat on the laptop started its own setup run in `GetAI-IP/export-probe` (run 37180986) while the main session was running the probe. It queued behind the probe and changed nothing (setup only makes what is missing), but two sessions driving one scratch repo and lane can step on each other.
 - **Fixed: the skill's glossary example broke its own rule** (found and fixed in Session 18, at Boroon's word). In `.claude/skills/getai-domain-modeling/glossary-format.md`, the example term "Customer" had no `_Schema_` line, though the rules say every term has one. It now has `_Schema_: none yet`. It reaches `main` when Boroon merges the Session 18 branch (rule 17). The DG1 template does not use that term, so it needed no change. Kept here one session for the record.
 - **Gotcha: the two copies of the glossary and ADR formats split on Friday 4 December** (found in Session 18). Until then the skill (`.claude/skills/getai-domain-modeling/`) and the templates (`staging/factory-manifestos/templates/project/`) sit in this repo, so one PR changes both, as the staging rules say. After the move (DG8) the templates are in `GetAI-IP/factory-manifestos` on GHE and the skill stays here, so one PR cannot change both and the copies can drift. DG8 settles how to keep them the same, for example two PRs that link each other (step 5 of DG8 in `docs/plans/stage-1-day-gate-plan.md`).
+- **One checkout, two sessions** (found in Session 21, 10 November 2026). Session 20 (spike 0.19) and Session 21 (the dashboard) ran from the same folder. At 18:28 on 9 November, Session 21 made its branch with `git switch`, which moved the folder off `claude/session-20-2463-reset-fidelity`. Session 20 had no commits and no file changes then, so nothing was lost. At 09:58 on 10 November the folder went back to Session 20's branch, and Session 21 moved to its own worktree. **Session 20: run `git status` and `git branch --show-current` before you commit.** For later: when two local sessions run at once, give the second its own worktree.
 - The Pocock v1.3 transcript ends mid-sentence at 14:28. The zip copy is the same, so the source itself is cut off.
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 21, 2026-11-09 to 10, branch `claude/session-21-progress-dashboard`
+
+A progress dashboard for the factory build. A local session on Boroon's laptop, the same chat as Session 16, started from `main` at PR 30's merge (`1176ce4`). It ran while Session 20 (spike 0.19) was open; see "One checkout, two sessions" under Open items.
+
+Done:
+- Boroon asked for a page that updates as the project moves, with a button to sync it. Made from the claude.ai Dashboard type: **Factory build progress**, https://claude.ai/artifact/DraME5jmLBvouXuH1Kvkk1, private. It uses the visual-analysis layout Boroon picked on the empty page.
+- Claude.ai has no Azure DevOps or GitHub connector, so the page can't run a live query. Its data is a snapshot:
+  - new `tools/progress_snapshot.py`: every Epic, Feature and User Story read with `az boards query` (Boroon's sign-in), each story's stage taken from its Epic, plus the Track column of `docs/plans/schedule.md`;
+  - `tools/session_usage.py --json`: every session's time and tokens as rows.
+- The first snapshot is uploaded: 137 stories (34 scheduled) and 19 laptop sessions.
+- What the page shows, the Sync button, and the four sync steps: `docs/plans/progress-dashboard.md`.
+- `CLAUDE.md` end step 3 now also syncs the dashboard. The repo table has a row for the new note.
+- Not checked: the page rendering. The dashboard writes a check after it loads, and none had come back. Boroon to open it and say if anything looks wrong.
+- Interrupted once: the first run of the snapshot script lost its permission prompt when the app restarted. It ran fine on the retry.
+
+Decisions:
+- Data from a laptop snapshot, not a live query, until claude.ai has a connector for ADO or GitHub.
+- The Sync button reloads the newest snapshot. It cannot reach ADO itself, and the page says so.
+
+Files changed: new `tools/progress_snapshot.py`, `docs/plans/progress-dashboard.md`; `tools/session_usage.py` (`--json`), `CLAUDE.md`, `docs/progress.md`.
+
+Open items:
+- A daily automatic sync (a scheduled task on the laptop) is not set up. Boroon to decide.
+- No ADO story for this work yet.
+
+Next steps:
+1. Boroon: open the dashboard and check it; review this branch, and ask for a pull request when ready.
+2. Each laptop session: sync the dashboard at the end (`CLAUDE.md`, end step 3).
 
 ## Session 19, 2026-11-08, branch `claude/session-19-2462-yaml-export`
 
