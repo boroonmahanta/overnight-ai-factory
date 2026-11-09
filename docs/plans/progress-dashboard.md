@@ -38,7 +38,15 @@ Run these steps at the end of every laptop session (`CLAUDE.md`, end step 3), or
    `source` has to be written whole, with its `kind`, `name` and `format` kept.
 4. Delete the old file the dataset pointed at: Artifact `delete`, with `url` and `path` set to the old asset id. Then the page's files don't pile up.
 
+## The daily sync
+
+A scheduled task in the Claude desktop app on the laptop, **"Factory build progress: daily sync"** (`factory-progress-sync`). It was set up on 10 November 2026, at Boroon's word.
+
+- **When:** every day at about 7:30 Sydney time. It runs only while the app is open. If the app was closed at 7:30, it runs the next time the app opens.
+- **What it does:** steps 1 to 4 above. It runs the script from a temporary detached worktree of `origin/main` (or of `origin/claude/session-21-progress-dashboard` until that branch is merged). It never switches the shared folder's branch, and it never writes to the repo or to ADO.
+- **Where it lives:** its prompt is in `~/.claude/scheduled-tasks/factory-progress-sync/SKILL.md`. It's managed from Scheduled in the app's sidebar, where Run now starts a sync at once.
+- **If it fails:** most likely the Azure CLI sign-in has expired. Run `az login` on the laptop, then Run now.
+
 ## Not done
 
-- **An automatic daily sync.** A scheduled task on the laptop could run steps 1 to 4 each morning. Boroon to decide; it isn't set up.
 - **Live data.** If an Azure DevOps or GitHub connector is added on claude.ai later, the stories could come from a live query instead of a snapshot.

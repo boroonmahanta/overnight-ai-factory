@@ -109,13 +109,15 @@ Decisions:
 
 Files changed: new `tools/progress_snapshot.py`, `docs/plans/progress-dashboard.md`; `tools/session_usage.py` (`--json`), `CLAUDE.md`, `docs/progress.md`.
 
+- **Daily sync set up** (Boroon said "Yes, daily sync", 10 November 2026). It's a scheduled task in the desktop app, `factory-progress-sync`, every day at about 7:30. It runs the snapshot from a temporary detached worktree, so it never moves the shared folder's branch. Then it uploads the two files, points the datasets at them and deletes the old ones. The script gained `--transcripts` for that. First run started by hand at about 10:15 on 10 November, so its tool approvals get saved. Details in `docs/plans/progress-dashboard.md`.
+
 Open items:
-- A daily automatic sync (a scheduled task on the laptop) is not set up. Boroon to decide.
 - No ADO story for this work yet.
 
 Next steps:
 1. Boroon: open the dashboard and check it; review this branch, and ask for a pull request when ready.
-2. Each laptop session: sync the dashboard at the end (`CLAUDE.md`, end step 3).
+2. Each laptop session: sync the dashboard at the end (`CLAUDE.md`, end step 3). The daily task covers the days with no session.
+3. If the daily sync fails, run `az login` on the laptop, then Run now on the task.
 
 ## Session 19, 2026-11-08, branch `claude/session-19-2462-yaml-export`
 
