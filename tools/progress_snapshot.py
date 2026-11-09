@@ -19,7 +19,9 @@ Only counts, titles, states and dates are written. No message text is read.
 Usage:
   python3 -I tools/progress_snapshot.py --out <folder>
 Options: --az <path to az>, --org, --project, --schedule <schedule.md>,
---no-sessions (skip sessions.json).
+--no-sessions (skip sessions.json), --transcripts <folder> (where the
+Claude Code transcripts are, when the script runs from a copy of the repo at
+another path, as the daily sync does).
 """
 import argparse
 import json
@@ -139,11 +141,11 @@ def stories(items, track_of):
     return sorted(rows, key=lambda r: (r["start"] or "9999", r["id"]))
 
 
-def sessions():
-    out = subprocess.run(
-        [sys.executable, "-I", str(REPO / "tools" / "session_usage.py"), "--json"],
-        capture_output=True, text=True, check=False,
-    )
+def sessions(transcripts=None):
+    cmd = [sys.executable, "-I", str(REPO / "tools" / "session_usage.py"), "--json"]
+    if transcripts:
+        cmd += ["--root", str(transcripts)]
+    out = subprocess.run(cmd, capture_output=True, text=True, check=False)
     if out.returncode != 0:
         print("progress_snapshot: no sessions written: " + out.stderr.strip()[-300:], file=sys.stderr)
         return None
@@ -158,13 +160,15 @@ def main():
     ap.add_argument("--project", default="getai-overnight-ai-factory")
     ap.add_argument("--schedule", type=Path, default=REPO / "docs" / "plans" / "schedule.md")
     ap.add_argument("--no-sessions", action="store_true")
+    ap.add_argument("--transcripts", type=Path, default=None,
+                    help="the transcript folder, when running from a copy of the repo at another path")
     a = ap.parse_args()
     a.out.mkdir(parents=True, exist_ok=True)
     rows = stories(ado_items(a.az, a.org, a.project), tracks(a.schedule))
     (a.out / "stories.json").write_text(json.dumps(rows, indent=1), encoding="utf-8")
     msg = f"stories.json: {len(rows)} stories, {sum(r['scheduled'] for r in rows)} scheduled"
     if not a.no_sessions:
-        s = sessions()
+        s = sessions(a.transcripts)
         if s is not None:
             (a.out / "sessions.json").write_text(json.dumps(s, indent=1), encoding="utf-8")
             msg += f"; sessions.json: {len(s)} sessions"
