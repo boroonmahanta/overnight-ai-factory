@@ -22,7 +22,11 @@ Claude.ai has no connector to this ADO project or to GitHub (checked 9 November 
 - **Stories** (`stories.json`): `tools/progress_snapshot.py` reads every Epic, Feature and User Story of `getai-overnight-ai-factory` with `az boards query`, as Boroon's Azure CLI sign-in. It takes each story's stage from its Epic, and the Track from the table in `docs/plans/schedule.md`.
 - **Sessions** (`sessions.json`): `tools/session_usage.py --json`, from the local transcripts. Cloud sessions have no local transcript, so they are not counted.
 
-**The Sync button** reloads the newest snapshot uploaded to the page. It can't reach ADO itself, so a change made in ADO shows only after the next snapshot. The page's Sources panel shows each snapshot's age, and marks it stale after 72 hours.
+**The Sync button** reloads the newest snapshot uploaded to the page. It can't reach ADO itself, so a change made in ADO shows only after the next snapshot.
+
+Since 11 November 2026, the page shows when the board was read, next to the button. That time comes from `snapshot_at` on every story row. After a click it says either "Newer snapshot loaded" or "No newer snapshot yet". Before then the button gave no sign of what it did, so a click with no new snapshot looked like it did nothing.
+
+The page's Sources panel also shows each snapshot's age, and marks it stale after 72 hours.
 
 ## How to sync
 
@@ -36,16 +40,17 @@ Run these steps at the end of every laptop session (`CLAUDE.md`, end step 3), or
    - `edit` to `{via: "claude", at: <now, UTC>}`.
 
    `source` has to be written whole, with its `kind`, `name` and `format` kept.
-4. Delete the old file the dataset pointed at: Artifact `delete`, with `url` and `path` set to the old asset id. Then the page's files don't pile up.
+4. Keep the old file. Boroon stopped the deletes on 10 November 2026 and keeps the old snapshots until he reviews them. Before any delete later on, check that the page doesn't name the old id.
 
 ## The daily sync
 
 A scheduled task in the Claude desktop app on the laptop, **"Factory build progress: daily sync"** (`factory-progress-sync`). It was set up on 10 November 2026, at Boroon's word.
 
 - **When:** every day at about 7:30 Sydney time. It runs only while the app is open. If the app was closed at 7:30, it runs the next time the app opens.
-- **What it does:** steps 1 to 4 above. It runs the script from a temporary detached worktree of `origin/main` (or of `origin/claude/session-21-progress-dashboard` until that branch is merged). It never switches the shared folder's branch, and it never writes to the repo or to ADO.
+- **What it does:** steps 1 to 3 above, and it deletes nothing (changed 11 November 2026). It runs the script from a temporary detached worktree of `origin/main` (or of `origin/claude/session-21-progress-dashboard` until that branch is merged). It never switches the shared folder's branch, and it never writes to the repo or to ADO. Its last line says what it synced, or which step didn't finish.
 - **Where it lives:** its prompt is in `~/.claude/scheduled-tasks/factory-progress-sync/SKILL.md`. It's managed from Scheduled in the app's sidebar, where Run now starts a sync at once.
-- **If it fails:** most likely the Azure CLI sign-in has expired. Run `az login` on the laptop, then Run now.
+- **Approvals:** the upload to the page and the dataset update each ask for permission until an approval is saved on the task. The 11 November run stopped at that prompt (it was interrupted at 10:03), so the page kept the 10 November data. When a run asks, pick the option that remembers the approval. Later runs then go through on their own.
+- **If it fails:** check the run's last line in Scheduled. A sign-in error means running `az login` on the laptop, then Run now. A refused tool means Run now and approving it.
 
 ## Not done
 

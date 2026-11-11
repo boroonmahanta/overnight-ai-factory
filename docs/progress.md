@@ -134,6 +134,21 @@ Next steps:
 2. Each laptop session: sync the dashboard at the end (`CLAUDE.md`, end step 3). The daily task covers the days with no session.
 3. If the daily sync fails, run `az login` on the laptop, then Run now on the task.
 
+Later (10 to 11 November 2026, same chat and branch):
+- **10 November:** in the first run, Boroon stopped the task from deleting the two old snapshot files, and kept them to review (a memory note on the laptop). The task still said to delete until 11 November.
+- **11 November, Boroon: "sync button is not working".** What was wrong:
+  - **The sync stopped at a prompt.** The 7:30 run started at 10:03 (the app was closed at 7:30). It took the snapshot, then stopped at the permission prompt for the upload. The prompt was interrupted, and the run still shows as succeeded. So the page kept the 10 November snapshot.
+  - **The button gave no sign.** Sync only reloads the newest uploaded snapshot. With no newer one, a click looked like it did nothing.
+- **Fixed:**
+  - `tools/progress_snapshot.py` stamps every story row with `snapshot_at`, the time the board was read.
+  - The page shows "Board read at ..." next to Sync. After a click it says "Newer snapshot loaded" or "No newer snapshot yet", and the button is disabled only while a sync runs.
+  - A fresh snapshot is on the page: 138 stories, 3 of the 34 scheduled ones done (2543, 2462, 2463), and 21 sessions. The old files are kept.
+  - The dashboard's own check passed (no errors, no blank charts, no overlapping labels).
+  - The scheduled task's prompt no longer deletes. It reports which step didn't finish, if any.
+  - `docs/plans/progress-dashboard.md` covers the board-read time, the approvals and the no-delete rule.
+- Merged `origin/main` (Session 20, PR 31) into this branch. The only conflict was in this log, and both entries are kept.
+- Open item: the next run may ask for approval again. Pick the option that remembers it.
+
 ## Session 20, 2026-11-09 to 11, branch `claude/session-20-2463-reset-fidelity`
 
 Spike 0.19 (ADO 2463), on its target date. **A local session on Boroon's laptop**, in the desktop app. Started from `main` at PR 30's merge (`1176ce4`); local `main` was fast-forwarded first. Finder's `.DS_Store` files were deleted before any local check. The app was quit overnight and the session resumed on 10 November; the plan edits followed on 11 November.

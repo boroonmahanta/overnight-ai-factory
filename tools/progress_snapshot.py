@@ -164,7 +164,10 @@ def main():
                     help="the transcript folder, when running from a copy of the repo at another path")
     a = ap.parse_args()
     a.out.mkdir(parents=True, exist_ok=True)
+    taken = datetime.now(SYDNEY).replace(microsecond=0).isoformat()
     rows = stories(ado_items(a.az, a.org, a.project), tracks(a.schedule))
+    for r in rows:
+        r["snapshot_at"] = taken  # when the board was read, so the page can show it
     (a.out / "stories.json").write_text(json.dumps(rows, indent=1), encoding="utf-8")
     msg = f"stories.json: {len(rows)} stories, {sum(r['scheduled'] for r in rows)} scheduled"
     if not a.no_sessions:
