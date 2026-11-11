@@ -4,16 +4,19 @@ This folder is a shelf, not a live install. Nothing here auto-loads. Claude Code
 
 All 16 skills in the first reading batch were copied unchanged on 2 November 2026 and read in full (every file, including scripts and references). Reading is done.
 
+**Checked 11 November 2026** (Session 21, ADO 2549, `docs/analysis/skills-policy-check.md`): every file here is byte-identical to its upstream file at the pin, by git blob hash. The source, pin and licence of each source are also in the component register, `docs/component-register.md` (plan 8.2 and 8.3 point 4), which says how and when to check for updates.
+
 ## Where each came from (pinned)
 
 | Folder | Skills | Source | Commit | Licence |
 |---|---|---|---|---|
-| `addy/` | `constraint-driven-development`, `doubt-driven-development`, `source-driven-development`, and (three-batch plan) `code-simplification`, `deprecation-and-migration`, `security-and-hardening`, `debugging-and-error-recovery`, `frontend-ui-engineering`, `api-and-interface-design`, `observability-and-instrumentation` | https://github.com/addyosmani/agent-skills, `skills/` | `301b02b12bff98e4688e6984af6556802322bbde` | MIT, Addy Osmani |
-| `tan/` | `blast-radius`, `correct`, `create-verification-skill`, `how`, `maintain-verification-skill`, `show-me-your-work`, `why`, and (batch 2) `unslop`, the 24 `principle-*` skills and `poteto-mode`, and (three-batch plan) `architect` | https://github.com/cursor/plugins, `pstack/skills/` | `ae5650febf4320793844c12c4adaa937f417f8da` | MIT, Lauren Tan |
-| `pocock/` | `ask-matt`, `to-questionnaire`, `triage`, `wizard`, and (batch 2) `grilling`, `domain-modeling`, and (three-batch plan) `diagnosing-bugs`, `codebase-design`, `improve-codebase-architecture` | https://github.com/mattpocock/skills, `skills/engineering/` and `skills/productivity/` | `4ae2317ddb22b046e26455e4f9c9b3aaaf62212d` | MIT, Matt Pocock |
-| `benny/` | `reproduce-and-fix-issues`, `triage-issue-reports` | https://github.com/cursor/plugins, `pstack/automations/benny/skills/` | `ae5650febf4320793844c12c4adaa937f417f8da` | MIT, Lauren Tan |
+| `addy/` | `constraint-driven-development`, `doubt-driven-development`, `source-driven-development`, and (three-batch plan) `code-simplification`, `deprecation-and-migration`, `security-and-hardening`, `debugging-and-error-recovery`, `frontend-ui-engineering`, `api-and-interface-design`, `observability-and-instrumentation` | https://github.com/addyosmani/agent-skills, `skills/` | `301b02b12bff98e4688e6984af6556802322bbde` | MIT, Copyright (c) 2025 Addy Osmani. Text in `addy/LICENSE` (upstream `LICENSE`) |
+| `references/` | `accessibility-checklist.md`, `observability-checklist.md`, `security-checklist.md`, and (11 November 2026) `orchestration-patterns.md`: shared files that Addy skills link to from outside their own folders, copied so the shelf links resolve | https://github.com/addyosmani/agent-skills, `references/` | `301b02b12bff98e4688e6984af6556802322bbde` | MIT, as `addy/` |
+| `tan/` | `blast-radius`, `correct`, `create-verification-skill`, `how`, `maintain-verification-skill`, `show-me-your-work`, `why`, and (batch 2) `unslop`, the 24 `principle-*` skills and `poteto-mode`, and (three-batch plan) `architect`, and (11 November 2026) `bro` | https://github.com/cursor/plugins, `pstack/skills/` | `ae5650febf4320793844c12c4adaa937f417f8da` | MIT, Copyright (c) 2026 Lauren Tan. Text in `tan/LICENSE` (upstream `pstack/LICENSE`) |
+| `pocock/` | `ask-matt`, `to-questionnaire`, `triage`, `wizard`, and (batch 2) `grilling`, `domain-modeling`, and (three-batch plan) `diagnosing-bugs`, `codebase-design`, `improve-codebase-architecture` | https://github.com/mattpocock/skills: `grilling` and `to-questionnaire` from `skills/productivity/`, the rest from `skills/engineering/` | `4ae2317ddb22b046e26455e4f9c9b3aaaf62212d` | MIT, Copyright (c) 2026 Matt Pocock. Text in `pocock/LICENSE` (upstream `LICENSE`) |
+| `benny/` | `reproduce-and-fix-issues`, `triage-issue-reports` | https://github.com/cursor/plugins, `pstack/automations/benny/skills/` | `ae5650febf4320793844c12c4adaa937f417f8da` | MIT, Copyright (c) 2026 Lauren Tan (upstream `pstack/LICENSE` covers it). Text in `benny/LICENSE` |
 
-Files are byte-for-byte copies of the upstream folders. Do not edit them here. A GET AI version is a new skill written in `.claude/skills/`: `getai-*` if it works for any profile, `lcp-*` for Power Platform, `pcp-*` for pro-code, with a note of what it was adapted from.
+Files are byte-for-byte copies of the upstream folders. Do not edit them here. The four `LICENSE` files were copied unchanged on 11 November 2026, at Boroon's word; the live skills built from these sources are covered by them. A GET AI version is a new skill written in `.claude/skills/`: `getai-*` if it works for any profile, `lcp-*` for Power Platform, `pcp-*` for pro-code, with a note of what it was adapted from.
 
 What we think of each one is in `docs/analysis/skills-reading-notes.md`.
 
@@ -23,9 +26,10 @@ Boroon said: adopt the first five, adapt the rest. The shelf copies here stay as
 
 | Original | Result | Live skill |
 |---|---|---|
-| `addy/constraint-driven-development` | Adopted unchanged | `constraint-driven-development` |
-| `addy/doubt-driven-development` | Adopted unchanged | `doubt-driven-development` |
-| `addy/source-driven-development` | Adopted unchanged | `source-driven-development` |
+| `tan/bro` | Adopted unchanged on 1 November 2026, before the policy. The shelf copy and its pin were added on 11 November 2026 (Session 21), with a source line in the live skill | `bro` |
+| `addy/constraint-driven-development` | Adopted unchanged. A source line was added on 11 November 2026 | `constraint-driven-development` |
+| `addy/doubt-driven-development` | Adopted unchanged. A source line was added on 11 November 2026; it also says the skill's two links to `../../references/orchestration-patterns.md` do not resolve from `.claude/skills/`, and that the file is at `skills/references/` | `doubt-driven-development` |
+| `addy/source-driven-development` | Adopted unchanged. A source line was added on 11 November 2026 | `source-driven-development` |
 | `tan/create-verification-skill` | Adopted, then edited 2 November 2026: writes to `.claude/skills/lcp-verify/` (or `pcp-verify`), name `lcp-verify`. A note at the top says so | `create-verification-skill` |
 | `tan/maintain-verification-skill` | Adopted, then edited the same way: target is `.claude/skills/lcp-verify/` or `pcp-verify` | `maintain-verification-skill` |
 | `tan/blast-radius` | Adapted | `lcp-blast-radius` |
@@ -65,7 +69,7 @@ Boroon decided on 2 November 2026 to lift four small habits from `poteto-mode` i
 
 ## Batch 2 adoption (2 November 2026, Boroon's decision)
 
-Adopted into `.claude/skills/`, names unchanged so the links between principles hold: `unslop` (plus rule 34, Australian English) and 21 principles. Each has a dated GET AI note at the top and is otherwise unchanged. All are `disable-model-invocation`, so they run only when called. Read in full and pinned (rule 19). Reviewed by Boroon: not yet (rule 17).
+Adopted into `.claude/skills/`, names unchanged so the links between principles hold: `unslop` (plus rule 34, Australian English) and 21 principles. Each has a dated GET AI note at the top and is otherwise unchanged: 15 principles and `unslop` since 2 November; the other six (`build-the-lever`, `encode-lessons-in-structure`, `experience-first`, `fix-root-causes`, `redesign-from-first-principles`, `test-behavior-not-implementation`) had none until a source line was added on 11 November 2026, at Boroon's word. All are `disable-model-invocation`, so they run only when called. Read in full and pinned (rule 19). Reviewed by Boroon: merged into `main` with PR #4 on 2 November 2026 (rule 17).
 
 - Strong set (12): `attack-the-premise`, `make-operations-idempotent`, `separate-before-serializing-shared-state`, `prove-it-works`, `test-behavior-not-implementation`, `explain-the-number`, `build-the-lever`, `fix-root-causes`, `encode-lessons-in-structure`, `sequence-verifiable-units`, `redesign-from-first-principles`, `experience-first`.
 - Pro-code leaning (6): `boundary-discipline`, `foundational-thinking`, `laziness-protocol`, `minimize-reader-load`, `model-the-domain`, `type-system-discipline`.

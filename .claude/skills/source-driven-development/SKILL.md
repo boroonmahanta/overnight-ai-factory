@@ -3,6 +3,8 @@ name: source-driven-development
 description: Grounds every implementation decision in official documentation. Use when you want to verify an approach against the official docs before implementing it, or when you want authoritative, source-cited code free from outdated patterns. Use when building with any framework or library where correctness matters.
 ---
 
+> **GET AI note (11 November 2026).** Adopted unchanged on 2 November 2026 from `addyosmani/agent-skills` `skills/source-driven-development` at commit `301b02b12bff98e4688e6984af6556802322bbde` (MIT, licence text at `skills/addy/LICENSE`); the text below is unchanged. Shelf original: `skills/addy/source-driven-development/`.
+
 # Source-Driven Development
 
 ## Overview

@@ -4,6 +4,8 @@ description: "Apply when you write, change, or keep a test. Assert what the code
 disable-model-invocation: true
 ---
 
+> **GET AI note (11 November 2026).** Adopted unchanged on 2 November 2026 from `cursor/plugins` `pstack/skills/principle-test-behavior-not-implementation` at commit `ae5650febf4320793844c12c4adaa937f417f8da` (MIT, licence text at `skills/tan/LICENSE`); the text below is unchanged. Shelf original: `skills/tan/principle-test-behavior-not-implementation/`.
+
 # Test Behavior, Not Implementation
 
 A test is a claim about what the code does for its users: a caller, an end user, or another service. Behavior is what those users can observe through the interface they use. That includes return values, errors, state they can read back, and effects on systems outside the code, such as a request sent, a row written, or a message emitted. Implementation is what they cannot observe: private helpers, internal call order, intermediate data, and which internal collaborator did the work.

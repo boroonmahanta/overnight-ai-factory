@@ -77,7 +77,7 @@ Companion: `skills-reading-notes.md` (batch 1).
 2. Grilling asks at most five questions a round, most blocking first, the rest held. Done in `getai-grilling`, and plan 6.2 now says so.
 3. `principle-never-block-on-the-human`, `principle-outcome-oriented-execution` and `principle-migrate-callers-then-delete-legacy-apis` stay on the shelf. Revisit when an issue calls for them. Cases to watch: a night agent stalling on a reversible choice (the first), a planned multi-phase migration or XL work (the second), an internal-only API change (the third).
 
-4. Adopt `unslop` and the 21 principles my notes proposed, including the pro-code ones, `subtract-before-you-add`, `exhaust-the-design-space` and `guard-the-context-window` (which Boroon likes). Done. Each carries a GET AI note. `unslop` gained rule 34, Australian English.
+4. Adopt `unslop` and the 21 principles my notes proposed, including the pro-code ones, `subtract-before-you-add`, `exhaust-the-design-space` and `guard-the-context-window` (which Boroon likes). Done. Each carries a GET AI note. `unslop` gained rule 34, Australian English. **Correction, 11 November 2026 (Session 21):** six had no note (`build-the-lever`, `encode-lessons-in-structure`, `experience-first`, `fix-root-causes`, `redesign-from-first-principles`, `test-behavior-not-implementation`). Each now has a source line, at Boroon's word (`docs/analysis/skills-policy-check.md`).
 
 ## `poteto-mode`, read 2 November 2026
 

@@ -4,6 +4,8 @@ description: "Apply when product, UX, or feature-scope tradeoffs come up. Choose
 disable-model-invocation: true
 ---
 
+> **GET AI note (11 November 2026).** Adopted unchanged on 2 November 2026 from `cursor/plugins` `pstack/skills/principle-experience-first` at commit `ae5650febf4320793844c12c4adaa937f417f8da` (MIT, licence text at `skills/tan/LICENSE`); the text below is unchanged. Shelf original: `skills/tan/principle-experience-first/`.
+
 # Experience First
 
 When implementation convenience conflicts with user delight, choose delight.
