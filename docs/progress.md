@@ -33,13 +33,13 @@ Next steps:
   - it found and deleted a flow and a column left in the solution and a flow left outside it;
   - the fresh export, unpacked, equalled the reset commit in all 23 files.
 
-  How to find what the lane identity made outside the solution turned out not to be `solutioncomponent.createdby`: the Default Solution's rows are by SYSTEM. The finder asks each component table for its maker, and finds tables and columns by state against a bootstrap list. The plan is not edited; the proposed edits are in the record, `docs/plans/spike-0.19/README.md`. The scratch (0.18's plus one environment variable value) is **kept for spike 0.14**, at Boroon's word.
+  How to find what the lane identity made outside the solution turned out not to be `solutioncomponent.createdby`: the Default Solution's rows are by SYSTEM. The finder asks each component table for its maker, and finds tables and columns by state against a bootstrap list. The plan is edited for it (11 November 2026, at Boroon's word), with his rule that a table or column found outside the solution stops the lane for a person to check (ADO 2843). Record: `docs/plans/spike-0.19/README.md`. The scratch (0.18's plus one environment variable value) is **kept for spike 0.14**, at Boroon's word.
 - **ADO is current** (Session 19): every update Sessions 17 and 18 left is made, and the schedule-order query matches `docs/plans/schedule.md`. Session 20 moved 2463 to Done.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
 - **The Get AI Engineer's material is assessed** (Session 14, 6 November 2026): `docs/analysis/delivery-vault-assessment.md`. It found the Power Platform standards, patterns and export procedure in the Get AI Engineer's older vault in Azure DevOps, and recommends building live in the lane with the export as the record.
 - **Live build is decided (Boroon, 7 November 2026) and edited into the plan** (Session 15). In lane B (low-code), agents build live in the lane. A trusted driver step, not the agent, exports and unpacks the solution, and that export is the PR's source. Builders stay only where Microsoft ships a generator: App Spec, `pac copilot`, code apps, PCF and plug-in source. Pro-code is unchanged. Three spikes must pass before Stage 3: 0.18 (headless YAML export), 0.19 (reset fidelity) and the widened 0.14. `GetAI-IP/factory-gates` now lags the plan; the follow-ups are under Open items.
-- Spikes 0.2, 0.3, 0.18 and 0.19 are the only plan items tested on real services. Every other item marked `[untested]` in the plan is still untested. The plan is edited for spike 0.2's result (11 lines, Session 12), spike 0.3's (9 lines, Session 13), the live-build decision (Session 15) and spike 0.18's result (Session 19), each at Boroon's word.
+- Spikes 0.2, 0.3, 0.18 and 0.19 are the only plan items tested on real services. Every other item marked `[untested]` in the plan is still untested. The plan is edited for spike 0.2's result (11 lines, Session 12), spike 0.3's (9 lines, Session 13), the live-build decision (Session 15), spike 0.18's result (Session 19) and spike 0.19's (Session 20), each at Boroon's word.
 - **The rest of Stage 1's day gate is planned** (Session 17, 7 November 2026, a cloud session): `docs/plans/stage-1-day-gate-plan.md`, nine build sessions DG1 to DG9 for 2545, 2544, 2546 and 2548 with spike 0.17, dated 12 November to 15 December. Boroon decided D1 to D6, and the plan is edited for them. The gate scripts (2538) wait on spike 0.18.
 - **DG1 is done** (Session 18, 7 November 2026, a cloud session, brought forward from 12 November): `staging/` with its README, and `staging/factory-manifestos/` with its README and the three project templates (`glossary.md`, `docs/adr/README.md`, the `coding-standards.md` header). 2545 stays open until DG3 (Friday 20 November).
 - Boroon said more context will be added in later sessions.
@@ -92,17 +92,9 @@ Next steps:
   - since 0.19, one environment variable value for `fspk_SpikeSetting`, outside the solution.
 
   The lists and how to delete each are in `docs/plans/spike-0.18/README.md` and `docs/plans/spike-0.19/README.md`; 0.18's teardown also takes the value. Delete all of it together after 0.14, at Boroon's word.
-- **Spike 0.19's proposed plan edits wait on Boroon** (Session 20). In `docs/plans/spike-0.19/README.md`, "What this means for the plan":
-  - plan 5.4 step 4: how leftovers are found, and the brakes;
-  - bootstrap step 7: the bootstrap list of tables and columns outside the solution;
-  - step 5: byte equality;
-  - 5.6: the manifest check reads the whole XML tree;
-  - 11.1 row 0.19 and risk 17.
-
-  **One decision with them:** what the reset does with a table or column made outside the solution, since metadata keeps no maker. The probe refuses it and the lane goes Offline; the other way is to delete what appeared since the last proven reset.
+- **A table or column outside the lane solution stops the lane** (Boroon, 10 November 2026; plan 5.4 step 4). Metadata keeps no maker, so the reset never deletes one that the bootstrap list does not hold: the lane goes Offline, an ADO bug names it, and a person checks by day. **ADO 2843** builds that check (the bug, a runbook, one trial in `factory-lane-1`). It sits under 2575 "Execution workflow and driver" (Stage 3), after 2577 (`reset_environment.py`); not dated, like the rest of Stage 3.
 - **Two things for `reset_environment.py` to learn** (Session 20, not built). It cannot find forms or canvas apps by maker (no `createdby` on their tables), and it must allow the lane manifest's own environment variable values, or step 4 deletes what step 3 set. Both are in the 0.19 record.
 - **Keep spike runs in one session.** In Session 19 a "btw" side chat on the laptop started its own setup run in `GetAI-IP/export-probe` (run 37180986) while the main session was running the probe. It queued behind the probe and changed nothing (setup only makes what is missing), but two sessions driving one scratch repo and lane can step on each other. Session 20 kept every run in one session; 0.19's workflow shares 0.18's concurrency group, so runs queue.
-- **Gotcha: parallel sessions share this checkout** (Session 20). While Session 20 was paused (the app was quit), the folder was switched to another branch, `claude/session-20-progress-dashboard`, with uncommitted changes to `tools/session_usage.py` and a new `tools/progress_snapshot.py`. Later it was back on Session 20's branch, and that branch and its changes were no longer in this checkout. Session 20 changed none of it. For two sessions at once on the laptop, give each its own worktree. Where that dashboard work now lives is not known here.
 - **Fixed: the skill's glossary example broke its own rule** (found and fixed in Session 18, at Boroon's word). In `.claude/skills/getai-domain-modeling/glossary-format.md`, the example term "Customer" had no `_Schema_` line, though the rules say every term has one. It now has `_Schema_: none yet`. It reaches `main` when Boroon merges the Session 18 branch (rule 17). The DG1 template does not use that term, so it needed no change. Kept here one session for the record.
 - **Gotcha: the two copies of the glossary and ADR formats split on Friday 4 December** (found in Session 18). Until then the skill (`.claude/skills/getai-domain-modeling/`) and the templates (`staging/factory-manifestos/templates/project/`) sit in this repo, so one PR changes both, as the staging rules say. After the move (DG8) the templates are in `GetAI-IP/factory-manifestos` on GHE and the skill stays here, so one PR cannot change both and the copies can drift. DG8 settles how to keep them the same, for example two PRs that link each other (step 5 of DG8 in `docs/plans/stage-1-day-gate-plan.md`).
 - The Pocock v1.3 transcript ends mid-sentence at 14:28. The zip copy is the same, so the source itself is cut off.
@@ -110,9 +102,9 @@ Next steps:
 
 ## Log
 
-## Session 20, 2026-11-09 to 10, branch `claude/session-20-2463-reset-fidelity`
+## Session 20, 2026-11-09 to 11, branch `claude/session-20-2463-reset-fidelity`
 
-Spike 0.19 (ADO 2463), on its target date. **A local session on Boroon's laptop**, in the desktop app. Started from `main` at PR 30's merge (`1176ce4`); local `main` was fast-forwarded first. Finder's `.DS_Store` files were deleted before any local check. The app was quit overnight and the session resumed on 10 November; see the checkout gotcha under Open items.
+Spike 0.19 (ADO 2463), on its target date. **A local session on Boroon's laptop**, in the desktop app. Started from `main` at PR 30's merge (`1176ce4`); local `main` was fast-forwarded first. Finder's `.DS_Store` files were deleted before any local check. The app was quit overnight and the session resumed on 10 November; the plan edits followed on 11 November.
 
 Done:
 - **Looked up first:**
@@ -142,19 +134,26 @@ Done:
 - Tidy-up: spike 0.18's compiled `__pycache__/export_probe.cpython-315.pyc` was committed to `main` by mistake; removed, and a `.gitignore` now ignores `__pycache__/`.
 - ADO: 2463 Done, with the result and the time and tokens in its body.
 - `docs/plans/schedule.md`: 2463 done Tue 10 Nov; nothing moves.
-- `CLAUDE.md`: a row for `docs/plans/spike-0.19/`, the 0.18 row's scratch note, and the open questions. The plan is not edited, so its line map is unchanged.
+- **Plan edits** (`docs/sources/plan-v3.1.md`, now 2,722 lines), at Boroon's word (11 November 2026):
+  - 5.4: bootstrap step 7 (the bootstrap list); reset step 3 (values outside the solution); step 4 (how leftovers are found, the brakes, and the rule that a table or column outside the solution stops the lane for a person); step 5 (byte equality, a clean second pass, the result);
+  - 5.6: the manifest check reads the whole XML tree; the lane drift check runs the reset's finder;
+  - 11.1 row 0.19 (run and passed), 12 risk 17 (lowered), 14.4 (a new row "Reset and leftover removal") and 15.1 (the reset question settled; the 0.14 question on its own row).
+- ADO **2843** "Human check when the reset finds a table or column outside the lane solution": a User Story under 2575, predecessor 2577, related to 2463, Proposed, tagged `factory-build`, `lcp`, `stage-3`, `session-20`.
+- `docs/plans/spike-0.19/README.md`: its plan section now says what was edited, and Boroon's rule.
+- `CLAUDE.md`: a row for `docs/plans/spike-0.19/`, the 0.18 row's scratch note, the open questions, the plan row and the line map (the plan grew 12 lines).
 
 Decisions (Boroon):
 - Plant two leftovers inside the solution, a flow and a column, in the same run (9 November 2026).
-- Write the write-up in a separate worktree (10 November 2026). In the end not needed: by then the folder was back on this branch.
 - Keep 0.18's and 0.19's scratch for spike 0.14, then delete it together (10 November 2026).
+- Edit the plan for spike 0.19 (11 November 2026).
+- A table or column found outside the lane solution, not on the bootstrap list, stops the lane for a person to check, rather than being deleted; add an ADO story for the check (11 November 2026). It is 2843.
 
-Files changed: `docs/plans/spike-0.19/README.md`, `reset.yml`, `reset_probe.py` and `lane-fl1.json` (all new); `.gitignore` (new); `docs/plans/spike-0.18/__pycache__/export_probe.cpython-315.pyc` (deleted); `docs/plans/schedule.md`; `CLAUDE.md`; `docs/progress.md`.
+Files changed: `docs/plans/spike-0.19/README.md`, `reset.yml`, `reset_probe.py` and `lane-fl1.json` (all new); `.gitignore` (new); `docs/plans/spike-0.18/__pycache__/export_probe.cpython-315.pyc` (deleted); `docs/sources/plan-v3.1.md`; `docs/plans/schedule.md`; `CLAUDE.md`; `docs/progress.md`.
 
-Time and tokens (in 2463's body; session `47db9c0a`, measured before the closing steps): active time 1 h 04 min (gaps over 10 minutes not counted), from 09 Nov 09:28 to 10 Nov 17:38 (UTC+11). Tokens: 139,879 output; 22,129,122 processed in all, of which 20,593,281 were cache reads. From 1 local transcript. No other story was worked.
+Time and tokens (in 2463's body; session `47db9c0a`, measured before the closing commit): active time 1 h 20 min (gaps over 10 minutes not counted), from 09 Nov 09:28 to 11 Nov 18:23 (UTC+11). Tokens: 172,927 output; 37,832,978 processed in all, of which 35,726,883 were cache reads. From 1 local transcript. It covers the spike, the plan edits and making 2843; no other story was worked.
 
 Open items:
-- Spike 0.19's proposed plan edits, and the decision on tables and columns made outside the solution (Open items).
+- ADO 2843, the human check (Open items).
 - The scratch, kept for 0.14 (Open items).
 - Not tested in 0.19:
   - step 1 (test data);
@@ -167,9 +166,8 @@ Open items:
 
 Next steps:
 1. Boroon: review this branch. A pull request when he asks.
-2. Boroon: decide on 0.19's plan edits and the metadata-stray rule; edit the plan at his word.
-3. Wed 11 and Thu 12 Nov are free on the laptop track. Thu 12 to Fri 13 Nov, documents: 2549 (cloud). Fri 13 Nov, laptop: 2433 and 2505.
-4. Mon 16 to Tue 17 Nov, laptop: spike 0.14 (2461), reusing the scratch; then delete 0.18's and 0.19's scratch at Boroon's word.
+2. Wed 11 and Thu 12 Nov are free on the laptop track. Thu 12 to Fri 13 Nov, documents: 2549 (cloud). Fri 13 Nov, laptop: 2433 and 2505.
+3. Mon 16 to Tue 17 Nov, laptop: spike 0.14 (2461), reusing the scratch; then delete 0.18's and 0.19's scratch at Boroon's word.
 
 ## Session 19, 2026-11-08, branch `claude/session-19-2462-yaml-export`
 

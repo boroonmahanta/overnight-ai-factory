@@ -133,20 +133,20 @@ Each run took 1 to 3.5 minutes, install included.
 
 ## What this means for the plan
 
-Proposals only. The plan is not edited (Boroon's word decides, as in 0.18):
+**Edited into the plan on 11 November 2026, at Boroon's word** (Session 20): sections 5.4 (bootstrap step 7 and reset steps 3 to 5), 5.6 (the manifest check and the lane drift check), 11.1 row 0.19, 12 risk 17, 14.4 (a new row) and 15.1. What the edits say:
 
-- **Plan 5.4, step 4:** say how leftovers outside the solution are found:
+- **Plan 5.4, step 4:** how leftovers outside the solution are found:
   - rows with a maker, by asking each component table, including those `solutioncomponentdefinitions` names;
   - tables and columns by state, against a bootstrap list in the lane manifest;
   - parts of a held table, including rows that extend it, count as covered;
   - columns on held tables are compared with the commit's `Entity.xml`.
 
-  Add the brakes, and say the lane manifest's own values are allowed.
+  With the brakes, and the lane manifest's own values allowed.
 - **Plan 5.4, bootstrap step 7:** save the bootstrap list in `lanes.json`: the unmanaged custom tables and columns outside any lane solution.
-- **Plan 5.4, step 5:** the proof can ask for byte equality, which held here; the canonical form then only explains a failure. If Microsoft's server version stamp changes the files (0.18 finding 9), the canonical form may need to ignore it.
-- **Plan 5.6 and the `factory-gates` follow-up list (item 9):** the manifest check must read the root components from the whole XML tree, not only `Other/Solution.xml`.
-- **Plan 11.1, row 0.19, and risk 17:** the result. Risk 17's answer works for the types tested; it stays open for forms, canvas apps and metadata made outside the solution.
-- **A decision for Boroon:** what the reset does with a table or column made outside the solution. No maker is kept on metadata. The probe refuses it, and the lane goes Offline until a human looks. The other way is to delete what appeared since the last proven reset.
+- **Plan 5.4, step 5:** the proof asks for byte equality, which held here, plus a clean second pass of the finder; the canonical form only explains a failure. If Microsoft's server version stamp changes the files (0.18 finding 9), the canonical form must ignore it.
+- **Plan 5.6:** the manifest check reads the root components from the whole XML tree, not only `Other/Solution.xml` (also on the `factory-gates` follow-up list, item 9). The lane drift check runs the reset's leftover finder.
+- **Plan 11.1, row 0.19, and risk 17:** the result; risk 17 lowered. It stays open for forms, canvas apps and metadata made outside the solution.
+- **Boroon's decision (10 November 2026):** a table or column found outside the solution that the bootstrap list does not hold is never deleted by the reset. It stops the lane: Offline, an ADO bug, and a person checks by day whether to delete it or add it to the bootstrap list. The check is ADO 2843, under "Execution workflow and driver", after 2577 (the `reset_environment.py` build). This is what the probe did (finding 11).
 
 ## Scratch to delete (only at Boroon's word)
 
