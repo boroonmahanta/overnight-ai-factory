@@ -1,0 +1,26 @@
+{
+  "_comment": "Spike 0.19 scratch: a stand-in for the lane manifest (plan 5.4, gate/projects/<proj>/lanes.json). The environment variable values the reset applies, and the bootstrap list: unmanaged custom tables and columns outside any lane solution when the lane was set up (here, Microsoft's own columns on system tables, read 10 November 2026).",
+  "solution": "FactorySpike",
+  "environment_variables": {
+    "fspk_SpikeSetting": "fl1-lane-value"
+  },
+  "outside_allowed": {
+    "tables": [],
+    "columns": [
+      "aiplugin.aiplugintitle",
+      "aiplugintitle.iconscolorimageid",
+      "aiplugintitle.iconsoutlineimageid",
+      "connector.iconblobid",
+      "dvtablesearch.knowledgesourceconsumerid",
+      "dvtablesearch.knowledgesourceprofileid",
+      "flowlog.flowmachinegroupid",
+      "flowlog.flowmachineid",
+      "mcpserver.iconid",
+      "msdyn_aibfile.msdyn_imageid",
+      "msdyn_aiodimage.entityimageid",
+      "msdyn_dataflowtemplate.msdyn_templateiconid",
+      "msdyn_flow_approval.processid",
+      "msdyn_kbattachment.msdyn_fileiconid"
+    ]
+  }
+}

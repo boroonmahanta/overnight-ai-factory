@@ -1,0 +1,124 @@
+# Spike 0.19 (plan 11.1): reset fidelity, as the lane identity.
+# Published as .github/workflows/reset.yml in GetAI-IP/export-probe (private, scratch),
+# next to probe/reset_probe.py, the reset commit (reset-commit/FactorySpike/) and
+# the stand-in lane manifest (lane/fl1.json).
+#
+# Signed in as getai-fl1-exec through GitHub OIDC (no secret), on pac 2.14.1:
+#   baseline  export and unpack the solution; list what the leftover finder sees. Read-only
+#   plant     leave a night's mess, then export and show it against the reset commit
+#   reset     the probe-only stand-in for reset_environment.py (plan 5.4, steps 2 to 5),
+#             then look up the planted parts by name
+#   unplant   delete what plant made, by name. A safety net only
+#
+# Hand start only (workflow_dispatch), and only from main: no pull request code
+# runs (rule 5). No secrets. The tenant ID, app ID and Dataverse URL come in as
+# inputs, so they stay out of the public planning repo.
+name: reset-probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: baseline, plant, reset or unplant
+        type: choice
+        options: [baseline, plant, reset, unplant]
+        default: baseline
+      tenant_id:
+        description: Entra tenant ID
+        type: string
+      app_id:
+        description: Application (client) ID of getai-fl1-exec
+        type: string
+      env_url:
+        description: Dataverse URL, https://<org>.crm6.dynamics.com/
+        type: string
+
+permissions: {}
+
+# The same group as probe.yml: one run at a time touches the lane.
+concurrency:
+  group: export-probe
+  cancel-in-progress: false
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    environment: fl1-exec
+    timeout-minutes: 40
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      PAC_VERSION: "2.14.1"
+      MODE: ${{ inputs.mode }}
+      TENANT_ID: ${{ inputs.tenant_id }}
+      APP_ID: ${{ inputs.app_id }}
+      ENV_URL: ${{ inputs.env_url }}
+      SOLUTION: FactorySpike
+      RESET_COMMIT: reset-commit/FactorySpike
+      LANE_FILE: lane/fl1.json
+      DOTNET_NOLOGO: "1"
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+    steps:
+      - name: Refuse any ref but main
+        run: |
+          [ "$GITHUB_REF" = "refs/heads/main" ] || { echo "::error::run this from main only"; exit 1; }
+
+      # Keep the comment on each uses line to the version alone, so Dependabot updates it.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check the sign-in inputs
+        run: |
+          set -euo pipefail
+          guid='^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+          [[ "$TENANT_ID" =~ $guid ]] || { echo "::error::tenant_id is not a GUID"; exit 1; }
+          [[ "$APP_ID" =~ $guid ]] || { echo "::error::app_id is not a GUID"; exit 1; }
+          # Australia only (rule 15): the Oceania Dataverse host is crm6.
+          [[ "$ENV_URL" =~ ^https://[a-z0-9-]+\.crm6\.dynamics\.com/?$ ]] \
+            || { echo "::error::env_url must be https://<org>.crm6.dynamics.com/"; exit 1; }
+
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+        if: env.MODE != 'unplant'
+        with:
+          dotnet-version: 10.0.x   # pac 2.4.1 and later ship for net10.0 only (spike 0.2)
+
+      - name: Install pinned pac
+        if: env.MODE != 'unplant'
+        run: |
+          set -euo pipefail
+          dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version "$PAC_VERSION"
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      - name: Sign in with a federated pac profile (no secret)
+        if: env.MODE != 'unplant'
+        run: |
+          set -euo pipefail
+          pac telemetry disable || true
+          pac auth create --name lane --githubFederated --tenant "$TENANT_ID" --applicationId "$APP_ID" --environment "$ENV_URL"
+          pac org who
+
+      - name: Run the step
+        run: python3 -I probe/reset_probe.py "$MODE"
+
+      - name: Look up the planted parts by name
+        if: always() && env.MODE == 'reset'
+        run: python3 -I probe/reset_probe.py check
+
+      - name: Clear the sign-in profiles
+        if: always() && env.MODE != 'unplant'
+        run: pac auth clear || true
+
+      # Scratch output only: the scratch solution's files, the zips, the logs and the results. No credentials.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always() && env.MODE != 'unplant'
+        with:
+          name: reset-probe-${{ inputs.mode }}
+          path: ${{ runner.temp }}/reset-probe/
+          retention-days: 3
+          if-no-files-found: warn
+
+      - name: Result
+        if: always() && env.MODE != 'unplant'
+        run: python3 -I probe/reset_probe.py summary
