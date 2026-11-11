@@ -27,12 +27,19 @@ Next steps:
 - **Spike 0.2 passed** (Session 12, 4 November 2026): `pac auth create --githubFederated` works on `getai.ghe.com`, both in a job started by hand and inside a ruleset workflow with a `job_workflow_ref` subject. `pac org who` returned the application user both times. Record and portal steps: `docs/plans/spike-0.2/README.md`. The scratch repos `GetAI-IP/oidc-probe` and `GetAI-IP/oidc-probe-target`, the org ruleset `oidc-probe-required` and the two scratch federated credentials were **deleted on 4 November 2026**, at Boroon's word. `getai-fl1-exec` (no credentials now), its application user and `factory-lane-1` stay for the night shift (Stage 3). Planning PR 18 merged into `main` on 4 November 2026.
 - **Spike 0.3 passed on both paths** (Session 13, 6 November 2026): Dataverse MCP accepts an app-only token. A job on `getai.ghe.com`, signed in as `getai-fl1-exec` by GitHub OIDC with no secret, made a read and a create through the Dataverse CLI's local proxy and through the remote `/api/mcp` endpoint, once `getai-fl1-exec` was on `factory-lane-1`'s allowed MCP clients list. Record, portal steps and 13 findings: `docs/plans/spike-0.3/README.md`. The two test rows, the scratch repo `GetAI-IP/mcp-probe` and the federated credential `mcp-probe-fl1-exec` are **deleted** (6 November 2026, at Boroon's word). The allowed MCP client entry `new_getaifl1exec` is **kept for Stage 3**, at Boroon's word. The plan is edited for the result (9 lines, Session 13, at Boroon's word). Planning PR 21 merged into `main` on 6 November 2026.
 - **Spike 0.18 done: the YAML exit test fails and the XML fallback passes** (Session 19, 8 November 2026, ADO 2462). On a runner, as `getai-fl1-exec` with no secret, on pac 2.14.1 and the gate's pin 2.4.1, `export` then `unpack`, `clone` and `sync` all wrote the XML layout. The XML tree held a table, a cloud flow, a security role, an environment variable and a connection reference; it packed again signed out and with no network; a second export was byte-identical. The plan now makes the XML layout the low-code lane's source format, with the driver running export then unpack (at Boroon's word). Record: `docs/plans/spike-0.18/README.md`. The scratch (repo `GetAI-IP/export-probe`, credential `export-probe-fl1-exec`, solution `FactorySpike` in `factory-lane-1`) is **kept for spike 0.19**, then deleted at Boroon's word.
-- **ADO is current** (Session 19): every update Sessions 17 and 18 left is made, and the schedule-order query matches `docs/plans/schedule.md`.
+- **Spike 0.19 passed: the reset returns the lane to its reset commit, byte for byte** (Session 20, 10 November 2026, ADO 2463), in `factory-lane-1` alone, not with 0.10. On a runner, as `getai-fl1-exec` with no secret, a probe-only stand-in for `reset_environment.py` did four things:
+  - it imported the reset commit with overwrite and publish, which undid a change to the main flow;
+  - it set the lane's environment variable value outside the solution;
+  - it found and deleted a flow and a column left in the solution and a flow left outside it;
+  - the fresh export, unpacked, equalled the reset commit in all 23 files.
+
+  How to find what the lane identity made outside the solution turned out not to be `solutioncomponent.createdby`: the Default Solution's rows are by SYSTEM. The finder asks each component table for its maker, and finds tables and columns by state against a bootstrap list. The plan is edited for it (11 November 2026, at Boroon's word), with his rule that a table or column found outside the solution stops the lane for a person to check (ADO 2843). Record: `docs/plans/spike-0.19/README.md`. The scratch (0.18's plus one environment variable value) is **kept for spike 0.14**, at Boroon's word.
+- **ADO is current** (Session 19): every update Sessions 17 and 18 left is made, and the schedule-order query matches `docs/plans/schedule.md`. Session 20 moved 2463 to Done.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
 - **The Get AI Engineer's material is assessed** (Session 14, 6 November 2026): `docs/analysis/delivery-vault-assessment.md`. It found the Power Platform standards, patterns and export procedure in the Get AI Engineer's older vault in Azure DevOps, and recommends building live in the lane with the export as the record.
 - **Live build is decided (Boroon, 7 November 2026) and edited into the plan** (Session 15). In lane B (low-code), agents build live in the lane. A trusted driver step, not the agent, exports and unpacks the solution, and that export is the PR's source. Builders stay only where Microsoft ships a generator: App Spec, `pac copilot`, code apps, PCF and plug-in source. Pro-code is unchanged. Three spikes must pass before Stage 3: 0.18 (headless YAML export), 0.19 (reset fidelity) and the widened 0.14. `GetAI-IP/factory-gates` now lags the plan; the follow-ups are under Open items.
-- Spikes 0.2, 0.3 and 0.18 are the only plan items tested on real services. Every other item marked `[untested]` in the plan is still untested. The plan is edited for spike 0.2's result (11 lines, Session 12), spike 0.3's (9 lines, Session 13), the live-build decision (Session 15) and spike 0.18's result (Session 19), each at Boroon's word.
+- Spikes 0.2, 0.3, 0.18 and 0.19 are the only plan items tested on real services. Every other item marked `[untested]` in the plan is still untested. The plan is edited for spike 0.2's result (11 lines, Session 12), spike 0.3's (9 lines, Session 13), the live-build decision (Session 15), spike 0.18's result (Session 19) and spike 0.19's (Session 20), each at Boroon's word.
 - **The rest of Stage 1's day gate is planned** (Session 17, 7 November 2026, a cloud session): `docs/plans/stage-1-day-gate-plan.md`, nine build sessions DG1 to DG9 for 2545, 2544, 2546 and 2548 with spike 0.17, dated 12 November to 15 December. Boroon decided D1 to D6, and the plan is edited for them. The gate scripts (2538) wait on spike 0.18.
 - **DG1 is done** (Session 18, 7 November 2026, a cloud session, brought forward from 12 November): `staging/` with its README, and `staging/factory-manifestos/` with its README and the three project templates (`glossary.md`, `docs/adr/README.md`, the `coding-standards.md` header). 2545 stays open until DG3 (Friday 20 November).
 - Boroon said more context will be added in later sessions.
@@ -55,7 +62,7 @@ Next steps:
   6. When `lcp/danger-rules.yml` is written: the new B.1 rows and the rule names `export-additive` and `export-flow-logic`.
   7. Regenerate `scripts.sha256` with `lcp/manifest.py` after the script changes.
   8. (Added Session 17, D3.) A job in `lcp-gate.yml` that runs the gate's trusted `spec/check_spec.py` on spec PRs and checks the hash of the copy vendored under `.specify/`. The script itself is built in 2544 (DG5) and reaches `factory-gates` in the move (DG8). For 2538.
-  9. (Added Session 19, spike 0.18.) The XML source layout, not YAML: `lcp/pack_offline.py` calls its `--source` "the YAML-format solution folder" (help and docstring), and `lcp-gate.yml`'s `build` step is named "Pack the solution offline (YAML source format)"; plan Appendix A now says "XML source layout". When the manifest check is written, it reads the declared root components from `Other/Solution.xml`; when `danger-rules.yml` is written, its B.1 rows use the XML folders (`Entities/`, `Workflows/`, `Roles/`, `environmentvariabledefinitions/`) and connection references come from the export-diff plan. Consider moving the pac pin from 2.4.1 to 2.14.1 (identical output for the five types tested; read its release notes first, A1). For 2511 and 2538.
+  9. (Added Session 19, spike 0.18.) The XML source layout, not YAML: `lcp/pack_offline.py` calls its `--source` "the YAML-format solution folder" (help and docstring), and `lcp-gate.yml`'s `build` step is named "Pack the solution offline (YAML source format)"; plan Appendix A now says "XML source layout". When the manifest check is written, it reads the declared root components from `Other/Solution.xml`; when `danger-rules.yml` is written, its B.1 rows use the XML folders (`Entities/`, `Workflows/`, `Roles/`, `environmentvariabledefinitions/`) and connection references come from the export-diff plan. Consider moving the pac pin from 2.4.1 to 2.14.1 (identical output for the five types tested; read its release notes first, A1). For 2511 and 2538. **Correction from spike 0.19 (Session 20):** `Other/Solution.xml`'s `RootComponents` does not list every root component; in `FactorySpike` it left out the environment variable and the connection reference, which are only in `environmentvariabledefinitions/` and `Other/Customizations.xml`. So the manifest check reads the whole tree, not only `Other/Solution.xml` (`docs/plans/spike-0.19/reset_probe.py`, `read_commit`, does this).
   - **Not on `pending-scripts.txt`:** `export_lane.py`, `reset_environment.py` (now with leftover removal and the proof) and the lane drift check. They run in the execution workflow in `factory-control`, not in `lcp-gate.yml`. They are Stage 3 builds, after spikes 0.18 and 0.19.
 - **This planning repo is public** (checked 4 November 2026 with `gh repo view`; a signed-out browser could also open it). Anyone can read the plan, the cost model, the org names, `getai.ghe.com`, the gate's design and the identity names. Boroon to decide. Advice: make it private (Settings, General, Danger Zone, Change visibility). The catch: on GitHub Free, rulesets are not enforced on private repos, so `main` loses its ruleset unless the account is on Pro; with Boroon as the only writer that matters less. Making it private stops new readers but does not undo copies already made.
 - **Gate work is laptop work (decided 3 November 2026).** Connecting `getai.ghe.com` to Claude's cloud (Git providers) needs a Claude Team or Enterprise plan, and Boroon is on an individual plan. So any change to `GetAI-IP/factory-gates` runs from his laptop: a local Claude Code session, a cloud session attached to a laptop folder by Remote Control, or a cloud session that prepares a patch he applies (as in Session 9). The steps below are kept only in case a Team plan comes later (the docs cover GitHub Enterprise Server and say nothing about `*.ghe.com`).
@@ -78,8 +85,16 @@ Next steps:
 - **Spike 0.20, time and tokens per story on every engine, is not run** (Session 16). ADO story 2738 under Feature 2737 (Stage 1). It needs Claude Code's OpenTelemetry turned on through managed settings and somewhere to send it: Application Insights does not exist yet, so use a local collector first. The docs do not say whether the VS Code extension or the desktop app export it; this session runs in the desktop app, so test there first.
 - **Keep pinned kits current (A1, Boroon, 7 November 2026, Session 17).** Spec Kit moved three releases in five days. Proposed shape in `docs/plans/stage-1-day-gate-plan.md`: a pin register, Dependabot where the ecosystem allows, and a monthly manual pass at the component register review (plan 8.2), the first with the Ignite re-check on 23 November. Not built; an ADO story is to be created.
 - **Done: transcript retention is 365 days** (Session 19, 8 November 2026, Boroon's choice): `"cleanupPeriodDays": 365` in `~/.claude/settings.json` on the laptop. Found while checking: Claude Code keeps sessions started or last continued in the desktop app at any age unless `desktopSessionCleanupPeriodDays` or a managed `cleanupPeriodDays` is set, so the 30-day limit hit only terminal sessions (transcripts from 5 August were still on disk). `0` is refused with a validation error. Kept here one session for the record.
-- **Spike 0.18's scratch is kept for spike 0.19** (Boroon, 8 November 2026): the repo `GetAI-IP/export-probe` (its `fl1-exec` environment and runs), the federated credential `export-probe-fl1-exec` on `getai-fl1-exec`, and in `factory-lane-1` the publisher `factoryspike` and solution `FactorySpike` with its table, flow, role, environment variable and connection reference. The list and how to delete each are in `docs/plans/spike-0.18/README.md`. Delete all of it, at Boroon's word, when 0.19 is written up.
-- **Keep spike runs in one session.** In Session 19 a "btw" side chat on the laptop started its own setup run in `GetAI-IP/export-probe` (run 37180986) while the main session was running the probe. It queued behind the probe and changed nothing (setup only makes what is missing), but two sessions driving one scratch repo and lane can step on each other.
+- **Spike 0.18's and 0.19's scratch is kept for spike 0.14** (Boroon, 8 November 2026, then 10 November 2026). What it holds:
+  - the repo `GetAI-IP/export-probe`: its `fl1-exec` environment and runs, and since 0.19 also `reset.yml`, `reset_probe.py`, `lane/fl1.json` and the reset commit `reset-commit/`;
+  - the federated credential `export-probe-fl1-exec` on `getai-fl1-exec`;
+  - in `factory-lane-1`: the publisher `factoryspike`, and the solution `FactorySpike` with its table, flow, role, environment variable and connection reference;
+  - since 0.19, one environment variable value for `fspk_SpikeSetting`, outside the solution.
+
+  The lists and how to delete each are in `docs/plans/spike-0.18/README.md` and `docs/plans/spike-0.19/README.md`; 0.18's teardown also takes the value. Delete all of it together after 0.14, at Boroon's word.
+- **A table or column outside the lane solution stops the lane** (Boroon, 10 November 2026; plan 5.4 step 4). Metadata keeps no maker, so the reset never deletes one that the bootstrap list does not hold: the lane goes Offline, an ADO bug names it, and a person checks by day. **ADO 2843** builds that check (the bug, a runbook, one trial in `factory-lane-1`). It sits under 2575 "Execution workflow and driver" (Stage 3), after 2577 (`reset_environment.py`); not dated, like the rest of Stage 3.
+- **Two things for `reset_environment.py` to learn** (Session 20, not built). It cannot find forms or canvas apps by maker (no `createdby` on their tables), and it must allow the lane manifest's own environment variable values, or step 4 deletes what step 3 set. Both are in the 0.19 record.
+- **Keep spike runs in one session.** In Session 19 a "btw" side chat on the laptop started its own setup run in `GetAI-IP/export-probe` (run 37180986) while the main session was running the probe. It queued behind the probe and changed nothing (setup only makes what is missing), but two sessions driving one scratch repo and lane can step on each other. Session 20 kept every run in one session; 0.19's workflow shares 0.18's concurrency group, so runs queue.
 - **Fixed: the skill's glossary example broke its own rule** (found and fixed in Session 18, at Boroon's word). In `.claude/skills/getai-domain-modeling/glossary-format.md`, the example term "Customer" had no `_Schema_` line, though the rules say every term has one. It now has `_Schema_: none yet`. It reaches `main` when Boroon merges the Session 18 branch (rule 17). The DG1 template does not use that term, so it needed no change. Kept here one session for the record.
 - **Gotcha: the two copies of the glossary and ADR formats split on Friday 4 December** (found in Session 18). Until then the skill (`.claude/skills/getai-domain-modeling/`) and the templates (`staging/factory-manifestos/templates/project/`) sit in this repo, so one PR changes both, as the staging rules say. After the move (DG8) the templates are in `GetAI-IP/factory-manifestos` on GHE and the skill stays here, so one PR cannot change both and the copies can drift. DG8 settles how to keep them the same, for example two PRs that link each other (step 5 of DG8 in `docs/plans/stage-1-day-gate-plan.md`).
 - **One checkout, two sessions** (found in Session 21, 10 November 2026). Session 20 (spike 0.19) and Session 21 (the dashboard) ran from the same folder. At 18:28 on 9 November, Session 21 made its branch with `git switch`, which moved the folder off `claude/session-20-2463-reset-fidelity`. Session 20 had no commits and no file changes then, so nothing was lost. At 09:58 on 10 November the folder went back to Session 20's branch, and Session 21 moved to its own worktree. **Session 20: run `git status` and `git branch --show-current` before you commit.** For later: when two local sessions run at once, give the second its own worktree.
@@ -118,6 +133,73 @@ Next steps:
 1. Boroon: open the dashboard and check it; review this branch, and ask for a pull request when ready.
 2. Each laptop session: sync the dashboard at the end (`CLAUDE.md`, end step 3). The daily task covers the days with no session.
 3. If the daily sync fails, run `az login` on the laptop, then Run now on the task.
+
+## Session 20, 2026-11-09 to 11, branch `claude/session-20-2463-reset-fidelity`
+
+Spike 0.19 (ADO 2463), on its target date. **A local session on Boroon's laptop**, in the desktop app. Started from `main` at PR 30's merge (`1176ce4`); local `main` was fast-forwarded first. Finder's `.DS_Store` files were deleted before any local check. The app was quit overnight and the session resumed on 10 November; the plan edits followed on 11 November.
+
+Done:
+- **Looked up first:**
+  - `solutioncomponent` has `createdby`;
+  - a component made without a solution context goes only into the Default Solution;
+  - `pac solution import` has `--force-overwrite` and `--publish-changes`;
+  - in 0.18's export, `Other/Solution.xml` left out two root components.
+- **The probe**, in the scratch repo `GetAI-IP/export-probe` next to 0.18's: `reset.yml`, `reset_probe.py` (a probe-only stand-in for `reset_environment.py`, not a gate script), `lane/fl1.json` (a stand-in lane manifest) and `.gitattributes`. Modes: baseline, plant, reset, unplant (not run). Local checks first, against 0.18's export and a fake lane, repeated after each change.
+- **Five runs**, every one in this session:
+  - 37428706, baseline: the finder built on `solutioncomponent.createdby` was blind (finding 3);
+  - 37558056, baseline: the rebuilt finder, which met a recycle-bin row;
+  - 37558641, baseline: clean. Its export became the reset commit `0c6e2d5`, and it was byte for byte the same as 0.18's;
+  - 37559106, plant;
+  - 37559661, reset: **pass**.
+- **Read-only checks under Boroon's sign-in**, to find out why run 1 saw nothing:
+  - the Default Solution's rows are by SYSTEM;
+  - the platform adds Default-only rows on its own;
+  - the lane holds 14 unmanaged custom columns of Microsoft's own;
+  - `solutioncomponentdefinitions` maps 220 component types to their tables;
+  - the `entity` and `attribute` tables keep no maker.
+- **Result** (`docs/plans/spike-0.19/README.md`, 12 findings):
+  - the export after the reset equalled the reset commit byte for byte, all 23 files;
+  - the import alone undid the flow change but left all three leftovers;
+  - step 4 found and deleted them;
+  - the environment variable value stayed out of the solution.
+- `docs/plans/spike-0.19/`: `README.md`, and copies of `reset.yml`, `reset_probe.py` and `lane-fl1.json` as run (scratch repo at `0c6e2d5`).
+- Tidy-up: spike 0.18's compiled `__pycache__/export_probe.cpython-315.pyc` was committed to `main` by mistake; removed, and a `.gitignore` now ignores `__pycache__/`.
+- ADO: 2463 Done, with the result and the time and tokens in its body.
+- `docs/plans/schedule.md`: 2463 done Tue 10 Nov; nothing moves.
+- **Plan edits** (`docs/sources/plan-v3.1.md`, now 2,722 lines), at Boroon's word (11 November 2026):
+  - 5.4: bootstrap step 7 (the bootstrap list); reset step 3 (values outside the solution); step 4 (how leftovers are found, the brakes, and the rule that a table or column outside the solution stops the lane for a person); step 5 (byte equality, a clean second pass, the result);
+  - 5.6: the manifest check reads the whole XML tree; the lane drift check runs the reset's finder;
+  - 11.1 row 0.19 (run and passed), 12 risk 17 (lowered), 14.4 (a new row "Reset and leftover removal") and 15.1 (the reset question settled; the 0.14 question on its own row).
+- ADO **2843** "Human check when the reset finds a table or column outside the lane solution": a User Story under 2575, predecessor 2577, related to 2463, Proposed, tagged `factory-build`, `lcp`, `stage-3`, `session-20`.
+- `docs/plans/spike-0.19/README.md`: its plan section now says what was edited, and Boroon's rule.
+- `CLAUDE.md`: a row for `docs/plans/spike-0.19/`, the 0.18 row's scratch note, the open questions, the plan row and the line map (the plan grew 12 lines).
+
+Decisions (Boroon):
+- Plant two leftovers inside the solution, a flow and a column, in the same run (9 November 2026).
+- Keep 0.18's and 0.19's scratch for spike 0.14, then delete it together (10 November 2026).
+- Edit the plan for spike 0.19 (11 November 2026).
+- A table or column found outside the lane solution, not on the bootstrap list, stops the lane for a person to check, rather than being deleted; add an ADO story for the check (11 November 2026). It is 2843.
+
+Files changed: `docs/plans/spike-0.19/README.md`, `reset.yml`, `reset_probe.py` and `lane-fl1.json` (all new); `.gitignore` (new); `docs/plans/spike-0.18/__pycache__/export_probe.cpython-315.pyc` (deleted); `docs/sources/plan-v3.1.md`; `docs/plans/schedule.md`; `CLAUDE.md`; `docs/progress.md`.
+
+Time and tokens (in 2463's body; session `47db9c0a`, measured before the closing commit): active time 1 h 20 min (gaps over 10 minutes not counted), from 09 Nov 09:28 to 11 Nov 18:23 (UTC+11). Tokens: 172,927 output; 37,832,978 processed in all, of which 35,726,883 were cache reads. From 1 local transcript. It covers the spike, the plan edits and making 2843; no other story was worked.
+
+Open items:
+- ADO 2843, the human check (Open items).
+- The scratch, kept for 0.14 (Open items).
+- Not tested in 0.19:
+  - step 1 (test data);
+  - a resume from a branch head;
+  - a connection reference bound to a connection;
+  - the refusal paths and a metadata stray on the real lane;
+  - forms and canvas apps;
+  - an environment variable value already in the solution;
+  - running with 0.10.
+
+Next steps:
+1. Boroon: review this branch. A pull request when he asks.
+2. Wed 11 and Thu 12 Nov are free on the laptop track. Thu 12 to Fri 13 Nov, documents: 2549 (cloud). Fri 13 Nov, laptop: 2433 and 2505.
+3. Mon 16 to Tue 17 Nov, laptop: spike 0.14 (2461), reusing the scratch; then delete 0.18's and 0.19's scratch at Boroon's word.
 
 ## Session 19, 2026-11-08, branch `claude/session-19-2462-yaml-export`
 
