@@ -64,7 +64,40 @@ Local checks before any run (5 November 2026, scratch harness, not committed): 4
 10. **Read a federated credential back before the first run.** Entra accepts any subject string; a lost first letter (`epo:` for `repo:`) was caught only by reading it back with `az ad app federated-credential list`.
 11. **MCP writes are attributed to the lane's application user,** like Web API writes, so audit stays per lane. They still change the environment, so the lane drift check (plan 5.5) must catch them if they skip the builders.
 12. **The tool list differs from Microsoft's page:** 15 tools on both paths, no `search_data` (needs Dataverse search), no `invoke_api`, an undocumented `create_skill_resource`. `create_record` takes `item` as an object. Agent instructions should read the tool list, not the docs.
-13. **Billing is unclear.** Reads and creates were not refused with no Copilot Credit source set up. Whether they were metered, and to what, is not checked (Power Platform admin centre, Licensing).
+13. **MCP tool calls are metered, at 0.1 Copilot Credit each, from the tenant's prepaid pool** (checked 13 November 2026, ADO 2433; section "Billing check" below). Run 3's six tool calls show as six billed rows of 0.1 credit in `factory-lane-1`. They were not refused because the environment draws from the tenant's unallocated prepaid Copilot Credit capacity by default; "no Copilot Credit source" was wrong.
+
+## Billing check (ADO 2433, 13 November 2026)
+
+Read-only, in the Power Platform admin centre under Boroon's own sign-in, from the laptop session's built-in browser. Nothing was changed. Tenant totals, other environments and people are left out here (public repo).
+
+**Where:** Licensing, Products, **Copilot Studio**, then the **Environments** tab, then `factory-lane-1` (its **Copilot Credits capacity** tab). The **Summary** tab's "Capacity consumption by product" card also lists a **Dataverse** row.
+
+**What it shows for `factory-lane-1`** (month to date, data last refreshed 12 November 2026, 11:00):
+
+| Column | Value |
+|---|---|
+| Allocated capacity | none |
+| Managed | Yes |
+| Pay-as-you-go | No |
+| Prepaid consumed | 0.6 Copilot Credits |
+| Pay-as-you-go consumed | 0 |
+| Overage | No |
+| Draw from tenant | **Yes** |
+| Last updated | 2026-11-06 |
+
+Its detail grid ("Message consumption by resource") has six rows, each: name **Dataverse MCP Server**, product Dataverse, feature **Text and generative AI tools (basic)**, billed **0.1**, non-billed 0. Channel, knowledge sources, tool invoked and LLM model are all blank. Product total: Dataverse, prepaid 0.60, pay-as-you-go 0.00.
+
+The tenant has no pay-as-you-go billing plan, and it does hold prepaid Copilot Credit capacity.
+
+**What it means:**
+
+1. **MCP calls are metered.** Six billed rows match run 3's six billed tool calls: per path, `read_query`, `create_record` and the read-back `read_query`. So `initialize` and `tools/list` are not billed, run 2's refused calls (403) are not billed, and the clean-up (Web API, not MCP) is not billed. The match is by count; the grid names no tool or run [inference].
+2. **The rate is Microsoft's stated one.** Every Dataverse MCP tool except `search_data` bills at the "text and generative AI tools (basic)" rate, 1 Copilot Credit per 10 responses ([Dataverse MCP](https://learn.microsoft.com/power-apps/maker/data-platform/data-platform-mcp), [rates](https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management)). `search_data` bills by usage at another rate; it is absent in `factory-lane-1` (Dataverse search is off).
+3. **The source is the tenant's shared prepaid pool.** "Draw from tenant" is on by default, so a lane with no allocation draws from the same unallocated prepaid capacity as everyone else's agents in the tenant, with no cap. That is why the spike's calls were not refused.
+4. **List price.** The Copilot Studio pay-as-you-go meter is USD 0.01 per credit ([meters](https://learn.microsoft.com/power-platform/admin/pay-as-you-go-meters)), so one MCP tool call is USD 0.001 at list. A story that makes 500 calls would cost USD 0.50 at list, small against the modelled USD 15 per story. The calls per story are unknown until Stage 3 [inference]. While the prepaid pool lasts, the cash cost of each call is nil at the margin.
+5. **The portal cannot feed the ledger per run.** It shows no tool, no run and no time finer than a day, and it lags by up to a day. So the night trace must count MCP tool calls per run and price them at 0.1 credit (rules 13 and 14). The environment report (Summary tab, Download report) is for a monthly check against those counts.
+6. **No cap per lane in the tenant.** Rule 13 wants a credit cap on every run. Two ways were open: (a) allocate a fixed number of credits to each lane environment and turn off "Draw from tenant" (Licensing, Copilot Studio, Manage Copilot Credits), though what Dataverse MCP does when the allocation runs out is not documented; or (b) leave the setting and have the driver stop the session at a call count. **Decided (Boroon, 13 November 2026): (b).** The driver stops the session after a set number of MCP calls (the number set from spike 0.14), retries a failed call three times, and either stop is a PARK. In the plan: 5.11, 5.14 and 14.4.
+7. **The licence exemption does not help a lane** [inference]. Microsoft exempts users with qualifying Dynamics 365 Premium licences or a Microsoft 365 Copilot licence when they reach Dynamics 365 data ([FAQ](https://learn.microsoft.com/power-apps/maker/data-platform/data-platform-mcp-faq)). A lane signs in as an application user with neither.
 
 ## Portal steps (Boroon)
 
@@ -123,7 +156,7 @@ Needs: Power Platform Administrator. The Advanced Settings page opens a list ins
 
 ### D. Only if a run asks for it
 
-- A Copilot Credit source for `factory-lane-1` (a pay-as-you-go billing policy with an Azure subscription, or prepaid capacity), if a tool call is refused for billing. A tenant setting: stop and decide.
+- A Copilot Credit source for `factory-lane-1` (a pay-as-you-go billing policy with an Azure subscription, or prepaid capacity), if a tool call is refused for billing. A tenant setting: stop and decide. (Not needed: the environment already draws from the tenant's prepaid pool; see "Billing check".)
 - Admin consent for the Dataverse CLI app, and enabling the **Dataverse CLI** client (`0c412cc3-...`) on the list, only if the local path names that app. Not expected with a federated app profile.
 
 ## Run order
@@ -177,7 +210,7 @@ Started at 03:22 UTC, about two hours after the list entry was saved.
 - **Read:** `SELECT TOP 1 name FROM organization` returned `factory-lane-1` on both paths.
 - **Create:** `create_record` on `account` replied "Created record with ID <guid>" on both paths; the read-back by name found each row.
 - **Who made the rows:** the clean-up found both by `_createdby_value` = `getai-fl1-exec`'s application user. So MCP writes are attributed to the lane's own identity, which keeps audit per lane.
-- **Billing:** neither the reads nor the creates were refused, though no Copilot Credit source was set up for `factory-lane-1`. Whether they were metered is not checked yet.
+- **Billing:** neither the reads nor the creates were refused, though no Copilot Credit source was set up for `factory-lane-1`. Whether they were metered is not checked yet. **Checked 13 November 2026: they were metered** (section "Billing check" below).
 - **Clean-up:** "Probe rows created by this app user: 2", each deleted with HTTP 204, "Probe rows left: 0". Checked again afterwards, read-only under Boroon's own sign-in: no `account` row starting `spike-0.3`, and the `account` table is empty.
 - No token-shaped string (`eyJ`) in the log. Profiles cleared.
 
