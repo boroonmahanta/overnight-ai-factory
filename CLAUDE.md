@@ -35,7 +35,7 @@ End:
 |---|---|
 | `CLAUDE.md` | This map |
 | `docs/progress.md` | Running log and next steps. Read second, update last |
-| `docs/sources/plan-v3.1.md` | The main plan, "Lock the Gate, Pool the Lanes, Merge by Day", V3.1, 1 November 2026. 2,722 lines. Edited in place since, each time at Boroon's word; the largest edit is live build in lane B (low-code), 7 November 2026 (Session 15). Session 16 added time and tokens per story on every engine (rule 13, 10.1 to 10.3, spike 0.20, Appendix D). Session 17 added the day-gate decisions D1 to D6 (6.1, 5.8, 5.12, 11.2, 14.4), including the Spec Kit pin, now 1.3.x. Session 19 made the XML layout the low-code lane's solution source after spike 0.18 (5.6, 8.1, 11.1, risk 12, 14.4, Appendices A, B.1 and C). Session 20 edited the reset for spike 0.19: how leftovers are found, the bootstrap list, the rule that a table or column outside the solution stops the lane for a person (ADO 2843), byte equality, the whole-tree manifest check (5.4, 5.6, 11.1, risk 17, 14.4, 15.1). Session 22 edited three lines for Dataverse MCP billing after ADO 2433: 0.1 Copilot Credit a call, from the tenant's prepaid pool, with the cap per lane open (5.6, 5.14, 15.1) |
+| `docs/sources/plan-v3.1.md` | The main plan, "Lock the Gate, Pool the Lanes, Merge by Day", V3.1, 1 November 2026. 2,722 lines. Edited in place since, each time at Boroon's word; the largest edit is live build in lane B (low-code), 7 November 2026 (Session 15). Session 16 added time and tokens per story on every engine (rule 13, 10.1 to 10.3, spike 0.20, Appendix D). Session 17 added the day-gate decisions D1 to D6 (6.1, 5.8, 5.12, 11.2, 14.4), including the Spec Kit pin, now 1.3.x. Session 19 made the XML layout the low-code lane's solution source after spike 0.18 (5.6, 8.1, 11.1, risk 12, 14.4, Appendices A, B.1 and C). Session 20 edited the reset for spike 0.19: how leftovers are found, the bootstrap list, the rule that a table or column outside the solution stops the lane for a person (ADO 2843), byte equality, the whole-tree manifest check (5.4, 5.6, 11.1, risk 17, 14.4, 15.1). Session 22 edited it for Dataverse MCP billing after ADO 2433: 0.1 Copilot Credit a call, from the tenant's prepaid pool, capped per session by a call count in the driver, with three retries on a failed call and a PARK on either stop, and MCP costed per run in the ledger (5.6, 5.11, 5.14, 10.2, 10.5, 14.4, 15.1) |
 | `docs/sources/plan-v3.md` | The previous version, V3, 1 November 2026. 1,976 lines. Superseded by V3.1. Kept only to see what changed. V3 differs from V3.1 in: Wayfinder named the planning agent (now Story Planner); auto-merge framed as "Phase 4" (now the trust ladder L0 to L3); one evaluator per PR (now one to three verifiers); one review pass (now two); no `lcp-verify`, outer loop, gardening or prototypes; cost USD 11 per story and USD 144 accepted (now about 15 and 150); a Test queue of 30 minutes per PR (now about 36) |
 | `docs/sources/uploaded-plan-software-factory.md` | Boroon's original plan (also as `.docx`). Part A: "End-to-End Specification: The GET AI Microsoft Software Factory". Part B: "Copilot Studio Agents & App Builds". 320 lines. Section 14.1 of the main plan lists every change made to it |
 | `docs/sources/transcript-anthropic-agents-run-for-hours.md` | Anthropic workshop, "How to Build Agents That Run for Hours". 1,213 lines |
@@ -87,7 +87,7 @@ Everything the plan cites is now in the repo. Boroon supplied the full research 
 
 ## Where to find what in the main plan
 
-Line numbers are as at 11 November 2026 (Session 20, after spike 0.19). If the file has changed, run `grep -n '^## ' docs/sources/plan-v3.1.md`.
+Line numbers are as at 13 November 2026 (Session 22, after ADO 2433). If the file has changed, run `grep -n '^## ' docs/sources/plan-v3.1.md`.
 Read by line range, for example offset 379 and limit 200.
 
 | Lines | Section |
@@ -106,13 +106,13 @@ Read by line range, for example offset 379 and limit 200.
 | 1419 to 1465 | 11. Staged build plan, stage 0 spikes (20), stages 1 to 9 |
 | 1466 to 1503 | 12. Risks, most serious first (33) |
 | 1504 to 1519 | 13. Accelerator and IP |
-| 1520 to 1601 | 14. Decision log (14.4 holds the decisions after V3.1: live build, the precedence rule, ADO projects, assessment items, the day gate (D1 to D6), time and tokens per story, the XML source layout (spike 0.18), the reset and leftover removal (spike 0.19)) |
-| 1602 to 1642 | 15. Open questions and evidence quality |
-| 1643 to 2210 | Appendix A: gate workflow YAML (untested; tags shown, `factory-gates` holds commit pins). `map` and `locks` match `factory-gates` as at Build 3, 3 November 2026. Since 7 November 2026 (live build) the plan is ahead of `factory-gates` in four places: `build` runs only generator-backed builders and packs the XML source layout (spike 0.18), `static` runs the export-diff plan (`plan_from_export.py`), and `verify-in-test` no longer runs the two Test plan scripts. Since 4 November 2026 it sets up .NET `10.0.x` (spike 0.2), as `factory-gates` does since gate PR 12 |
-| 2211 to 2351 | Appendix B: Merge Danger rubric (B.1 low-code path rules, on the XML layout's folders), verifier count, `trust.yml` |
-| 2352 to 2641 | Appendix C: agent definitions, `AGENTS.md`, `lcp-verify` skill, PR body template |
-| 2642 to 2703 | Appendix D: ADO fields (including Work Size, AI Tokens, Agent Minutes, and human minutes split into spec, review and PARK) and states |
-| 2704 to 2722 | Appendix E: sources used |
+| 1520 to 1602 | 14. Decision log (14.4 holds the decisions after V3.1: live build, the precedence rule, ADO projects, assessment items, the day gate (D1 to D6), time and tokens per story, the XML source layout (spike 0.18), the reset and leftover removal (spike 0.19), Dataverse MCP credits per lane (2433)) |
+| 1603 to 1643 | 15. Open questions and evidence quality |
+| 1644 to 2211 | Appendix A: gate workflow YAML (untested; tags shown, `factory-gates` holds commit pins). `map` and `locks` match `factory-gates` as at Build 3, 3 November 2026. Since 7 November 2026 (live build) the plan is ahead of `factory-gates` in four places: `build` runs only generator-backed builders and packs the XML source layout (spike 0.18), `static` runs the export-diff plan (`plan_from_export.py`), and `verify-in-test` no longer runs the two Test plan scripts. Since 4 November 2026 it sets up .NET `10.0.x` (spike 0.2), as `factory-gates` does since gate PR 12 |
+| 2212 to 2352 | Appendix B: Merge Danger rubric (B.1 low-code path rules, on the XML layout's folders), verifier count, `trust.yml` |
+| 2353 to 2642 | Appendix C: agent definitions, `AGENTS.md`, `lcp-verify` skill, PR body template |
+| 2643 to 2704 | Appendix D: ADO fields (including Work Size, AI Tokens, Agent Minutes, and human minutes split into spec, review and PARK) and states |
+| 2705 to 2723 | Appendix E: sources used |
 
 The two transcripts are already digested in plan sections 3.5 (workshop) and 3.6 (Spec Kit). Read the full text only when quoting.
 
@@ -259,7 +259,7 @@ The 45 days build the factory. They move no project up a trust rung. Do not star
 
 - ~~Does `pac --githubFederated` work on GHE.com and in ruleset workflows?~~ Yes, within one org (spike 0.2, 4 November 2026). Across orgs, with the callers build.
 - Which Copilot features work on GHE.com, and which billing identity for the CLI? (Platform team and Boroon, spike 0.6)
-- ~~Does Dataverse MCP accept an app-only token?~~ Yes, through the local proxy and the remote endpoint, once the app is on the environment's allowed MCP clients list (spike 0.3, 6 November 2026). Each tool call is billed 0.1 Copilot Credit (USD 0.001 at list), drawn uncapped from the tenant's shared prepaid pool (ADO 2433, 13 November 2026). How to cap it per lane: Boroon, before Stage 3.
+- ~~Does Dataverse MCP accept an app-only token?~~ Yes, through the local proxy and the remote endpoint, once the app is on the environment's allowed MCP clients list (spike 0.3, 6 November 2026). Each tool call is billed 0.1 Copilot Credit (USD 0.001 at list), drawn from the tenant's shared prepaid pool (ADO 2433, 13 November 2026). Boroon's cap, the same day: the driver stops the session at a set number of MCP calls (the number from spike 0.14), retries a failed call three times, and either stop PARKs.
 - ~~Does a headless export write YAML as the lane identity?~~ No: XML only, on pac 2.14.1 and 2.4.1; the XML layout is used (spike 0.18, 8 November 2026).
 - ~~Under live build, does the reset leave the lane equal to `integration`?~~ Yes, byte for byte, for a table, column, flow, role, environment variable and connection reference (spike 0.19, 10 November 2026). Forms, canvas apps and metadata made outside the solution are still open.
 - Do flows by the Web API, the App Spec apply and FlowAgent work as the lane identity? (Platform team, spike 0.14, before Stage 3)

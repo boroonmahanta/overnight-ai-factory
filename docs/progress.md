@@ -80,8 +80,7 @@ Next steps:
 - **The follow-ups in `GetAI-IP/factory-gates` are done in PR 7** (Session 10), merged 4 November 2026: README step 9 and the move marked done, the `dependabot.yml` comment, and next slice 2, the self-test workflow.
 - **`self-test` is not a required status check** on `release-protection`. **Boroon, 4 November 2026: turn it on when someone other than him starts working on the factory**, with the second-approver changes above. The change: in `release-protection`, add "Require status checks to pass" with the check `self-test`, source GitHub Actions; leave "require branches to be up to date" off. Until then `self-test` is advice, not a lock: a pull request into `release` can merge with it red, so check it is green before merging, Dependabot pull requests included.
 - **The allowed MCP client entry for `getai-fl1-exec` stays in `factory-lane-1`** (Boroon, 6 November 2026, Session 13): name `getai-fl1-exec`, unique name `new_getaifl1exec`, enabled. It grants nothing while the app has no credential. At Stage 3, either keep it or replace it with one added by code (a GET AI solution with the `getai` publisher, or `dataverse mcp allow`), and give lanes 2 and 3 theirs the same way. The list as it was before the spike is in `docs/plans/spike-0.3/README.md`, step B.
-- **How to cap a lane's Copilot Credits is not decided** (Boroon; found by ADO 2433, Session 22, 13 November 2026). Dataverse MCP calls are metered at 0.1 credit each, and a lane with no allocation draws from the tenant's shared prepaid pool with no cap ("Draw from tenant" on, the default). Rule 13 wants a credit cap on every run. Options: (a) allocate a fixed number of credits to each lane environment and turn off "Draw from tenant" (a tenant setting; what Dataverse MCP does when the allocation runs out is undocumented and needs a trial); (b) leave it and have the driver stop the session at a call count. Decide before Stage 3. Either way the night trace counts MCP calls per run for the ledger. Detail: `docs/plans/spike-0.3/README.md`, "Billing check".
-- **Two more plan places still treat Dataverse MCP as a fixed monthly line** (seen Session 22, not edited): the ledger table's `fact_fixed_cost` row in 10.2 (around line 1316) and "Fixed Power Platform lines to price (not researched)" in 10.4 (around line 1415). The price is now known (0.1 Copilot Credit a call), and the calls can be counted per run, so they may belong in `fact_cost_line` as `lcp_meter` per run (10.2 already lists that category). Edit at Boroon's word, with the cap decision above.
+- **The lane's MCP cap is a call count in the driver** (Boroon, 13 November 2026, Session 22; plan 5.11, 5.14, 14.4). Dataverse MCP calls are billed 0.1 Copilot Credit each from the tenant's shared prepaid pool. "Draw from tenant" stays on, with no allocation per lane. The driver counts each session's MCP calls, stops at a cap per session held in the lane config, and retries a failed call up to three times; either stop is a PARK. Still to settle, in spike 0.14 (2461) and the Stage 3 driver spec: the cap's number (from the calls 0.14 counts); how the driver counts and retries (for example a stdio shim in front of the local proxy); which errors are safe to retry, since a retried create whose answer was lost could write twice; and the PARK type for a call that still fails (`budget` is for the cap).
 - **The gate installs Copilot CLI unpinned** (seen in Session 13, not changed): `lcp-gate.yml` on `release`, `verify-in-test`, runs `npm install --global @github/copilot` with no version or hash. Spike 0.3 shows a pattern that works on a hosted runner for a package with no dependencies: fetch the tarball, check it against the registry's `sha512`, `npm install --global --offline --ignore-scripts` from the file. Check first whether `@github/copilot` has dependencies (if so, pin with a lockfile instead). A gate slice, by pull request there.
 - **Sources are complete.** Boroon uploaded the whole research folder as a zip. Every file was checked by checksum against the repo, duplicates were skipped, and the rest were added. The other session ("Overnight AI software factory", id `session_019bVvHWrUECf7G5YiXU3fKW`) is no longer needed for sources and can be deleted.
 - **Not read in full.** The files added from the zip were saved but not read in this session: the reports V1 and V2, the runtime and costs note, the eight GitHub and Azure notes, the five Power Platform notes and the one-pager. The five workshop slide images were saved but not viewed. The plan condenses most of them. Read one only when a task needs its detail.
@@ -119,23 +118,34 @@ Done:
 - ADO 2433 moved to Done, with the result and this session's time and tokens in its body.
 - `docs/plans/schedule.md`: 2433 done Fri 13 Nov. `CLAUDE.md`: the open question on Dataverse MCP now gives the billing answer.
 
-- **The plan is edited for the result** (three lines, at Boroon's word, 13 November 2026): 5.6's table row for `/api/mcp`, "Other meters" in 5.14, and the 15.1 row on Dataverse MCP. Each now gives the rate, the check and the open cap question. No lines added, so the line map in `CLAUDE.md` holds.
+- **The plan is edited for the result** (three lines, at Boroon's word, 13 November 2026): 5.6's table row for `/api/mcp`, "Other meters" in 5.14, and the 15.1 row on Dataverse MCP. Each now gives the rate and the check.
 
-Decisions (Boroon, 13 November 2026): edit the plan's three billing lines. Nothing in the tenant was changed.
+- **The cap decision and the ledger are edited into the plan** (at Boroon's word, later the same day):
+  - 5.14 states the cap; 5.11 makes both stops a PARK, an exception to "stops that are not a PARK"; 5.6's row and 15.1 point to it; 14.4 has a new row.
+  - 10.2: `fact_run` gains `mcp_calls`; Dataverse MCP leaves `fact_fixed_cost` and is costed per run as `lcp_meter`, checked monthly against the admin centre's report.
+  - 10.5 (not 10.4, as first said): MCP leaves the fixed lines and is priced per call.
+  - The plan is one line longer (the 14.4 row), so the line map in `CLAUDE.md` is updated from section 14 on.
+- **ADO:** 2433's body has the decision and the plan edit. 2461 (spike 0.14) gains three items: count MCP calls per session to set the cap, try a way for the driver to count and retry, and find which MCP errors are safe to retry.
+
+Decisions (Boroon, 13 November 2026):
+- Edit the plan's billing lines.
+- **The lane's MCP cap:** leave "Draw from tenant" on; the driver stops the session after a set number of MCP calls, the number set from spike 0.14; a failed call is retried three times; either stop is a PARK.
+- Cost Dataverse MCP per run in the ledger, not as a fixed monthly line.
+
+Nothing in the tenant was changed.
 
 Files changed: `docs/plans/spike-0.3/README.md`, `docs/sources/plan-v3.1.md`, `docs/plans/schedule.md`, `CLAUDE.md`, `docs/progress.md`.
 
 Time and tokens (for 2433's body; session `2a17603a`, measured before the closing commit): active time 0 h 04 min (gaps over 10 minutes not counted), from 13 Nov 16:05 to 13 Nov 16:09 (UTC+11). Tokens: 16,073 output; 4,669,608 processed in all, of which 4,444,669 were cache reads. From 1 local transcript(s). Added to 2433's body. Measured early, before the record and commit, so the real figures are a little higher.
 
 Open items:
-- How to cap a lane's Copilot Credits (Open items). Boroon to decide before Stage 3.
-- Two more plan places that treat Dataverse MCP as a fixed monthly line (Open items). At Boroon's word.
+- What spike 0.14 and the driver spec must settle for the MCP cap (Open items).
 - The ADO updates for 2549, left by Session 21, are still not made (Open items).
 
 Next steps:
 1. Boroon: review this branch. A pull request when he asks.
 2. Fri 13 Nov, laptop: 2505 (Dependabot PRs #9 to #11) and the ADO updates for 2549.
-3. Mon 16 to Tue 17 Nov, laptop: spike 0.14 (2461). It can also count MCP calls per run, as a first try at the ledger count.
+3. Mon 16 to Tue 17 Nov, laptop: spike 0.14 (2461). It now also counts MCP calls per story, to set the cap, and checks which MCP errors are safe to retry.
 
 ## Session 21, 2026-11-11, branch `claude/session-21-2549-skills-policy`
 
