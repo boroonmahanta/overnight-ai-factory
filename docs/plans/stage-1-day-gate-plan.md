@@ -18,7 +18,7 @@ Left out: the gate scripts (2538). Their order waits on spike 0.18 (2462, Monday
 - None of these pieces existed when this plan was written. The plan describes them in 6.1 to 6.4, 5.8 and 7.3. The DG1 templates exist since 7 November (Session 18).
 - Two live skills already hold the formats we need: `getai-domain-modeling` (the `glossary.md` and ADR formats, adapted 2 November 2026) and `getai-grilling` (the grilling rules). Use them; do not write new formats.
 - The Get AI Engineer's material is the default where the plan does not settle a point (plan 14.4). From the delivery vault copy (`docs/sources/delivery-vault/`): the solution design, build handoff and backlog coverage templates, and the rule that business designs stay in SharePoint, approved by exact version. From the older ADO vault (laptop only): the 46 standards, the retro and "suggest patterns and skills" workflows, the design template and the per-story build brief.
-- `GetAI-IP/factory-manifestos` does not exist yet. It is created in DG3.
+- `GetAI-IP/factory-manifestos` exists since 13 November 2026 (DG3, Session 23): private, default branch `main`, with the repo ruleset `main-protection`.
 
 ## Decisions (Boroon, 7 November 2026)
 
@@ -110,6 +110,8 @@ Read: plan 7.3 (lines 1136 to 1142), spike 0.17 (line 1435).
 Done when: a readable transcript without client data exists for each tool, and the how-to is ready for the checkpoint on Friday 20 November.
 
 ### DG3. The coding standards seed and the older vault's methods (2545, part 2). Friday 20 November. Laptop
+
+**Run 13 November 2026** (Session 23, brought forward from 20 November): `GetAI-IP/factory-manifestos` created, with `main-protection` (pull request required, 0 approvals until a second approver, no deletion, no force push), at Boroon's word. Pull request 1 there adds `practices/lcp/coding-standards.md`: 50 standards, not 46, because Boroon kept the vault's four client-token standards (`TOK`). Waiting for Boroon to merge. The notes for DG4 and DG6 are in `docs/progress.md`, Session 23. Step 5 waits for DG2. The eight flow patterns were not read in full (their names are noted); read them when `lcp-flow-patterns` is built.
 
 Read: plan 5.10 (line 782), 5.12 (lines 881 and 894); assessment rows 10, 11, 14, 18, 19 and 20 (`docs/analysis/delivery-vault-assessment.md`).
 
