@@ -121,7 +121,7 @@ Read: plan 5.10 (line 782), 5.12 (lines 881 and 894); assessment rows 10, 11, 14
 4. Write into the progress entry, for DG4 and DG6: the design template's sections (for the `getai-lcp` plan template), the build brief's sections (for `handoff/`), and the retro workflow's rules (for mining), each anonymised.
 5. Checkpoint, same day: send the engineers the DG2 how-to and ask for their exports.
 
-Done when: `coding-standards.md` is merged in `factory-manifestos` with all 46 standards and none names a client. The "rule" lints are not written here: they are gate scripts (plan 5.7), for 2538 or a later slice.
+Done when: `coding-standards.md` is merged in `factory-manifestos` with all 50 standards (the 46 plus the four `TOK`, Boroon, 13 November 2026) and none names a client. The "rule" lints are not written here: they are gate scripts (plan 5.7), for 2538 or a later slice.
 
 ### DG4. Spec Kit pin and the two presets (2544, part 1). Monday 23 and Tuesday 24 November. Cloud
 

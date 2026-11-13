@@ -49,7 +49,7 @@ Next steps:
 
 ## Open items
 
-- **`factory-manifestos` pull request 1 waits for Boroon** (Session 23): https://getai.ghe.com/GetAI-IP/factory-manifestos/pull/1, the 50 low-code standards. After the merge, move 2545 to Done. Also still open from DG3: the plan says 46 standards (5.10, 5.12), not 50, and needs Boroon's word to change; Boroon to ask the Get AI Engineer to review the standards (not blocking); `main-protection` there is a second-approver stopgap that 2520 must raise to 1 approval.
+- **`factory-manifestos` pull request 1 waits for Boroon** (Session 23): https://getai.ghe.com/GetAI-IP/factory-manifestos/pull/1, the 50 low-code standards. After the merge, move 2545 to Done. The plan now says 50 (5.10, 5.12 and a 14.4 row, edited at Boroon's word, Session 23). Also still open from DG3: Boroon to ask the Get AI Engineer to review the standards (not blocking); `main-protection` there is a second-approver stopgap that 2520 must raise to 1 approval.
 - **Done: ADO updates for 2549, left by Session 21.** Seen in Session 22 (13 November 2026): another laptop session made them that day. 2549 is Done, dated Wed 11 Nov, with its result and Session 21's time-and-tokens line in its body. Kept here one session for the record.
 - **The first component register review is on Monday 23 November 2026,** with the Ignite re-check and A1's first pass. For each row of `docs/component-register.md`, check the source for changes since its pin (the file says how) and update "Last checked". Also look at: the five principle fragments, whether skills and plugins installed on the claude.ai account belong in the register, and the A1 kits as new rows.
 - **`poteto-mode` is not read in full** (shelf only): its `watch-pr` code and tests, and most of `check-plan.mjs` and `worktree-audit.sh`. Read them before any adoption (rule 19).
@@ -168,14 +168,16 @@ Decisions (Boroon, 13 November 2026):
 - Run DG3 now, not on Fri 20 Nov.
 - Protect `factory-manifestos` like `factory-gates`: its own ruleset, 0 approvals until a second approver.
 - Keep the vault's four client-token standards: 50 standards, not 46.
+- Edit the plan for it ("Yes, edit the plan").
 
-Files changed: `staging/README.md`, `staging/factory-manifestos/README.md`, `docs/plans/stage-1-day-gate-plan.md`, `docs/plans/schedule.md`, `CLAUDE.md`, `docs/progress.md`. On GHE: the new repo, its ruleset and pull request 1.
+**The plan is edited** (at Boroon's word, later the same day): 5.10's low-code seed now says 50 (37 rule, 13 judgement) and names `GetAI-IP/factory-manifestos`, `practices/lcp/coding-standards.md`; 5.12's table row says 50; 14.4 has a new row, "The low-code standards seed". The plan is one line longer, so `CLAUDE.md`'s line map is updated from section 14 on. DG3's "done when" in the day-gate plan and 2545's row in the schedule say 50 too. The 14.4 rows of 7 November (assessment item 8, D1) still say 46: they record what was decided then.
+
+Files changed: `staging/README.md`, `staging/factory-manifestos/README.md`, `docs/plans/stage-1-day-gate-plan.md`, `docs/plans/schedule.md`, `docs/sources/plan-v3.1.md`, `CLAUDE.md`, `docs/progress.md`. On GHE: the new repo, its ruleset and pull request 1.
 
 Time and tokens (for 2545's body; session `8f7174db`, measured before the closing commit): active time 0 h 13 min (gaps over 10 minutes not counted), from 13 Nov 16:34 to 13 Nov 16:47 (UTC+11). Tokens: 50,755 output; 7,115,525 processed in all, of which 6,870,749 were cache reads. From 1 local transcript.
 
 Open items:
 - Boroon to review and merge pull request 1 in `factory-manifestos`. 2545 moves to Done then.
-- The plan still says 46 standards (34 rule, 12 judgement) in 5.10 and 5.12, and 14.4 may too. It needs Boroon's word to change.
 - Ask the Get AI Engineer to review the standards (assessment section 6, question 2). Their review does not block the merge. Boroon to ask.
 - `main-protection` in `factory-manifestos` is a second-approver stopgap, like `release-protection`. 2520 must raise it to 1 approval too.
 
