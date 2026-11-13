@@ -138,14 +138,14 @@ Files changed: `docs/plans/spike-0.3/README.md`, `docs/sources/plan-v3.1.md`, `d
 
 Time and tokens (for 2433's body; session `2a17603a`; the check, the plan edits, pull request 33 and the ADO updates; measured before the closing commit): active time 0 h 24 min (gaps over 10 minutes not counted), from 13 Nov 16:05 to 13 Nov 16:29 (UTC+11). Tokens: 54,482 output; 13,527,017 processed in all, of which 13,187,821 were cache reads. From 1 local transcript(s). In 2433's body, replacing an early 4-minute reading.
 
-Pull request 33 (https://github.com/boroonmahanta/overnight-ai-factory/pull/33) is open into `main` for Boroon to merge.
+Pull request 33 (https://github.com/boroonmahanta/overnight-ai-factory/pull/33), the first three commits, was merged into `main` by Boroon on 13 November 2026 at 16:29 (merge commit `968201d`). The later commits on this branch (this log fix, the refreshed time and tokens) are not in it.
 
 Open items:
 - What spike 0.14 and the driver spec must settle for the MCP cap (Open items).
 - 2549's ADO updates, left by Session 21: found already made by another laptop session the same day (Open items).
 
 Next steps:
-1. Boroon: review this branch. A pull request when he asks.
+1. Done: PR 33 merged. The branch's later commits need a second pull request, when Boroon asks.
 2. Fri 13 Nov, laptop: 2505 (Dependabot PRs #9 to #11).
 3. Mon 16 to Tue 17 Nov, laptop: spike 0.14 (2461). It now also counts MCP calls per story, to set the cap, and checks which MCP errors are safe to retry.
 
