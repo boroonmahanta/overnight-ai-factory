@@ -29,7 +29,7 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 | Sat 7 Nov | Sat 7 Nov | 2545 | Templates: `glossary.md`, `docs/adr/`, `coding-standards.md` header (day-gate DG1, in `staging/`; brought forward from Thu 12 Nov) | Documents | 2543 | **Done 7 Nov** (Session 18; `staging/`) |
 | Wed 11 Nov | Wed 11 Nov | 2549 | Apply the third-party skills policy to every vendored skill (moved from Thu 19 to Fri 20 Nov, then brought forward from Thu 12 to Fri 13 Nov) | Documents | | **Done 11 Nov** (Session 21; `docs/analysis/skills-policy-check.md`, `docs/component-register.md`) |
 | Fri 13 Nov | Fri 13 Nov | 2433 | Check Dataverse MCP billing for `factory-lane-1` | Laptop (portal) | | **Done 13 Nov** (Session 22; `docs/plans/spike-0.3/README.md`, "Billing check": metered, 0.1 Copilot Credit a call, from the tenant's prepaid pool) |
-| Fri 13 Nov | Fri 13 Nov | 2505 | Review and merge Dependabot PRs #9, #10 and #11 | Laptop | | |
+| Fri 13 Nov | Fri 13 Nov | 2505 | Review and merge Dependabot PRs #9, #10 and #11 | Laptop | | **Done 13 Nov** (Session 24; #10 and #11 were superseded on 9 Nov by #14 and #13; Boroon merged #9, #13 and #14) |
 | Mon 16 Nov | Tue 17 Nov | 2461 | Spike 0.14: skills and lane tools headless, as the lane identity | Laptop | 2462 | |
 | Wed 18 Nov | Thu 19 Nov | 2511 | Bring `factory-gates` in line with the live-build plan | Laptop | 2462 | |
 | Wed 18 Nov | Wed 18 Nov | 2466 | Spike 0.17: session export for mining (DG2; the export how-to and the SharePoint folder) | Laptop (apps only, no tenant) | | |
@@ -87,3 +87,4 @@ Date them when Stage 4 ends.
 - **10 November 2026 (Session 20, laptop).** 2463 (spike 0.19) done on Tue 10 Nov, on its target date. Nothing moves. Wed 11 and Thu 12 Nov stay free on the laptop track. ADO: 2463 Done.
 - **11 November 2026 (Session 21, cloud).** 2549 done on Wed 11 Nov, in one day, a day before its Thu 12 to Fri 13 Nov slot. Nothing waits on it, so nothing moves. Thu 12 and Fri 13 Nov are now free on the documents track; Fri 13 Nov keeps 2433 and 2505 on the laptop. ADO is not yet updated (cloud session): the next laptop session moves 2549 to Done, dates it Wed 11 Nov, and adds Session 21's time and tokens to its body.
 - **13 November 2026 (Session 22, laptop).** 2433 done on Fri 13 Nov, on its target date. Nothing moves. ADO: 2433 Done. 2549's ADO updates were made the same day by another laptop session.
+- **13 November 2026 (Session 24, laptop).** 2505 done on Fri 13 Nov, on its target date. Nothing moves. ADO: 2505 Done, its three tasks Closed, and 2507 and 2508 renamed for #14 and #13.
