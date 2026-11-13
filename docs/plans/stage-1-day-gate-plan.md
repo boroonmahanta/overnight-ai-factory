@@ -111,7 +111,7 @@ Done when: a readable transcript without client data exists for each tool, and t
 
 ### DG3. The coding standards seed and the older vault's methods (2545, part 2). Friday 20 November. Laptop
 
-**Run 13 November 2026** (Session 23, brought forward from 20 November): `GetAI-IP/factory-manifestos` created, with `main-protection` (pull request required, 0 approvals until a second approver, no deletion, no force push), at Boroon's word. Pull request 1 there adds `practices/lcp/coding-standards.md`: 50 standards, not 46, because Boroon kept the vault's four client-token standards (`TOK`). Waiting for Boroon to merge. The notes for DG4 and DG6 are in `docs/progress.md`, Session 23. Step 5 waits for DG2. The eight flow patterns were not read in full (their names are noted); read them when `lcp-flow-patterns` is built.
+**Run 13 November 2026** (Session 23, brought forward from 20 November): `GetAI-IP/factory-manifestos` created, with `main-protection` (pull request required, 0 approvals until a second approver, no deletion, no force push), at Boroon's word. Pull request 1 there adds `practices/lcp/coding-standards.md`: 50 standards, not 46, because Boroon kept the vault's four client-token standards (`TOK`). **Merged by Boroon on 13 November 2026** (merge commit `fd2e268`), so 2545 is done. The notes for DG4 and DG6 are in `docs/progress.md`, Session 23. Step 5 waits for DG2. The eight flow patterns were not read in full (their names are noted); read them when `lcp-flow-patterns` is built.
 
 Read: plan 5.10 (line 782), 5.12 (lines 881 and 894); assessment rows 10, 11, 14, 18, 19 and 20 (`docs/analysis/delivery-vault-assessment.md`).
 

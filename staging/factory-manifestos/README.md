@@ -13,7 +13,7 @@ The repo holds, per practice: a `coding-standards.md`, an `AGENTS.md` fragment, 
 | `templates/project/coding-standards.md` | The header only: who reads the file, "rule" and "judgement", how it changes | DG1 (2545), done |
 | `spec-kit/` | The `getai` and `getai-lcp` presets, the `getai-spec-check` extension and the `getai-lcp` bundle | DG4 and DG5 (2544), not started |
 | `conventions/` | `locked-scenarios.md` and `scenario.schema.json` | DG7 (2546), not started |
-| `practices/lcp/coding-standards.md` | The low-code standards, 50 with their own IDs, anonymised. **On GHE only, never here** | DG3 (2545), pull request 1 in `GetAI-IP/factory-manifestos` |
+| `practices/lcp/coding-standards.md` | The low-code standards, 50 with their own IDs, anonymised. **On GHE only, never here** | DG3 (2545), done: pull request 1 in `GetAI-IP/factory-manifestos`, merged 13 November 2026 |
 
 The coding standards themselves are not here. The low-code standards went straight to the GHE repo (DG3, 2545, 13 November 2026), never to this public repo.
 

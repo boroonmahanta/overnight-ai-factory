@@ -42,14 +42,14 @@ Next steps:
 - Spikes 0.2, 0.3, 0.18 and 0.19 are the only plan items tested on real services. Every other item marked `[untested]` in the plan is still untested. The plan is edited for spike 0.2's result (11 lines, Session 12), spike 0.3's (9 lines, Session 13), the live-build decision (Session 15), spike 0.18's result (Session 19) and spike 0.19's (Session 20), each at Boroon's word.
 - **The rest of Stage 1's day gate is planned** (Session 17, 7 November 2026, a cloud session): `docs/plans/stage-1-day-gate-plan.md`, nine build sessions DG1 to DG9 for 2545, 2544, 2546 and 2548 with spike 0.17, dated 12 November to 15 December. Boroon decided D1 to D6, and the plan is edited for them. The gate scripts (2538) wait on spike 0.18.
 - **DG1 is done** (Session 18, 7 November 2026, a cloud session, brought forward from 12 November): `staging/` with its README, and `staging/factory-manifestos/` with its README and the three project templates (`glossary.md`, `docs/adr/README.md`, the `coding-standards.md` header). 2545 stays open until DG3 (Friday 20 November).
-- **DG3 is run** (Session 23, 13 November 2026, a week early): `GetAI-IP/factory-manifestos` exists on `getai.ghe.com` (private, ruleset `main-protection`), and its pull request 1 adds the low-code coding standards, 50 with the vault's client-token ones kept, anonymised. 2545 is done when Boroon merges it.
+- **DG3 is run** (Session 23, 13 November 2026, a week early): `GetAI-IP/factory-manifestos` exists on `getai.ghe.com` (private, ruleset `main-protection`), and its pull request 1, merged by Boroon on 13 November 2026, holds the low-code coding standards: 50 with the vault's client-token ones kept, anonymised. 2545 is Done.
 - **The third-party skills policy (plan 8.3) is applied to every vendored skill** (Session 21, 11 November 2026, a cloud session, ADO 2549): `docs/analysis/skills-policy-check.md`. All 56 shelf skills match upstream at their pins, all are MIT, and all but `poteto-mode` (shelf only) are read in full. The register's rows now have a file, `docs/component-register.md`, and the shelf holds each source's licence text. All 44 live skills name their source commit in their first lines.
 - Boroon said more context will be added in later sessions.
 - Work is sized with T-shirt sizes (XS to XL), approved on 1 November 2026. See `CLAUDE.md`.
 
 ## Open items
 
-- **`factory-manifestos` pull request 1 waits for Boroon** (Session 23): https://getai.ghe.com/GetAI-IP/factory-manifestos/pull/1, the 50 low-code standards. After the merge, move 2545 to Done. The plan now says 50 (5.10, 5.12 and a 14.4 row, edited at Boroon's word, Session 23). Also still open from DG3: Boroon to ask the Get AI Engineer to review the standards (not blocking); `main-protection` there is a second-approver stopgap that 2520 must raise to 1 approval.
+- **Done: `factory-manifestos` pull request 1 merged** (Session 23): https://getai.ghe.com/GetAI-IP/factory-manifestos/pull/1, the 50 low-code standards, merged by Boroon on 13 November 2026 (`fd2e268`); 2545 is Done in ADO. The plan now says 50 (5.10, 5.12 and a 14.4 row, edited at Boroon's word, Session 23). Also still open from DG3: Boroon to ask the Get AI Engineer to review the standards (not blocking); `main-protection` there is a second-approver stopgap that 2520 must raise to 1 approval.
 - **Done: ADO updates for 2549, left by Session 21.** Seen in Session 22 (13 November 2026): another laptop session made them that day. 2549 is Done, dated Wed 11 Nov, with its result and Session 21's time-and-tokens line in its body. Kept here one session for the record.
 - **The first component register review is on Monday 23 November 2026,** with the Ignite re-check and A1's first pass. For each row of `docs/component-register.md`, check the source for changes since its pin (the file says how) and update "Last checked". Also look at: the five principle fragments, whether skills and plugins installed on the claude.ai account belong in the register, and the A1 kits as new rows.
 - **`poteto-mode` is not read in full** (shelf only): its `watch-pr` code and tests, and most of `check-plan.mjs` and `worktree-audit.sh`. Read them before any adoption (rule 19).
@@ -121,7 +121,7 @@ Done:
   - the vault's records mapped to the factory's (decision records in `docs/adr/`, the spec and plan for the SDD, flow patterns by name);
   - Australian English, no em-dashes.
   
-  Checked before the push: 50 IDs, 37 rule and 13 judgement; a search for every client, programme, person and domain code word in the vault files found none; no em-dashes. Waiting for Boroon to merge.
+  Checked before the push: 50 IDs, 37 rule and 13 judgement; a search for every client, programme, person and domain code word in the vault files found none; no em-dashes. **Boroon merged it on 13 November 2026 at 19:02** (merge commit `fd2e268`); the file on `main` matches the pushed file byte for byte. ADO: 2545 Done, Finish Date Fri 13 Nov.
 - Updated: `staging/README.md` and `staging/factory-manifestos/README.md` (where the standards are; the starter README is replaced at DG8), `docs/plans/stage-1-day-gate-plan.md` (the repo exists; DG3's run), `docs/plans/schedule.md` (2545's row and a change entry), `CLAUDE.md` (where the standards live, and the count).
 - **Not done in DG3:** step 5, sending the engineers the DG2 how-to, waits for DG2 (Wed 18 Nov), so the checkpoint stays on Fri 20 Nov. The eight flow patterns in step 1 were not read in full, only listed: child-flow secret retrieval, composite-key parameter binding, empty-array expressions, environment variable defensive expressions, identifier versus label fields, shared-state orchestration, try/catch and swallowed failures, and plug-in package build and deploy. Read them when `lcp-flow-patterns` is built.
 
@@ -177,12 +177,11 @@ Files changed: `staging/README.md`, `staging/factory-manifestos/README.md`, `doc
 Time and tokens (for 2545's body; session `8f7174db`, measured before the closing commit): active time 0 h 13 min (gaps over 10 minutes not counted), from 13 Nov 16:34 to 13 Nov 16:47 (UTC+11). Tokens: 50,755 output; 7,115,525 processed in all, of which 6,870,749 were cache reads. From 1 local transcript.
 
 Open items:
-- Boroon to review and merge pull request 1 in `factory-manifestos`. 2545 moves to Done then.
 - Ask the Get AI Engineer to review the standards (assessment section 6, question 2). Their review does not block the merge. Boroon to ask.
 - `main-protection` in `factory-manifestos` is a second-approver stopgap, like `release-protection`. 2520 must raise it to 1 approval too.
 
 Next steps:
-1. Boroon: merge `factory-manifestos` pull request 1, then 2545 is Done in ADO.
+1. Done: `factory-manifestos` pull request 1 merged; 2545 Done in ADO. This branch needs a pull request here, when Boroon asks.
 2. Mon 16 to Tue 17 Nov, laptop: spike 0.14 (2461).
 3. Wed 18 Nov: DG2 (2466); Fri 20 Nov: the DG3 checkpoint, sending the engineers the how-to.
 
