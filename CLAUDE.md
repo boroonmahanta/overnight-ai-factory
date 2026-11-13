@@ -259,7 +259,7 @@ The 45 days build the factory. They move no project up a trust rung. Do not star
 
 - ~~Does `pac --githubFederated` work on GHE.com and in ruleset workflows?~~ Yes, within one org (spike 0.2, 4 November 2026). Across orgs, with the callers build.
 - Which Copilot features work on GHE.com, and which billing identity for the CLI? (Platform team and Boroon, spike 0.6)
-- ~~Does Dataverse MCP accept an app-only token?~~ Yes, through the local proxy and the remote endpoint, once the app is on the environment's allowed MCP clients list (spike 0.3, 6 November 2026). Billing for it is unchecked.
+- ~~Does Dataverse MCP accept an app-only token?~~ Yes, through the local proxy and the remote endpoint, once the app is on the environment's allowed MCP clients list (spike 0.3, 6 November 2026). Each tool call is billed 0.1 Copilot Credit (USD 0.001 at list), drawn uncapped from the tenant's shared prepaid pool (ADO 2433, 13 November 2026). How to cap it per lane: Boroon, before Stage 3.
 - ~~Does a headless export write YAML as the lane identity?~~ No: XML only, on pac 2.14.1 and 2.4.1; the XML layout is used (spike 0.18, 8 November 2026).
 - ~~Under live build, does the reset leave the lane equal to `integration`?~~ Yes, byte for byte, for a table, column, flow, role, environment variable and connection reference (spike 0.19, 10 November 2026). Forms, canvas apps and metadata made outside the solution are still open.
 - Do flows by the Web API, the App Spec apply and FlowAgent work as the lane identity? (Platform team, spike 0.14, before Stage 3)

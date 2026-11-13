@@ -80,7 +80,8 @@ Next steps:
 - **The follow-ups in `GetAI-IP/factory-gates` are done in PR 7** (Session 10), merged 4 November 2026: README step 9 and the move marked done, the `dependabot.yml` comment, and next slice 2, the self-test workflow.
 - **`self-test` is not a required status check** on `release-protection`. **Boroon, 4 November 2026: turn it on when someone other than him starts working on the factory**, with the second-approver changes above. The change: in `release-protection`, add "Require status checks to pass" with the check `self-test`, source GitHub Actions; leave "require branches to be up to date" off. Until then `self-test` is advice, not a lock: a pull request into `release` can merge with it red, so check it is green before merging, Dependabot pull requests included.
 - **The allowed MCP client entry for `getai-fl1-exec` stays in `factory-lane-1`** (Boroon, 6 November 2026, Session 13): name `getai-fl1-exec`, unique name `new_getaifl1exec`, enabled. It grants nothing while the app has no credential. At Stage 3, either keep it or replace it with one added by code (a GET AI solution with the `getai` publisher, or `dataverse mcp allow`), and give lanes 2 and 3 theirs the same way. The list as it was before the spike is in `docs/plans/spike-0.3/README.md`, step B.
-- **Dataverse MCP billing is unchecked** (spike 0.3). Reads and creates through MCP were not refused, though `factory-lane-1` has no Copilot Credit source. Microsoft says MCP tools are charged in Copilot Credits for agents outside Copilot Studio. Check Power Platform admin centre, Licensing, for any Copilot Credit use by `factory-lane-1` on 6 November 2026, before the night uses MCP.
+- **How to cap a lane's Copilot Credits is not decided** (Boroon; found by ADO 2433, Session 22, 13 November 2026). Dataverse MCP calls are metered at 0.1 credit each, and a lane with no allocation draws from the tenant's shared prepaid pool with no cap ("Draw from tenant" on, the default). Rule 13 wants a credit cap on every run. Options: (a) allocate a fixed number of credits to each lane environment and turn off "Draw from tenant" (a tenant setting; what Dataverse MCP does when the allocation runs out is undocumented and needs a trial); (b) leave it and have the driver stop the session at a call count. Decide before Stage 3. Either way the night trace counts MCP calls per run for the ledger. Detail: `docs/plans/spike-0.3/README.md`, "Billing check".
+- **The plan still says Dataverse MCP billing is unchecked** (Session 22). Three places: 5.6's table row for `/api/mcp` (around line 615), "Other meters" in 5.14 (around line 922) and the 15.1 row on Dataverse MCP (around line 1612). Edit them at Boroon's word.
 - **The gate installs Copilot CLI unpinned** (seen in Session 13, not changed): `lcp-gate.yml` on `release`, `verify-in-test`, runs `npm install --global @github/copilot` with no version or hash. Spike 0.3 shows a pattern that works on a hosted runner for a package with no dependencies: fetch the tarball, check it against the registry's `sha512`, `npm install --global --offline --ignore-scripts` from the file. Check first whether `@github/copilot` has dependencies (if so, pin with a lockfile instead). A gate slice, by pull request there.
 - **Sources are complete.** Boroon uploaded the whole research folder as a zip. Every file was checked by checksum against the repo, duplicates were skipped, and the rest were added. The other session ("Overnight AI software factory", id `session_019bVvHWrUECf7G5YiXU3fKW`) is no longer needed for sources and can be deleted.
 - **Not read in full.** The files added from the zip were saved but not read in this session: the reports V1 and V2, the runtime and costs note, the eight GitHub and Azure notes, the five Power Platform notes and the one-pager. The five workshop slide images were saved but not viewed. The plan condenses most of them. Read one only when a task needs its detail.
@@ -105,6 +106,34 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 22, 2026-11-13, branch `claude/session-22-2433-mcp-billing`
+
+ADO 2433: check Dataverse MCP billing for `factory-lane-1`, on its target date. A laptop session (desktop app), started from `main` at PR 32's merge (`7ecb357`). Numbered 22 because two branches already use 21 (`session-21-2549-skills-policy` and `session-21-progress-dashboard`).
+
+Done:
+- **Read Microsoft's docs** on Dataverse MCP billing: every tool except `search_data` bills at the "text and generative AI tools (basic)" rate, 1 Copilot Credit per 10 responses; the pay-as-you-go meter is USD 0.01 per credit.
+- **Checked the Power Platform admin centre**, read-only, in the built-in browser under Boroon's existing sign-in: Licensing, Copilot Studio, Environments, `factory-lane-1`. It shows 0.6 prepaid Copilot Credits, last updated 6 November, as six rows of "Dataverse MCP Server", 0.1 billed each. That matches spike 0.3 run 3's six tool calls. No allocation, no pay-as-you-go, "Draw from tenant" on. The tenant has no pay-as-you-go billing plan and does hold prepaid capacity.
+- **So the calls were metered,** from the tenant's shared prepaid pool. "No Copilot Credit source" in the spike record was wrong. One MCP call is USD 0.001 at list.
+- `docs/plans/spike-0.3/README.md`: finding 13 corrected and a new section, "Billing check", with what the portal shows and seven points on what it means. Tenant totals, other environments and people are left out (public repo).
+- ADO 2433 moved to Done, with the result and this session's time and tokens in its body.
+- `docs/plans/schedule.md`: 2433 done Fri 13 Nov. `CLAUDE.md`: the open question on Dataverse MCP now gives the billing answer.
+
+Decisions: none. Nothing in the tenant was changed.
+
+Files changed: `docs/plans/spike-0.3/README.md`, `docs/plans/schedule.md`, `CLAUDE.md`, `docs/progress.md`.
+
+Time and tokens (for 2433's body; session `2a17603a`, measured before the closing commit): active time 0 h 04 min (gaps over 10 minutes not counted), from 13 Nov 16:05 to 13 Nov 16:09 (UTC+11). Tokens: 16,073 output; 4,669,608 processed in all, of which 4,444,669 were cache reads. From 1 local transcript(s). Added to 2433's body. Measured early, before the record and commit, so the real figures are a little higher.
+
+Open items:
+- How to cap a lane's Copilot Credits (Open items). Boroon to decide before Stage 3.
+- The plan's three billing lines (Open items). At Boroon's word.
+- The ADO updates for 2549, left by Session 21, are still not made (Open items).
+
+Next steps:
+1. Boroon: review this branch. A pull request when he asks.
+2. Fri 13 Nov, laptop: 2505 (Dependabot PRs #9 to #11) and the ADO updates for 2549.
+3. Mon 16 to Tue 17 Nov, laptop: spike 0.14 (2461). It can also count MCP calls per run, as a first try at the ledger count.
 
 ## Session 21, 2026-11-11, branch `claude/session-21-2549-skills-policy`
 
