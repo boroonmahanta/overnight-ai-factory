@@ -42,12 +42,14 @@ Next steps:
 - Spikes 0.2, 0.3, 0.18 and 0.19 are the only plan items tested on real services. Every other item marked `[untested]` in the plan is still untested. The plan is edited for spike 0.2's result (11 lines, Session 12), spike 0.3's (9 lines, Session 13), the live-build decision (Session 15), spike 0.18's result (Session 19) and spike 0.19's (Session 20), each at Boroon's word.
 - **The rest of Stage 1's day gate is planned** (Session 17, 7 November 2026, a cloud session): `docs/plans/stage-1-day-gate-plan.md`, nine build sessions DG1 to DG9 for 2545, 2544, 2546 and 2548 with spike 0.17, dated 12 November to 15 December. Boroon decided D1 to D6, and the plan is edited for them. The gate scripts (2538) wait on spike 0.18.
 - **DG1 is done** (Session 18, 7 November 2026, a cloud session, brought forward from 12 November): `staging/` with its README, and `staging/factory-manifestos/` with its README and the three project templates (`glossary.md`, `docs/adr/README.md`, the `coding-standards.md` header). 2545 stays open until DG3 (Friday 20 November).
+- **DG3 is run** (Session 23, 13 November 2026, a week early): `GetAI-IP/factory-manifestos` exists on `getai.ghe.com` (private, ruleset `main-protection`), and its pull request 1, merged by Boroon on 13 November 2026, holds the low-code coding standards: 50 with the vault's client-token ones kept, anonymised. 2545 is Done.
 - **The third-party skills policy (plan 8.3) is applied to every vendored skill** (Session 21, 11 November 2026, a cloud session, ADO 2549): `docs/analysis/skills-policy-check.md`. All 56 shelf skills match upstream at their pins, all are MIT, and all but `poteto-mode` (shelf only) are read in full. The register's rows now have a file, `docs/component-register.md`, and the shelf holds each source's licence text. All 44 live skills name their source commit in their first lines.
 - Boroon said more context will be added in later sessions.
 - Work is sized with T-shirt sizes (XS to XL), approved on 1 November 2026. See `CLAUDE.md`.
 
 ## Open items
 
+- **Done: `factory-manifestos` pull request 1 merged** (Session 23): https://getai.ghe.com/GetAI-IP/factory-manifestos/pull/1, the 50 low-code standards, merged by Boroon on 13 November 2026 (`fd2e268`); 2545 is Done in ADO. The plan now says 50 (5.10, 5.12 and a 14.4 row, edited at Boroon's word, Session 23). Also still open from DG3: Boroon to ask the Get AI Engineer to review the standards (not blocking); `main-protection` there is a second-approver stopgap that 2520 must raise to 1 approval.
 - **Done: ADO updates for 2549, left by Session 21.** Seen in Session 22 (13 November 2026): another laptop session made them that day. 2549 is Done, dated Wed 11 Nov, with its result and Session 21's time-and-tokens line in its body. Kept here one session for the record.
 - **The first component register review is on Monday 23 November 2026,** with the Ignite re-check and A1's first pass. For each row of `docs/component-register.md`, check the source for changes since its pin (the file says how) and update "Last checked". Also look at: the five principle fragments, whether skills and plugins installed on the claude.ai account belong in the register, and the A1 kits as new rows.
 - **`poteto-mode` is not read in full** (shelf only): its `watch-pr` code and tests, and most of `check-plan.mjs` and `worktree-audit.sh`. Read them before any adoption (rule 19).
@@ -105,6 +107,83 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 23, 2026-11-13, branch `claude/session-23-2545-standards-seed`
+
+ADO 2545, part 2: day-gate session DG3, the coding standards seed, a week before its Fri 20 Nov slot, at Boroon's word ("Start DG3"). A laptop session (desktop app), started from `main` at PR 34's merge (`6e16839`).
+
+Done:
+- **Read the older ADO vault, read only** (`getai` / `GETAI-PowerPlatform` / `vault`, `main` at `5f26ede`), through the Azure DevOps connector: the standards index, all seven standards files, the design (SDD) template, the work workflow (for the per-story build brief), the "suggest patterns and skills" workflow and the week workflow. Nothing there was changed.
+- **Found: the vault holds 50 standards, not 46.** The six `GS` domains hold 46 (34 rule, 12 judgement), as the plan says. A seventh file, the client-token standards `TOK-001` to `TOK-004` (3 rule, 1 judgement), is the vault's own decision with no `GS` document behind it. **Boroon chose to keep them:** 50 in all, 37 rule and 13 judgement.
+- **Created `GetAI-IP/factory-manifestos`** on `getai.ghe.com` (repo ID 5389656): private, default branch `main`, a starter README. Protected the way `factory-gates` is, at Boroon's word: repo ruleset `main-protection` (ID 52231) on `refs/heads/main`, pull request required with 0 approvals, no deletion, no force push, no bypass list. Read back after creation. The org ruleset `protect-main` covers only three named repos and needs 1 approval plus a code owner, so Boroon could not have merged alone.
+- **Opened pull request 1 there** (https://getai.ghe.com/GetAI-IP/factory-manifestos/pull/1, branch `2545-lcp-standards`, commit `dcceec6`): `practices/lcp/coding-standards.md`. Every standard keeps its ID, class and meaning. The changes:
+  - anonymised: no client, person, programme or engagement names, synthetic examples, engagement counts dropped;
+  - the vault's records mapped to the factory's (decision records in `docs/adr/`, the spec and plan for the SDD, flow patterns by name);
+  - Australian English, no em-dashes.
+  
+  Checked before the push: 50 IDs, 37 rule and 13 judgement; a search for every client, programme, person and domain code word in the vault files found none; no em-dashes. **Boroon merged it on 13 November 2026 at 19:02** (merge commit `fd2e268`); the file on `main` matches the pushed file byte for byte. ADO: 2545 Done, Finish Date Fri 13 Nov.
+- Updated: `staging/README.md` and `staging/factory-manifestos/README.md` (where the standards are; the starter README is replaced at DG8), `docs/plans/stage-1-day-gate-plan.md` (the repo exists; DG3's run), `docs/plans/schedule.md` (2545's row and a change entry), `CLAUDE.md` (where the standards live, and the count).
+- **Not done in DG3:** step 5, sending the engineers the DG2 how-to, waits for DG2 (Wed 18 Nov), so the checkpoint stays on Fri 20 Nov. The eight flow patterns in step 1 were not read in full, only listed: child-flow secret retrieval, composite-key parameter binding, empty-array expressions, environment variable defensive expressions, identifier versus label fields, shared-state orchestration, try/catch and swallowed failures, and plug-in package build and deploy. Read them when `lcp-flow-patterns` is built.
+
+Notes for DG4 and DG6 (DG3 step 4), anonymised:
+
+- **The design (SDD) template's sections**, for the `getai-lcp` plan template (DG4). Guidance: write it so someone who was not in the requirement conversation could build from it; delete a section that truly does not apply rather than leave it empty.
+  1. Requirement: one plain paragraph, what was asked and by whom, pointing at the source (or "verbal", with who and when).
+  2. Scope: a table of components, each new or existing, with notes. Check the inventory first: never propose a new table, flow or screen without confirming nothing already does it.
+  3. Design: the technical shape. For a flow: the trigger, the action sequence in prose or steps, error handling, what it calls and what calls it. For a canvas app: screens, controls, data sources, the change in behaviour. Name every new component now against the coding standards (flow name and number, control names, table and column names, choice values), so naming is a design decision, not a review finding.
+  4. Environment variables and connection references needed: schema name, purpose, default value (non-secret only). `ALM-002` and `ALM-007` tie in here: a new child-flow call needs its `-URI` variable, with a value per environment and no default.
+  5. Data model changes (deleted if none).
+  6. Open questions, split into "we can answer" and "ask the client". The client's answers are pasted back before the design is ready to build.
+  7. Decisions this depends on: links only. A fork found while writing is recorded as a decision, not buried in prose.
+  8. Risks: links only.
+  9. Test plan and acceptance criteria: specific inputs and outcomes, and edge cases (empty input, a duplicate, the case that prompted the requirement).
+  10. Build handoff: target environment (DEV unless stated), solutions touched, one or two sentences for the build session. Kept current; the last thing written before handoff.
+  11. Status checklist: design complete with no open client questions; reviewed against the standards; ready for build; built (a deployment record); source pulled back.
+- **The per-story build brief** (the work workflow's Provision stage), for `handoff/` (DG4):
+  - one brief per story, named by the work item ID; never overwritten, never a bare `brief.md`;
+  - the whole approved design copied in, with a snapshot time;
+  - only the build constraints and the tool and source handoff this story needs;
+  - the explicit ADO organisation, project name and ID, team, area, work item URL and source mapping, so the build cannot fall back to a central project;
+  - build permissions widened only when needed, never narrowed;
+  - no operating manual, skills or standards copied into the build context;
+  - the brief's path, snapshot and handoff commented on the work item.
+
+  The Build stage adds: check flow states after each import and record what was and was not checked; never use a flow update that strips a connection's authentication details (assessment section 6, question 4); comment progress and blockers on the work item.
+- **The retro workflow's rules**, for mining (DG6). In the vault, "retro" and "suggest patterns and skills" are one workflow, tagged retrospective. The week workflow is timesheets, not a retro.
+  - Run only when a person asks; never automatic.
+  - The window starts at the last run marker; the first run covers all history.
+  - Per active project, Git history in the window is the baseline. Read the worklogs, decisions, risks, reviews and changed designs. Only projects with activity.
+  - Changes to standards, patterns, workflows and skills are reviewed once, apart from the projects.
+  - Every statement rests on a commit, file or worklog. No story is inferred from missing records.
+  - Check existing patterns first. Propose a pattern only for a reusable technique, with its problem, technique and where it does not apply.
+  - Propose a skill only after the work was done by hand at least three times and no existing stage covers it; otherwise propose a change to that stage. A first occurrence is an early flag only.
+  - Check the backlogs for duplicates; add a dated repeat under an existing candidate.
+  - Never write a pattern or make a skill from the review; proposals go to the backlogs.
+  - The run marker goes last: the window, the projects reviewed, the proposal counts.
+  - Never expose client data, guess at a person's judgement, edit another person's records, treat an inactive project as if work happened, or treat a plug-in's capability as a new skill without saying so.
+
+  This fits DG6: the three-repeat bar is its step 3, and "proposals only, nothing auto-created" matches "a PR or a recorded no action".
+
+Decisions (Boroon, 13 November 2026):
+- Run DG3 now, not on Fri 20 Nov.
+- Protect `factory-manifestos` like `factory-gates`: its own ruleset, 0 approvals until a second approver.
+- Keep the vault's four client-token standards: 50 standards, not 46.
+- Edit the plan for it ("Yes, edit the plan").
+
+**The plan is edited** (at Boroon's word, later the same day): 5.10's low-code seed now says 50 (37 rule, 13 judgement) and names `GetAI-IP/factory-manifestos`, `practices/lcp/coding-standards.md`; 5.12's table row says 50; 14.4 has a new row, "The low-code standards seed". The plan is one line longer, so `CLAUDE.md`'s line map is updated from section 14 on. DG3's "done when" in the day-gate plan and 2545's row in the schedule say 50 too. The 14.4 rows of 7 November (assessment item 8, D1) still say 46: they record what was decided then.
+
+Files changed: `staging/README.md`, `staging/factory-manifestos/README.md`, `docs/plans/stage-1-day-gate-plan.md`, `docs/plans/schedule.md`, `docs/sources/plan-v3.1.md`, `CLAUDE.md`, `docs/progress.md`. On GHE: the new repo, its ruleset and pull request 1.
+
+Time and tokens (for 2545's body; session `8f7174db`, measured before the closing commit): active time 0 h 13 min (gaps over 10 minutes not counted), from 13 Nov 16:34 to 13 Nov 16:47 (UTC+11). Tokens: 50,755 output; 7,115,525 processed in all, of which 6,870,749 were cache reads. From 1 local transcript.
+
+Open items:
+- Ask the Get AI Engineer to review the standards (assessment section 6, question 2). Their review does not block the merge. Boroon to ask.
+- `main-protection` in `factory-manifestos` is a second-approver stopgap, like `release-protection`. 2520 must raise it to 1 approval too.
+
+Next steps:
+1. Done: `factory-manifestos` pull request 1 merged; 2545 Done in ADO. This branch needs a pull request here, when Boroon asks.
+2. Mon 16 to Tue 17 Nov, laptop: spike 0.14 (2461).
+3. Wed 18 Nov: DG2 (2466); Fri 20 Nov: the DG3 checkpoint, sending the engineers the how-to.
 
 ## Session 22, 2026-11-13, branch `claude/session-22-2433-mcp-billing`
 
