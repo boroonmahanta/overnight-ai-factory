@@ -3,6 +3,9 @@ name: principle-build-the-lever
 description: "Apply to any non-trivial work, not just bulk work: edits, migrations, analyses, checks. Build the tool that does it or proves it (codemod, script, generator, or a skill your subagents follow) instead of working by hand. The tool is the artifact a reviewer can rerun."
 disable-model-invocation: true
 ---
+
+> **GET AI note (11 November 2026).** Adopted unchanged on 2 November 2026 from `cursor/plugins` `pstack/skills/principle-build-the-lever` at commit `ae5650febf4320793844c12c4adaa937f417f8da` (MIT, licence text at `skills/tan/LICENSE`); the text below is unchanged. Shelf original: `skills/tan/principle-build-the-lever/`.
+
 # Build the Lever
 
 When the work isn't trivial, build the tool that does it instead of doing it by hand.

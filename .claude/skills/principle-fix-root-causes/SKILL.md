@@ -4,6 +4,8 @@ description: "Apply when debugging. Trace each symptom back to the first place t
 disable-model-invocation: true
 ---
 
+> **GET AI note (11 November 2026).** Adopted unchanged on 2 November 2026 from `cursor/plugins` `pstack/skills/principle-fix-root-causes` at commit `ae5650febf4320793844c12c4adaa937f417f8da` (MIT, licence text at `skills/tan/LICENSE`); the text below is unchanged. Shelf original: `skills/tan/principle-fix-root-causes/`.
+
 # Fix Root Causes
 
 When debugging, fix the fault, not the place where it surfaced. The symptom is where a wrong state became visible. The root cause is the first place the system did something it should not do, or failed to handle a state it should handle.

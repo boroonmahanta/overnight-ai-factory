@@ -3,6 +3,8 @@ name: doubt-driven-development
 description: Subjects every non-trivial decision to a fresh-context adversarial review before it stands. Use when you want every assumption cross-examined before proceeding, when stress-testing a plan for hidden failure modes, when correctness matters more than speed, when working in unfamiliar code, when stakes are high (production auth, security-sensitive logic, a high-stakes migration, irreversible operations), or any time a confident output would be cheaper to verify now than to debug later.
 ---
 
+> **GET AI note (11 November 2026).** Adopted unchanged on 2 November 2026 from `addyosmani/agent-skills` `skills/doubt-driven-development` at commit `301b02b12bff98e4688e6984af6556802322bbde` (MIT, licence text at `skills/addy/LICENSE`); the text below is unchanged. Shelf original: `skills/addy/doubt-driven-development/`. Its two links to `../../references/orchestration-patterns.md` do not resolve from `.claude/skills/`; that file is on the shelf at `skills/references/orchestration-patterns.md`, and the one rule this skill takes from it is quoted below ("personas do not invoke other personas").
+
 # Doubt-Driven Development
 
 ## Overview

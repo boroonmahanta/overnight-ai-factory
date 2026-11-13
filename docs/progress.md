@@ -42,11 +42,15 @@ Next steps:
 - Spikes 0.2, 0.3, 0.18 and 0.19 are the only plan items tested on real services. Every other item marked `[untested]` in the plan is still untested. The plan is edited for spike 0.2's result (11 lines, Session 12), spike 0.3's (9 lines, Session 13), the live-build decision (Session 15), spike 0.18's result (Session 19) and spike 0.19's (Session 20), each at Boroon's word.
 - **The rest of Stage 1's day gate is planned** (Session 17, 7 November 2026, a cloud session): `docs/plans/stage-1-day-gate-plan.md`, nine build sessions DG1 to DG9 for 2545, 2544, 2546 and 2548 with spike 0.17, dated 12 November to 15 December. Boroon decided D1 to D6, and the plan is edited for them. The gate scripts (2538) wait on spike 0.18.
 - **DG1 is done** (Session 18, 7 November 2026, a cloud session, brought forward from 12 November): `staging/` with its README, and `staging/factory-manifestos/` with its README and the three project templates (`glossary.md`, `docs/adr/README.md`, the `coding-standards.md` header). 2545 stays open until DG3 (Friday 20 November).
+- **The third-party skills policy (plan 8.3) is applied to every vendored skill** (Session 21, 11 November 2026, a cloud session, ADO 2549): `docs/analysis/skills-policy-check.md`. All 56 shelf skills match upstream at their pins, all are MIT, and all but `poteto-mode` (shelf only) are read in full. The register's rows now have a file, `docs/component-register.md`, and the shelf holds each source's licence text. All 44 live skills name their source commit in their first lines.
 - Boroon said more context will be added in later sessions.
 - Work is sized with T-shirt sizes (XS to XL), approved on 1 November 2026. See `CLAUDE.md`.
 
 ## Open items
 
+- **ADO updates for 2549, left by Session 21** (a cloud session cannot reach ADO). The next laptop session: move 2549 to Done, set its Start and Finish Date to Wed 11 Nov, and add the result (`docs/analysis/skills-policy-check.md`) and Session 21's time-and-tokens line (in its log entry below) to its body.
+- **The first component register review is on Monday 23 November 2026,** with the Ignite re-check and A1's first pass. For each row of `docs/component-register.md`, check the source for changes since its pin (the file says how) and update "Last checked". Also look at: the five principle fragments, whether skills and plugins installed on the claude.ai account belong in the register, and the A1 kits as new rows.
+- **`poteto-mode` is not read in full** (shelf only): its `watch-pr` code and tests, and most of `check-plan.mjs` and `worktree-audit.sh`. Read them before any adoption (rule 19).
 - **"Agile build v1" differs from plan Appendix D.2** (seen 7 November 2026, Session 15). The process exists in the `getai` organisation, but its User Story states are not D.2's, it has no Spike type, and the D.1 custom fields were not checked. Before Stage 2 changes it, find which projects already use it.
 - **The factory's own backlog is in ADO,** project `getai-overnight-ai-factory` (created 7 November 2026, Session 15). Keep it current: at the end of each session, add the session's time and tokens to its stories (`CLAUDE.md`, end step 3), and move the stories it finished to Done.
 - **`GetAI-IP/factory-gates` lags the plan after live build** (Session 15, 7 November 2026). A laptop gate slice, by pull request there; Boroon merges. Not started. Before any local check, delete Finder's `.DS_Store` files in the clone. What to change (read from the clone at `85ad2b5`, the same as `release`):
@@ -101,6 +105,50 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 21, 2026-11-11, branch `claude/session-21-2549-skills-policy`
+
+ADO 2549: the third-party skills policy (plan 8.3) applied to every vendored skill, a day before its Thu 12 to Fri 13 Nov slot. **A cloud session** (documents track). Started from `main` at PR 31's merge (`8e81f24`); `main` was already current.
+
+Done:
+- **Listed every third-party skill:** 56 on the shelf (Addy 10, Tan 35, Pocock 9, Benny 2) and the 44 live skills built from them. All 44 come from those three sources.
+- **Looked up:**
+  - each source cloned at its pin, and every shelf file compared with the upstream file by git blob hash: all byte-identical;
+  - every licence read from upstream: all MIT;
+  - upstream heads: Addy and Pocock are still at our pins; `cursor/plugins` is at `63912a9`, with no change under `pstack/` since the pin;
+  - no plugin install, settings file or network call in any copied script, so nothing auto-updates or reports telemetry.
+- **Found and fixed, as facts:**
+  - `bro` is Lauren Tan's `bro`, adopted unchanged on 1 November, before the policy, with no shelf copy, pin or licence on record. Now on the shelf at `skills/tan/bro/`, with rows in `skills/README.md`.
+  - `doubt-driven-development` points twice at Addy's `references/orchestration-patterns.md`, which was never copied or read. Now copied to `skills/references/` and read in full (18 KB; no scripts, no network, nothing aimed at a reviewer).
+  - `skills/README.md` said batch 2 was not yet reviewed; it was merged with PR #4 on 2 November. Corrected. It and the batch 2 notes also said every adopted principle had a GET AI note; six had none. Corrected, after the fix below.
+- **At Boroon's word:**
+  - the register file `docs/component-register.md`, one row per source at a pin;
+  - each source's `LICENSE` copied unchanged to `skills/addy/`, `skills/pocock/`, `skills/tan/` and `skills/benny/`;
+  - a source line in the 10 live skills that had none: `constraint-driven-development`, `doubt-driven-development` (also naming its broken link), `source-driven-development`, `bro`, and the principles `build-the-lever`, `encode-lessons-in-structure`, `experience-first`, `fix-root-causes`, `redesign-from-first-principles`, `test-behavior-not-implementation`. Checked: each differs from its shelf original only by that line.
+- **The result:** `docs/analysis/skills-policy-check.md`. It has the method, the gaps common to all, one table (skill, source, commit, licence, read in full and where, status, gaps, fix), and notes on points 5 and 6. Only gap left: `poteto-mode` (shelf only) is not read in full.
+- `docs/plans/schedule.md`: 2549 done Wed 11 Nov; nothing moves.
+- `CLAUDE.md`: rows for the two new files; the `skills/` and `.claude/skills/` rows.
+
+Decisions (Boroon, 11 November 2026):
+- The register is a new file here, `docs/component-register.md`, one row per third-party source at a pin. A1 (ADO 2740) adds the kits to it.
+- Licence text goes on the shelf, one file per source. None goes in a live skill folder.
+- Add a source line to the 10 live skills that lacked one (rule 17: it reaches `main` when Boroon merges this branch).
+
+Files changed: `docs/component-register.md`, `docs/analysis/skills-policy-check.md`, `skills/addy/LICENSE`, `skills/pocock/LICENSE`, `skills/tan/LICENSE`, `skills/benny/LICENSE`, `skills/tan/bro/SKILL.md`, `skills/references/orchestration-patterns.md` (all new); `skills/README.md`; `docs/analysis/skills-reading-notes-batch2.md`; 10 live skills' `SKILL.md` in `.claude/skills/` (named above); `docs/plans/schedule.md`; `CLAUDE.md`; `docs/progress.md`.
+
+Time and tokens (for 2549's body; session `e9ddef2d`, measured before the closing commit): active time 0 h 12 min (gaps over 10 minutes not counted), from 11 Nov 18:28 to 11 Nov 18:40 (UTC+11). Tokens: 59,713 output; 10,495,702 processed in all, of which 10,163,310 were cache reads. From 1 local transcript. This cloud container kept its own transcript, so `tools/session_usage.py` ran here (with `--root ~/.claude/projects/-home-user-overnight-ai-factory`). The transcript goes when the container is reclaimed, so this line is the record. No other story was worked.
+
+**ADO is not updated:** a cloud session cannot reach it. The next laptop session makes the updates (Open items).
+
+Open items:
+- The ADO updates for 2549 (Open items).
+- The first register review, Monday 23 November (Open items).
+- `poteto-mode` not read in full (Open items).
+
+Next steps:
+1. Boroon: review this branch, which changes 10 live skills (rule 17). A pull request when he asks.
+2. Thu 12 and Fri 13 Nov are now free on the documents track. Fri 13 Nov, laptop: 2433 and 2505, and the ADO updates for 2549.
+3. Mon 16 to Tue 17 Nov, laptop: spike 0.14 (2461), reusing 0.18's and 0.19's scratch.
 
 ## Session 20, 2026-11-09 to 11, branch `claude/session-20-2463-reset-fidelity`
 
