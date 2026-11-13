@@ -48,7 +48,7 @@ Next steps:
 
 ## Open items
 
-- **ADO updates for 2549, left by Session 21** (a cloud session cannot reach ADO). The next laptop session: move 2549 to Done, set its Start and Finish Date to Wed 11 Nov, and add the result (`docs/analysis/skills-policy-check.md`) and Session 21's time-and-tokens line (in its log entry below) to its body.
+- **Done: ADO updates for 2549, left by Session 21.** Seen in Session 22 (13 November 2026): another laptop session made them that day. 2549 is Done, dated Wed 11 Nov, with its result and Session 21's time-and-tokens line in its body. Kept here one session for the record.
 - **The first component register review is on Monday 23 November 2026,** with the Ignite re-check and A1's first pass. For each row of `docs/component-register.md`, check the source for changes since its pin (the file says how) and update "Last checked". Also look at: the five principle fragments, whether skills and plugins installed on the claude.ai account belong in the register, and the A1 kits as new rows.
 - **`poteto-mode` is not read in full** (shelf only): its `watch-pr` code and tests, and most of `check-plan.mjs` and `worktree-audit.sh`. Read them before any adoption (rule 19).
 - **"Agile build v1" differs from plan Appendix D.2** (seen 7 November 2026, Session 15). The process exists in the `getai` organisation, but its User Story states are not D.2's, it has no Spike type, and the D.1 custom fields were not checked. Before Stage 2 changes it, find which projects already use it.
@@ -136,15 +136,17 @@ Nothing in the tenant was changed.
 
 Files changed: `docs/plans/spike-0.3/README.md`, `docs/sources/plan-v3.1.md`, `docs/plans/schedule.md`, `CLAUDE.md`, `docs/progress.md`.
 
-Time and tokens (for 2433's body; session `2a17603a`, measured before the closing commit): active time 0 h 04 min (gaps over 10 minutes not counted), from 13 Nov 16:05 to 13 Nov 16:09 (UTC+11). Tokens: 16,073 output; 4,669,608 processed in all, of which 4,444,669 were cache reads. From 1 local transcript(s). Added to 2433's body. Measured early, before the record and commit, so the real figures are a little higher.
+Time and tokens (for 2433's body; session `2a17603a`; the check, the plan edits, pull request 33 and the ADO updates; measured before the closing commit): active time 0 h 24 min (gaps over 10 minutes not counted), from 13 Nov 16:05 to 13 Nov 16:29 (UTC+11). Tokens: 54,482 output; 13,527,017 processed in all, of which 13,187,821 were cache reads. From 1 local transcript(s). In 2433's body, replacing an early 4-minute reading.
+
+Pull request 33 (https://github.com/boroonmahanta/overnight-ai-factory/pull/33), the first three commits, was merged into `main` by Boroon on 13 November 2026 at 16:29 (merge commit `968201d`). The later commits on this branch (this log fix, the refreshed time and tokens) are not in it.
 
 Open items:
 - What spike 0.14 and the driver spec must settle for the MCP cap (Open items).
-- The ADO updates for 2549, left by Session 21, are still not made (Open items).
+- 2549's ADO updates, left by Session 21: found already made by another laptop session the same day (Open items).
 
 Next steps:
-1. Boroon: review this branch. A pull request when he asks.
-2. Fri 13 Nov, laptop: 2505 (Dependabot PRs #9 to #11) and the ADO updates for 2549.
+1. Done: PR 33 merged. The branch's later commits need a second pull request, when Boroon asks.
+2. Fri 13 Nov, laptop: 2505 (Dependabot PRs #9 to #11).
 3. Mon 16 to Tue 17 Nov, laptop: spike 0.14 (2461). It now also counts MCP calls per story, to set the cap, and checks which MCP errors are safe to retry.
 
 ## Session 21, 2026-11-11, branch `claude/session-21-2549-skills-policy`
