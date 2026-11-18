@@ -1,0 +1,63 @@
+# Spike 0.14 (plan 11.1): can a getai.ghe.com runner use Copilot CLI at all?
+# Published as .github/workflows/copilot-check.yml in GetAI-IP/export-probe (private, scratch).
+#
+# One `copilot -p` call with the job's own GITHUB_TOKEN (copilot-requests: write),
+# billed to the organisation if its policy allows it (GitHub's "Copilot CLI in
+# GitHub Actions"). No tenant, no OIDC, no secrets, no tools allowed: the prompt
+# only asks for one word back. A file of its own, so a permission GHE.com does
+# not know cannot break tools.yml.
+#
+# Spike 0.6 (ADO 2451) owns the full question: billing identity, OpenTelemetry,
+# custom agents, --max-ai-credits. This is only the yes or no that spike 0.14
+# needs before it runs Microsoft's skills inside Copilot CLI.
+name: copilot-check
+
+on:
+  workflow_dispatch: {}
+
+permissions: {}
+
+jobs:
+  copilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      copilot-requests: write
+    env:
+      COPILOT_VERSION: "1.0.113"
+      COPILOT_AUTO_UPDATE: "false"
+      GH_HOST: getai.ghe.com
+    steps:
+      - name: Refuse any ref but main
+        run: |
+          [ "$GITHUB_REF" = "refs/heads/main" ] || { echo "::error::run this from main only"; exit 1; }
+
+      - name: Install pinned Copilot CLI
+        run: |
+          set -euo pipefail
+          npm install --global --ignore-scripts "@github/copilot@$COPILOT_VERSION"
+          copilot --version
+
+      - name: One prompt, no tools
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          out="$RUNNER_TEMP/copilot.txt"
+          copilot -p "Reply with the single word: ready" -s --no-ask-user > "$out" 2>&1
+          code=$?
+          echo "exit $code"
+          head -c 4000 "$out"
+          {
+            echo "### Copilot CLI on a getai.ghe.com runner"
+            echo
+            echo "- version: $COPILOT_VERSION"
+            echo "- exit: $code"
+            echo
+            echo '```'
+            head -c 2000 "$out"
+            echo
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit $code

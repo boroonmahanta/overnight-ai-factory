@@ -34,6 +34,7 @@ Next steps:
   - the fresh export, unpacked, equalled the reset commit in all 23 files.
 
   How to find what the lane identity made outside the solution turned out not to be `solutioncomponent.createdby`: the Default Solution's rows are by SYSTEM. The finder asks each component table for its maker, and finds tables and columns by state against a bootstrap list. The plan is edited for it (11 November 2026, at Boroon's word), with his rule that a table or column found outside the solution stops the lane for a person to check (ADO 2843). Record: `docs/plans/spike-0.19/README.md`. The scratch (0.18's plus one environment variable value) is **kept for spike 0.14**, at Boroon's word.
+- **Spike 0.14 is started** (Session 25, 18 November 2026, ADO 2461, Building). Part 1 passes: a flow with no connector, made by the Web API as `getai-fl1-exec`, runs, exports and packs again offline. Copilot CLI runs on a getai.ghe.com runner with the job's own token. Parts 2 to 4 are left. Record: `docs/plans/spike-0.14/README.md`.
 - **ADO is current** (Session 19): every update Sessions 17 and 18 left is made, and the schedule-order query matches `docs/plans/schedule.md`. Session 20 moved 2463 to Done.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
@@ -107,6 +108,38 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 25, 2026-11-18, branch `claude/session-25-2461-lane-tools`
+
+ADO 2461: spike 0.14, skills and lane tools headless as the lane identity, started at Boroon's word ("start ADO story 2461"), two days after its Mon 16 to Tue 17 Nov slot. A laptop session (desktop app). Branch made from `main` at PR 36's merge (`c4c0d17`); the folder was on Session 23's branch with two uncommitted edits from the 13 November daily sync (DG2, ADO 2466, brought forward to Mon 16 Nov, at Boroon's word), carried over by stash and kept on this branch. The stash is kept until this branch is pushed.
+
+Done:
+- **Read, read-only:** both of Microsoft's plugin repos at today's heads (`power-platform-skills` `05b634d`, `Dataverse-skills` `79ec1e2`), for how they sign in and where they stop for a person; Microsoft's docs on service principal flows, their licences and the `flowrun` table; GitHub's docs on Copilot CLI in Actions and on GHE.com.
+- **Found before any run:** the model-apps plugin and FlowAgent both get every token from `az account get-access-token`, so an `az login` as the lane identity should serve them; FlowAgent's connection tools sign in as a user only. `/app-builder` has an unattended mode (`POWER_PLATFORM_SKILLS_NONINTERACTIVE=1`) that treats the dry run as the approval and never grants `--allow-destructive`; `dv-solution` has none. **A premium flow owned by a service principal needs a licence** (a Process licence, a flow group, or a licensed co-owner), and the Dataverse connector is premium.
+- **Run 39346986: Copilot CLI works on a getai.ghe.com runner** with the job's own `GITHUB_TOKEN` (`copilot-requests: write`, `GH_HOST=getai.ghe.com`, CLI 1.0.113): `ready`, exit 0, 2.5 seconds. No seats, no secret. The model and the billing are spike 0.6's to find.
+- **Run 39347126: part 1 passes for a flow with no connector.** As `getai-fl1-exec`, the Web API made a schedule flow in `FactorySpike`, updated it, turned it on (it ran at once, `Succeeded`), turned it off; the export held it with the update, and it packed again signed out and with no network, round trip byte-identical. The classic flow service accepted the lane identity's app-only token to read runs. Spike 0.18's Dataverse flow (empty connection reference, premium connector) **turned on** through the Web API, could not be started (HTTP 401, a missing `x-ms-client-scope` header) and was turned off again.
+- **Microsoft's server update shows in the export:** `9.2.26101.184` became `9.2.26102.148` in `Other/Solution.xml` and `Other/Customizations.xml` between 10 and 18 November. 0.18 finding 9 expected it; the reset's byte proof and the drift check must ignore those three attributes.
+- New: `docs/plans/spike-0.14/` (`README.md`, and copies of `tools.yml`, `copilot-check.yml`, `tools_probe.py`, pushed to `GetAI-IP/export-probe` at `a2e0d57`). Local check before the run: the probe ran end to end against a fake Dataverse with the laptop's real pac (2.15.1, a release past 2.14.1).
+- ADO: 2461 to Building (the process has no "In Progress"), with this session's result and time in its body.
+
+Decisions (Boroon, 18 November 2026):
+- Run Microsoft's plugins unread for this spike only: pinned, telemetry off, scratch repo and `FactorySpike` only. The full read (rule 19) comes before adoption.
+- Try one Copilot call before waiting for spike 0.6.
+- Make a flow with no connector, and also try the Dataverse flow.
+
+Files changed: `docs/plans/spike-0.14/` (new), `docs/plans/schedule.md`, `docs/plans/stage-1-day-gate-plan.md` (the DG2 move, from 13 November), `CLAUDE.md` (map row), `docs/progress.md`. In `GetAI-IP/export-probe`: the three files above. In `factory-lane-1`: the flow "Factory spike timer flow" (off, in `FactorySpike`); "Factory spike flow" turned on and off.
+
+Time and tokens (for 2461's body; session `463d72cd`; measured before the closing commit): active time 0 h 40 min (gaps over 10 minutes not counted), from 18 Nov 10:58 to 18 Nov 17:32 (UTC+11). Tokens: 77,897 output; 19,806,510 processed in all, of which 18,987,371 were cache reads. From 1 local transcript(s).
+
+Open items:
+- Parts 2 to 4 of spike 0.14 (the App Spec apply and FlowAgent as the lane identity; the MCP shim; the skills in `copilot -p`), listed in the spike README under "Left to do".
+- A lane flow that uses Dataverse needs a licence to run as the lane identity (plan 5.9, 5.14). Not in the plan yet; for the plan edit at the end of the spike, at Boroon's word.
+- The scratch grows by one flow; delete it with `tools.yml` `flow-undo` before 0.18's teardown.
+- 2466 (DG2) is still Proposed in ADO: it was moved to Mon 16 Nov and did not run.
+
+Next steps:
+1. Boroon to say how the dates move: 2461 needs about one more session; 2466 and 2511 slipped behind it.
+2. Spike 0.14, parts 2 to 4, on the laptop.
 
 ## Session 24, 2026-11-13, branch `claude/session-24-2505-dependabot`
 
