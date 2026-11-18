@@ -111,7 +111,7 @@ Next steps:
 
 ## Session 25, 2026-11-18, branch `claude/session-25-2461-lane-tools`
 
-ADO 2461: spike 0.14, skills and lane tools headless as the lane identity, started at Boroon's word ("start ADO story 2461"), two days after its Mon 16 to Tue 17 Nov slot. A laptop session (desktop app). Branch made from `main` at PR 36's merge (`c4c0d17`); the folder was on Session 23's branch with two uncommitted edits from the 13 November daily sync (DG2, ADO 2466, brought forward to Mon 16 Nov, at Boroon's word), carried over by stash and kept on this branch. The stash is kept until this branch is pushed.
+ADO 2461: spike 0.14, skills and lane tools headless as the lane identity, started at Boroon's word ("start ADO story 2461"), two days after its Mon 16 to Tue 17 Nov slot. A laptop session (desktop app). Branch made from `main` at PR 36's merge (`c4c0d17`); the folder was on Session 23's branch with two uncommitted edits from the 13 November daily sync (DG2, ADO 2466, brought forward to Mon 16 Nov, at Boroon's word), carried over by stash and kept on this branch. The stash was dropped once this branch was pushed.
 
 Done:
 - **Read, read-only:** both of Microsoft's plugin repos at today's heads (`power-platform-skills` `05b634d`, `Dataverse-skills` `79ec1e2`), for how they sign in and where they stop for a person; Microsoft's docs on service principal flows, their licences and the `flowrun` table; GitHub's docs on Copilot CLI in Actions and on GHE.com.
