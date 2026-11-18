@@ -135,11 +135,13 @@ Open items:
 - Parts 2 to 4 of spike 0.14 (the App Spec apply and FlowAgent as the lane identity; the MCP shim; the skills in `copilot -p`), listed in the spike README under "Left to do".
 - A lane flow that uses Dataverse needs a licence to run as the lane identity (plan 5.9, 5.14). Not in the plan yet; for the plan edit at the end of the spike, at Boroon's word.
 - The scratch grows by one flow; delete it with `tools.yml` `flow-undo` before 0.18's teardown.
-- 2466 (DG2) is still Proposed in ADO: it was moved to Mon 16 Nov and did not run.
+- 2466 (DG2) is still Proposed in ADO: it was moved to Mon 16 Nov and did not run. Now set to Fri 20 Nov (below).
+
+**Dates moved (Boroon, 18 November 2026: "Thu 19, shift a day"),** here in `docs/plans/schedule.md` and in ADO: 2461 Wed 18 to Thu 19 Nov; 2511 Thu 19 to Fri 20 Nov; 2466 (DG2) Fri 20 Nov, so the checkpoint with the engineers stays Fri 20 Nov; 2509 Mon 23 Nov; 2538 Tue 24 to Mon 30 Nov; 2537 Tue 1 Dec; 2451 (spike 0.6) Wed 2 Dec only, one day not two, because run 39346986 already did part of it (2451's body says what is left). Nothing from Thu 3 Dec on moves; the Stage 1 exit test stays Fri 18 Dec. The documents track does not move. If 2451 needs its second day after all, everything from Thu 3 Dec moves a day and the exit test lands on Mon 21 Dec, in the buffer.
 
 Next steps:
-1. Boroon to say how the dates move: 2461 needs about one more session; 2466 and 2511 slipped behind it.
-2. Spike 0.14, parts 2 to 4, on the laptop.
+1. Thu 19 Nov, laptop: spike 0.14, parts 2 to 4 (README, "Left to do"). Then 2511, Thu 19 to Fri 20 Nov.
+2. Fri 20 Nov: DG2 (2466), then ask the engineers for their exports.
 
 ## Session 24, 2026-11-13, branch `claude/session-24-2505-dependabot`
 

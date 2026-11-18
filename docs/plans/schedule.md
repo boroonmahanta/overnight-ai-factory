@@ -30,17 +30,17 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 | Wed 11 Nov | Wed 11 Nov | 2549 | Apply the third-party skills policy to every vendored skill (moved from Thu 19 to Fri 20 Nov, then brought forward from Thu 12 to Fri 13 Nov) | Documents | | **Done 11 Nov** (Session 21; `docs/analysis/skills-policy-check.md`, `docs/component-register.md`) |
 | Fri 13 Nov | Fri 13 Nov | 2433 | Check Dataverse MCP billing for `factory-lane-1` | Laptop (portal) | | **Done 13 Nov** (Session 22; `docs/plans/spike-0.3/README.md`, "Billing check": metered, 0.1 Copilot Credit a call, from the tenant's prepaid pool) |
 | Fri 13 Nov | Fri 13 Nov | 2505 | Review and merge Dependabot PRs #9, #10 and #11 | Laptop | | **Done 13 Nov** (Session 24; #10 and #11 were superseded on 9 Nov by #14 and #13; Boroon merged #9, #13 and #14) |
-| Mon 16 Nov | Mon 16 Nov | 2466 | Spike 0.17: session export for mining (DG2; the export how-to and the SharePoint folder; brought forward from Wed 18 Nov, 13 Nov, at Boroon's word) | Laptop (apps only, no tenant) | | |
-| Mon 16 Nov | Tue 17 Nov | 2461 | Spike 0.14: skills and lane tools headless, as the lane identity | Laptop | 2462 | **Started 18 Nov** (Session 25; part 1 of 4 passes; `docs/plans/spike-0.14/`) |
-| Wed 18 Nov | Thu 19 Nov | 2511 | Bring `factory-gates` in line with the live-build plan | Laptop | 2462 | |
-| Fri 20 Nov | Fri 20 Nov | 2509 | Pin the Copilot CLI install in `verify-in-test` | Laptop | | |
+| Wed 18 Nov | Thu 19 Nov | 2461 | Spike 0.14: skills and lane tools headless, as the lane identity (moved from Mon 16 to Tue 17 Nov) | Laptop | 2462 | **Started 18 Nov** (Session 25; part 1 of 4 passes; `docs/plans/spike-0.14/`) |
+| Thu 19 Nov | Fri 20 Nov | 2511 | Bring `factory-gates` in line with the live-build plan (moved from Wed 18 to Thu 19 Nov) | Laptop | 2462 | |
+| Fri 20 Nov | Fri 20 Nov | 2466 | Spike 0.17: session export for mining (DG2; the export how-to and the SharePoint folder; brought forward from Wed 18 to Mon 16 Nov on 13 Nov, missed, set to Fri 20 Nov on 18 Nov, at Boroon's word) | Laptop (apps only, no tenant) | | |
 | Fri 20 Nov | Fri 20 Nov | 2545 | The standards (50, with the four `TOK`), anonymised, into a new private `GetAI-IP/factory-manifestos`; read the older vault's retro workflow and design template (DG3). 2545 finishes here, not on Tue 17 Nov | Laptop | 2545 templates (done 7 Nov) | **Done 13 Nov** (Session 23; `GetAI-IP/factory-manifestos` pull request 1, 50 standards, merged by Boroon) |
-| Mon 23 Nov | Fri 27 Nov | 2538 | Write the remaining Stage 1 gate scripts (now also the `check_spec.py` job, D3) | Laptop | 2511, 2543 | |
+| Mon 23 Nov | Mon 23 Nov | 2509 | Pin the Copilot CLI install in `verify-in-test` (moved from Fri 20 Nov) | Laptop | | |
+| Tue 24 Nov | Mon 30 Nov | 2538 | Write the remaining Stage 1 gate scripts (now also the `check_spec.py` job, D3) (moved from Mon 23 to Fri 27 Nov) | Laptop | 2511, 2543 | |
 | Mon 23 Nov | Wed 25 Nov | 2544 | Pin Spec Kit 1.3.x (D2); GET AI and `getai-lcp` presets v0; the spec check script (D3) (DG4, DG5) | Documents | 2543, 2545, the Ignite re-check | |
 | Thu 26 Nov | Fri 11 Dec | 2548 | Mine at least 20 human-led sessions, in four batches: 26 Nov, 3 Dec, 8 Dec, 11 Dec (DG6) | Documents, or laptop if a cloud session cannot read the exports | 2543, 2466, engineers' exports | |
-| Mon 30 Nov | Mon 30 Nov | 2537 | Create the gate reader and holdout reader token Apps | Laptop | | |
+| Tue 1 Dec | Tue 1 Dec | 2537 | Create the gate reader and holdout reader token Apps (moved from Mon 30 Nov) | Laptop | | |
 | Mon 30 Nov | Tue 15 Dec | 2546 | Locked scenario conventions and the Playwright kit v0 (draft 30 Nov to 2 Dec, DG7; test against `factory-test` on Northwind 14 to 15 Dec, DG9) | Documents, then laptop | 2543, 2447, 2541, 2538 (the YAML runner) | |
-| Tue 1 Dec | Wed 2 Dec | 2451 | Spike 0.6: Copilot CLI on GHE.com | Laptop | | |
+| Wed 2 Dec | Wed 2 Dec | 2451 | Spike 0.6: Copilot CLI on GHE.com (one day, not two: spike 0.14's run 39346986 already showed the CLI runs on a getai.ghe.com runner with the job's own token) | Laptop | | |
 | Thu 3 Dec | Thu 3 Dec | 2738 | Spike 0.20: time and tokens on each story, every engine | Laptop | 2451 | |
 | Fri 4 Dec | Fri 4 Dec | 2432 | Spike 0.7: nano AIU against billing | Laptop | 2451 (a day of runs) | |
 | Fri 4 Dec | Fri 4 Dec | 2739 | Move `staging/` to `GetAI-IP/factory-manifestos` and `factory-gates` (DG8, D1) | Laptop | 2544, 2546 draft | |
@@ -91,3 +91,4 @@ Date them when Stage 4 ends.
 - **13 November 2026 (Session 24, laptop).** 2505 done on Fri 13 Nov, on its target date. Nothing moves. ADO: 2505 Done, its three tasks Closed, and 2507 and 2508 renamed for #14 and #13.
 - **13 November 2026 (daily sync, laptop; committed by Session 25).** At Boroon's word, 2466 (DG2) brought forward from Wed 18 Nov to Mon 16 Nov, here and in ADO. It did not run on Mon 16 Nov; ADO still says Proposed.
 - **18 November 2026 (Session 25, laptop).** 2461 started on Wed 18 Nov, two days late: part 1 of 4 passes (a flow by the Web API as the lane identity), and Copilot CLI works on a getai.ghe.com runner. It needs about one more session. Mon 16 and Tue 17 Nov passed with no session, so 2466 and 2511 slipped too. Dates not moved yet: Boroon to say how. ADO: 2461 Building.
+- **18 November 2026 (Session 25, later, at Boroon's word: "Thu 19, shift a day").** 2461 finishes Thu 19 Nov. The laptop stories behind it move one working day: 2511 to Thu 19 to Fri 20 Nov, 2509 to Mon 23 Nov, 2538 to Tue 24 to Mon 30 Nov, 2537 to Tue 1 Dec. 2451 (spike 0.6) shrinks to one day, Wed 2 Dec, because 2461's Copilot check already did part of it; so nothing from Thu 3 Dec on moves, and the Stage 1 exit test stays Fri 18 Dec. 2466 (DG2) goes to Fri 20 Nov, so the checkpoint (ask the engineers for their exports) stays Fri 20 Nov. The documents track does not move. ADO matches.
