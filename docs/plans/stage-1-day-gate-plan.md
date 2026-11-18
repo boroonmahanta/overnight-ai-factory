@@ -98,7 +98,7 @@ Read: plan 6.2 (lines 959 to 973), 5.10 standards pass (line 782), 5.12 (lines 8
 
 Done when: the three templates match the skill's formats, and nothing in them is client-specific.
 
-### DG2. Spike 0.17, session export (2466). Wednesday 18 November. Laptop, apps only, no tenant
+### DG2. Spike 0.17, session export (2466). Friday 20 November (brought forward from Wednesday 18 to Monday 16 November on 13 November 2026, missed, then set to Friday 20 November on 18 November 2026). Laptop, apps only, no tenant
 
 Read: plan 7.3 (lines 1136 to 1142), spike 0.17 (line 1435).
 
