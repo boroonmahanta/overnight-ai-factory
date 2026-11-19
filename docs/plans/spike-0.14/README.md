@@ -186,7 +186,9 @@ Every row is named `spike-0.14 part3 (...)`. Before and after the sessions, the 
 
 What this does not show: the calls a real night session makes (part 4 counts them, for the cap's number); a transient failure (none came: no timeout, no throttling, no JSON-RPC error); whether a throttled call comes back as `isError` or as an error; updates and deletes retried; a batch create retried; how Copilot CLI shows the shim's refusal to the model (part 4).
 
-### Proposals for the Stage 3 driver spec (not decided)
+### Decided for the Stage 3 driver (Boroon, 20 November 2026)
+
+Proposed in Session 27 and **accepted by Boroon on 20 November 2026**, both the retry rule and the PARK type. They replace "a failed MCP call is retried up to three times" in plan 5.14, and fill the gap plan 5.11 left ("the type for a failed call is for the driver spec"). The plan text is edited with the spike's other plan edits, at Boroon's word; until then the plan still says the old rule.
 
 **Retry only where it is safe and can help.** Findings 4, 5 and 8 say "retry any failed call three times" is wrong both ways: it wastes calls on the agent's own mistakes, and it can write twice.
 
@@ -198,7 +200,7 @@ What this does not show: the calls a real night session makes (part 4 counts the
 | The same, on a create, update or delete by row ID | Up to 3. On a retry, "duplicate key" for a create, or "not found" for a delete, counts as success | PARK `tool_failure` if it still fails |
 | The same, on a create without a row ID, or a batch | Never happens: the shim adds a row ID to each record before the first attempt (the primary key's name from the Web API's `EntityDefinitions`) | |
 
-**A PARK type for a call that still fails: `tool_failure`** (the cap stays `budget`). Its `park.json` instruction names the tool, its arguments, the last answer's text and correlation ID, and the shim log in the night's trace. It would join plan 5.11's type list and Appendix D's `Custom.ParkType` picklist; the name is product-neutral (rule 18).
+**A PARK type for a call that still fails: `tool_failure`** (the cap stays `budget`). Its `park.json` instruction names the tool, its arguments, the last answer's text and correlation ID, and the shim log in the night's trace. It joins plan 5.11's type list and Appendix D's `Custom.ParkType` picklist; the name is product-neutral (rule 18).
 
 **The cap counts attempts sent, retries included,** as the shim does, because each one is billed. The number itself comes from part 4.
 
@@ -217,9 +219,9 @@ Runs start with `GH_HOST=getai.ghe.com gh workflow run <file> -R GetAI-IP/export
 
 1. ~~**Part 2**~~: done in Session 26 (run 39563486), above.
 2. ~~**Part 3**~~: done in Session 27 (run 39749076), above.
-3. **Part 4:** Copilot CLI on the runner with the pinned plugins, `POWER_PLATFORM_SKILLS_NONINTERACTIVE=1`, the lane's pac and `az` sign-ins, and the shim in front of Dataverse MCP: one small App Spec story and one small flow story. Record where each stops, which tools it asked for, and the MCP calls per session (the cap's first number). From part 2: keep `az` signed in for the whole session (finding 9); expect FlowAgent's list, turn on, turn off and run tools to fail (finding 6); an App Spec story on the existing app is the update path, not yet tried. From part 3: put the shim in Copilot CLI's MCP config in place of `dataverse mcp`, with a cap well above a small story's calls; see how the model reads the shim's refusal; keep the tool results' text and correlation IDs (finding 6).
+3. **Part 4:** Copilot CLI on the runner with the pinned plugins, `POWER_PLATFORM_SKILLS_NONINTERACTIVE=1`, the lane's pac and `az` sign-ins, and the shim in front of Dataverse MCP: one small App Spec story and one small flow story. Record where each stops, which tools it asked for, and the MCP calls per session (the cap's first number). From part 2: keep `az` signed in for the whole session (finding 9); expect FlowAgent's list, turn on, turn off and run tools to fail (finding 6); an App Spec story on the existing app is the update path, not yet tried. From part 3: first change the shim to the retry rule Boroon accepted (no retry on a tool result with `isError`; a row ID added to every create; "duplicate key" or "not found" on a retry counts as success; PARK `tool_failure`), and check it locally against the fake proxy; then put it in Copilot CLI's MCP config in place of `dataverse mcp`, with a cap well above a small story's calls; see how the model reads the shim's refusal; keep the tool results' text and correlation IDs (finding 6).
 4. **Check the bill for part 3** in the admin centre, from Friday 20 November (it lags up to a day): 20 billed rows or 8 for 19 November (part 3 finding 10). Read-only, under Boroon's sign-in.
-5. Then the exit test verdict, the plan edits at Boroon's word (with the retry rule and the `tool_failure` PARK type proposed under part 3), and the scratch deleted at his word.
+5. Then the exit test verdict, the plan edits at Boroon's word (with the retry rule and the `tool_failure` PARK type he accepted on 20 November, under part 3), and the scratch deleted at his word.
 
 ## Scratch
 
