@@ -19,6 +19,13 @@ run by .github/workflows/tools.yml. One subcommand per step:
              client (list, get, update, run the timer flow, read its runs), on
              the Power Platform API path and on the classic fallback. Then
              export and unpack, compare, and pack again signed out and offline
+  part3      the MCP count-and-retry shim (mcp_shim.py) in front of the Dataverse
+             CLI's local proxy, signed in as the lane identity: three short
+             sessions of a scripted client against FactorySpike (reads, one create
+             on the spike table, a bad query, a create on a table that does not
+             exist, a call past the cap, and creates whose answer the shim drops
+             before it retries). Every row it makes is named "spike-0.14 part3
+             (...)" and is deleted by the Web API at the end
   scan       delete any output file that holds a token-shaped string (before upload)
   summary    write the result table; exit 1 if the step failed
 
@@ -38,6 +45,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import uuid
 import zipfile
 
 LOGIN_BASE = "https://login.microsoftonline.com"
@@ -831,9 +839,9 @@ def app_spec_part(dv, solution_id):
 class McpClient:
     """A small stdio MCP client: newline-delimited JSON-RPC, one request at a time, every tools/call counted."""
 
-    def __init__(self, label, argv, cwd, extra_env):
+    def __init__(self, label, argv, cwd, extra_env, log_name=None):
         self.label = label
-        self.stderr_path = log_path_for(f"flowagent {label}", ".stderr.log")
+        self.stderr_path = log_path_for(log_name or f"flowagent {label}", ".stderr.log")
         self.stderr_file = open(self.stderr_path, "w", encoding="utf-8")
         self.process = subprocess.Popen(argv, cwd=cwd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                         stderr=self.stderr_file, text=True, bufsize=1,
@@ -1098,6 +1106,295 @@ def cmd_part2():
         print(json.dumps(results["exit_test"], indent=2))
 
 
+# ---------- part 3: the MCP count-and-retry shim ----------
+
+SHIM = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mcp_shim.py")
+SPIKE_TABLE = "fspk_spikeitem"     # spike 0.18's table in FactorySpike: fspk_name (text), fspk_quantity (whole number)
+MISSING_TABLE = "fspk_nosuchtable"
+ROW_PREFIX = "spike-0.14 part3"    # every row part 3 makes starts with this, so the clean-up finds them all
+SHIM_TIMEOUT = int(env("SHIM_TIMEOUT", "120"))
+CALL_TIMEOUT = SHIM_TIMEOUT * 4 + 60
+QUERY_ARGS = ("querytext", "query", "sql", "statement")
+TABLE_ARGS = ("tablename", "table", "entityname", "entity", "logicalname")
+ITEM_ARGS = ("item", "record", "data", "fields", "columns", "attributes", "values", "row")
+
+
+def utc_now():
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+
+
+def row_name(label):
+    return f"{ROW_PREFIX} ({label})"
+
+
+def pick(schema, wanted):
+    """An argument name from a tool's own inputSchema: exact names first, then substrings (spike 0.3)."""
+    properties = (schema or {}).get("properties") or {}
+    for name in wanted:
+        for key in properties:
+            if key.lower() == name:
+                return key, properties[key]
+    for name in wanted:
+        for key in properties:
+            if name in key.lower():
+                return key, properties[key]
+    return None, None
+
+
+def read_json(path):
+    try:
+        with open(path, encoding="utf-8") as handle:
+            return json.load(handle)
+    except (OSError, ValueError):
+        return None
+
+
+def read_jsonl(path):
+    found = []
+    try:
+        with open(path, encoding="utf-8") as handle:
+            for line in handle:
+                try:
+                    found.append(json.loads(line))
+                except ValueError:
+                    pass
+    except OSError:
+        pass
+    return found
+
+
+class Calls:
+    """The scripted client's side of one shim session. Names each call; the shim numbers them in the order sent."""
+
+    def __init__(self, client, listed, session):
+        self.client, self.session = client, session
+        session["order"] = []
+        reader, creator = listed.get("read_query"), listed.get("create_record")
+        if not (reader and creator):
+            raise ProbeError("tools/list has no read_query or create_record")
+        session["schemas"] = {"read_query": reader.get("inputSchema"), "create_record": creator.get("inputSchema")}
+        self.query_arg = pick(reader.get("inputSchema"), QUERY_ARGS)[0]
+        self.table_arg = pick(creator.get("inputSchema"), TABLE_ARGS)[0]
+        self.item_arg, item_schema = pick(creator.get("inputSchema"), ITEM_ARGS)
+        if not (self.query_arg and self.table_arg and self.item_arg):
+            raise ProbeError("cannot tell read_query's or create_record's argument names from their inputSchema")
+        self.item_is_text = (item_schema or {}).get("type") == "string"
+
+    def call(self, name, tool, arguments):
+        self.session["order"].append(name)
+        entry, _ = self.client.call(tool, arguments, timeout=CALL_TIMEOUT)
+        entry["step"] = name
+        return entry
+
+    def read(self, name, sql):
+        return self.call(name, "read_query", {self.query_arg: sql})
+
+    def create(self, name, table, item):
+        return self.call(name, "create_record", {self.table_arg: table,
+                                                 self.item_arg: json.dumps(item) if self.item_is_text else item})
+
+
+def session_a(calls, session):
+    """Reads and one create on the spike table, then two forced failures: a bad query, a table that does not exist."""
+    by_name = (f"SELECT {SPIKE_TABLE}id, fspk_name, fspk_quantity FROM {SPIKE_TABLE} "
+               f"WHERE fspk_name = '{row_name('create')}'")
+    calls.read("read organization", "SELECT TOP 1 name FROM organization")
+    calls.read("read the spike table", f"SELECT TOP 5 fspk_name, fspk_quantity FROM {SPIKE_TABLE}")
+    calls.create("create", SPIKE_TABLE, {"fspk_name": row_name("create"), "fspk_quantity": 1})
+    entry = calls.read("read back", by_name)
+    session["read_back_found_row"] = not entry["is_error"] and row_name("create") in entry.get("text", "")
+    calls.read("bad query", f"SELEKT fspk_name FROM {SPIKE_TABLE}")
+    calls.create("missing table", MISSING_TABLE, {"fspk_name": row_name("missing table")})
+
+
+def session_b(calls, session):
+    """A cap of 2: a read, then a bad query whose retry would pass the cap, then one more read."""
+    calls.read("read organization", "SELECT TOP 1 name FROM organization")
+    calls.read("bad query at the cap", f"SELEKT fspk_name FROM {SPIKE_TABLE}")
+    calls.read("read after the cap", "SELECT TOP 1 name FROM organization")
+
+
+def session_c(calls, session):
+    """The shim drops the answer to each create's first attempt, then retries: does the create land twice?"""
+    calls.create("create, answer dropped", SPIKE_TABLE, {"fspk_name": row_name("answer dropped"), "fspk_quantity": 2})
+    session["own_id"] = str(uuid.uuid4())
+    calls.create("create with its own ID, answer dropped", SPIKE_TABLE,
+                 {f"{SPIKE_TABLE}id": session["own_id"], "fspk_name": row_name("own ID, answer dropped"),
+                  "fspk_quantity": 3})
+
+
+def per_call(session):
+    """The shim's record of each call, under the name the script gave it."""
+    by_number = {}
+    for event in session.get("events", []):
+        number = event.get("call")
+        if number is None:
+            continue
+        entry = by_number.setdefault(number, {"tool": event.get("tool"), "attempts": [], "final": None})
+        kind = event.get("event")
+        if kind == "answer":
+            entry["attempts"].append({k: event.get(k) for k in ("attempt", "kind", "seconds", "text", "proxy_stderr",
+                                                                 "status_hint")})
+        elif kind == "final":
+            entry["final"] = event.get("kind")
+        elif kind == "refused":
+            entry["final"] = "refused"
+            entry["refused"] = event.get("message")
+        elif kind == "fault-dropped-answer":
+            entry["dropped"] = {"kind": event.get("kind_dropped"), "text": event.get("text")}
+        elif kind in ("stop", "stop-again"):
+            entry.setdefault("stops", []).append({"reason": event.get("reason"), "park": event.get("park")})
+    return {name: by_number.get(index, {}) for index, name in enumerate(session.get("order", []), start=1)}
+
+
+def shim_session(label, cap, shim_args, script):
+    """Start the shim in front of `dataverse mcp`, drive it with `script`, then read the shim's own records."""
+    folder = os.path.join(work_dir(), "shim-" + re.sub(r"[^a-z0-9]+", "-", label.lower()).strip("-"))
+    os.makedirs(folder, exist_ok=True)
+    paths = {"log": os.path.join(folder, "calls.jsonl"), "proxy_log": os.path.join(folder, "proxy-stderr.log"),
+             "summary": os.path.join(folder, "summary.json"), "stop": os.path.join(folder, "stop.json")}
+    argv = [sys.executable, "-I", SHIM, "--cap", str(cap), "--retries", "3", "--timeout", str(SHIM_TIMEOUT),
+            "--log", paths["log"], "--proxy-log", paths["proxy_log"], "--summary", paths["summary"],
+            "--stop-file", paths["stop"], *shim_args, "--", env("DATAVERSE_BIN", "dataverse"), "mcp", resource()]
+    session = {"label": label, "cap": cap, "shim_args": shim_args}
+    started = time.time()
+    print(f"\n::group::shim session {label} (cap {cap})")
+    client = McpClient(label, argv, work_dir(), {}, log_name=f"shim {label}")
+    try:
+        init, tools = client.start()
+        session["server"] = init.get("serverInfo")
+        session["protocol"] = init.get("protocolVersion")
+        listed = {tool.get("name"): tool for tool in tools.get("tools", [])}
+        session["tools_listed"] = sorted(name for name in listed if name)
+        script(Calls(client, listed, session), session)
+    except ProbeError as error:
+        session["error"] = str(error)
+    finally:
+        session["shim_stderr"] = clip(client.close()[-1500:], 1500)
+        session["seconds"] = round(time.time() - started, 1)
+        session["client_calls"] = client.calls
+        session["shim_summary"] = read_json(paths["summary"])
+        session["stop"] = read_json(paths["stop"])
+        session["events"] = read_jsonl(paths["log"])
+        session["per_call"] = per_call(session)
+        print(f"::endgroup::\nshim session {label}: {session['seconds']} s, "
+              f"counts {json.dumps({k: (session['shim_summary'] or {}).get(k) for k in ('calls', 'attempts', 'refused')})}")
+    return session
+
+
+def part3_rows(dv, me, entity_set):
+    return dv.rows(f"/{entity_set}?$select={SPIKE_TABLE}id,fspk_name,fspk_quantity,createdon"
+                   f"&$filter=startswith(fspk_name,'{ROW_PREFIX}') and _createdby_value eq {me}")
+
+
+def part3_clean(dv, me, entity_set):
+    """Delete, by the Web API, every row part 3 made: its name starts with ROW_PREFIX and this app user made it."""
+    rows = part3_rows(dv, me, entity_set)
+    deleted = []
+    for row in rows:
+        status, _, _ = dv.call("DELETE", f"/{entity_set}({row[SPIKE_TABLE + 'id']})", ok=(204, 404))
+        deleted.append({"name": row.get("fspk_name"), "status": status})
+    left = part3_rows(dv, me, entity_set)
+    return {"found": len(rows), "deleted": deleted, "left": len(left)}
+
+
+def part3_billing(sessions):
+    """What the admin centre should show for this run, under each reading of what is billed (0.1 credit a call)."""
+    totals = {"client_calls": 0, "attempts_sent": 0, "refused": 0, "retries": 0, "late_answers": 0, "by_kind": {}}
+    for session in sessions.values():
+        summary = session.get("shim_summary") or {}
+        for key, total in (("calls", "client_calls"), ("attempts", "attempts_sent"), ("refused", "refused"),
+                           ("retries", "retries"), ("late_answers", "late_answers")):
+            totals[total] += summary.get(key, 0)
+        for kind, count in (summary.get("outcomes") or {}).items():
+            totals["by_kind"][kind] = totals["by_kind"].get(kind, 0) + count
+    kinds = totals["by_kind"]
+    answered = kinds.get("ok", 0) + kinds.get("dropped", 0)
+    totals["rows_if_every_attempt_sent_bills"] = totals["attempts_sent"]
+    totals["rows_if_tool_errors_bill_but_rpc_errors_do_not"] = answered + kinds.get("tool_error", 0)
+    totals["rows_if_only_answers_without_error_bill"] = answered
+    totals["credits_if_every_attempt_sent_bills"] = round(0.1 * totals["attempts_sent"], 1)
+    return totals
+
+
+def part3_exit_test(results):
+    sessions = results.get("sessions", {})
+    a, b, c = (sessions.get(key, {}) for key in ("a", "b", "c"))
+    pa, pb, pc = (session.get("per_call", {}) for session in (a, b, c))
+
+    def kinds(per, name):
+        return [attempt.get("kind") for attempt in per.get(name, {}).get("attempts", [])]
+
+    def final(per, name):
+        return per.get(name, {}).get("final")
+
+    def counts_match(session):
+        summary = session.get("shim_summary") or {}
+        events = session.get("events", [])
+        return (summary.get("final") is True
+                and summary.get("attempts") == sum(1 for e in events if e.get("event") == "attempt")
+                and summary.get("calls") == sum(1 for e in events if e.get("event") == "call")
+                and summary.get("calls") == len(session.get("order", [])))
+
+    test = {
+        "initialize_and_tools_list_pass_through": "read_query" in a.get("tools_listed", []),
+        "reads_pass_through": final(pa, "read organization") == "ok" and final(pa, "read the spike table") == "ok",
+        "create_passes_through": final(pa, "create") == "ok" and bool(a.get("read_back_found_row")),
+        "bad_query_tried_four_times": len(kinds(pa, "bad query")) == 4 and final(pa, "bad query") != "ok",
+        "missing_table_tried_four_times": len(kinds(pa, "missing table")) == 4 and final(pa, "missing table") != "ok",
+        "cap_never_passed": (b.get("shim_summary") or {}).get("attempts") == 2,
+        "past_the_cap_refused_with_park_budget": final(pb, "bad query at the cap") == "refused"
+                                                 and final(pb, "read after the cap") == "refused"
+                                                 and (b.get("stop") or {}).get("park") == "budget",
+        "dropped_answer_retried": kinds(pc, "create, answer dropped")[:1] == ["dropped"]
+                                  and final(pc, "create, answer dropped") == "ok",
+        "counts_match_the_log": all(counts_match(session) for session in (a, b, c)),
+        "rows_cleaned_up": (results.get("cleanup") or {}).get("left") == 0,
+    }
+    test["pass"] = all(test.values())
+    return test
+
+
+def cmd_part3():
+    results = {"mode": "part3", "run_id": env("GITHUB_RUN_ID"), "steps": STEPS, "started_utc": utc_now()}
+    dv = me = entity_set = None
+    try:
+        dv = Dataverse()
+        me = dv.get("/WhoAmI")["UserId"]
+        meta = dv.get(f"/EntityDefinitions(LogicalName='{SPIKE_TABLE}')"
+                      "?$select=EntitySetName,PrimaryIdAttribute,PrimaryNameAttribute")
+        entity_set = meta["EntitySetName"]
+        results["spike_table"] = {k: meta.get(k) for k in ("EntitySetName", "PrimaryIdAttribute", "PrimaryNameAttribute")}
+        results["leftovers_before"] = part3_clean(dv, me, entity_set)
+        sessions = results["sessions"] = {}
+        sessions["a"] = shim_session("a reads, create, failures", 16, ["--keep-going"], session_a)
+        sessions["b"] = shim_session("b cap of 2", 2, [], session_b)
+        sessions["c"] = shim_session("c dropped answers", 8, ["--fault", "drop-answer:create_record:1",
+                                                              "--fault", "drop-answer:create_record:2"], session_c)
+        by_name = {}
+        for row in part3_rows(dv, me, entity_set):
+            by_name[row.get("fspk_name")] = by_name.get(row.get("fspk_name"), 0) + 1
+        results["rows_by_name"] = by_name
+        results["writes_twice"] = {label: by_name.get(row_name(label), 0)
+                                   for label in ("answer dropped", "own ID, answer dropped")}
+    except ProbeError as error:
+        results["error"] = str(error)
+    finally:
+        if dv and me and entity_set:
+            try:
+                results["cleanup"] = part3_clean(dv, me, entity_set)
+            except ProbeError as error:
+                results["cleanup"] = {"error": str(error)}
+        results["ended_utc"] = utc_now()
+        results["billing"] = part3_billing(results.get("sessions", {}))
+        results["exit_test"] = part3_exit_test(results)
+        for session in results.get("sessions", {}).values():
+            session.pop("events", None)   # the whole log is calls.jsonl in the artifact
+        save("results.json", results)
+        print(json.dumps({"exit_test": results["exit_test"], "billing": results["billing"],
+                          "writes_twice": results.get("writes_twice")}, indent=2))
+
+
 def cmd_scan():
     """Delete any output file that holds a token-shaped string, before the artifact upload."""
     root = os.path.join(env("RUNNER_TEMP", "/tmp"), "tools-probe")
@@ -1134,8 +1431,8 @@ def cmd_summary():
     lines += [f"| {s['name']} | {s['exit']} | {s['seconds']} |" for s in results["steps"]]
     lines += ["", "| Check | Result |", "|---|---|"]
     lines += [f"| {k} | {mark(v)} |" for k, v in results.get("exit_test", {}).items()]
-    if results["mode"] == "part2":
-        lines += summary_part2(results)
+    if results["mode"] in ("part2", "part3"):
+        lines += summary_part2(results) if results["mode"] == "part2" else summary_part3(results)
         summary_write("\n".join(lines) + "\n")
         print("\n".join(lines))
         return 0 if results.get("exit_test", {}).get("pass") else 1
@@ -1201,7 +1498,41 @@ def summary_part2(results):
     return lines
 
 
-COMMANDS = {"flow": cmd_flow, "flow-undo": cmd_flow_undo, "part2": cmd_part2, "scan": cmd_scan, "summary": cmd_summary}
+def summary_part3(results):
+    def short(value, limit=900):
+        return json.dumps(value, default=str)[:limit]
+
+    def cell(text, limit=300):
+        return " ".join(str(text or "").split())[:limit].replace("|", "/")
+    lines = []
+    if results.get("error"):
+        lines += ["", f"**error**: {results['error']}"]
+    for key in ("started_utc", "ended_utc", "spike_table", "leftovers_before", "rows_by_name", "writes_twice",
+                "cleanup", "billing"):
+        if key in results:
+            lines += ["", f"**{key}**: `{short(results[key], 1500)}`"]
+    for key, session in results.get("sessions", {}).items():
+        summary = session.get("shim_summary") or {}
+        lines += ["", f"#### Session {session.get('label', key)} (cap {session.get('cap')}, {short(session.get('shim_args'))})", ""]
+        lines += [f"**{k}**: `{short(session[k], 600)}`" for k in ("server", "protocol", "tools_listed", "seconds", "stop",
+                                                                 "error", "own_id") if session.get(k) is not None]
+        lines += [f"**shim counts**: `{short({k: summary.get(k) for k in ('calls', 'attempts', 'refused', 'retries', 'late_answers', 'outcomes', 'stops')}, 1500)}`",
+                  "", "| Step | Tool | Attempts | Final | The client saw | Proxy stderr, last failed attempt |",
+                  "|---|---|---|---|---|---|"]
+        seen = {entry.get("step"): entry for entry in session.get("client_calls", [])}
+        for name in session.get("order", []):   # results.json sorts its keys; the order list keeps the call order
+            call = session.get("per_call", {}).get(name, {})
+            attempts = call.get("attempts", [])
+            failed = [attempt for attempt in attempts if attempt.get("kind") != "ok"]
+            stderr = " / ".join((failed[-1].get("proxy_stderr") or [])[-3:]) if failed else ""
+            lines.append(f"| {name} | {call.get('tool')} | {', '.join(a.get('kind') or '?' for a in attempts) or '-'} | "
+                         f"{call.get('final')} | {cell(seen.get(name, {}).get('text'))} | {cell(stderr)} |")
+    lines += ["", f"## Part 3 result: **{mark(results.get('exit_test', {}).get('pass'))}**"]
+    return lines
+
+
+COMMANDS = {"flow": cmd_flow, "flow-undo": cmd_flow_undo, "part2": cmd_part2, "part3": cmd_part3, "scan": cmd_scan,
+            "summary": cmd_summary}
 
 
 def main(argv):

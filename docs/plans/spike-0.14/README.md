@@ -1,8 +1,8 @@
 # Spike 0.14: skills and lane tools headless, as the lane identity
 
-Plan section 11.1, row 0.14 (ADO 2461). Session 25, 18 November 2026 (Sydney time), and Session 26, 18 to 19 November 2026, laptop sessions. Started two days after its Mon 16 to Tue 17 Nov slot. Not finished yet: what is done and what is left are below.
+Plan section 11.1, row 0.14 (ADO 2461). Session 25, 18 November 2026 (Sydney time), Session 26, 18 to 19 November 2026, and Session 27, 19 November 2026, laptop sessions. Started two days after its Mon 16 to Tue 17 Nov slot. Not finished yet: what is done and what is left are below.
 
-**So far (19 November 2026):** part 1 passes for a flow with no connector: made, updated, turned on, run, exported and packed again offline, as the lane identity (run 39347126). Copilot CLI runs on a getai.ghe.com runner with the job's own token (run 39346986), so part 4 can run there. Part 2 (run 39563486): the App Spec apply works as the lane identity, unattended and without `--allow-destructive`, and all it made landed in the solution and packs offline; FlowAgent reads and edits flows as the lane identity but cannot list, turn on, turn off or run them (HTTP 401 on both of its paths). Parts 3 and 4 are still to do. Findings that matter beyond this spike: Microsoft's server update changed the version stamp in the export (part 1 finding 6); a lane flow that uses the Dataverse connector needs a licence to run as the lane identity (the licence rule, part 1 finding 4); an App Spec app brings a missing dependency on a Microsoft platform solution into the export (part 2 finding 3); and the GitHub OIDC token lasts 5 minutes, so the driver must keep the Azure CLI signed in (part 2 finding 9).
+**So far (19 November 2026):** part 1 passes for a flow with no connector: made, updated, turned on, run, exported and packed again offline, as the lane identity (run 39347126). Copilot CLI runs on a getai.ghe.com runner with the job's own token (run 39346986), so part 4 can run there. Part 2 (run 39563486): the App Spec apply works as the lane identity, unattended and without `--allow-destructive`, and all it made landed in the solution and packs offline; FlowAgent reads and edits flows as the lane identity but cannot list, turn on, turn off or run them (HTTP 401 on both of its paths). Part 3 (run 39749076): a stdio shim in front of the Dataverse CLI's local proxy counts every MCP call, holds a cap and retries; a retried create whose answer was lost **writes twice**, and a create that carries its own row ID does not. Part 4 is still to do. Findings that matter beyond this spike: Microsoft's server update changed the version stamp in the export (part 1 finding 6); a lane flow that uses the Dataverse connector needs a licence to run as the lane identity (the licence rule, part 1 finding 4); an App Spec app brings a missing dependency on a Microsoft platform solution into the export (part 2 finding 3); and the GitHub OIDC token lasts 5 minutes, so the driver must keep the Azure CLI signed in (part 2 finding 9).
 
 Exit test (plan 11.1): we know where the skills stop for approval; the Web API flow runs, exports and packs again; we know whether the App Spec apply and FlowAgent work as the lane identity. If not: PARK at the approval point, flows by the Web API only, the App Spec apply and FlowAgent by day only. Added 13 November 2026 (Session 22, after 2433): count the MCP calls each session makes, to set the cap; try a way for the driver to count and retry calls; find which MCP errors are safe to retry.
 
@@ -12,7 +12,7 @@ Exit test (plan 11.1): we know where the skills stop for approval; the Web API f
 |---|---|---|---|
 | 1. Flow by the Web API | The flow runs, exports and packs again | Script on a runner, no AI: make, update, turn on, see a run, export, pack signed out and offline | **Pass** for a flow with no connector (run 39347126). A Dataverse flow turned on but was not run |
 | 2. App Spec apply and FlowAgent as the lane identity | Whether they work as `getai-fl1-exec` | Script on a runner, no AI: `az login` with the federated token, then the model-apps build engine with `--non-interactive`, and FlowAgent's MCP server called by a small client | **App Spec: works** (run 39563486). **FlowAgent: in part**: reads and edits work; list, turn on, turn off and run are refused (HTTP 401) on both paths |
-| 3. MCP count and retry | The cap's number, the shim, safe retries | A stdio shim in front of the Dataverse local proxy, driven by a scripted client; the count per session from part 4's sessions | Not started |
+| 3. MCP count and retry | The cap's number, the shim, safe retries | A stdio shim in front of the Dataverse local proxy, driven by a scripted client; the count per session from part 4's sessions | **Shim works** (run 39749076): counts, cap and retries hold. Safe to retry: reads, and a create with its own ID. Not safe: a plain create (it wrote twice). The cap's number waits on part 4 |
 | 4. The skills in `copilot -p` | Where the skills stop for approval | Copilot CLI on a runner, with Microsoft's plugins pinned, `POWER_PLATFORM_SKILLS_NONINTERACTIVE=1` and the lane's sign-ins | Copilot works on the runner (check below); skills not run yet |
 
 ## Decisions (Boroon, 18 November 2026)
@@ -133,6 +133,75 @@ What this does not show: a larger spec (relationships, choices, roles, pages); a
 
 **Where part 2 leaves the exit test.** The App Spec apply works as the lane identity, so it can run at night, with the driver never passing `--allow-destructive`. FlowAgent works in part: reading and editing flows yes; listing, turning on and off, and running no. The plan's fallback ("flows by the Web API only") still holds for turning flows on and off, and for seeing a run. The verdict and any plan edits come at the end of the spike, at Boroon's word.
 
+## Part 3: the MCP count-and-retry shim
+
+`probe/mcp_shim.py`, and the `part3` mode of `tools.yml` and `probe/tools_probe.py`, in `GetAI-IP/export-probe` at `e598595` (copies here). Session 27, 19 November 2026. A probe for the Stage 3 driver (plan 5.11, 5.14), not a gate script. No AI, no pac and none of Microsoft's plugins: only the Dataverse CLI's local proxy.
+
+**The shim.** `python3 -I mcp_shim.py --cap N --log FILE [options] -- dataverse mcp <url>`. It sits between an MCP client, on its own stdin and stdout, and the proxy it starts, and passes newline-delimited JSON-RPC both ways. It touches only `tools/call`:
+
+- **Count.** Each call, and each attempt it sends to the proxy. An attempt goes under the shim's own ID (`shim-<n>`), so a late answer is never taken for a retry's answer.
+- **Cap.** The cap counts attempts sent, retries included, because each one that reaches Dataverse is billed. An attempt past the cap is refused with JSON-RPC error -32010 and a message that says so, and nothing goes to the proxy. That is a stop, PARK `budget`.
+- **Retry.** A failed attempt is retried up to 3 times, after 1, 2 and 4 seconds. Failed means a JSON-RPC error, a result with `isError`, no answer within 120 seconds, or an answer the probe told the shim to drop. A call that still fails goes back to the client with its last error, and is a stop, PARK type `tool_failure` (proposed below).
+- **Stop.** After the first stop the shim refuses every later call (-32011), as the driver would end the session there. `--keep-going` (probe only) lets one session show several failures.
+- **Log.** Every call, attempt, answer, retry, refusal, late answer and stop, as JSON lines. The proxy's stderr goes to its own file, and each failed attempt's stderr lines are copied into that attempt's record, because the proxy hid an upstream cause behind -32603 in spike 0.3 (finding 3). Running counts go to a summary file and the first stop to a stop file, for a driver to read. Token-shaped strings are removed from every line.
+- **Fault, probe only.** `--fault drop-answer:<tool>:<n>` throws away the proxy's answer to the first attempt of the n-th call of a tool and treats it as no answer, so a retry follows.
+
+Not handled: a client's `notifications/cancelled` for a call (it passes through with the client's ID, which the proxy does not know); starting the proxy again after it exits.
+
+**The run.** As `getai-fl1-exec`: the Dataverse CLI 1.0.88 from spike 0.3's pinned tarball and hash, signed in with its own `dataverse auth create --githubFederated` (it does not share pac's profile), telemetry off. Then three short sessions of a scripted client, each with its own shim and proxy, against spike 0.18's table `fspk_spikeitem` in `FactorySpike`:
+
+| Session | Cap | Calls, in order |
+|---|---|---|
+| A | 16, `--keep-going` | read `organization`; read the spike table; create one row; read it back; a bad query (`SELEKT ...`); a create on a table that does not exist (`fspk_nosuchtable`) |
+| B | 2 | a read; the bad query, whose retry would be the third call; one more read |
+| C | 8, two faults | a create whose first answer is dropped; a create with its own row ID (`fspk_spikeitemid`) whose first answer is dropped |
+
+Every row is named `spike-0.14 part3 (...)`. Before and after the sessions, the Web API deletes every row with that prefix that the lane's application user made, and checks that none is left. Session C's second create was not in the brief: it tests one way to make a create safe to retry, for 4 more calls (0.4 credit).
+
+**Local check before the run** (19 November 2026, scratch harness, not committed). None of Microsoft's code ran on the laptop: a fake `dataverse mcp` (stdio JSON-RPC, rows kept in a file), a fake Web API, token service and OIDC endpoint. The probe ran end to end and all 10 checks passed; the dropped-answer create wrote twice and the own-ID create once; the clean-up deleted a planted leftover and kept a row made by another user. A second set of 18 checks drove the shim alone, three rounds: pass-through keeps the client's IDs and is not counted; no answer in time is retried and both late answers are logged; a proxy that dies is not retried and later calls are refused; three calls sent at once against a cap of 2 send exactly two; a request from the server reaches the client and its answer gets back; a token in a call never reaches the log; a cap of 0 sends nothing. The harness found two bugs, fixed before the run: the summary file overwrote the retry count with the retry limit, and two calls ending at once raced on the summary's temporary file.
+
+### Findings (run 39749076, 19 November 2026)
+
+1. **The shim works in front of the real proxy.** `initialize` and `tools/list` passed through (server `dataverse 1.0.88.0`, protocol `2025-06-18`), and so did the reads and the create. In all three sessions the counts in the summary matched the log. Each call took 0.1 to 1.5 seconds. The whole step took 40 seconds, most of it the shim's waits between retries.
+2. **The cap held.** Session B (cap 2) sent exactly 2 calls. The bad query's retry, which would have been the third, was refused before it was sent, and so was the read after it. Both answers named the cap and PARK `budget`. Because the cap counts retries, no retry can pass it.
+3. **Every failure came back as a tool result with `isError`,** not as a JSON-RPC error, each with a correlation ID:
+
+   | Forced failure | What came back, on each of 4 attempts | Safe to retry? |
+   |---|---|---|
+   | Bad query (`SELEKT ...`) | "An unexpected error occurred. (correlation ID: ...)" | Safe, but pointless: the same answer every time |
+   | Create on a table that does not exist | "Could not find an entity with name fspk_nosuchtable and id 00000000-... (2645799)" | Safe (nothing was written), but pointless |
+   | A call past the cap | The shim's own refusal, -32010; nothing sent | No: it is the stop |
+   | Create, first answer dropped | The retry: "Created record with ID <a new ID>" | **No: it wrote twice** |
+   | Create with its own ID, first answer dropped | The retries: "Cannot insert duplicate key." | **Yes: it wrote once** |
+
+4. **A retried create whose answer was lost writes twice.** The first attempt made a row, the shim threw its answer away, the retry made a second row with a new ID, and the client saw only the second. So the driver must never retry a plain create after no answer.
+5. **A create that carries its own row ID is safe to retry.** `create_record` took `fspk_spikeitemid` in `item`, and Dataverse used it. Each retry was refused with "Cannot insert duplicate key", and one row exists. So a shim can make every create safe to retry by adding an ID when the agent gives none, and take "duplicate key" on a retry as success. As run, the shim retried the duplicate answer three times and called it a failure: 3 calls wasted and a stop that was not needed.
+6. **The proxy's stderr holds no cause for these failures.** It wrote one line per call, the same unencrypted-cache warning each time (spike 0.3 finding 5), and nothing else. The cause is only in the tool result's text. Spike 0.3's 403 reached stderr because the session start failed, not a tool call. So the night's trace must keep each tool result's text and correlation ID (rule 16); the stderr alone is not enough.
+7. **A bad query tells the agent nothing:** "An unexpected error occurred", with no reason. An agent could loop on it. `read_query`'s own description says to find the table with `search` and its columns with `describe` first; the agent instructions should say the same, and to stop after one failed query of the same shape.
+8. **Deterministic failures were retried for nothing.** The bad query and the missing table gave the same answer four times: 6 wasted calls in session A. Under the rule as decided (retry any failed call three times, then stop), one typo by the agent would end the night's session as a PARK.
+9. **The tool list grew since spike 0.3.** There are 16 tools, not 15: `invoke_api` is new. `create_record` now also takes `items`, a batch of up to 25 records in one call. If a call is billed once whatever it holds, a batch is cheaper, and a lost answer to a batch would write up to 25 rows twice [inference]. Agent instructions must read the tool list (spike 0.3 finding 12).
+10. **The billed count, to match later.** 20 calls reached Dataverse, and all were answered: 6 succeeded, 12 were tool errors, and 2 succeeded but their answers were dropped by the shim. The shim refused 2 and sent nothing for them; `initialize` and `tools/list` were made once per session. In the admin centre (Licensing, Copilot Studio, Environments, `factory-lane-1`, Copilot Credits capacity), 19 November 2026 should show **20 billed rows of 0.1 (2.0 credits)** if every answered call is billed, or **8 rows (0.8 credit)** if only the successes are. The run was between 09:56:06 and 09:56:46 UTC (20:56 Sydney time). Part 2 used FlowAgent, not Dataverse MCP, so nothing else should be there that day.
+11. **Clean-up.** No leftover rows before. After, the Web API found 4 rows by the lane's application user ("create", two "answer dropped", "own ID"), deleted each (HTTP 204), and found none left.
+12. No token-shaped string in the log or the artifact. The Dataverse CLI's profile was removed at the end.
+
+What this does not show: the calls a real night session makes (part 4 counts them, for the cap's number); a transient failure (none came: no timeout, no throttling, no JSON-RPC error); whether a throttled call comes back as `isError` or as an error; updates and deletes retried; a batch create retried; how Copilot CLI shows the shim's refusal to the model (part 4).
+
+### Proposals for the Stage 3 driver spec (not decided)
+
+**Retry only where it is safe and can help.** Findings 4, 5 and 8 say "retry any failed call three times" is wrong both ways: it wastes calls on the agent's own mistakes, and it can write twice.
+
+| Failure | Retry? | Then |
+|---|---|---|
+| A tool result with `isError`: the tool ran and said no (bad query, missing table, duplicate key) | No | Back to the agent as it is, to fix its call. Counted against the cap. Not a PARK |
+| A tool result whose text says throttled, or 429 or 503 (not seen yet) | Up to 3, waiting as long as the answer asks | PARK `tool_failure` if it still fails |
+| No answer in time, a JSON-RPC error from the proxy, or the proxy exits, on a read | Up to 3, with back-off; start the proxy again first if it exited | PARK `tool_failure` if it still fails |
+| The same, on a create, update or delete by row ID | Up to 3. On a retry, "duplicate key" for a create, or "not found" for a delete, counts as success | PARK `tool_failure` if it still fails |
+| The same, on a create without a row ID, or a batch | Never happens: the shim adds a row ID to each record before the first attempt (the primary key's name from the Web API's `EntityDefinitions`) | |
+
+**A PARK type for a call that still fails: `tool_failure`** (the cap stays `budget`). Its `park.json` instruction names the tool, its arguments, the last answer's text and correlation ID, and the shim log in the night's trace. It would join plan 5.11's type list and Appendix D's `Custom.ParkType` picklist; the name is product-neutral (rule 18).
+
+**The cap counts attempts sent, retries included,** as the shim does, because each one is billed. The number itself comes from part 4.
+
 ## Run order and results
 
 Runs start with `GH_HOST=getai.ghe.com gh workflow run <file> -R GetAI-IP/export-probe --ref main`, with `-f mode=... -f tenant_id=... -f app_id=... -f env_url=https://factory-lane-1.crm6.dynamics.com/` for `tools.yml`.
@@ -142,13 +211,15 @@ Runs start with `GH_HOST=getai.ghe.com gh workflow run <file> -R GetAI-IP/export
 | 1 | 39346986 | copilot-check | Pass: `ready`, exit 0 |
 | 2 | 39347126 | tools, flow | **Pass.** Timer flow made, updated, on, ran (`Succeeded`), off, exported, packed signed out and offline, round trip byte-identical. The Dataverse flow turned on, was not started (HTTP 401, finding 3), and was turned off. 4.4 minutes |
 | 3 | 39563486 | tools, part2 | **App Spec works; FlowAgent in part** (13 of 17 checks pass). `az login` as the lane identity; App Spec lint, dry run and apply (109 s, verify 13 of 13); table and app in the export; FlowAgent's update on both paths in the export; packed signed out and offline. Failed: FlowAgent's list, and its run on both paths (HTTP 401, part 2 finding 6). 3.6 minutes |
+| 4 | 39749076 | tools, part3 | **Pass** (10 of 10 checks). The shim passed `initialize`, `tools/list`, reads and a create; the cap of 2 held; the bad query and the missing table were each tried four times; the dropped-answer create was retried and wrote twice; the own-ID create wrote once. 20 calls sent, 2 refused. All 4 rows deleted. 1 minute |
 
 ## Left to do
 
 1. ~~**Part 2**~~: done in Session 26 (run 39563486), above.
-2. **Part 3:** a stdio shim in front of `dataverse mcp` (the local proxy, pinned) that counts `tools/call`, stops at a cap and retries a failed call up to three times; driven by a scripted client with reads, a create and forced failures; plus which errors the proxy returns for each.
-3. **Part 4:** Copilot CLI on the runner with the pinned plugins, `POWER_PLATFORM_SKILLS_NONINTERACTIVE=1`, the lane's pac and `az` sign-ins, and the shim in front of Dataverse MCP: one small App Spec story and one small flow story. Record where each stops, which tools it asked for, and the MCP calls per session (the cap's first number). From part 2: keep `az` signed in for the whole session (finding 9); expect FlowAgent's list, turn on, turn off and run tools to fail (finding 6); an App Spec story on the existing app is the update path, not yet tried.
-4. Then the exit test verdict, the plan edits at Boroon's word, and the scratch deleted at his word.
+2. ~~**Part 3**~~: done in Session 27 (run 39749076), above.
+3. **Part 4:** Copilot CLI on the runner with the pinned plugins, `POWER_PLATFORM_SKILLS_NONINTERACTIVE=1`, the lane's pac and `az` sign-ins, and the shim in front of Dataverse MCP: one small App Spec story and one small flow story. Record where each stops, which tools it asked for, and the MCP calls per session (the cap's first number). From part 2: keep `az` signed in for the whole session (finding 9); expect FlowAgent's list, turn on, turn off and run tools to fail (finding 6); an App Spec story on the existing app is the update path, not yet tried. From part 3: put the shim in Copilot CLI's MCP config in place of `dataverse mcp`, with a cap well above a small story's calls; see how the model reads the shim's refusal; keep the tool results' text and correlation IDs (finding 6).
+4. **Check the bill for part 3** in the admin centre, from Friday 20 November (it lags up to a day): 20 billed rows or 8 for 19 November (part 3 finding 10). Read-only, under Boroon's sign-in.
+5. Then the exit test verdict, the plan edits at Boroon's word (with the retry rule and the `tool_failure` PARK type proposed under part 3), and the scratch deleted at his word.
 
 ## Scratch
 
@@ -156,7 +227,8 @@ New in this spike, kept until it ends, then deleted with 0.18's and 0.19's at Bo
 
 | Thing | Where | How to delete |
 |---|---|---|
-| `tools.yml`, `copilot-check.yml`, `probe/tools_probe.py` and their runs | `GetAI-IP/export-probe` | Go with the repo (0.18's list) |
+| `tools.yml`, `copilot-check.yml`, `probe/tools_probe.py`, `probe/mcp_shim.py` and their runs | `GetAI-IP/export-probe` | Go with the repo (0.18's list) |
+| Part 3's rows in `fspk_spikeitem` | `factory-lane-1` | None left: run 39749076 deleted all 4 by the Web API |
 | Cloud flow "Factory spike timer flow", in `FactorySpike`, off (made by run 39347126; its Compose step changed by FlowAgent in run 39563486) | `factory-lane-1` | `tools.yml`, `mode=flow-undo`; 0.18's `teardown` does not know it, so run this first |
 | The App Spec's table "Spike app row" (`fspk_spikeapprow`) with its forms and views, the app "Factory spike app" (`fspk_factoryspikeapp`) with its site map and two app settings, and the icon web resource `fspk_factoryspikeapp_icon`, all in `FactorySpike` (made by run 39563486) | `factory-lane-1` | Not written yet: a `part2-undo` mode by the Web API (the app, then the site map, the table and the web resource), run before 0.18's `teardown`. **Do not use Microsoft's `teardown-model-app.js`:** its last step deletes the solution the spec names, which is `FactorySpike` |
 | FlowAgent's own backups of the flow (it keeps one before each change) | the runner's home folder | Gone with the runner |
