@@ -143,6 +143,7 @@ Open items:
 - The shim does not yet follow the accepted rule: as run, it retries every failure. Change it at the start of part 4.
 
 Next steps:
+0. Pull request 39 (https://github.com/boroonmahanta/overnight-ai-factory/pull/39), opened at Boroon's word on 20 November 2026. Boroon merges.
 1. Boroon decides on the dates after 2461.
 2. Spike 0.14 part 4 on the laptop (README, "Left to do"): first the shim to the accepted rule, checked locally; then the shim in Copilot CLI's MCP config. Then the exit test verdict and plan edits at Boroon's word. Then 2511.
 3. Fri 20 Nov: DG2 (2466), then ask the engineers for their exports.
