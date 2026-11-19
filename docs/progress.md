@@ -140,7 +140,7 @@ Open items:
 - The scratch grows: the App Spec's table, app, site map and icon. An undo mode by the Web API is not written yet; never use Microsoft's `teardown-model-app.js` on it, because its last step deletes the `FactorySpike` solution.
 
 Next steps:
-1. Boroon to look at this branch; open a pull request when he says.
+1. Pull request 38 (https://github.com/boroonmahanta/overnight-ai-factory/pull/38), opened at Boroon's word on 19 November 2026. Boroon merges.
 2. Spike 0.14 parts 3 and 4 on the laptop (README, "Left to do"), then the exit test verdict and plan edits at Boroon's word. Then 2511.
 3. Fri 20 Nov: DG2 (2466), then ask the engineers for their exports.
 
