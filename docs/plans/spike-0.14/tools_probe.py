@@ -12,6 +12,14 @@ run by .github/workflows/tools.yml. One subcommand per step:
              tree again signed out and with no network
   flow-undo  delete the timer flow and make sure the Dataverse flow is off. A
              safety net only
+  part2      Microsoft's plugins as the lane identity (pinned, telemetry off):
+             az login with the job's GitHub OIDC token, then the model-apps
+             build engine on a tiny App Spec (lint, dry run, apply, never
+             --allow-destructive), then FlowAgent's MCP server called by a small
+             client (list, get, update, run the timer flow, read its runs), on
+             the Power Platform API path and on the classic fallback. Then
+             export and unpack, compare, and pack again signed out and offline
+  scan       delete any output file that holds a token-shaped string (before upload)
   summary    write the result table; exit 1 if the step failed
 
 Not a gate script. Never prints a token. Standard library only (python3 -I).
@@ -21,9 +29,11 @@ import base64
 import difflib
 import json
 import os
+import queue
 import re
 import subprocess
 import sys
+import threading
 import time
 import urllib.error
 import urllib.parse
@@ -279,27 +289,42 @@ def compare_zips(a, b):
 # ---------- pac ----------
 
 STEPS = []
+JWT = re.compile(r"eyJ[A-Za-z0-9_-]{8,}\.eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]*")
 
 
-def run(name, argv, cwd=None, allow_fail=True):
-    """Run a command, keep its output in a log file, record the step."""
+def redact(text):
+    """Belt and braces: no token-shaped string reaches a log, the summary or the artifact."""
+    return JWT.sub("[token removed]", text or "")
+
+
+def log_path_for(name, suffix=".log"):
     logs = os.path.join(work_dir(), "logs")
     os.makedirs(logs, exist_ok=True)
-    log_path = os.path.join(logs, re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-") + ".log")
+    return os.path.join(logs, re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-") + suffix)
+
+
+def run(name, argv, cwd=None, allow_fail=True, extra_env=None, timeout=None, shown=None):
+    """Run a command, keep its output in a log file, record the step. `shown` replaces the command in the record."""
     started = time.time()
-    print(f"\n::group::{name}: {' '.join(argv)}")
-    process = subprocess.run(argv, cwd=cwd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT, text=True)
+    shown = shown or " ".join(argv)
+    print(f"\n::group::{name}: {shown}")
+    child_env = dict(os.environ, **(extra_env or {}))
+    try:
+        process = subprocess.run(argv, cwd=cwd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                 stderr=subprocess.STDOUT, text=True, env=child_env, timeout=timeout)
+        code, output = process.returncode, redact(process.stdout)
+    except subprocess.TimeoutExpired as error:
+        code, output = 124, redact((error.stdout or b"").decode("utf-8", "replace") if isinstance(error.stdout, bytes)
+                                   else (error.stdout or "")) + f"\n[timed out after {timeout} s]"
     seconds = round(time.time() - started, 1)
-    with open(log_path, "w", encoding="utf-8") as handle:
-        handle.write(process.stdout)
-    print(process.stdout[-6000:])
-    print(f"::endgroup::\n{name}: exit {process.returncode} in {seconds} s")
-    STEPS.append({"name": name, "command": " ".join(argv), "exit": process.returncode, "seconds": seconds,
-                  "tail": clip(process.stdout[-1500:], 1500)})
-    if process.returncode != 0 and not allow_fail:
-        raise ProbeError(f"{name} failed with exit {process.returncode}")
-    return process.returncode == 0
+    with open(log_path_for(name), "w", encoding="utf-8") as handle:
+        handle.write(output)
+    print(output[-6000:])
+    print(f"::endgroup::\n{name}: exit {code} in {seconds} s")
+    STEPS.append({"name": name, "command": shown, "exit": code, "seconds": seconds, "tail": clip(output[-1500:], 1500)})
+    if code != 0 and not allow_fail:
+        raise ProbeError(f"{name} failed with exit {code}")
+    return code == 0
 
 
 def note(name, ok, seconds=0.0, tail=""):
@@ -566,6 +591,534 @@ def cmd_flow_undo():
     summary_write("### flow-undo\n\nUndone: " + (", ".join(done) or "nothing") + "\n")
 
 
+# ---------- part 2: Microsoft's plugins as the lane identity ----------
+#
+# Microsoft's power-platform-skills, pinned by the workflow and run unread for this spike only
+# (Boroon, 18 November 2026). Both plugins take every token from `az account get-access-token`, so
+# the Azure CLI is signed in as getai-fl1-exec with the job's GitHub OIDC token, the same federated
+# credential pac uses.
+
+PPS_ROOT = env("PPS_ROOT")
+MODEL_APPS = os.path.join(PPS_ROOT, "plugins", "model-apps")
+POWER_AUTOMATE = os.path.join(PPS_ROOT, "plugins", "power-automate")
+APP_TABLE = "fspk_spikeapprow"
+APP_NAME = "Factory spike app"
+SCRATCH = "Spike 0.14 scratch, made by the App Spec build engine as the lane identity. Remove after spike 0.14."
+# A host that never resolves (.invalid): FlowAgent falls back to the classic flow service on ENOTFOUND.
+FALLBACK_TEMPLATE = "https://{prefix}.{shard}.spike-fallback.invalid"
+
+APP_SPEC = {
+    "solution": {"uniqueName": SOLUTION, "displayName": "Factory spike", "publisherPrefix": "fspk"},
+    "app": {"name": APP_NAME, "description": SCRATCH},
+    "entities": [{
+        "schemaName": APP_TABLE, "displayName": "Spike app row", "pluralName": "Spike app rows",
+        "description": SCRATCH,
+        "primaryAttribute": {"schemaName": "fspk_name", "displayName": "Name"},
+        "columns": [{"schemaName": "fspk_note", "displayName": "Note", "type": "Text",
+                     "description": "A free-text note on a spike app row."}],
+    }],
+    "relationships": [],
+    "forms": [{"entity": APP_TABLE, "type": "main", "name": "Spike app row", "layout": "auto",
+               "description": "The main form for a spike app row."}],
+    "views": [{"entity": APP_TABLE, "name": "Active spike app rows", "columns": ["fspk_name", "fspk_note"],
+               "sort": [{"attr": "fspk_name", "dir": "asc"}], "activeOnly": True,
+               "description": "Active spike app rows, by name."}],
+    "appShell": {"areas": [{"label": "Spike", "groups": [{"label": "Rows", "subAreas": [{"entity": APP_TABLE}]}]}]},
+}
+
+COMPONENT_TYPES = {1: "table", 2: "column", 3: "relationship", 9: "choice", 10: "table relationship", 20: "security role",
+                   26: "view", 29: "process or flow", 59: "chart", 60: "form", 61: "web resource", 62: "site map",
+                   80: "model-driven app", 372: "connection reference", 380: "environment variable definition",
+                   381: "environment variable value"}
+
+
+def node_env():
+    """What every plugin process gets: no user waiting, telemetry off. The job sets the same."""
+    return {"POWER_PLATFORM_SKILLS_NONINTERACTIVE": "1",
+            "POWER_PLATFORM_SKILLS_TELEMETRY": "0",
+            "POWER_PLATFORM_SKILLS_TELEMETRY_MODEL_APPS_OPTOUT": "1",
+            "POWER_PLATFORM_SKILLS_TELEMETRY_POWER_AUTOMATE_OPTOUT": "1",
+            "FLOWAGENT_TELEMETRY": "0",
+            "FLOWAGENT_DISABLE_DISK_CACHE": "1",
+            "PA_CLOUD": "commercial"}
+
+
+def jwt_claims(token):
+    part = token.split(".")[1]
+    return json.loads(base64.urlsafe_b64decode(part + "=" * (-len(part) % 4)))
+
+
+def as_text(value):
+    if isinstance(value, bytes):
+        return value.decode("utf-8", "replace")
+    return value or ""
+
+
+def tool_versions():
+    found = {}
+    for name, argv in (("node", ["node", "--version"]), ("az", ["az", "version", "--output", "json"])):
+        try:
+            process = subprocess.run(argv, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=120)
+        except (OSError, subprocess.TimeoutExpired) as error:
+            found[name] = f"not run: {error}"
+            continue
+        if name == "az":
+            try:
+                found[name] = json.loads(process.stdout or "{}").get("azure-cli")
+            except ValueError:
+                found[name] = None
+        else:
+            found[name] = process.stdout.strip()
+    for plugin, folder in (("model-apps", MODEL_APPS), ("power-automate", POWER_AUTOMATE)):
+        try:
+            with open(os.path.join(folder, ".claude-plugin", "plugin.json"), encoding="utf-8") as handle:
+                found[plugin] = json.load(handle).get("version")
+        except (OSError, ValueError):
+            found[plugin] = None
+        try:
+            with open(os.path.join(folder, "scripts", "lib", "telemetry", "ikey.json"), encoding="utf-8") as handle:
+                found[plugin + " telemetry disabled"] = json.load(handle).get("disabled") is True
+        except (OSError, ValueError):
+            found[plugin + " telemetry disabled"] = None
+    process = subprocess.run(["git", "-C", PPS_ROOT, "rev-parse", "HEAD"], capture_output=True, text=True)
+    found["power-platform-skills head"] = process.stdout.strip()
+    found["head is the pin"] = bool(env("PPS_COMMIT")) and process.stdout.strip() == env("PPS_COMMIT")
+    return found
+
+
+def az_login(label):
+    """Sign the Azure CLI in as the lane identity with a fresh GitHub OIDC token. The token is never shown."""
+    try:
+        assertion = github_oidc_token()
+    except (ProbeError, OSError, ValueError) as error:
+        note(f"az login ({label})", False, 0, f"no GitHub OIDC token: {error}")
+        return {"ok": False, "error": clip(error, 300)}
+    claims = jwt_claims(assertion)
+    ok = run(f"az login ({label})",
+             ["az", "login", "--service-principal", "--username", env("APP_ID"), "--tenant", env("TENANT_ID"),
+              "--federated-token", assertion, "--allow-no-subscriptions", "--output", "none"],
+             shown="az login --service-principal --username <app id> --tenant <tenant id> "
+                   "--federated-token <GitHub OIDC token> --allow-no-subscriptions --output none", timeout=180)
+    return {"ok": ok, "oidc_token_lifetime_seconds": claims.get("exp", 0) - claims.get("iat", 0)}
+
+
+def az_account():
+    process = subprocess.run(["az", "account", "show", "--output", "json"], stdin=subprocess.DEVNULL,
+                             capture_output=True, text=True, timeout=120)
+    if process.returncode != 0:
+        return {"ok": False, "error": clip(redact(process.stderr), 400)}
+    data = json.loads(process.stdout)
+    user = data.get("user") or {}
+    return {"ok": True, "user_type": user.get("type"), "user_is_lane_app": user.get("name") == env("APP_ID"),
+            "tenant_matches": data.get("tenantId") == env("TENANT_ID"), "account_name": data.get("name")}
+
+
+def az_token(resource_url):
+    """One `az account get-access-token`, as both plugins call it. Keeps whether it worked and which claims, never the token."""
+    started = time.time()
+    process = subprocess.run(["az", "account", "get-access-token", "--resource", resource_url, "--output", "json"],
+                             stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=120)
+    result = {"seconds": round(time.time() - started, 1)}
+    if process.returncode != 0:
+        result.update(ok=False, error=clip(redact(process.stderr), 500))
+        return result
+    data = json.loads(process.stdout)
+    token = data.get("accessToken") or ""
+    result.update(ok=bool(token), expires_on=data.get("expiresOn"))
+    try:
+        result["claims"] = claim_names(token)
+    except (IndexError, ValueError):
+        result["claims"] = "not a JWT"
+    return result
+
+
+def az_tokens():
+    return {name: az_token(url) for name, url in (
+        ("dataverse", resource()), ("dataverse with slash", resource() + "/"),
+        ("power apps service", "https://service.powerapps.com/"), ("flow service", FLOW_SERVICE),
+        ("power platform api", "https://api.powerplatform.com"))}
+
+
+def last_json(text):
+    """The JSON result a plugin script prints last on stdout."""
+    text = (text or "").strip()
+    try:
+        return json.loads(text)
+    except ValueError:
+        pass
+    lines = text.split("\n")
+    for start in range(len(lines) - 1, -1, -1):
+        if lines[start].startswith("{") or lines[start].startswith("["):
+            try:
+                return json.loads("\n".join(lines[start:]))
+            except ValueError:
+                continue
+    return None
+
+
+def node_run(name, argv, cwd, timeout):
+    """Run one plugin script with its stdout (its JSON result) and stderr (its progress) kept apart."""
+    shown = " ".join(argv).replace(MODEL_APPS, "<model-apps>").replace(work_dir(), "<work>")
+    started = time.time()
+    print(f"\n::group::{name}: {shown}")
+    try:
+        process = subprocess.run(argv, cwd=cwd, stdin=subprocess.DEVNULL, capture_output=True, text=True,
+                                 env=dict(os.environ, **node_env()), timeout=timeout)
+        code, out, err = process.returncode, redact(process.stdout), redact(process.stderr)
+    except subprocess.TimeoutExpired as error:
+        code, out = 124, redact(as_text(error.stdout))
+        err = redact(as_text(error.stderr)) + f"\n[timed out after {timeout} s]"
+    seconds = round(time.time() - started, 1)
+    with open(log_path_for(name, ".stdout.log"), "w", encoding="utf-8") as handle:
+        handle.write(out)
+    with open(log_path_for(name, ".stderr.log"), "w", encoding="utf-8") as handle:
+        handle.write(err)
+    print(err[-6000:])
+    print(out[-3000:])
+    print(f"::endgroup::\n{name}: exit {code} in {seconds} s")
+    STEPS.append({"name": name, "command": shown, "exit": code, "seconds": seconds,
+                  "tail": clip((err + "\n" + out)[-1500:], 1500)})
+    result = last_json(out)
+    return {"exit": code, "seconds": seconds, "result": clip(json.dumps(result, default=str), 3000) if result else None,
+            "stderr_tail": clip(err[-3000:], 3000)}
+
+
+def solution_parts(dv, solution_id):
+    rows = dv.rows(f"/solutioncomponents?$select=objectid,componenttype&$filter=_solutionid_value eq {solution_id}")
+    return sorted({(row["componenttype"], bare(row["objectid"])) for row in rows})
+
+
+def app_spec_part(dv, solution_id):
+    """Lint, dry run, then apply the tiny App Spec, as /app-builder's unattended mode does. Never --allow-destructive."""
+    out = {}
+    folder = os.path.join(work_dir(), "app-spec")
+    os.makedirs(folder, exist_ok=True)
+    spec_path = os.path.join(folder, "app-spec.json")
+    with open(spec_path, "w", encoding="utf-8") as handle:
+        json.dump(APP_SPEC, handle, indent=2)
+    scripts = os.path.join(MODEL_APPS, "scripts")
+    build = ["node", os.path.join(scripts, "build-model-app.js"), "--env", resource(), "--spec", "@" + spec_path]
+    before = solution_parts(dv, solution_id)
+    try:
+        out["lint"] = node_run("App Spec lint", ["node", os.path.join(scripts, "lint-app-spec.js"), "--spec",
+                                                 "@" + spec_path, "--json"], folder, 300)
+        if out["lint"]["exit"] != 0:
+            out["stopped_at"] = "lint"           # lint errors block, as in the skill
+            return out
+        out["dry_run"] = node_run("App Spec build, dry run", build + ["--non-interactive"], folder, 900)
+        if out["dry_run"]["exit"] != 0:
+            out["stopped_at"] = "dry run"        # the dry run is the unattended approval
+            return out
+        out["apply"] = node_run("App Spec build, apply", build + ["--apply", "--verify", "--publish", "--non-interactive"],
+                                folder, 1800)
+        if out["apply"]["exit"] != 0:
+            out["stopped_at"] = "apply"
+    finally:
+        try:
+            after = solution_parts(dv, solution_id)
+            out["solution_parts_added"] = [{"type": COMPONENT_TYPES.get(t, str(t)), "id": i} for t, i in after if (t, i) not in before]
+            out["solution_parts_removed"] = [{"type": COMPONENT_TYPES.get(t, str(t)), "id": i} for t, i in before if (t, i) not in after]
+            status, _, table = dv.call("GET", f"/EntityDefinitions(LogicalName='{APP_TABLE}')?$select=LogicalName,SchemaName,IsManaged",
+                                       ok=(200, 404))
+            out["table_exists"] = status == 200
+            apps = dv.rows(f"/appmodules?$select=appmoduleid,uniquename,name,publishedon&$filter=name eq '{quote(APP_NAME)}'")
+            out["apps_found"] = [{"uniquename": a.get("uniquename"), "published_on": a.get("publishedon")} for a in apps]
+        except ProbeError as error:
+            out["read_back_error"] = str(error)
+    return out
+
+
+class McpClient:
+    """A small stdio MCP client: newline-delimited JSON-RPC, one request at a time, every tools/call counted."""
+
+    def __init__(self, label, argv, cwd, extra_env):
+        self.label = label
+        self.stderr_path = log_path_for(f"flowagent {label}", ".stderr.log")
+        self.stderr_file = open(self.stderr_path, "w", encoding="utf-8")
+        self.process = subprocess.Popen(argv, cwd=cwd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                        stderr=self.stderr_file, text=True, bufsize=1,
+                                        env=dict(os.environ, **extra_env))
+        self.lines = queue.Queue()
+        threading.Thread(target=self._read, daemon=True).start()
+        self.next_id = 0
+        self.calls = []
+        self.server_requests = []
+
+    def _read(self):
+        for line in self.process.stdout:
+            self.lines.put(line)
+        self.lines.put(None)
+
+    def send(self, message):
+        self.process.stdin.write(json.dumps(message) + "\n")
+        self.process.stdin.flush()
+
+    def request(self, method, params=None, timeout=120):
+        self.next_id += 1
+        request_id = self.next_id
+        message = {"jsonrpc": "2.0", "id": request_id, "method": method}
+        if params is not None:
+            message["params"] = params
+        self.send(message)
+        deadline = time.time() + timeout
+        while True:
+            remaining = deadline - time.time()
+            if remaining <= 0:
+                raise ProbeError(f"{method}: no answer in {timeout} s")
+            try:
+                line = self.lines.get(timeout=remaining)
+            except queue.Empty:
+                continue
+            if line is None:
+                raise ProbeError(f"{method}: the server closed its output (exit {self.process.poll()})")
+            try:
+                answer = json.loads(line)
+            except ValueError:
+                continue
+            if not isinstance(answer, dict):
+                continue
+            if "method" in answer and "id" in answer:
+                # A request from the server (sampling, roots, elicitation): the spike client offers none.
+                self.server_requests.append(answer.get("method"))
+                self.send({"jsonrpc": "2.0", "id": answer["id"],
+                           "error": {"code": -32601, "message": "not offered by the spike client"}})
+                continue
+            if answer.get("id") == request_id:
+                if "error" in answer:
+                    raise ProbeError(f"{method}: JSON-RPC error {clip(json.dumps(answer['error']), 400)}")
+                return answer.get("result") or {}
+
+    def notify(self, method, params=None):
+        message = {"jsonrpc": "2.0", "method": method}
+        if params is not None:
+            message["params"] = params
+        self.send(message)
+
+    def start(self):
+        init = self.request("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
+                                           "clientInfo": {"name": "spike-0.14-probe", "version": "0.1"}}, timeout=180)
+        self.notify("notifications/initialized")
+        tools = self.request("tools/list", {}, timeout=120)
+        return init, tools
+
+    def call(self, tool, arguments, timeout=180):
+        started = time.time()
+        shown = {k: ("<definition>" if k == "definition" else v) for k, v in arguments.items() if k != "env"}
+        entry = {"tool": tool, "arguments": shown}
+        data = None
+        try:
+            result = self.request("tools/call", {"name": tool, "arguments": arguments}, timeout)
+            text = "\n".join(part.get("text", "") for part in result.get("content", []) if part.get("type") == "text")
+            entry["is_error"] = bool(result.get("isError"))
+            entry["text"] = clip(redact(text), 1500)
+            try:
+                data = json.loads(text)
+            except ValueError:
+                data = None
+        except ProbeError as error:
+            entry["is_error"] = True
+            entry["text"] = str(error)
+        except (BrokenPipeError, OSError) as error:
+            entry["is_error"] = True
+            entry["text"] = f"the server is gone: {error}"
+        entry["seconds"] = round(time.time() - started, 1)
+        self.calls.append(entry)
+        print(f"{self.label}: {tool} -> {'ERROR' if entry['is_error'] else 'ok'} in {entry['seconds']} s: {entry['text'][:400]}")
+        return entry, data
+
+    def close(self):
+        try:
+            self.process.stdin.close()
+        except OSError:
+            pass
+        try:
+            self.process.wait(timeout=15)
+        except subprocess.TimeoutExpired:
+            self.process.terminate()
+            try:
+                self.process.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                self.process.kill()
+        self.stderr_file.close()
+        with open(self.stderr_path, encoding="utf-8", errors="replace") as handle:
+            text = redact(handle.read())
+        with open(self.stderr_path, "w", encoding="utf-8") as handle:
+            handle.write(text)
+        return text
+
+
+def flowagent_session(label, extra_env, env_id, dv, compose, run_while_off=False):
+    """Start FlowAgent's MCP server as its .mcp.json does, and work the timer flow through it."""
+    with open(os.path.join(POWER_AUTOMATE, ".mcp.json"), encoding="utf-8") as handle:
+        server = json.load(handle)["mcpServers"]["flowagent"]
+    session = {"label": label}
+    started = time.time()
+    client = McpClient(label, [server["command"], *server.get("args", [])], POWER_AUTOMATE,
+                       dict(node_env(), PLUGIN_ROOT=POWER_AUTOMATE, PA_DEFAULT_ENVIRONMENT=env_id, **extra_env))
+    try:
+        init, tools = client.start()
+        session["server"] = init.get("serverInfo")
+        session["protocol"] = init.get("protocolVersion")
+        names = sorted(t.get("name", "") for t in tools.get("tools", []))
+        session["tools_listed"] = len(names)
+        timer = find_flow(dv, TIMER_FLOW)
+        if not timer:
+            raise ProbeError("the timer flow from part 1 is not in the lane")
+        if run_while_off:
+            client.call("whoami", {})
+            client.call("doctor", {}, timeout=300)
+
+        entry, listed = client.call("list_flows", {"env": env_id, "name": TIMER_FLOW, "top": 50})
+        rows = listed if isinstance(listed, list) else (listed or {}).get("flows", []) if isinstance(listed, dict) else []
+        flow_id = next((r.get("name") for r in rows if isinstance(r, dict) and r.get("displayName") == TIMER_FLOW), None)
+        session["listed_timer_flow"] = bool(flow_id)
+        if flow_id:
+            session["flow_id_is"] = ("workflowidunique" if bare(flow_id) == bare(timer["workflowidunique"]) else
+                                     "workflowid" if bare(flow_id) == bare(timer["workflowid"]) else "something else")
+        flow_id = flow_id or timer["workflowidunique"]
+
+        entry, flow = client.call("get_flow", {"env": env_id, "flow": flow_id})
+        session["got_flow"] = isinstance(flow, dict) and isinstance(flow.get("properties"), dict)
+        client.call("get_flow_context", {"env": env_id, "flow": flow_id})
+
+        if session["got_flow"]:
+            definition = flow["properties"].get("definition") or {}
+            definition.setdefault("actions", {}).setdefault("Compose", {})["inputs"] = compose
+            entry, _ = client.call("update_flow", {"env": env_id, "flow": flow_id, "definition": definition}, timeout=240)
+            after = find_flow(dv, TIMER_FLOW)
+            session["updated"] = not entry["is_error"] and compose_text(after) == compose
+        if run_while_off:
+            entry, _ = client.call("run_flow", {"env": env_id, "flow": flow_id}, timeout=120)
+            session["ran_while_off"] = not entry["is_error"]
+
+        entry, _ = client.call("publish_flow", {"env": env_id, "flow": flow_id})
+        session["turned_on"] = not entry["is_error"]
+        state = find_flow(dv, TIMER_FLOW)
+        session["state_after_on"] = [state.get("statecode"), state.get("statuscode")]
+        entry, ran = client.call("run_flow", {"env": env_id, "flow": flow_id, "wait": True, "timeout": 90}, timeout=180)
+        session["run"] = {"ok": not entry["is_error"]}
+        if isinstance(ran, dict):
+            session["run"].update({k: ran.get(k) for k in ("status", "invocationPath", "triggerName", "errorCode")})
+        entry, runs = client.call("get_run_history", {"env": env_id, "flow": flow_id, "top": 10})
+        run_rows = runs if isinstance(runs, list) else (runs or {}).get("runs", []) if isinstance(runs, dict) else []
+        session["runs_read"] = [r.get("status") for r in run_rows if isinstance(r, dict)]
+        entry, _ = client.call("disable_flow", {"env": env_id, "flow": flow_id})
+        session["turned_off"] = not entry["is_error"]
+    except ProbeError as error:
+        session["error"] = str(error)
+    finally:
+        stderr = client.close()
+        session["calls"] = client.calls
+        session["tool_calls"] = len(client.calls)
+        session["server_requests"] = client.server_requests
+        session["seconds"] = round(time.time() - started, 1)
+        session["fell_back"] = "Falling back to classic Flow RP API" in stderr
+        session["stderr_tail"] = clip(stderr[-2500:], 2500)
+        timer = find_flow(dv, TIMER_FLOW)
+        if timer and timer.get("statecode") == 1:   # never leave the timer flow on
+            session["backstop_turned_off"] = set_state(dv, timer["workflowid"], False)
+    return session
+
+
+def cmd_part2():
+    results = {"mode": "part2", "run_id": env("GITHUB_RUN_ID"), "steps": STEPS}
+    try:
+        results["tools"] = tool_versions()
+        dv = Dataverse()
+        org = dv.get("/RetrieveCurrentOrganization(AccessType=Microsoft.Dynamics.CRM.EndpointAccessType'Default')")
+        env_id = (org.get("Detail") or {}).get("EnvironmentId")
+        if not env_id:
+            raise ProbeError("no environment ID from RetrieveCurrentOrganization")
+        solution_id = dv.rows(f"/solutions?$select=solutionid&$filter=uniquename eq '{SOLUTION}'")[0]["solutionid"]
+
+        # 1. Sign the Azure CLI in as the lane identity; see which tokens it can get.
+        results["az_login_app_spec"] = az_login("App Spec")
+        results["az_account"] = az_account()
+        results["az_tokens"] = az_tokens()
+
+        # 2. The App Spec: lint, dry run, apply (unattended, never --allow-destructive).
+        try:
+            results["app_spec"] = app_spec_part(dv, solution_id)
+        except (ProbeError, OSError) as error:
+            results["app_spec"] = {"error": str(error)}
+
+        # 3. FlowAgent, on the Power Platform API and then on the classic fallback.
+        results["az_login_flowagent"] = az_login("FlowAgent")
+        for key, label, extra, compose, first in (
+                ("flowagent_ppapi", "power platform api", {}, "factory spike timer v3 (FlowAgent, Power Platform API)", True),
+                ("flowagent_fallback", "classic fallback", {"PA_PPAPI_BASE_URL": FALLBACK_TEMPLATE},
+                 "factory spike timer v4 (FlowAgent, classic fallback)", False)):
+            try:
+                results[key] = flowagent_session(label, extra, env_id, dv, compose, run_while_off=first)
+            except Exception as error:  # a session that cannot start is a finding, not the end of the mode
+                results[key] = {"label": label, "error": f"{type(error).__name__}: {clip(error, 400)}"}
+
+        # 4. Export, see what landed, pack again signed out and offline.
+        zip_path, folder = export_unpack("after-part2")
+        results["vs_reset_commit"] = compare(RESET_COMMIT, folder, "reset-commit", "export")
+        files = sorted(tree(folder))
+        results["app_files_in_export"] = [n for n in files if APP_TABLE in n.lower() or n.lower().startswith(
+            ("appmodules/", "appmodulesitemaps/", "webresources/"))]
+        timer_json = [n for n in files if n.lower().startswith("workflows/factoryspiketimerflow") and n.endswith(".json")]
+        if timer_json:
+            with open(os.path.join(folder, timer_json[0]), encoding="utf-8-sig") as handle:
+                results["exported_compose"] = json.load(handle)["properties"]["definition"]["actions"]["Compose"]["inputs"]
+        results["pack"] = pack_offline(zip_path, folder)
+        results["writes"] = dv.writes
+    except ProbeError as error:
+        results["error"] = str(error)
+    finally:
+        subprocess.run(["az", "logout"], stdin=subprocess.DEVNULL, capture_output=True)
+        spec = results.get("app_spec", {})
+        fa, fb = results.get("flowagent_ppapi", {}), results.get("flowagent_fallback", {})
+        exported = results.get("app_files_in_export", [])
+        results["exit_test"] = {
+            "az_login_as_lane_identity": bool(results.get("az_login_app_spec", {}).get("ok"))
+                                         and bool(results.get("az_account", {}).get("user_is_lane_app")),
+            "app_spec_lint": spec.get("lint", {}).get("exit") == 0,
+            "app_spec_dry_run": spec.get("dry_run", {}).get("exit") == 0,
+            "app_spec_apply": spec.get("apply", {}).get("exit") == 0,
+            "app_table_exported": any(n.lower().startswith("entities/" + APP_TABLE) for n in exported),
+            "app_exported": any(n.lower().startswith("appmodules/") for n in exported),
+            "flowagent_ppapi_listed": bool(fa.get("listed_timer_flow")),
+            "flowagent_ppapi_updated": bool(fa.get("updated")),
+            "flowagent_ppapi_ran": bool(fa.get("run", {}).get("ok")) and fa.get("run", {}).get("status") == "Succeeded",
+            "flowagent_ppapi_runs_read": bool(fa.get("runs_read")),
+            "flowagent_fallback_used": bool(fb.get("fell_back")),
+            "flowagent_fallback_updated": bool(fb.get("updated")),
+            "flowagent_fallback_ran": bool(fb.get("run", {}).get("ok")) and fb.get("run", {}).get("status") == "Succeeded",
+            "flowagent_fallback_runs_read": bool(fb.get("runs_read")),
+            "exported_with_flowagent_update": results.get("exported_compose") == "factory spike timer v4 (FlowAgent, classic fallback)",
+            "packs_signed_out": bool(results.get("pack", {}).get("pack"))
+                                and results.get("pack", {}).get("repack_vs_export", {}).get("same_root_components", False),
+            "packs_with_no_network": bool(results.get("pack", {}).get("pack_no_network")),
+        }
+        results["exit_test"]["pass"] = all(results["exit_test"].values())
+        save("results.json", results)
+        print(json.dumps(results["exit_test"], indent=2))
+
+
+def cmd_scan():
+    """Delete any output file that holds a token-shaped string, before the artifact upload."""
+    root = os.path.join(env("RUNNER_TEMP", "/tmp"), "tools-probe")
+    pattern = re.compile(JWT.pattern.encode())
+    removed = []
+    for here, _, names in os.walk(root):
+        for name in names:
+            path = os.path.join(here, name)
+            try:
+                with open(path, "rb") as handle:
+                    data = handle.read()
+            except OSError:
+                continue
+            if pattern.search(data):
+                os.remove(path)
+                removed.append(os.path.relpath(path, root))
+    line = "Token scan: removed " + (", ".join(removed) if removed else "nothing")
+    print(line)
+    summary_write(f"### scan\n\n{line}\n")
+
+
 def mark(value):
     return "pass" if value else "FAIL"
 
@@ -581,6 +1134,11 @@ def cmd_summary():
     lines += [f"| {s['name']} | {s['exit']} | {s['seconds']} |" for s in results["steps"]]
     lines += ["", "| Check | Result |", "|---|---|"]
     lines += [f"| {k} | {mark(v)} |" for k, v in results.get("exit_test", {}).items()]
+    if results["mode"] == "part2":
+        lines += summary_part2(results)
+        summary_write("\n".join(lines) + "\n")
+        print("\n".join(lines))
+        return 0 if results.get("exit_test", {}).get("pass") else 1
     for key in ("flow_service_token", "timer_on", "timer_state_after_on", "main_state_before", "main_on",
                 "main_state_after_on", "main_manual_run", "environment"):
         if key in results:
@@ -602,7 +1160,48 @@ def cmd_summary():
     return 0 if results.get("exit_test", {}).get("pass") else 1
 
 
-COMMANDS = {"flow": cmd_flow, "flow-undo": cmd_flow_undo, "summary": cmd_summary}
+def summary_part2(results):
+    def short(value, limit=900):
+        return json.dumps(value, default=str)[:limit]
+    lines = []
+    if results.get("error"):
+        lines += ["", f"**error**: {results['error']}"]
+    for key in ("tools", "az_login_app_spec", "az_account", "az_tokens", "az_login_flowagent"):
+        if key in results:
+            lines += ["", f"**{key}**: `{short(results[key], 1500)}`"]
+    spec = results.get("app_spec", {})
+    lines += ["", "#### App Spec", ""]
+    for step in ("lint", "dry_run", "apply"):
+        if step in spec:
+            lines += [f"**{step}**: exit {spec[step]['exit']} in {spec[step]['seconds']} s; result `{(spec[step]['result'] or '')[:700]}`",
+                      "", "```", spec[step]["stderr_tail"][-1500:], "```"]
+    for key in ("stopped_at", "error", "table_exists", "apps_found", "solution_parts_added", "solution_parts_removed",
+                "read_back_error"):
+        if key in spec:
+            lines += [f"**{key}**: `{short(spec[key])}`"]
+    for key in ("flowagent_ppapi", "flowagent_fallback"):
+        session = results.get(key, {})
+        lines += ["", f"#### FlowAgent, {session.get('label', key)}", ""]
+        lines += [f"**{k}**: `{short(session[k], 400)}`" for k in (
+            "server", "protocol", "tools_listed", "listed_timer_flow", "flow_id_is", "got_flow", "updated", "ran_while_off",
+            "turned_on", "state_after_on", "run", "runs_read", "turned_off", "fell_back", "tool_calls", "server_requests",
+            "seconds", "backstop_turned_off", "error") if k in session]
+        lines += ["", "| Tool | Arguments | Result | Seconds | Answer |", "|---|---|---|---|---|"]
+        lines += [f"| {c['tool']} | `{short(c['arguments'], 120)}` | {'ERROR' if c['is_error'] else 'ok'} | {c['seconds']} | "
+                  f"{c['text'][:300].replace('|', '/')} |" for c in session.get("calls", [])]
+        if session.get("stderr_tail"):
+            lines += ["", "```", session["stderr_tail"][-1500:], "```"]
+    c = results.get("vs_reset_commit", {})
+    lines += ["", f"**vs_reset_commit**: only in the commit {c.get('only_in_first')}; only in the export "
+              f"{c.get('only_in_second')}; files that differ {c.get('raw_differ')}",
+              f"**app_files_in_export**: `{short(results.get('app_files_in_export'))}`",
+              f"**exported_compose**: `{results.get('exported_compose')}`",
+              f"**pack**: `{short(results.get('pack'), 1200)}`", f"**writes**: `{short(results.get('writes'))}`",
+              "", f"## Part 2 result: **{mark(results.get('exit_test', {}).get('pass'))}**"]
+    return lines
+
+
+COMMANDS = {"flow": cmd_flow, "flow-undo": cmd_flow_undo, "part2": cmd_part2, "scan": cmd_scan, "summary": cmd_summary}
 
 
 def main(argv):

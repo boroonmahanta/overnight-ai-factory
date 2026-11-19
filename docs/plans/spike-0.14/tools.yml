@@ -7,6 +7,11 @@
 #              update it, turn it on, see it run, turn it off; try the Dataverse flow;
 #              export, compare with the reset commit, pack again signed out and offline
 #   flow-undo  delete the timer flow, and turn the Dataverse flow off. A safety net only
+#   part2      Microsoft's plugins (power-platform-skills, pinned below, run unread for this
+#              spike only, telemetry off): az login with the job's OIDC token, then the
+#              model-apps build engine on a tiny App Spec (unattended, never
+#              --allow-destructive), then FlowAgent's MCP server on the timer flow, on the
+#              Power Platform API and on the classic fallback; then export and pack again
 #
 # Hand start only (workflow_dispatch), and only from main: no pull request code
 # runs (rule 5). No secrets. The tenant ID, app ID and Dataverse URL come in as
@@ -17,9 +22,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: flow or flow-undo
+        description: flow, flow-undo or part2
         type: choice
-        options: [flow, flow-undo]
+        options: [flow, flow-undo, part2]
         default: flow
       tenant_id:
         description: Entra tenant ID
@@ -42,7 +47,7 @@ jobs:
   tools:
     runs-on: ubuntu-latest
     environment: fl1-exec
-    timeout-minutes: 40
+    timeout-minutes: 60
     permissions:
       id-token: write
       contents: read
@@ -56,6 +61,19 @@ jobs:
       RESET_COMMIT: reset-commit/FactorySpike
       DOTNET_NOLOGO: "1"
       DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      # microsoft/power-platform-skills, 17 November 2026 (read for sign-in and stop points in Session 25)
+      PPS_COMMIT: 05b634df9272cffe9f8c4256dbe1950d097a5d91
+      # The plugins' telemetry off (part2): each plugin's opt-out, the engine-wide switches,
+      # and below, each plugin's own kill switch in its ikey.json.
+      POWER_PLATFORM_SKILLS_TELEMETRY: "0"
+      POWER_PLATFORM_SKILLS_TELEMETRY_MODEL_APPS_OPTOUT: "1"
+      POWER_PLATFORM_SKILLS_TELEMETRY_POWER_AUTOMATE_OPTOUT: "1"
+      FLOWAGENT_TELEMETRY: "0"
+      FLOWAGENT_DISABLE_DISK_CACHE: "1"
+      AZURE_CORE_COLLECT_TELEMETRY: "false"
+      # No user is waiting: the plugins' unattended mode.
+      POWER_PLATFORM_SKILLS_NONINTERACTIVE: "1"
+      PA_CLOUD: commercial
     steps:
       - name: Refuse any ref but main
         run: |
@@ -77,41 +95,76 @@ jobs:
             || { echo "::error::env_url must be https://<org>.crm6.dynamics.com/"; exit 1; }
 
       - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
-        if: env.MODE == 'flow'
+        if: env.MODE == 'flow' || env.MODE == 'part2'
         with:
           dotnet-version: 10.0.x   # pac 2.4.1 and later ship for net10.0 only (spike 0.2)
 
       - name: Install pinned pac
-        if: env.MODE == 'flow'
+        if: env.MODE == 'flow' || env.MODE == 'part2'
         run: |
           set -euo pipefail
           dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version "$PAC_VERSION"
           echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
 
       - name: Sign in with a federated pac profile (no secret)
-        if: env.MODE == 'flow'
+        if: env.MODE == 'flow' || env.MODE == 'part2'
         run: |
           set -euo pipefail
           pac telemetry disable || true
           pac auth create --name lane --githubFederated --tenant "$TENANT_ID" --applicationId "$APP_ID" --environment "$ENV_URL"
           pac org who
 
+      # The plugins were built on Node 22 (the vendored SDK's PROVENANCE.json).
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: env.MODE == 'part2'
+        with:
+          node-version: 22.x
+
+      - name: Fetch Microsoft's plugins at the pin, and turn their telemetry off
+        if: env.MODE == 'part2'
+        run: |
+          set -euo pipefail
+          PPS_ROOT="$RUNNER_TEMP/pps"
+          git init -q "$PPS_ROOT"
+          git -C "$PPS_ROOT" remote add origin https://github.com/microsoft/power-platform-skills.git
+          git -C "$PPS_ROOT" fetch -q --depth 1 --filter=blob:none origin "$PPS_COMMIT"
+          git -C "$PPS_ROOT" sparse-checkout set plugins/model-apps plugins/power-automate
+          git -C "$PPS_ROOT" checkout -q FETCH_HEAD
+          [ "$(git -C "$PPS_ROOT" rev-parse HEAD)" = "$PPS_COMMIT" ] || { echo "::error::not the pinned commit"; exit 1; }
+          # Each plugin's own kill switch: "disabled": true stops its telemetry, the local mirror included.
+          for f in plugins/model-apps/scripts/lib/telemetry/ikey.json plugins/power-automate/scripts/lib/telemetry/ikey.json; do
+            python3 -I -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p)); d["disabled"]=True; json.dump(d, open(p,"w"), indent=2)' "$PPS_ROOT/$f"
+            echo "$f: disabled = $(python3 -I -c 'import json,sys; print(json.load(open(sys.argv[1]))["disabled"])' "$PPS_ROOT/$f")"
+          done
+          echo "PPS_ROOT=$PPS_ROOT" >> "$GITHUB_ENV"
+          az version --output tsv --query '"azure-cli"'
+          node --version
+
       - name: Run the step
         run: python3 -I probe/tools_probe.py "$MODE"
 
       - name: Clear the sign-in profiles
-        if: always() && env.MODE == 'flow'
-        run: pac auth clear || true
+        if: always() && (env.MODE == 'flow' || env.MODE == 'part2')
+        run: |
+          pac auth clear || true
+          az logout 2>/dev/null || true
+          az account clear 2>/dev/null || true
+
+      # No token-shaped string leaves the runner, whatever a tool wrote.
+      - name: Scan the output for tokens
+        if: always() && (env.MODE == 'flow' || env.MODE == 'part2')
+        run: python3 -I probe/tools_probe.py scan
 
       # Scratch output only: the scratch solution's files, the zips, the logs and the results. No credentials.
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: always() && env.MODE == 'flow'
+        if: always() && (env.MODE == 'flow' || env.MODE == 'part2')
         with:
           name: tools-probe-${{ inputs.mode }}
           path: ${{ runner.temp }}/tools-probe/
           retention-days: 3
           if-no-files-found: warn
+          include-hidden-files: true
 
       - name: Result
-        if: always() && env.MODE == 'flow'
+        if: always() && (env.MODE == 'flow' || env.MODE == 'part2')
         run: python3 -I probe/tools_probe.py summary

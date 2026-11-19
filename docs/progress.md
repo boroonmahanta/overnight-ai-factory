@@ -34,7 +34,7 @@ Next steps:
   - the fresh export, unpacked, equalled the reset commit in all 23 files.
 
   How to find what the lane identity made outside the solution turned out not to be `solutioncomponent.createdby`: the Default Solution's rows are by SYSTEM. The finder asks each component table for its maker, and finds tables and columns by state against a bootstrap list. The plan is edited for it (11 November 2026, at Boroon's word), with his rule that a table or column found outside the solution stops the lane for a person to check (ADO 2843). Record: `docs/plans/spike-0.19/README.md`. The scratch (0.18's plus one environment variable value) is **kept for spike 0.14**, at Boroon's word.
-- **Spike 0.14 is started** (Session 25, 18 November 2026, ADO 2461, Building). Part 1 passes: a flow with no connector, made by the Web API as `getai-fl1-exec`, runs, exports and packs again offline. Copilot CLI runs on a getai.ghe.com runner with the job's own token. Parts 2 to 4 are left. Record: `docs/plans/spike-0.14/README.md`.
+- **Spike 0.14 is half done** (Sessions 25 and 26, 18 to 19 November 2026, ADO 2461, Building). Part 1 passes: a flow with no connector, made by the Web API as `getai-fl1-exec`, runs, exports and packs again offline. Copilot CLI runs on a getai.ghe.com runner with the job's own token. Part 2: the App Spec apply works as the lane identity (unattended, never `--allow-destructive`), and all it made is in the solution and packs offline; FlowAgent reads and edits flows as the lane identity but cannot list, turn on, turn off or run them (HTTP 401). Parts 3 and 4 are left. Record: `docs/plans/spike-0.14/README.md`.
 - **ADO is current** (Session 19): every update Sessions 17 and 18 left is made, and the schedule-order query matches `docs/plans/schedule.md`. Session 20 moved 2463 to Done.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
@@ -108,6 +108,41 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 26, 2026-11-18 to 19, branch `claude/session-26-2461-app-spec-flowagent`
+
+ADO 2461: spike 0.14, part 2 (the App Spec apply and FlowAgent as the lane identity), at Boroon's word, on the laptop (desktop app). Branch made from `main` at PR 37's merge (`e16329a`). One run, in this session only.
+
+Done:
+- **Read, read-only, at the pin** (`power-platform-skills` `05b634d`): the model-apps build engine's command line, sign-in, phases, unattended rules and telemetry switches; its teardown script; FlowAgent's MCP server (tool list, sign-in, the Power Platform API path and when it falls back to the classic flow service, its run routes, its telemetry switches).
+- **A `part2` mode in `tools.yml` and `tools_probe.py`** (copies in `docs/plans/spike-0.14/`, pushed to `GetAI-IP/export-probe` at `c7fac82`): the plugins fetched at the full commit ID; telemetry off three ways; Node 22; `az login --service-principal --federated-token` with the job's OIDC token (the same federated credential as pac); the App Spec's lint, dry run and apply; a small stdio MCP client for FlowAgent, on both paths; then export, compare and pack offline. Logs are filtered for token-shaped strings, and a scan step deletes any output file that still holds one before the upload.
+- **Local check before the run:** a scratch harness with a fake Dataverse, token service, OIDC endpoint and `az`, a stand-in `pac` (real pack and unpack, never `auth`), and stand-ins for the engine, the lint and FlowAgent's server. None of Microsoft's code ran on the laptop. All checks passed. The plugin fetch step ran for real (git only).
+- **Run 39563486, 19 November 2026, 3.6 minutes:**
+  - the App Spec apply works as the lane identity for a tiny spec (one new table, a form, a view, an app): unattended, never `--allow-destructive`, apply 109 seconds, verify 13 of 13;
+  - all it made landed in `FactorySpike` and the export, and the tree packs again signed out and offline, round trip byte-identical;
+  - the export now has a `<MissingDependencies>` block: the app's two settings need definitions from Microsoft's `msdyn_AppFrameworkInfraExtensions`;
+  - FlowAgent reads and edits flows as the lane identity (`get_flow`, `get_flow_context`, `update_flow` through Dataverse, `get_run_history`), but `list_flows`, `publish_flow`, `disable_flow` and `run_flow` are refused with HTTP 401 (`x-ms-client-scope` header missing), on both paths;
+  - the GitHub OIDC token lasts 5 minutes, and `az` uses it for every new token.
+- README updated: the part 2 method, 13 findings, the run, the scratch, what is left.
+- ADO: 2461's body has this session's result and time; it stays Building.
+
+Decisions: none new. Boroon's decision of 18 November (Microsoft's plugins run unread for this spike only, pinned, telemetry off, scratch only) was followed: the plugins ran only in `GetAI-IP/export-probe` against `FactorySpike`.
+
+Files changed: `docs/plans/spike-0.14/` (`README.md`, `tools.yml`, `tools_probe.py`), `CLAUDE.md` (map row), `docs/progress.md`. In `GetAI-IP/export-probe`: `tools.yml` and `probe/tools_probe.py`. In `factory-lane-1`, inside `FactorySpike`: the App Spec's table, app, site map, two app settings and icon web resource; the timer flow's Compose step changed by FlowAgent (it stayed off).
+
+Time and tokens (for 2461's body; session `c3cca54e`; measured before the closing commit): active time 0 h 43 min (gaps over 10 minutes not counted), from 18 Nov 23:08 to 19 Nov 10:34 (UTC+11). Tokens: 121,551 output; 25,181,176 processed in all, of which 23,974,793 were cache reads. From 1 local transcript(s).
+
+Open items:
+- Parts 3 and 4 of spike 0.14 (the MCP count-and-retry shim; the skills in `copilot -p`), in the spike README under "Left to do". 2461 is due Thu 19 Nov in `docs/plans/schedule.md`; if parts 3 and 4 do not fit today, the dates after it move at Boroon's word.
+- **The driver must keep `az` signed in** (part 2 finding 9): the OIDC token lasts 5 minutes and `az`'s tokens an hour. For part 4 and the Stage 3 driver spec.
+- **The gate must take an App Spec app's missing dependency** on Microsoft's `msdyn_AppFrameworkInfraExtensions` (part 2 finding 3): the import into Test, the manifest check and the danger rules. For 2538.
+- **No route tried starts a flow run on demand as an app identity** (part 1 finding 3, part 2 finding 6). `lcp-verify flow` (plan 5.9) needs another way to see a run. For the plan edit at the end of the spike, at Boroon's word.
+- The scratch grows: the App Spec's table, app, site map and icon. An undo mode by the Web API is not written yet; never use Microsoft's `teardown-model-app.js` on it, because its last step deletes the `FactorySpike` solution.
+
+Next steps:
+1. Pull request 38 (https://github.com/boroonmahanta/overnight-ai-factory/pull/38), opened at Boroon's word on 19 November 2026. Boroon merges.
+2. Spike 0.14 parts 3 and 4 on the laptop (README, "Left to do"), then the exit test verdict and plan edits at Boroon's word. Then 2511.
+3. Fri 20 Nov: DG2 (2466), then ask the engineers for their exports.
 
 ## Session 25, 2026-11-18, branch `claude/session-25-2461-lane-tools`
 
