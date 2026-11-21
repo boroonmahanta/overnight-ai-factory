@@ -358,7 +358,7 @@ What this does not show: a real transient MCP failure; the shim's refusal as the
    - (b) **Another route for additive changes:** a column by Dataverse MCP `update_table` (which adds columns) or the Web API, and the form and view by the Web API (`systemform`, `savedquery`), then the driver's export as usual. No `--allow-destructive`. Untested: worth one more part-4 style run before Stage 3.
    - (c) **The driver grants `--allow-destructive`** only when a trusted check of the dry run finds nothing but creates and reuses. Not recommended: the flag authorises every destructive step of the apply, not only what the dry run showed.
 
-   Recommended: (a) for Stage 3, and try (b) first. **Boroon, 21 November 2026:** test (b) in a separate session (Session 29), then agree the approach. **Agreed by Boroon on 21 November 2026, after part 4b:** (b) at night for additive changes to an existing app, the App Spec apply for a new app, and (a) for any other change to an existing app (part 4b, "Approach"). The plan text is not edited yet.
+   Recommended: (a) for Stage 3, and try (b) first. **Boroon, 21 November 2026:** test (b) in a separate session (Session 29), then agree the approach. **Agreed by Boroon on 21 November 2026, after part 4b:** (b) at night for additive changes to an existing app, the App Spec apply for a new app, and (a) for any other change to an existing app (part 4b, "Approach"). **Edited into the plan on 21 November 2026, at Boroon's word** (5.6, 11.1, 14.4, 15.1, Appendix C; part 4b's plan edits below).
 
    **What (a) would really cost** (Session 28, 21 November 2026, for that decision; the numbers are estimates from the plan's own story model in 10.4, not measured):
    - **Which stories it hits:** every App Spec change to an existing model-driven app, which means a new column, form, view, chart, navigation entry or role on an app that already exists. By the work sizes, that is most XS stories ("view-column tweak"), most S ("one additive change in one app") and the UI part of many M. These are the factory's lowest-risk, highest-volume stories, and after an engagement's first build most model-driven stories are of this kind [inference: no measured mix yet]. It does not hit new apps (part 2), flows (part 4), Copilot Studio, code parts, or anything the agent does by the Web API or MCP.
@@ -499,13 +499,15 @@ What this does not show:
 
 **Approach, agreed by Boroon on 21 November 2026** (proposed here, answered "Agree"): both, by kind of change. At night, (b) for additive changes to an existing app (a column on an existing table, shown on an existing form and view), through a trusted helper the driver ships; the App Spec apply for a new app (part 2); and (a), a PARK with the dry run as evidence, for any other change to an existing app until its route is tried. This keeps `views-forms-additive` on the night path, so it can earn L2 on evidence (rule 12).
 
-### Proposed plan edits from part 4b (not made; at Boroon's word)
+### Plan edits from part 4b (the decision made, 21 November 2026; the rest still proposals)
 
-They would put the agreed approach into the plan, replacing proposals 2 and 10 above. Still proposals: Boroon has not said to edit the plan (his "Not yet" to the plan edits, 21 November 2026, stands):
+**Made on 21 November 2026, at Boroon's word** ("Yes, edit the plan", for this decision only): 5.6 ("Model-driven apps": the three routes as a table, the trusted Web API helper and its rules, columns with the solution header, and the App Spec in Git left open; point 1 and point 3 of "Live build"), 11.1 row 0.14 (a note in its fallback), 14.4 (a new row), 15.1 (the 0.14 question) and Appendix C (an `lcp-executor` rule). This covers proposal 1 below and the 11.1 part of proposal 3, and settles part 4's proposal 2.
 
-1. **5.6, "Model-driven apps":** the three routes by kind of change (the approach above); the trusted Web API helper as a driver component, with its rules (finding 7); a column on an existing table made through the helper with the solution header, or added to the solution by the driver (finding 3); and the App Spec in Git refreshed from the app after a (b) change, if the project keeps one.
+**Still proposals,** waiting on his word with part 4's other proposals:
+
+1. ~~**5.6, "Model-driven apps":**~~ made (above). The three routes by kind of change (the approach above); the trusted Web API helper as a driver component, with its rules (finding 7); a column on an existing table made through the helper with the solution header, or added to the solution by the driver (finding 3); and the App Spec in Git refreshed from the app after a (b) change, if the project keeps one.
 2. **5.2 (the engine):** Copilot CLI's path check denies a shell argument that looks like a path outside the session, so helpers take arguments that do not, or their folders are added with `--add-dir` (finding 2); a one-word deny rule matches inside a compound command (finding 4).
-3. **11.1, row 0.14, and section 12:** the result: option (b) passes for an additive change; the risk line of proposal 10 becomes "App Spec changes to existing apps other than additive ones PARK".
+3. **Section 12** (the 11.1 note is made): the risk line of proposal 10 becomes "App Spec changes to existing apps other than additive ones PARK".
 4. **Appendix B (Merge Danger):** a row for this class, keyed on the export diff: only a table's `Entity.xml` gaining an attribute, and forms and views gaining cells and attributes.
 
 ## Run order and results
