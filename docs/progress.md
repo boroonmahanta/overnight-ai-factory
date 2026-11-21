@@ -16,7 +16,7 @@ Next steps:
 
 ## Current state
 
-- Mostly documents. The first code, the gate, now lives in its own repo **`GetAI-IP/factory-gates` on `getai.ghe.com`**, branch `release` (moved 3 November 2026, Session 9): stage 1 slice 1 and Builds 1 to 3, 154 tests passing there (gate PR 12, merged 4 November 2026). **Gate PR 15** (Session 30, 21 November 2026, ADO 2511) brings it in line with the live-build plan, with 163 tests; **open, for Boroon to merge**. It has not yet run as a gate on any project repo. No pipelines or GitHub Apps exist yet. The rulesets are files, not applied. **The first tenant objects exist since spike 0.2** (Session 12, 4 November 2026): the Power Platform environment `factory-lane-1` (Sandbox, Managed, Australia, `https://factory-lane-1.crm6.dynamics.com/`) and the Entra app `getai-fl1-exec` with its application user there (System Administrator).
+- Mostly documents. The first code, the gate, now lives in its own repo **`GetAI-IP/factory-gates` on `getai.ghe.com`**, branch `release` (moved 3 November 2026, Session 9): stage 1 slice 1 and Builds 1 to 3, 154 tests passing there (gate PR 12, merged 4 November 2026). **Gate PR 15** (Session 30, 21 November 2026, ADO 2511) brings it in line with the live-build plan: **merged by Boroon on 21 November 2026**; `release` is at `96b6c61`, with 163 tests passing. It has not yet run as a gate on any project repo. No pipelines or GitHub Apps exist yet. The rulesets are files, not applied. **The first tenant objects exist since spike 0.2** (Session 12, 4 November 2026): the Power Platform environment `factory-lane-1` (Sandbox, Managed, Australia, `https://factory-lane-1.crm6.dynamics.com/`) and the Entra app `getai-fl1-exec` with its application user there (System Administrator).
 - **Build 1 is done** (Session 6). PR 11 merged into `main` on 3 November 2026.
 - **Build 2 is done** (Session 7). PR 12 merged into `main` on 3 November 2026.
 - **Build 3 is done** (Session 8). PR 13 merged into `main` on 3 November 2026.
@@ -56,7 +56,7 @@ Next steps:
 - **`poteto-mode` is not read in full** (shelf only): its `watch-pr` code and tests, and most of `check-plan.mjs` and `worktree-audit.sh`. Read them before any adoption (rule 19).
 - **"Agile build v1" differs from plan Appendix D.2** (seen 7 November 2026, Session 15). The process exists in the `getai` organisation, but its User Story states are not D.2's, it has no Spike type, and the D.1 custom fields were not checked. Before Stage 2 changes it, find which projects already use it.
 - **The factory's own backlog is in ADO,** project `getai-overnight-ai-factory` (created 7 November 2026, Session 15). Keep it current: at the end of each session, add the session's time and tokens to its stories (`CLAUDE.md`, end step 3), and move the stories it finished to Done.
-- **`GetAI-IP/factory-gates` lags the plan after live build** (Session 15, 7 November 2026). **Items 1 to 5 and 7 are done in gate PR 15** (Session 30, 21 November 2026, ADO 2511, https://getai.ghe.com/GetAI-IP/factory-gates/pull/15), **open for Boroon to merge** once `self-test` is green; so are item 9's two names. Item 6 moved to 2538 (ADO task 2517, at Boroon's word). Items 8 and the rest of 9 stay with 2538. The list as Session 15 wrote it (read from the clone at `85ad2b5`, the same as `release` then):
+- **`GetAI-IP/factory-gates` lags the plan after live build** (Session 15, 7 November 2026). **Items 1 to 5 and 7 are done in gate PR 15** (Session 30, 21 November 2026, ADO 2511, https://getai.ghe.com/GetAI-IP/factory-gates/pull/15), **merged by Boroon on 21 November 2026** (`96b6c61`); so are item 9's two names. ADO 2511 is Done. Item 6 moved to 2538 (ADO task 2517, at Boroon's word). Items 8 and the rest of 9 stay with 2538. The list as Session 15 wrote it (read from the clone at `85ad2b5`, the same as `release` then):
   1. `pending-scripts.txt`: delete `lcp/create_schema.py` and `lcp/create_security.py` (verify-in-test); add `lcp/plan_from_export.py` and `lcp/check_inventory.py` under `# static`. `tests/test_workflow.py` keeps this list and the workflow in step.
   2. `.github/workflows/lcp-gate.yml`, to match plan Appendix A:
      - in `build`, the step name and comment for generator-backed builders;
@@ -110,7 +110,7 @@ Next steps:
 ADO 2511: bring `GetAI-IP/factory-gates` in line with the live-build plan. On the laptop (desktop app), two days after its Fri 20 Nov finish date. Gate branch `live-build` off `release` at `b37a9f0`.
 
 Done:
-- **Gate PR 15** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/15, commit `f99ea9e`), open for Boroon to merge. Tasks 2512 to 2516 and 2518:
+- **Gate PR 15** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/15, commits `f99ea9e` and `2cb7b14`), **merged by Boroon on 21 November 2026** (`96b6c61`; 163 tests pass on `release` locally). Tasks 2512 to 2516 and 2518:
   - `pending-scripts.txt`: `create_schema.py` and `create_security.py` out; `plan_from_export.py` and `check_inventory.py` in, under `static`. Still 20 lines.
   - `lcp-gate.yml` matches plan Appendix A: `build` named for generators, packs the XML source layout; `static` with full history, the export-diff plan against the base commit, the `export-plan` artifact and the inventory check; `verify-in-test` without the schema and security plans, downloading `export-plan` into `evidence/`; both floors and the verifier plan read `--plan evidence/export-plan.json`. A normalised diff against the plan's YAML shows only comments, pins and the `setup-node` cache flag.
   - `check_builders.py`: narrowed to generator wrappers, and fails a builder that writes under `src/`, even with the same bytes (inode, size and modification time before and after each builder, so it names the builder). Fixture: its builder now writes `apps/status-app/generated/`, and `src/Other/Solution.xml` stands in for the export.
@@ -118,7 +118,7 @@ Done:
   - `templates/CODEOWNERS`: a note on the commented `/workflows/build/` line. README: rows, a "Live-build follow-ups (ADO 2511)" section, findings 10 and 11. `scripts.sha256` regenerated.
   - Tests: 163 pass (154 before): 8 new in `test_check_builders.py`, 1 in `test_workflow.py`. Manifest verify and rulesets check clean. Eleven deliberate breaks of a scratch copy each failed.
   - On the pull request: **`self-test` green** (run 40136346). `lcp-gate` red at `map lane` (run 40136351), as expected on this repo's own pull requests (README step 10): the gate reader App does not exist yet (2537), so its token step has no `app-id`.
-- ADO: 2511 to Building; task 2517 moved under 2538; 2538's body gained the carry-overs. The tasks 2512 to 2516 and 2518 stay New until the merge.
+- ADO: task 2517 moved under 2538; 2538's body gained the carry-overs. After Boroon merged gate PR 15: 2511 Done, with its result and time in its body; tasks 2512 to 2516 and 2518 Closed. Session renamed "26. Stage 1 - Build - Gate in line with live build", like the others.
 
 Decisions (Boroon, 21 November 2026, asked in this session):
 - A project declares its generator-backed builders as thin wrappers in `workflows/build/`, not a declared list.
@@ -132,15 +132,15 @@ Found:
 
 Files changed: `docs/sources/plan-v3.1.md` (at Boroon's word), `docs/progress.md`, `docs/plans/schedule.md`, `CLAUDE.md`. In `GetAI-IP/factory-gates` (branch `live-build`, commits `f99ea9e` and `2cb7b14`): `.github/workflows/lcp-gate.yml`, `README.md`, `lcp/check_builders.py`, `lcp/pack_offline.py`, `pending-scripts.txt`, `scripts.sha256`, `templates/CODEOWNERS`, `tests/test_check_builders.py`, `tests/test_workflow.py`, the fixture under `tests/fixtures/builder-project/`.
 
-Time and tokens (for 2511's body; session `6df73219`; measured before the last commit, plan edits included): active time 0 h 20 min (gaps over 10 minutes not counted), from 21 Nov 17:38 to 21 Nov 17:58 (UTC+11). Tokens: 79,257 output; 18,968,630 processed in all, of which 18,595,720 were cache reads. From 1 local transcript(s).
+Time and tokens (in 2511's body; session `6df73219`; measured before the last commit, plan edits and closing included): active time 0 h 24 min (gaps over 10 minutes not counted), from 21 Nov 17:38 to 21 Nov 18:01 (UTC+11). Tokens: 84,059 output; 21,489,763 processed in all, of which 21,084,711 were cache reads. From 1 local transcript(s).
 
 Open items:
-- Boroon merges gate PR 15 once `self-test` is green. Then 2511 and its six tasks to Done, and `CLAUDE.md`'s `factory-gates` row to 163 tests.
+- Done: Boroon merged gate PR 15 on 21 November 2026; 2511 is Done and its six tasks Closed in ADO, and `CLAUDE.md`'s `factory-gates` row says 163 tests. Feature 2510 ("Gate follow-ups after live build") holds only 2511 and is still Not Started in ADO; not closed, as it was not asked.
 - 2511's dates: done Sat 21 Nov, a day after its Fri 20 Nov finish date. The stories after it are not moved; at Boroon's word only.
 - Finding 11 (open item above).
 
 Next steps:
-1. Boroon merges gate PR 15; then ADO 2511 to Done.
+1. Done: gate PR 15 merged, ADO 2511 Done.
 2. Mon 23 Nov: 2509 (pin the Copilot CLI install in `verify-in-test`), the Ignite re-check and the first component register review.
 
 ## Session 29, 2026-11-21, branch `claude/session-29-2461-option-b`
