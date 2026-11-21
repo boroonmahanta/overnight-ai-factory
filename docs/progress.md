@@ -16,7 +16,7 @@ Next steps:
 
 ## Current state
 
-- Mostly documents. The first code, the gate, now lives in its own repo **`GetAI-IP/factory-gates` on `getai.ghe.com`**, branch `release` (moved 3 November 2026, Session 9): stage 1 slice 1 and Builds 1 to 3, 154 tests passing there (gate PR 12, merged 4 November 2026). It has not yet run as a gate on any project repo. No pipelines or GitHub Apps exist yet. The rulesets are files, not applied. **The first tenant objects exist since spike 0.2** (Session 12, 4 November 2026): the Power Platform environment `factory-lane-1` (Sandbox, Managed, Australia, `https://factory-lane-1.crm6.dynamics.com/`) and the Entra app `getai-fl1-exec` with its application user there (System Administrator).
+- Mostly documents. The first code, the gate, now lives in its own repo **`GetAI-IP/factory-gates` on `getai.ghe.com`**, branch `release` (moved 3 November 2026, Session 9): stage 1 slice 1 and Builds 1 to 3, 154 tests passing there (gate PR 12, merged 4 November 2026). **Gate PR 15** (Session 30, 21 November 2026, ADO 2511) brings it in line with the live-build plan, with 163 tests; **open, for Boroon to merge**. It has not yet run as a gate on any project repo. No pipelines or GitHub Apps exist yet. The rulesets are files, not applied. **The first tenant objects exist since spike 0.2** (Session 12, 4 November 2026): the Power Platform environment `factory-lane-1` (Sandbox, Managed, Australia, `https://factory-lane-1.crm6.dynamics.com/`) and the Entra app `getai-fl1-exec` with its application user there (System Administrator).
 - **Build 1 is done** (Session 6). PR 11 merged into `main` on 3 November 2026.
 - **Build 2 is done** (Session 7). PR 12 merged into `main` on 3 November 2026.
 - **Build 3 is done** (Session 8). PR 13 merged into `main` on 3 November 2026.
@@ -56,7 +56,7 @@ Next steps:
 - **`poteto-mode` is not read in full** (shelf only): its `watch-pr` code and tests, and most of `check-plan.mjs` and `worktree-audit.sh`. Read them before any adoption (rule 19).
 - **"Agile build v1" differs from plan Appendix D.2** (seen 7 November 2026, Session 15). The process exists in the `getai` organisation, but its User Story states are not D.2's, it has no Spike type, and the D.1 custom fields were not checked. Before Stage 2 changes it, find which projects already use it.
 - **The factory's own backlog is in ADO,** project `getai-overnight-ai-factory` (created 7 November 2026, Session 15). Keep it current: at the end of each session, add the session's time and tokens to its stories (`CLAUDE.md`, end step 3), and move the stories it finished to Done.
-- **`GetAI-IP/factory-gates` lags the plan after live build** (Session 15, 7 November 2026). A laptop gate slice, by pull request there; Boroon merges. Not started. Before any local check, delete Finder's `.DS_Store` files in the clone. What to change (read from the clone at `85ad2b5`, the same as `release`):
+- **`GetAI-IP/factory-gates` lags the plan after live build** (Session 15, 7 November 2026). **Items 1 to 5 and 7 are done in gate PR 15** (Session 30, 21 November 2026, ADO 2511, https://getai.ghe.com/GetAI-IP/factory-gates/pull/15), **open for Boroon to merge** once `self-test` is green; so are item 9's two names. Item 6 moved to 2538 (ADO task 2517, at Boroon's word). Items 8 and the rest of 9 stay with 2538. The list as Session 15 wrote it (read from the clone at `85ad2b5`, the same as `release` then):
   1. `pending-scripts.txt`: delete `lcp/create_schema.py` and `lcp/create_security.py` (verify-in-test); add `lcp/plan_from_export.py` and `lcp/check_inventory.py` under `# static`. `tests/test_workflow.py` keeps this list and the workflow in step.
   2. `.github/workflows/lcp-gate.yml`, to match plan Appendix A:
      - in `build`, the step name and comment for generator-backed builders;
@@ -71,6 +71,8 @@ Next steps:
   8. (Added Session 17, D3.) A job in `lcp-gate.yml` that runs the gate's trusted `spec/check_spec.py` on spec PRs and checks the hash of the copy vendored under `.specify/`. The script itself is built in 2544 (DG5) and reaches `factory-gates` in the move (DG8). For 2538.
   9. (Added Session 19, spike 0.18.) The XML source layout, not YAML: `lcp/pack_offline.py` calls its `--source` "the YAML-format solution folder" (help and docstring), and `lcp-gate.yml`'s `build` step is named "Pack the solution offline (YAML source format)"; plan Appendix A now says "XML source layout". When the manifest check is written, it reads the declared root components from `Other/Solution.xml`; when `danger-rules.yml` is written, its B.1 rows use the XML folders (`Entities/`, `Workflows/`, `Roles/`, `environmentvariabledefinitions/`) and connection references come from the export-diff plan. Consider moving the pac pin from 2.4.1 to 2.14.1 (identical output for the five types tested; read its release notes first, A1). For 2511 and 2538. **Correction from spike 0.19 (Session 20):** `Other/Solution.xml`'s `RootComponents` does not list every root component; in `FactorySpike` it left out the environment variable and the connection reference, which are only in `environmentvariabledefinitions/` and `Other/Customizations.xml`. So the manifest check reads the whole tree, not only `Other/Solution.xml` (`docs/plans/spike-0.19/reset_probe.py`, `read_commit`, does this).
   - **Not on `pending-scripts.txt`:** `export_lane.py`, `reset_environment.py` (now with leftover removal and the proof) and the lane drift check. They run in the execution workflow in `factory-control`, not in `lcp-gate.yml`. They are Stage 3 builds, after spikes 0.18 and 0.19.
+- **The gate's managed pack cannot come from the driver's export as tried so far** (found in Session 30, gate README finding 11; untested). `build` packs `solution_managed.zip` from `pr/src`, and `verify-in-test` runs the checker on it and imports it into Test. Microsoft's SolutionPackager page says the tool cannot convert unmanaged to managed, and pac's help says a Managed pack works only from a folder unpacked with `--packagetype Both`, which needs a managed export too. Spike 0.18 exported unmanaged only. Ways out: the driver exports both kinds and unpacks with `Both`; or the gate imports the unmanaged zip into Test; or a trusted step imports unmanaged into a build environment and exports managed (needs credentials). Settle in spike 0.10 (2459) or before the Stage 1 exit test (2539), then a plan change at Boroon's word (5.6, 5.7, Appendix A).
+- **Two small plan edits proposed by Session 30, not made** (at Boroon's word only): (1) Appendix A's opening paragraph still says "the YAML-format solution in `src/`" with `src/solutions/<Name>/` and `src/publishers/`, though Session 19 moved the rest of the plan to the XML layout; it should name the XML layout's folders (`Other/`, `Entities/`, `Workflows/`, ...). (2) The gate order in 5.6 ("every generator-backed builder; a drift check ...") and the `build` comment in Appendix A do not say that a builder writing under `src/` fails, which Boroon decided for 2511 on 21 November 2026 and gate PR 15 does. Also 5.7's "generator drift check" line.
 - **This planning repo is public** (checked 4 November 2026 with `gh repo view`; a signed-out browser could also open it). Anyone can read the plan, the cost model, the org names, `getai.ghe.com`, the gate's design and the identity names. Boroon to decide. Advice: make it private (Settings, General, Danger Zone, Change visibility). The catch: on GitHub Free, rulesets are not enforced on private repos, so `main` loses its ruleset unless the account is on Pro; with Boroon as the only writer that matters less. Making it private stops new readers but does not undo copies already made.
 - **Gate work is laptop work (decided 3 November 2026).** Connecting `getai.ghe.com` to Claude's cloud (Git providers) needs a Claude Team or Enterprise plan, and Boroon is on an individual plan. So any change to `GetAI-IP/factory-gates` runs from his laptop: a local Claude Code session, a cloud session attached to a laptop folder by Remote Control, or a cloud session that prepares a patch he applies (as in Session 9). The steps below are kept only in case a Team plan comes later (the docs cover GitHub Enterprise Server and say nothing about `*.ghe.com`).
   - **The steps** (from https://code.claude.com/docs/en/github-enterprise-server, read 3 November 2026; the page covers GitHub Enterprise Server and is silent on `*.ghe.com`). Needs the Owner or Primary Owner role in the Claude org (Team or Enterprise plan) and permission to create GitHub Apps on `getai.ghe.com`. (1) Create the empty private repo `GetAI-IP/factory-gates` (move step 2). (2) claude.ai, Organization settings, Git providers (https://claude.ai/admin-settings/source-control#github-enterprise), GitHub Enterprise section, Connect, "Set up automatically": display name up to 20 characters, hostname `getai.ghe.com`, leave the CA field empty. (3) Continue to GitHub Enterprise, review the pre-filled app, Create GitHub App. (4) Install the app on `factory-gates` only. (5) On claude.ai/code connect your own GitHub Enterprise account from the repository picker, then start a new session with the repo. If the guided redirect is blocked, use "Add manually" (needs app ID, client ID, client secret, webhook secret, private key; copy the webhook URL Claude generates into the app).
@@ -102,6 +104,43 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 30, 2026-11-21, branch `claude/session-30-2511-gate-live-build`
+
+ADO 2511: bring `GetAI-IP/factory-gates` in line with the live-build plan. On the laptop (desktop app), two days after its Fri 20 Nov finish date. Gate branch `live-build` off `release` at `b37a9f0`.
+
+Done:
+- **Gate PR 15** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/15, commit `f99ea9e`), open for Boroon to merge. Tasks 2512 to 2516 and 2518:
+  - `pending-scripts.txt`: `create_schema.py` and `create_security.py` out; `plan_from_export.py` and `check_inventory.py` in, under `static`. Still 20 lines.
+  - `lcp-gate.yml` matches plan Appendix A: `build` named for generators, packs the XML source layout; `static` with full history, the export-diff plan against the base commit, the `export-plan` artifact and the inventory check; `verify-in-test` without the schema and security plans, downloading `export-plan` into `evidence/`; both floors and the verifier plan read `--plan evidence/export-plan.json`. A normalised diff against the plan's YAML shows only comments, pins and the `setup-node` cache flag.
+  - `check_builders.py`: narrowed to generator wrappers, and fails a builder that writes under `src/`, even with the same bytes (inode, size and modification time before and after each builder, so it names the builder). Fixture: its builder now writes `apps/status-app/generated/`, and `src/Other/Solution.xml` stands in for the export.
+  - `pack_offline.py`: the source is the XML source layout; says what spikes 0.18 and 0.14 tried and what is untested.
+  - `templates/CODEOWNERS`: a note on the commented `/workflows/build/` line. README: rows, a "Live-build follow-ups (ADO 2511)" section, findings 10 and 11. `scripts.sha256` regenerated.
+  - Tests: 163 pass (154 before): 8 new in `test_check_builders.py`, 1 in `test_workflow.py`. Manifest verify and rulesets check clean. Eleven deliberate breaks of a scratch copy each failed.
+  - On the pull request: **`self-test` green** (run 40136346). `lcp-gate` red at `map lane` (run 40136351), as expected on this repo's own pull requests (README step 10): the gate reader App does not exist yet (2537), so its token step has no `app-id`.
+- ADO: 2511 to Building; task 2517 moved under 2538; 2538's body gained the carry-overs. The tasks 2512 to 2516 and 2518 stay New until the merge.
+
+Decisions (Boroon, 21 November 2026, asked in this session):
+- A project declares its generator-backed builders as thin wrappers in `workflows/build/`, not a declared list.
+- `check_builders.py` fails a builder that writes anything under `src/`, even when the bytes match.
+- Task 2517 (`danger-rules.yml`) moves under 2538, to be written with its reader `merge_danger_floor.py`.
+
+Found:
+- **Finding 11 (gate README):** the managed pack cannot come from the unmanaged-only export spike 0.18 tried. Microsoft's docs say pack cannot convert unmanaged to managed. Open item above.
+- Plan Appendix A's first paragraph still describes the YAML layout. Proposed edit, open item above.
+
+Files changed: `docs/progress.md`, `docs/plans/schedule.md`, `CLAUDE.md`. In `GetAI-IP/factory-gates` (branch `live-build`): `.github/workflows/lcp-gate.yml`, `README.md`, `lcp/check_builders.py`, `lcp/pack_offline.py`, `pending-scripts.txt`, `scripts.sha256`, `templates/CODEOWNERS`, `tests/test_check_builders.py`, `tests/test_workflow.py`, the fixture under `tests/fixtures/builder-project/`.
+
+Time and tokens (for 2511's body; session `6df73219`; measured before the last commit): active time 0 h 16 min (gaps over 10 minutes not counted), from 21 Nov 17:38 to 21 Nov 17:54 (UTC+11). Tokens: 64,707 output; 13,903,444 processed in all, of which 13,573,151 were cache reads. From 1 local transcript(s).
+
+Open items:
+- Boroon merges gate PR 15 once `self-test` is green. Then 2511 and its six tasks to Done, and `CLAUDE.md`'s `factory-gates` row to 163 tests.
+- 2511's dates: done Sat 21 Nov, a day after its Fri 20 Nov finish date. The stories after it are not moved; at Boroon's word only.
+- Finding 11 and the two proposed plan edits (open items above).
+
+Next steps:
+1. Boroon merges gate PR 15; then ADO 2511 to Done.
+2. Mon 23 Nov: 2509 (pin the Copilot CLI install in `verify-in-test`), the Ignite re-check and the first component register review.
 
 ## Session 29, 2026-11-21, branch `claude/session-29-2461-option-b`
 
