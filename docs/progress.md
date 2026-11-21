@@ -135,7 +135,7 @@ Files changed: `docs/sources/plan-v3.1.md` (at Boroon's word), `docs/progress.md
 Time and tokens (in 2511's body; session `6df73219`; measured before the last commit, plan edits and closing included): active time 0 h 24 min (gaps over 10 minutes not counted), from 21 Nov 17:38 to 21 Nov 18:01 (UTC+11). Tokens: 84,059 output; 21,489,763 processed in all, of which 21,084,711 were cache reads. From 1 local transcript(s).
 
 Open items:
-- Done: Boroon merged gate PR 15 on 21 November 2026; 2511 is Done and its six tasks Closed in ADO, and `CLAUDE.md`'s `factory-gates` row says 163 tests. Feature 2510 ("Gate follow-ups after live build") holds only 2511 and is still Not Started in ADO; not closed, as it was not asked.
+- Done: Boroon merged gate PR 15 on 21 November 2026; 2511 is Done and its six tasks Closed in ADO, and `CLAUDE.md`'s `factory-gates` row says 163 tests. Feature 2510 ("Gate follow-ups after live build"), which held only 2511, is Done too, at Boroon's word (21 November 2026).
 - 2511's dates: done Sat 21 Nov, a day after its Fri 20 Nov finish date. The stories after it are not moved; at Boroon's word only.
 - Finding 11 (open item above).
 
