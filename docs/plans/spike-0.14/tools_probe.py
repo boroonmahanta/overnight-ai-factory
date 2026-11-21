@@ -2225,6 +2225,126 @@ def cmd_part4b_undo():
     return 1 if results.get("error") or (results.get("column_found") and not results.get("column_gone")) else 0
 
 
+# ---------- deleting the scratch of spikes 0.14, 0.18 and 0.19 (Boroon, 21 November 2026) ----------
+#
+# Everything the spikes made in factory-lane-1 carries the publisher prefix fspk_, the names "Factory spike ...",
+# or the solution FactorySpike and publisher factoryspike. scratch-list reads them; scratch-delete deletes them,
+# children first, then lists again and fails if anything is left. Kept: getai-fl1-exec, its application user,
+# factory-lane-1 and the allowed MCP client new_getaifl1exec (plan, Stage 3).
+
+PREFIX = "fspk_"
+
+
+def scratch_query(dv, label, path, id_field, name_field, keep=None):
+    try:
+        rows = dv.rows(path)
+    except ProbeError as error:
+        return {"label": label, "error": str(error), "rows": []}
+    rows = [r for r in rows if keep is None or keep(r)]
+    return {"label": label, "rows": [{"id": r.get(id_field), "name": r.get(name_field),
+                                      **({"parent": r.get("_parentroleid_value")} if "_parentroleid_value" in r else {}),
+                                      **({"state": r.get("statecode")} if label == "cloud flows" else {})}
+                                     for r in rows]}
+
+
+def scratch_parts(dv):
+    """Every scratch part in the lane, found by its scratch names. Read only."""
+    tables = scratch_query(dv, "tables", "/EntityDefinitions?$select=LogicalName,MetadataId,IsCustomEntity",
+                           "LogicalName", "LogicalName", keep=lambda r: str(r.get("LogicalName", "")).startswith(PREFIX))
+    parts = [
+        scratch_query(dv, "cloud flows", "/workflows?$select=workflowid,name,statecode,category"
+                      "&$filter=startswith(name,'Factory spike')", "workflowid", "name"),
+        scratch_query(dv, "security roles", "/roles?$select=roleid,name,_parentroleid_value"
+                      "&$filter=startswith(name,'Factory spike')", "roleid", "name"),
+        scratch_query(dv, "environment variable values", "/environmentvariablevalues?$select=environmentvariablevalueid,"
+                      f"schemaname&$filter=startswith(schemaname,'{PREFIX}')", "environmentvariablevalueid", "schemaname"),
+        scratch_query(dv, "environment variable definitions", "/environmentvariabledefinitions?$select="
+                      f"environmentvariabledefinitionid,schemaname&$filter=startswith(schemaname,'{PREFIX}')",
+                      "environmentvariabledefinitionid", "schemaname"),
+        scratch_query(dv, "connection references", "/connectionreferences?$select=connectionreferenceid,"
+                      f"connectionreferencelogicalname&$filter=startswith(connectionreferencelogicalname,'{PREFIX}')",
+                      "connectionreferenceid", "connectionreferencelogicalname"),
+        scratch_query(dv, "model-driven apps", f"/appmodules?$select=appmoduleid,uniquename&$filter=startswith(uniquename,'{PREFIX}')",
+                      "appmoduleid", "uniquename"),
+        scratch_query(dv, "site maps", "/sitemaps?$select=sitemapid,sitemapnameunique"
+                      f"&$filter=startswith(sitemapnameunique,'{PREFIX}')", "sitemapid", "sitemapnameunique"),
+        scratch_query(dv, "web resources", f"/webresourceset?$select=webresourceid,name&$filter=startswith(name,'{PREFIX}')",
+                      "webresourceid", "name"),
+        tables,
+        scratch_query(dv, "solutions", "/solutions?$select=solutionid,uniquename&$filter=uniquename eq 'FactorySpike'",
+                      "solutionid", "uniquename"),
+        scratch_query(dv, "publishers", "/publishers?$select=publisherid,uniquename&$filter=uniquename eq 'factoryspike'",
+                      "publisherid", "uniquename"),
+    ]
+    for app in parts[5]["rows"]:
+        settings = scratch_query(dv, "app settings", "/appsettings?$select=appsettingid,uniquename"
+                                 f"&$filter=_parentappmoduleid_value eq {app['id']}", "appsettingid", "uniquename")
+        settings["label"] = f"app settings of {app['name']}"
+        parts.insert(5, settings)
+    return parts
+
+
+def scratch_table(parts):
+    lines = ["| Part | Found | Names |", "|---|---|---|"]
+    for part in parts:
+        names = ", ".join(str(r["name"]) for r in part["rows"]) or ("(read failed: " + part["error"][:200] + ")"
+                                                                    if part.get("error") else "")
+        lines.append(f"| {part['label']} | {len(part['rows'])} | {names} |")
+    return lines
+
+
+def cmd_scratch_list():
+    dv = Dataverse()
+    parts = scratch_parts(dv)
+    save("results.json", {"mode": "scratch-list", "parts": parts})
+    lines = ["### Scratch in the lane (read only)", ""] + scratch_table(parts)
+    summary_write("\n".join(lines) + "\n")
+    print("\n".join(lines))
+    return 1 if any(p.get("error") for p in parts) else 0
+
+
+SET_FOR = {"cloud flows": "workflows", "security roles": "roles", "environment variable values": "environmentvariablevalues",
+           "environment variable definitions": "environmentvariabledefinitions",
+           "connection references": "connectionreferences", "model-driven apps": "appmodules", "site maps": "sitemaps",
+           "web resources": "webresourceset", "solutions": "solutions", "publishers": "publishers"}
+
+
+def cmd_scratch_delete():
+    """Delete every scratch part, children first; then list again. Only at Boroon's word (21 November 2026)."""
+    dv = Dataverse()
+    before = scratch_parts(dv)
+    done = []
+    for part in before:
+        label = part["label"]
+        for row in part["rows"]:
+            if label == "cloud flows" and row.get("state") == 1:
+                done.append({"part": label, "name": row["name"], "turned_off": set_state(dv, row["id"], False)["status"]})
+            if label == "security roles" and row.get("parent"):
+                continue   # a business unit's copy goes with its root role
+            if label == "tables":
+                path = f"/EntityDefinitions(LogicalName='{row['id']}')"
+            elif label.startswith("app settings"):
+                path = f"/appsettings({row['id']})"
+            else:
+                path = f"/{SET_FOR[label]}({row['id']})"
+            status, _, parsed = http("DELETE", dv.base + path, dv.token,
+                                     headers={"OData-MaxVersion": "4.0", "OData-Version": "4.0"}, timeout=600)
+            done.append({"part": label, "name": row["name"], "status": status,
+                         **({"error": error_text(parsed)} if status not in (200, 204, 404) else {})})
+            print(f"DELETE {label} {row['name']}: HTTP {status}")
+    after = scratch_parts(dv)
+    left = [{"part": p["label"], "names": [r["name"] for r in p["rows"]]} for p in after if p["rows"]]
+    save("results.json", {"mode": "scratch-delete", "before": before, "deleted": done, "after": after, "left": left})
+    lines = ["### Scratch deleted", "", "Before:", ""] + scratch_table(before) + ["", "Deletes:", ""]
+    lines += [f"- {d['part']}: {d['name']}: HTTP {d.get('status')}" + (f" ({d['error']})" if d.get("error") else "")
+              for d in done]
+    lines += ["", "After:", ""] + scratch_table(after)
+    lines += ["", f"## Result: **{'nothing left' if not left else 'LEFT: ' + json.dumps(left)}**"]
+    summary_write("\n".join(lines) + "\n")
+    print("\n".join(lines))
+    return 1 if left or any(p.get("error") for p in after) else 0
+
+
 def cmd_scan():
     """Delete any output file that holds a token-shaped string, before the artifact upload."""
     root = os.path.join(env("RUNNER_TEMP", "/tmp"), "tools-probe")
@@ -2438,7 +2558,8 @@ def summary_part4b(results):
 
 
 COMMANDS = {"flow": cmd_flow, "flow-undo": cmd_flow_undo, "part2": cmd_part2, "part3": cmd_part3, "part4": cmd_part4,
-            "part4b": cmd_part4b, "part4b-undo": cmd_part4b_undo, "scan": cmd_scan, "summary": cmd_summary}
+            "part4b": cmd_part4b, "part4b-undo": cmd_part4b_undo, "scratch-list": cmd_scratch_list,
+            "scratch-delete": cmd_scratch_delete, "scan": cmd_scan, "summary": cmd_summary}
 
 
 def main(argv):
