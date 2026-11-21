@@ -210,7 +210,7 @@ Open items:
 Time and tokens for the whole of Session 28, plan edits and the scratch deletion included (measured before the last commit): active time 1 h 48 min (gaps over 10 minutes not counted), from 20 Nov 10:18 to 21 Nov 17:33 (UTC+11). Tokens: 302,785 output; 138,734,019 processed in all, of which 137,032,579 were cache reads. From 1 local transcript(s).
 
 Next steps:
-1. ~~Boroon: move 2461 to Done~~: done on 21 November 2026, at his word ("Yes, move to Done"); its Start and Finish Dates were not moved. ~~When to delete the spike scratch~~: deleted the same day, at his word ("delete the spike scratch", then "Yes, delete it all"); see Current state and the spike 0.14 README, "Scratch". One pull request from `claude/session-28-2461-plan-edits` would carry Sessions 28 and 29, the plan edits and the deletion record. One pull request from `claude/session-28-2461-plan-edits` would carry Sessions 28 and 29 and the plan edits.
+1. ~~Boroon: move 2461 to Done~~: done on 21 November 2026, at his word ("Yes, move to Done"); its Start and Finish Dates were not moved. ~~When to delete the spike scratch~~: deleted the same day, at his word ("delete the spike scratch", then "Yes, delete it all"); see Current state and the spike 0.14 README, "Scratch". Pull request 40 (https://github.com/boroonmahanta/overnight-ai-factory/pull/40), opened at Boroon's word on 21 November 2026 from `claude/session-28-2461-plan-edits`, carries Sessions 28 and 29, the plan edits and the deletion record. Boroon merges. One pull request from `claude/session-28-2461-plan-edits` would carry Sessions 28 and 29 and the plan edits.
 2. Then 2511, and the dates after 2461 at Boroon's word.
 
 ## Session 27, 2026-11-19 to 20, branch `claude/session-27-2461-mcp-shim`
