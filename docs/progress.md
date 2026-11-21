@@ -121,11 +121,11 @@ Done:
 Decisions (Boroon, 21 November 2026, asked in this session):
 - The private channel keeps "Request files", **renewed quarterly**: the link expires after 90 days and Boroon makes and sends a new one each quarter. (Offered instead: one folder per engineer, or a Microsoft Forms upload; both avoid "Anyone" links.)
 - The SharePoint and Teams admins: three people, named in ADO 3019.
+- **The plan is edited for it** ("Yes, edit the plan"): 7.3's "needs 'Anyone' links allowed on that one site" now says the channel's site, and the Factory Team's site too if the channel's cannot differ (Microsoft's pages disagree; untested), and that the link expires after 90 days and is renewed each quarter; the 14.4 row "Session exports and Teams" says the same. No line count change; `CLAUDE.md`'s plan row notes it.
 
-Files changed: `docs/plans/spike-0.17/README.md`, `docs/plans/schedule.md`, `docs/progress.md`.
+Files changed: `docs/plans/spike-0.17/README.md`, `docs/plans/schedule.md`, `docs/progress.md`, `docs/sources/plan-v3.1.md` (at Boroon's word), `CLAUDE.md`.
 
 Open items:
-- **A possible plan edit** (Boroon to decide): 7.3's "needs 'Anyone' links allowed on that one site" becomes "on the channel's site, and on the Factory Team's site if the channel's site cannot differ from it", plus "the link expires after 90 days and is renewed each quarter"; the same in the 14.4 row "Session exports and Teams".
 - **Boroon:** make the "Request files" link on `Factory session exports` and send the engineers the how-to (due since Fri 20 Nov); send the admins the README's draft message; create the Factory Team and its private channel (the mining reviewers are not named yet).
 - **3019's dates**, at Boroon's word.
 
