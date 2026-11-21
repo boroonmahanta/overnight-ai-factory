@@ -26,6 +26,11 @@ run by .github/workflows/tools.yml. One subcommand per step:
              exist, a call past the cap, and creates whose answer the shim drops
              before it retries). Every row it makes is named "spike-0.14 part3
              (...)" and is deleted by the Web API at the end
+  part4      the skills in `copilot -p` (Copilot CLI pinned, Microsoft's plugins pinned,
+             unattended, telemetry off), with the shim in front of Dataverse MCP: two
+             tiny stories in FactorySpike, one session each (an App Spec change to the
+             existing app; a change to the timer flow's Compose step, the flow left off).
+             Then export and unpack, compare, and pack again signed out and offline
   scan       delete any output file that holds a token-shaped string (before upload)
   summary    write the result table; exit 1 if the step failed
 
@@ -48,7 +53,7 @@ import urllib.request
 import uuid
 import zipfile
 
-LOGIN_BASE = "https://login.microsoftonline.com"
+LOGIN_BASE = os.environ.get("LOGIN_BASE", "https://login.microsoftonline.com")   # local checks point it at a fake
 API = "/api/data/v9.2"
 FLOW_SERVICE = "https://service.flow.microsoft.com"
 FLOW_RP = "https://api.flow.microsoft.com"
@@ -1395,6 +1400,470 @@ def cmd_part3():
                           "writes_twice": results.get("writes_twice")}, indent=2))
 
 
+# ---------- part 4: the skills in copilot -p ----------
+#
+# Copilot CLI 1.0.113 (probe/copilot/package-lock.json) with Microsoft's plugins loaded from
+# their pinned folders (--plugin-dir), run unread for this spike only (Boroon, 18 November
+# 2026). The Dataverse MCP server is the shim in front of `dataverse mcp`, named "dataverse"
+# (the Dataverse skills look for any tool whose name holds "dataverse"). FlowAgent is defined
+# again in the session's MCP config, so its folder and settings are known. One session per
+# story; the lane's sign-ins (pac, az, the Dataverse CLI) are made fresh before each.
+
+DVS_ROOT = env("DVS_ROOT")
+DV_PLUGIN = os.path.join(DVS_ROOT, ".github", "plugins", "dataverse")
+COPILOT = env("COPILOT_BIN", "copilot")
+PLAN_MODEL = env("COPILOT_PLAN_MODEL", "claude-sonnet-5.5")   # plan 5.2's default; checked before use
+MAX_AI_CREDITS = env("COPILOT_MAX_AI_CREDITS", "150")          # per story; the CLI's minimum is 30
+STORY_SECONDS = int(env("STORY_SECONDS", "1800"))
+MCP_CAP = int(env("MCP_CAP", "60"))                            # well above a small story's calls
+NEW_COLUMN = "fspk_category"
+APP_VIEW = "Active spike app rows"
+COMPOSE_V5 = "factory spike timer v5 (Copilot CLI, part 4)"
+OIDC_VARS = ("ACTIONS_ID_TOKEN_REQUEST_TOKEN", "ACTIONS_ID_TOKEN_REQUEST_URL")
+
+# What the session may do without asking. In -p and autopilot runs, anything else is denied.
+ALLOW_TOOLS = ["shell(node:*)", "shell(pac:*)", "shell(az:*)", "shell(dataverse:*)", "shell(python3:*)",
+               "shell(mkdir:*)", "write", "dataverse", "flowagent", "microsoft-learn"]
+# Denied even where an allow rule matches (deny wins): the driver's jobs, sign-ins, installs, deletes.
+DENY_TOOLS = ["shell(pac solution export:*)", "shell(pac solution import:*)", "shell(pac solution delete:*)",
+              "shell(pac solution pack:*)", "shell(pac auth create:*)", "shell(pac auth clear:*)",
+              "shell(pac auth delete:*)", "shell(pac auth select:*)", "shell(az login:*)", "shell(az logout:*)",
+              "shell(az account get-access-token:*)", "shell(dataverse auth:*)", "shell(dataverse mcp:*)",
+              "shell(git push:*)", "shell(curl:*)", "shell(wget:*)", "shell(sudo:*)", "shell(npm:*)",
+              "shell(npx:*)", "shell(pip:*)", "shell(pip3:*)", "shell(rm:*)"]
+
+UNATTENDED = """You are working unattended, as part of a night run: nobody will answer questions and nobody
+can approve anything until morning.
+
+Environment: {url} (Dataverse). pac, az and the dataverse CLI are already signed in to it, as an
+application user. Solution: FactorySpike (publisher prefix fspk).
+
+{story}
+
+Rules for this run:
+- Build in the environment. Do not export, import, pack or delete any solution: another step exports
+  the solution after you.
+- Never pass --allow-destructive. If the change would need it, stop and say so.
+- If a tool or command is refused, do not try to get round it. Note it, and carry on if you can, or stop.
+- Before you finish, write handoff.md in the working directory: what you changed; each point where you
+  stopped, or would have asked a person for approval; each tool or command that was refused and what you
+  did then; anything left undone."""
+
+STORIES = [
+    {"key": "app_spec", "plugin": "model-apps", "story": (
+        "In it, the model-driven app \"Factory spike app\" (fspk_factoryspikeapp) shows the table \"Spike app row\"\n"
+        "(fspk_spikeapprow), which has the columns fspk_name and fspk_note.\n\n"
+        "Story: add one text column to that table, display name \"Category\", logical name fspk_category, at most 100\n"
+        "characters, and show it on the table's main form \"Spike app row\" and in the view \"Active spike app rows\".\n"
+        "Change nothing else. Use the app-builder skill of the model-apps plugin.")},
+    {"key": "flow", "plugin": "power-automate", "story": (
+        "In it, the cloud flow \"Factory spike timer flow\" (a schedule trigger and one Compose step) is turned off.\n\n"
+        f"Story: change the input of its Compose step to exactly \"{COMPOSE_V5}\".\n"
+        "Leave the flow turned off: do not turn it on and do not run it. Change nothing else. Use the Power Automate\n"
+        "plugin's skills and its FlowAgent tools.")},
+]
+
+
+def redact_tree(folder):
+    """Rewrite every text file under `folder` with token-shaped strings removed (Copilot writes some files itself)."""
+    changed = []
+    for here, _, names in os.walk(folder):
+        for name in names:
+            path = os.path.join(here, name)
+            try:
+                with open(path, "rb") as handle:
+                    data = handle.read()
+            except OSError:
+                continue
+            if not re.search(JWT.pattern.encode(), data):
+                continue
+            try:
+                text = data.decode("utf-8")
+            except UnicodeDecodeError:
+                os.remove(path)
+                changed.append(os.path.relpath(path, folder) + " (deleted, not text)")
+                continue
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write(redact(text))
+            changed.append(os.path.relpath(path, folder))
+    return changed
+
+
+def quiet(argv, extra_env=None, drop=(), timeout=180):
+    """Run a command, keep only whether it worked and a redacted tail."""
+    child_env = {k: v for k, v in dict(os.environ, **(extra_env or {})).items() if k not in drop}
+    try:
+        process = subprocess.run(argv, stdin=subprocess.DEVNULL, capture_output=True, text=True, env=child_env,
+                                 timeout=timeout)
+        return {"ok": process.returncode == 0, "exit": process.returncode,
+                "tail": clip(redact(process.stdout + process.stderr)[-600:], 600)}
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return {"ok": False, "exit": None, "tail": clip(error, 300)}
+
+
+def lane_sign_in(label):
+    """Fresh sign-ins for one story: pac, the Dataverse CLI and az, each with a new GitHub OIDC token."""
+    tenant, app, url = env("TENANT_ID"), env("APP_ID"), env("ENV_URL")
+    out = {"pac_clear": quiet(["pac", "auth", "clear"])}
+    out["pac"] = quiet(["pac", "auth", "create", "--name", "lane", "--githubFederated", "--tenant", tenant,
+                        "--applicationId", app, "--environment", url])
+    out["pac_who"] = quiet(["pac", "org", "who"])
+    out["dataverse_clear"] = quiet(["dataverse", "auth", "remove", "--all"])
+    out["dataverse"] = quiet(["dataverse", "auth", "create", "--name", "lane-dv", "--githubFederated", "--tenant",
+                              tenant, "--applicationId", app, "--environment", url, "--accept-cleartext-caching"])
+    out["dataverse_who"] = quiet(["dataverse", "org", "who"])
+    out["az"] = az_login(f"az, {label}")
+    out["az_tokens"] = az_tokens()   # every token at once, while the OIDC token is fresh (part 2 finding 9)
+    out["ok"] = all(out[k]["ok"] for k in ("pac", "pac_who", "dataverse", "dataverse_who", "az"))
+    note(f"sign in for {label} (pac, dataverse, az)", out["ok"], 0, json.dumps({k: v.get("ok") for k, v in out.items()
+                                                                                if isinstance(v, dict) and "ok" in v}))
+    return out
+
+
+def without_oidc_check():
+    """Do the lane's sign-ins still work with the OIDC variables gone, as --secret-env-vars would leave them?"""
+    url = env("ENV_URL")
+    out = {"pac_org_who": quiet(["pac", "org", "who"], drop=OIDC_VARS),
+           "dataverse_org_who": quiet(["dataverse", "org", "who"], drop=OIDC_VARS),
+           "az_dataverse_token": az_token_without_oidc(url)}
+    out["all_ok"] = all(v["ok"] for v in out.values())
+    return out
+
+
+def az_token_without_oidc(url):
+    process = subprocess.run(["az", "account", "get-access-token", "--resource", url, "--query", "expiresOn",
+                              "--output", "tsv"], stdin=subprocess.DEVNULL, capture_output=True, text=True,
+                             env={k: v for k, v in os.environ.items() if k not in OIDC_VARS}, timeout=120)
+    return {"ok": process.returncode == 0, "exit": process.returncode,
+            "tail": clip(redact(process.stdout + process.stderr)[-300:], 300)}
+
+
+def copilot_env(extra=None):
+    base = dict(os.environ, **node_env(), COPILOT_AUTO_UPDATE="false", COPILOT_TELEMETRY_DISABLED="true",
+                COPILOT_PLUGIN_DIR_ONLY="true", DATAVERSE_TELEMETRY_OPT_OUT="1", NO_COLOR="1")
+    base.update(extra or {})
+    return base
+
+
+def model_check():
+    """One tiny prompt with plan 5.2's model. If the CLI refuses the name, the stories use its default."""
+    folder = os.path.join(work_dir(), "model-check")
+    os.makedirs(folder, exist_ok=True)
+    usage = os.path.join(folder, "usage.json")
+    argv = [COPILOT, "-p", "Reply with the single word: ready", "-s", "--no-ask-user", "--disable-builtin-mcps",
+            f"--model={PLAN_MODEL}", f"--max-ai-credits={30}", f"--usage-output-file={usage}", "-C", folder]
+    started = time.time()
+    try:
+        process = subprocess.run(argv, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=300,
+                                 env=copilot_env())
+        code, out = process.returncode, redact(process.stdout + "\n" + process.stderr)
+    except subprocess.TimeoutExpired:
+        code, out = 124, "timed out"
+    result = {"model": PLAN_MODEL, "exit": code, "seconds": round(time.time() - started, 1),
+              "answer": clip(out, 1200), "usage": read_json(usage)}
+    result["use_model"] = code == 0 and "ready" in out.lower()
+    note(f"model check ({PLAN_MODEL})", result["use_model"], result["seconds"], result["answer"])
+    return result
+
+
+def mcp_config(folder, env_id, keys_path):
+    """The session's MCP servers: the shim in front of `dataverse mcp`, and FlowAgent from its pinned folder."""
+    shim_dir = os.path.join(folder, "shim")
+    os.makedirs(shim_dir, exist_ok=True)
+    paths = {k: os.path.join(shim_dir, f) for k, f in (("log", "calls.jsonl"), ("proxy_log", "proxy-stderr.log"),
+                                                       ("summary", "summary.json"), ("stop", "stop.json"))}
+    with open(os.path.join(POWER_AUTOMATE, ".mcp.json"), encoding="utf-8") as handle:
+        flowagent = json.load(handle)["mcpServers"]["flowagent"]
+    config = {"mcpServers": {
+        "dataverse": {"type": "local", "command": sys.executable, "tools": ["*"],
+                      "args": ["-I", SHIM, "--cap", str(MCP_CAP), "--timeout", "60", "--keys-file", keys_path,
+                               "--webapi", resource(), "--log", paths["log"], "--proxy-log", paths["proxy_log"],
+                               "--summary", paths["summary"], "--stop-file", paths["stop"], "--",
+                               env("DATAVERSE_BIN", "dataverse"), "mcp", resource()],
+                      "env": {"DATAVERSE_TELEMETRY_OPT_OUT": "1"}},
+        "flowagent": {"type": "local", "command": flowagent["command"], "args": flowagent.get("args", []),
+                      "cwd": POWER_AUTOMATE, "tools": ["*"],
+                      "env": dict(node_env(), PLUGIN_ROOT=POWER_AUTOMATE, PA_DEFAULT_ENVIRONMENT=env_id)}}}
+    path = os.path.join(folder, "mcp-config.json")
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump(config, handle, indent=2)
+    return path, paths
+
+
+def walk_strings(value):
+    if isinstance(value, dict):
+        for item in value.values():
+            yield from walk_strings(item)
+    elif isinstance(value, list):
+        for item in value:
+            yield from walk_strings(item)
+    elif isinstance(value, str):
+        yield value
+
+
+def first_key(value, names):
+    """The first value under any of `names`, searching nested objects."""
+    if isinstance(value, dict):
+        for name in names:
+            if isinstance(value.get(name), (str, int, float)):
+                return value[name]
+        for item in value.values():
+            found = first_key(item, names)
+            if found is not None:
+                return found
+    elif isinstance(value, list):
+        for item in value:
+            found = first_key(item, names)
+            if found is not None:
+                return found
+    return None
+
+
+DENIED = re.compile(r"denied|not permitted|permission|was refused|not allowed", re.I)
+
+
+def read_events(path):
+    """Copilot's --output-format json lines: event types, tool calls by name, anything that reads as a denial."""
+    events = read_jsonl(path)
+    types, tools, denials, messages = {}, {}, [], []
+    for event in events:
+        kind = str(event.get("type") or event.get("event") or "?")
+        types[kind] = types.get(kind, 0) + 1
+        if "tool" in kind.lower():
+            name = first_key(event, ("toolName", "tool_name", "mcpToolName", "name"))
+            if name:
+                tools.setdefault(str(name), {}).setdefault(kind, 0)
+                tools[str(name)][kind] += 1
+        joined = " ".join(walk_strings(event))
+        data = event.get("data") or {}
+        # A denial is a tool call that did not succeed with a permission message, or a permission event. Matching any
+        # event text (as run 40121696 did) also caught ordinary words in handoffs and summaries.
+        failed = kind == "tool.execution_complete" and data.get("success") is False
+        if (failed and DENIED.search(json.dumps(data.get("error")))) or "permission" in kind.lower():
+            denials.append({"type": kind, "tool": first_key(event, ("toolName", "tool_name", "name")),
+                            "text": clip(joined, 700)})
+        if failed:
+            bucket = tools.setdefault("(failed)", {})
+            reason = clip(json.dumps(data.get("error")), 160)
+            bucket[reason] = bucket.get(reason, 0) + 1
+        if "message" in kind.lower() and "assistant" in kind.lower():
+            messages.append(clip(first_key(event, ("content", "text", "message")) or joined, 1500))
+    return {"events": len(events), "types": types, "tools": tools, "denials": denials,
+            "last_messages": messages[-3:]}
+
+
+def run_story(story, model_ok, secrets, env_id, keys_path):
+    folder = os.path.join(work_dir(), "story-" + story["key"])
+    os.makedirs(folder, exist_ok=True)
+    config_path, shim = mcp_config(folder, env_id, keys_path)
+    files = {k: os.path.join(folder, f) for k, f in (("events", "events.jsonl"), ("stderr", "copilot-stderr.log"),
+                                                     ("usage", "usage.json"), ("share", "transcript.md"),
+                                                     ("otel", "otel.jsonl"), ("handoff", "handoff.md"))}
+    plugins = [MODEL_APPS, POWER_AUTOMATE, DV_PLUGIN]
+    prompt = UNATTENDED.format(url=resource() + "/", story=story["story"])
+    argv = [COPILOT, "-p", prompt, "--autopilot", "--max-autopilot-continues=10", f"--max-ai-credits={MAX_AI_CREDITS}",
+            "--no-ask-user", "--output-format=json", f"--share={files['share']}",
+            f"--usage-output-file={files['usage']}", f"--log-dir={os.path.join(folder, 'copilot-logs')}",
+            "--log-level=info", "--disable-client-telemetry", "--disable-builtin-mcps",
+            "--disable-mcp-server=playwright", f"--additional-mcp-config=@{config_path}", "-C", folder]
+    for plugin in plugins:
+        argv += [f"--plugin-dir={plugin}", f"--add-dir={plugin}"]
+    argv += [f"--allow-tool={rule}" for rule in ALLOW_TOOLS] + [f"--deny-tool={rule}" for rule in DENY_TOOLS]
+    if model_ok:
+        argv.append(f"--model={PLAN_MODEL}")
+    argv.append("--secret-env-vars=" + ",".join(secrets))
+    plugin_root = {"model-apps": MODEL_APPS, "power-automate": POWER_AUTOMATE}[story["plugin"]]
+    child_env = copilot_env({"COPILOT_OTEL_FILE_EXPORTER_PATH": files["otel"], "PLUGIN_ROOT": plugin_root})
+    shown = list(argv)
+    shown[2] = f"<the {story['key']} prompt>"
+    with open(os.path.join(folder, "command.json"), "w", encoding="utf-8") as handle:
+        json.dump({"argv": shown, "prompt": prompt}, handle, indent=2)
+    result = {"key": story["key"], "prompt": prompt, "ended_by": "copilot"}
+    print(f"\n::group::story {story['key']}")
+    started = time.time()
+    with open(files["events"], "w", encoding="utf-8") as out, open(files["stderr"], "w", encoding="utf-8") as err:
+        process = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=err, text=True,
+                                   env=child_env, bufsize=1)
+        lines = queue.Queue()
+        threading.Thread(target=lambda: [lines.put(line) for line in process.stdout] + [lines.put(None)],
+                         daemon=True).start()
+        while True:
+            try:
+                line = lines.get(timeout=2)
+            except queue.Empty:
+                line = ""
+            if line is None:
+                break
+            if line:
+                out.write(redact(line))
+                out.flush()
+            stop = read_json(shim["stop"])
+            if stop and result["ended_by"] == "copilot":
+                result["ended_by"] = f"driver: shim stop, PARK {stop.get('park')}"
+                process.terminate()
+            if time.time() - started > STORY_SECONDS and result["ended_by"] == "copilot":
+                result["ended_by"] = f"driver: past {STORY_SECONDS} s"
+                process.terminate()
+        try:
+            process.wait(timeout=60)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
+    result["exit"] = process.returncode
+    result["seconds"] = round(time.time() - started, 1)
+    print(f"::endgroup::\nstory {story['key']}: exit {result['exit']} in {result['seconds']} s, {result['ended_by']}")
+    result["redacted_files"] = redact_tree(folder)
+    result["events"] = read_events(files["events"])
+    usage = read_json(files["usage"]) or {}
+    result["usage"] = usage
+    nano = first_key(usage, ("totalNanoAiu",))
+    result["ai_credits"] = round(float(nano) / 1e9, 2) if isinstance(nano, (int, float)) else None
+    result["shim"] = read_json(shim["summary"])
+    result["shim_stop"] = read_json(shim["stop"])
+    result["mcp_calls"] = (result["shim"] or {}).get("attempts")
+    shim_events = read_jsonl(shim["log"])
+    result["mcp_tools_listed"] = next((e.get("names") for e in shim_events if e.get("event") == "tools-list"), None)
+    result["mcp_call_list"] = [{k: e.get(k) for k in ("call", "tool", "kind", "attempt", "text", "correlation_id")}
+                               for e in shim_events if e.get("event") == "answer"]
+    for e in result["mcp_call_list"]:
+        e["text"] = clip(e.get("text"), 400)
+    with open(files["stderr"], encoding="utf-8", errors="replace") as handle:
+        result["stderr_tail"] = clip(redact(handle.read())[-2500:], 2500)
+    try:
+        with open(files["handoff"], encoding="utf-8") as handle:
+            result["handoff"] = redact(handle.read())[:6000]
+    except OSError:
+        result["handoff"] = None
+    # A command the session ran with --allow-destructive. Only the commands it started count: the prompt's own rule
+    # and the build engine's refusal both name the flag (run 40121696 flagged the refusal by mistake).
+    result["destructive_flag_seen"] = any(
+        "--allow-destructive" in str(((event.get("data") or {}).get("arguments") or {}).get("command", ""))
+        for event in read_jsonl(files["events"]) if event.get("type") == "tool.execution_start")
+    result["workflow_log"] = None
+    for here, _, names in os.walk(folder):
+        if "workflow-log.md" in names:
+            with open(os.path.join(here, "workflow-log.md"), encoding="utf-8", errors="replace") as handle:
+                result["workflow_log"] = clip(redact(handle.read()), 4000)
+            break
+    note(f"story {story['key']}", result["exit"] == 0 and result["ended_by"] == "copilot", result["seconds"],
+         result["stderr_tail"][-800:])
+    return result
+
+
+def app_state(dv):
+    """The spike app table's columns, and whether the new column is on its main form and in the view."""
+    out = {}
+    attributes = dv.rows(f"/EntityDefinitions(LogicalName='{APP_TABLE}')/Attributes?$select=LogicalName")
+    out["columns"] = sorted(a["LogicalName"] for a in attributes)
+    forms = dv.rows(f"/systemforms?$select=name,type,formxml&$filter=objecttypecode eq '{APP_TABLE}' and type eq 2")
+    out["main_forms"] = {f["name"]: NEW_COLUMN in (f.get("formxml") or "") for f in forms}
+    views = dv.rows(f"/savedqueries?$select=name,layoutxml,fetchxml&$filter=returnedtypecode eq '{APP_TABLE}'")
+    out["views_with_column"] = sorted(v["name"] for v in views if NEW_COLUMN in (v.get("layoutxml") or ""))
+    out["view_named"] = {v["name"]: NEW_COLUMN in (v.get("layoutxml") or "") for v in views if v["name"] == APP_VIEW}
+    return out
+
+
+def cmd_part4():
+    results = {"mode": "part4", "run_id": env("GITHUB_RUN_ID"), "steps": STEPS, "started_utc": utc_now(),
+               "settings": {"max_ai_credits_per_story": MAX_AI_CREDITS, "mcp_cap": MCP_CAP, "allow": ALLOW_TOOLS,
+                            "deny": DENY_TOOLS, "plan_model": PLAN_MODEL, "story_seconds": STORY_SECONDS}}
+    try:
+        results["tools"] = tool_versions()
+        results["tools"]["copilot"] = quiet([COPILOT, "--version"], extra_env={"COPILOT_AUTO_UPDATE": "false"})["tail"]
+        process = subprocess.run(["git", "-C", DVS_ROOT, "rev-parse", "HEAD"], capture_output=True, text=True)
+        results["tools"]["dataverse-skills head"] = process.stdout.strip()
+        results["tools"]["dataverse-skills head is the pin"] = process.stdout.strip() == env("DVS_COMMIT")
+        dv = Dataverse()
+        org = dv.get("/RetrieveCurrentOrganization(AccessType=Microsoft.Dynamics.CRM.EndpointAccessType'Default')")
+        env_id = (org.get("Detail") or {}).get("EnvironmentId")
+        if not env_id:
+            raise ProbeError("no environment ID from RetrieveCurrentOrganization")
+        solution_id = dv.rows(f"/solutions?$select=solutionid&$filter=uniquename eq '{SOLUTION}'")[0]["solutionid"]
+        keys = {row["LogicalName"]: row["PrimaryIdAttribute"]
+                for row in dv.rows("/EntityDefinitions?$select=LogicalName,PrimaryIdAttribute") if row.get("PrimaryIdAttribute")}
+        keys_path = os.path.join(work_dir(), "primary-keys.json")
+        with open(keys_path, "w", encoding="utf-8") as handle:
+            json.dump(keys, handle)
+        results["primary_keys_read"] = len(keys)
+        before_parts = solution_parts(dv, solution_id)
+        results["app_before"] = app_state(dv)
+        timer = find_flow(dv, TIMER_FLOW)
+        results["flow_before"] = {"compose": compose_text(timer), "state": [timer.get("statecode"), timer.get("statuscode")]}
+
+        results["model_check"] = model_check()
+        stories = results["stories"] = {}
+        for story in STORIES:
+            sign_in = lane_sign_in(story["key"])
+            results.setdefault("sign_ins", {})[story["key"]] = sign_in
+            if "without_oidc" not in results:
+                results["without_oidc"] = without_oidc_check()
+            secrets = ["GITHUB_TOKEN", "GH_TOKEN", "COPILOT_GITHUB_TOKEN"]
+            if results["without_oidc"]["all_ok"]:
+                secrets += list(OIDC_VARS)
+            results.setdefault("secret_env_vars", {})[story["key"]] = secrets
+            try:
+                stories[story["key"]] = run_story(story, results["model_check"]["use_model"], secrets, env_id, keys_path)
+            except (OSError, ProbeError) as error:
+                stories[story["key"]] = {"key": story["key"], "error": f"{type(error).__name__}: {clip(error, 400)}"}
+
+        # What the stories changed, read by the Web API with a fresh token.
+        dv = Dataverse()
+        after_parts = solution_parts(dv, solution_id)
+        results["solution_parts_added"] = [{"type": COMPONENT_TYPES.get(t, str(t)), "id": i}
+                                           for t, i in after_parts if (t, i) not in before_parts]
+        results["solution_parts_removed"] = [{"type": COMPONENT_TYPES.get(t, str(t)), "id": i}
+                                             for t, i in before_parts if (t, i) not in after_parts]
+        results["app_after"] = app_state(dv)
+        timer = find_flow(dv, TIMER_FLOW)
+        results["flow_after"] = {"compose": compose_text(timer), "state": [timer.get("statecode"), timer.get("statuscode")]}
+        if timer.get("statecode") == 1:   # never leave the timer flow on
+            results["flow_backstop_off"] = set_state(dv, timer["workflowid"], False)
+
+        # The driver's part: export, compare, pack again signed out and offline.
+        lane_sign_in("export")
+        zip_path, folder = export_unpack("after-part4")
+        results["vs_reset_commit"] = compare(RESET_COMMIT, folder, "reset-commit", "export")
+        files = sorted(tree(folder))
+        results["column_in_export"] = []
+        for name in files:
+            if name.lower().startswith(("entities/" + APP_TABLE, "appmodules/")):
+                with open(os.path.join(folder, name), encoding="utf-8-sig", errors="replace") as handle:
+                    if NEW_COLUMN in handle.read():
+                        results["column_in_export"].append(name)
+        timer_json = [n for n in files if n.lower().startswith("workflows/factoryspiketimerflow") and n.endswith(".json")]
+        if timer_json:
+            with open(os.path.join(folder, timer_json[0]), encoding="utf-8-sig") as handle:
+                results["exported_compose"] = json.load(handle)["properties"]["definition"]["actions"]["Compose"]["inputs"]
+        results["pack"] = pack_offline(zip_path, folder)
+        results["writes"] = dv.writes
+    except ProbeError as error:
+        results["error"] = str(error)
+    finally:
+        subprocess.run(["az", "logout"], stdin=subprocess.DEVNULL, capture_output=True)
+        results["ended_utc"] = utc_now()
+        app_story = results.get("stories", {}).get("app_spec", {})
+        flow_story = results.get("stories", {}).get("flow", {})
+        app_after = results.get("app_after", {})
+        results["exit_test"] = {
+            "sessions_ran": bool(app_story.get("events", {}).get("events")) and bool(flow_story.get("events", {}).get("events")),
+            "app_column_made": NEW_COLUMN in app_after.get("columns", []),
+            "app_column_on_main_form": any(app_after.get("main_forms", {}).values()),
+            "app_column_in_view": any(app_after.get("view_named", {}).values()),
+            "flow_compose_changed": results.get("flow_after", {}).get("compose") == COMPOSE_V5,
+            "flow_left_off": results.get("flow_after", {}).get("state", [None])[0] == 0,
+            "no_allow_destructive": not app_story.get("destructive_flag_seen") and not flow_story.get("destructive_flag_seen"),
+            "nothing_left_the_solution": not results.get("solution_parts_removed"),
+            "column_exported": any(n.lower().startswith("entities/") for n in results.get("column_in_export", [])),
+            "flow_change_exported": results.get("exported_compose") == COMPOSE_V5,
+            "packs_signed_out": bool(results.get("pack", {}).get("pack"))
+                                and results.get("pack", {}).get("repack_vs_export", {}).get("same_root_components", False),
+            "packs_with_no_network": bool(results.get("pack", {}).get("pack_no_network")),
+        }
+        results["exit_test"]["pass"] = all(results["exit_test"].values())
+        save("results.json", results)
+        print(json.dumps(results["exit_test"], indent=2))
+
+
 def cmd_scan():
     """Delete any output file that holds a token-shaped string, before the artifact upload."""
     root = os.path.join(env("RUNNER_TEMP", "/tmp"), "tools-probe")
@@ -1431,8 +1900,8 @@ def cmd_summary():
     lines += [f"| {s['name']} | {s['exit']} | {s['seconds']} |" for s in results["steps"]]
     lines += ["", "| Check | Result |", "|---|---|"]
     lines += [f"| {k} | {mark(v)} |" for k, v in results.get("exit_test", {}).items()]
-    if results["mode"] in ("part2", "part3"):
-        lines += summary_part2(results) if results["mode"] == "part2" else summary_part3(results)
+    if results["mode"] in ("part2", "part3", "part4"):
+        lines += {"part2": summary_part2, "part3": summary_part3, "part4": summary_part4}[results["mode"]](results)
         summary_write("\n".join(lines) + "\n")
         print("\n".join(lines))
         return 0 if results.get("exit_test", {}).get("pass") else 1
@@ -1531,8 +2000,42 @@ def summary_part3(results):
     return lines
 
 
-COMMANDS = {"flow": cmd_flow, "flow-undo": cmd_flow_undo, "part2": cmd_part2, "part3": cmd_part3, "scan": cmd_scan,
-            "summary": cmd_summary}
+def summary_part4(results):
+    def short(value, limit=900):
+        return json.dumps(value, default=str)[:limit]
+    lines = []
+    if results.get("error"):
+        lines += ["", f"**error**: {results['error']}"]
+    for key in ("started_utc", "ended_utc", "tools", "settings", "model_check", "without_oidc", "secret_env_vars",
+                "primary_keys_read", "app_before", "app_after", "flow_before", "flow_after", "solution_parts_added",
+                "solution_parts_removed", "column_in_export", "exported_compose"):
+        if key in results:
+            lines += ["", f"**{key}**: `{short(results[key], 1500)}`"]
+    for key, story in results.get("stories", {}).items():
+        lines += ["", f"#### Story {key}", ""]
+        lines += [f"**{k}**: `{short(story[k], 1500)}`" for k in (
+            "exit", "seconds", "ended_by", "ai_credits", "mcp_calls", "shim_stop", "destructive_flag_seen", "error",
+            "redacted_files") if k in story]
+        events = story.get("events", {})
+        lines += [f"**event types**: `{short(events.get('types'), 1200)}`", f"**tools**: `{short(events.get('tools'), 2000)}`",
+                  f"**denials** ({len(events.get('denials', []))}):"]
+        lines += [f"- `{short(d, 500)}`" for d in events.get("denials", [])[:25]]
+        lines += ["", "| MCP call | Tool | Kind | Attempt | Answer |", "|---|---|---|---|---|"]
+        lines += [f"| {c.get('call')} | {c.get('tool')} | {c.get('kind')} | {c.get('attempt')} | "
+                  f"{str(c.get('text') or '')[:200].replace('|', '/')} |" for c in story.get("mcp_call_list", [])]
+        lines += ["", "**usage**: `" + short(story.get("usage"), 1500) + "`", "", "**handoff.md**:", "", "```",
+                  (story.get("handoff") or "(none)")[:3000], "```", "", "**copilot stderr tail**:", "", "```",
+                  (story.get("stderr_tail") or "")[-1500:], "```"]
+    c = results.get("vs_reset_commit", {})
+    lines += ["", f"**vs_reset_commit**: only in the commit {c.get('only_in_first')}; only in the export "
+              f"{c.get('only_in_second')}; files that differ {c.get('raw_differ')}",
+              f"**pack**: `{short(results.get('pack'), 1200)}`", f"**writes**: `{short(results.get('writes'))}`",
+              "", f"## Part 4 result: **{mark(results.get('exit_test', {}).get('pass'))}**"]
+    return lines
+
+
+COMMANDS = {"flow": cmd_flow, "flow-undo": cmd_flow_undo, "part2": cmd_part2, "part3": cmd_part3, "part4": cmd_part4,
+            "scan": cmd_scan, "summary": cmd_summary}
 
 
 def main(argv):
