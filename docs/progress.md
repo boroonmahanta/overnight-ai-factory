@@ -146,6 +146,8 @@ Open items:
 
 Time and tokens (in 2466's body; sessions `25494c34` and Boroon's side session `b93b56d7`; measured before the last commit): active time 1 h 03 min (gaps over 10 minutes not counted), from 21 Nov 18:02 to 21 Nov 21:38 (UTC+11). Tokens: 133,345 output; 31,750,296 processed in all, of which 30,675,330 were cache reads. From 2 local transcript(s).
 
+Pull request: https://github.com/boroonmahanta/overnight-ai-factory/pull/41, Sessions 30 and 31 together, opened at Boroon's word, for him to merge.
+
 Next steps:
 1. Boroon: check that "Request files" can work in the tenant (3019, step 1), then make the link and send the engineers the how-to.
 2. Mon 23 Nov: 2509, the Ignite re-check and the first component register review.
