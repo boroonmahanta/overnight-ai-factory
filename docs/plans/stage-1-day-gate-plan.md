@@ -100,6 +100,8 @@ Done when: the three templates match the skill's formats, and nothing in them is
 
 ### DG2. Spike 0.17, session export (2466). Friday 20 November (brought forward from Wednesday 18 to Monday 16 November on 13 November 2026, missed, then set to Friday 20 November on 18 November 2026). Laptop, apps only, no tenant
 
+**Run 21 November 2026** (Session 31): passes for all four tools; record and how-to in `docs/plans/spike-0.17/README.md`. Copilot CLI's `--share` exports Copilot CLI, Copilot app and VS Code chat sessions (one shared store); Claude Code's `/export` works in a live terminal session. The folder is `Factory session exports` in Boroon's OneDrive, not a team site (none was named); a cloud session can read it through the Microsoft 365 connector, so DG6 can run in the cloud (list the folder by its item ID). The "Request files" link is still open (`docs/progress.md`, Session 31).
+
 Read: plan 7.3 (lines 1136 to 1142), spike 0.17 (line 1435).
 
 1. On the laptop, export one session by hand from each tool an engineer uses: VS Code Copilot Chat, the Copilot app if there is one, Copilot CLI, and Claude Code (`/export <file>` writes plain text; the raw transcript is `~/.claude/projects/<project>/<session>.jsonl`). Record the command, the format, and whether tool calls and file edits are included. This session could not check the VS Code or GitHub docs (their hosts did not resolve), so this is the first check.
@@ -132,7 +134,7 @@ Read: plan 6.1 to 6.3 (lines 940 to 998), 6.6 and 6.7 (lines 1035 to 1066), 8.3 
 3. `presets/getai/` (plan 6.2):
    - `preset.yml`.
    - The constitution: tests and docs for every change, locked acceptance tests, evidence rules, Australian English.
-   - The spec template: header fields for lane, profile, ambition (low by default for client work), ADO ID and work size; the SharePoint design's identity and exact approved version (delivery vault); acceptance criteria with IDs (`AC-<n>`) so scenarios can point at them; an NFR section; a Constraints section (plan 6.6).
+   - The spec template: header fields for lane, profile, ambition (low by default for client work), ADO ID and work size; the SharePoint design's identity and exact approved version (delivery vault). A design in an engagement's Teams channel folder is a SharePoint file: the field takes its document identity and version identifier, never a channel or "latest" link (plan 6.4, Boroon, 21 November 2026); acceptance criteria with IDs (`AC-<n>`) so scenarios can point at them; an NFR section; a Constraints section (plan 6.6).
    - The `specify` and `clarify` command overrides: raised question caps and the grilling rules from `getai-grilling` (at most five questions a round, facts versus decisions, the confirmation gate), and capture of glossary terms and decision records in the DG1 formats.
    - A GET AI checklist.
    - The prototype option (plan 6.7): a spec field for the mock or prototype link, and a short guide (the `proto` publisher prefix; never promoted). The prototype lint is a gate script, for 2538.
@@ -169,7 +171,7 @@ Done when: all tests pass, and the stage 1 exit clause "a spec with an open mark
 
 Read: plan 7.3 (lines 1106 to 1142), the retro rules from DG3's notes, the 11.2 stage 1 exit test (line 1444).
 
-Human-led by design: do not automate the retro (plan 7.3). Four batches:
+Human-led by design: do not automate the retro (plan 7.3). Read only the factory's exports place (spike 0.17: Boroon's OneDrive folder until the Factory Team's private channel exists), never an engagement's folders; find the folder by its ID, and follow the read tool's page notes on long files. A cloud session can do it. Four batches:
 
 | Date | Batch |
 |---|---|
