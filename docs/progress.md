@@ -142,11 +142,11 @@ Open items:
 - **Boroon makes the "Request files" link** on `Factory session exports` in OneDrive in the browser, then sends the engineers the how-to (the README's draft message). This is the checkpoint set for Fri 20 Nov, now due.
 - **Keeping exports** (proposal, Boroon to decide): delete each batch's files once its findings are in `docs/analysis/session-mining.md`, and all of them when DG6 closes (Fri 11 Dec); move the folder to a team site if mining becomes the weekly routine.
 - **A possible plan edit** (Boroon to decide): record spike 0.17's result in 11.1, row 0.17.
-- **The scratch** (README, last section): four Copilot test sessions, one Claude Code test session, the VS Code window and the OneDrive test file. Only at Boroon's word.
+- **Done: the scratch is deleted** (21 November 2026, at Boroon's word, after the merge): the four Copilot test sessions (the app's through its own Delete, the rest to the Mac's Trash), the Claude Code test session (Trash), the OneDrive test file (OneDrive's recycle bin) and the session scratchpad with the pinned Copilot CLI, the session copies and the raw test exports. Boroon closed the VS Code test window. The empty `Factory session exports` folder stays. Details in the README, last section. Kept here one session for the record.
 
 Time and tokens (in 2466's body; sessions `25494c34` and Boroon's side session `b93b56d7`; measured before the last commit): active time 1 h 03 min (gaps over 10 minutes not counted), from 21 Nov 18:02 to 21 Nov 21:38 (UTC+11). Tokens: 133,345 output; 31,750,296 processed in all, of which 30,675,330 were cache reads. From 2 local transcript(s).
 
-Pull request: https://github.com/boroonmahanta/overnight-ai-factory/pull/41, Sessions 30 and 31 together, opened at Boroon's word, for him to merge.
+Pull request: https://github.com/boroonmahanta/overnight-ai-factory/pull/41, Sessions 30 and 31 together, **merged by Boroon on 21 November 2026** (`dd2049a`). The scratch note is on branch `claude/session-31-scratch-deleted`, from `main` after the merge.
 
 Next steps:
 1. Boroon: check that "Request files" can work in the tenant (3019, step 1), then make the link and send the engineers the how-to.

@@ -157,7 +157,9 @@ If a session is too full of client detail to clean, send a correction note inste
 - The checkpoint (send the how-to and ask for exports) is due now: it was set for Friday 20 November.
 - Possible plan edit, for Boroon to decide: in 11.1, row 0.17, record the result (passes for all four tools; Copilot CLI's `--share` exports Copilot app, CLI and VS Code sessions; Claude Code's `/export` in a live session) and point to this file.
 
-## Scratch to delete (only at Boroon's word)
+## Scratch (deleted 21 November 2026, at Boroon's word)
+
+All of it was deleted on 21 November 2026, at Boroon's word, after he merged pull request 41. The Copilot app session went through the app's own Delete. The VS Code session's folder went to the Mac's Trash once its window was closed: a leftover lock file remained, but no process had it open. The other sessions also went to the Trash, the OneDrive test file to OneDrive's recycle bin, and the scratchpad was removed. The `Factory session exports` folder stays, empty, for the engineers. What there was:
 
 | What | Where |
 |---|---|
