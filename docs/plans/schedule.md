@@ -76,7 +76,7 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 
 Date them when Stage 4 ends.
 
-- 3019, a restricted Factory home for session exports (Session 31, 21 November 2026; Building since Session 32): its first step, checking that "Request files" can work in the tenant, comes before the engineers are asked for exports. **Done for the OneDrive stopgap in Session 32** (21 November 2026), so the engineers can be asked now. The Factory Team and its private channel exist (21 November 2026). The rest waits on the admins (Boroon's message) and on the channel's folder and site URL from Boroon. Date it at Boroon's word.
+- 3019, a restricted Factory home for session exports (Session 31, 21 November 2026; Building since Session 32): its first step, checking that "Request files" can work in the tenant, comes before the engineers are asked for exports. **Done for the OneDrive stopgap in Session 32** (21 November 2026), so the engineers can be asked now. The Factory Team and its private channel exist (21 November 2026). The rest waits on the admins (Boroon's message) and on Boroon making a folder in the channel's Files. Date it at Boroon's word.
 - A1, keep pinned kits current (Boroon, 7 November 2026; `docs/plans/stage-1-day-gate-plan.md`): a pin register, Dependabot where it can, and a monthly manual pass. Only its first pass is dated (23 November). ADO 2740, created 8 November 2026 (Session 19), Proposed, no dates.
 
 ## Changes

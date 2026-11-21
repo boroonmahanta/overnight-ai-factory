@@ -127,18 +127,18 @@ Decisions (Boroon, 21 November 2026, asked in this session):
 
 Later in the session (branch `claude/session-32-3019-factory-team`, from `main` after pull request 43, in a separate worktree):
 - ADO: every story finished on 21 November was already Done (2461, 2466, 2511 with its tasks Closed, Feature 2510). At Boroon's word, Feature 2464 (trace, redaction and mining spikes) moved from Not Started to **In Progress**, since its story 2466 is Done.
-- **3019 step 2 done by Boroon:** the internal Factory Team and a **private** channel, "Cleaned AI Factory Sessions Exports" (the connector shows `membershipType: private`; IDs in ADO 3019, not here, as the repo is public). His first channel for exports was the Team's standard channel, which every Team member can read; asked, he added the private channel, and the standard one is General again (its folder in the Team's library is empty). The private channel's own SharePoint site was not found by the connector yet; its IDs come from its real URL, not guessed from names (one guess by name failed, 404).
+- **3019 step 2 done by Boroon:** the internal Factory Team and a **private** channel, "Cleaned AI Factory Sessions Exports" (the connector shows `membershipType: private`; IDs in ADO 3019, not here, as the repo is public). His first channel for exports was the Team's standard channel, which every Team member can read; asked, he added the private channel, and the standard one is General again (its folder in the Team's library is empty). Boroon then gave the channel site's URL. The connector found the site only by its Graph ID (host name, site ID and web ID, read from the page's context in the built-in browser), not by its path (404, twice); by ID it lists the channel's document library from the laptop, which is empty. The IDs are in ADO 3019.
 
 Files changed: `docs/plans/spike-0.17/README.md`, `docs/plans/schedule.md`, `docs/progress.md`, `docs/sources/plan-v3.1.md` (at Boroon's word), `CLAUDE.md` (the plan row, and end step 4 after the slip).
 
 Open items:
-- **Boroon:** make the "Request files" link on `Factory session exports` and send the engineers the how-to (due since Fri 20 Nov); send the admins the README's draft message; make a folder in the private channel's Files and paste the channel site's URL (Files, Open in SharePoint), so its IDs can be recorded. The mining reviewers are not named yet.
+- **Boroon:** make the "Request files" link on `Factory session exports` and send the engineers the how-to (due since Fri 20 Nov); send the admins the README's draft message; make a folder in the private channel's Files (its library is empty, and "Request files" needs a folder). The mining reviewers are not named yet.
 - **3019's dates**, at Boroon's word.
 
-Time and tokens (in 3019's body; sessions `1a5096fb` and `25c4345e`, the same session after a restart; measured before the last commit): active time 0 h 44 min (gaps over 10 minutes not counted), from 21 Nov 21:44 to 21 Nov 22:27 (UTC+11). Tokens: 70,632 output; 23,627,356 processed in all, of which 23,260,880 were cache reads. From 2 local transcript(s).
+Time and tokens (in 3019's body; sessions `1a5096fb` and `25c4345e`, the same session after a restart; measured before the last commit): active time 0 h 46 min (gaps over 10 minutes not counted), from 21 Nov 21:44 to 21 Nov 22:29 (UTC+11). Tokens: 81,304 output; 28,505,649 processed in all, of which 28,108,697 were cache reads. From 2 local transcript(s).
 
 Next steps:
-1. Boroon: make the OneDrive link and send the engineers the how-to; send the admins the message; the private channel's folder and site URL.
+1. Boroon: make the OneDrive link and send the engineers the how-to; send the admins the message; a folder in the private channel's Files.
 2. Mon 23 Nov: 2509, the Ignite re-check and the first component register review.
 3. Thu 26 Nov: 2548's first mining batch, if exports have arrived.
 
