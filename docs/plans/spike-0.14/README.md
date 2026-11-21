@@ -14,6 +14,7 @@ Exit test (plan 11.1): we know where the skills stop for approval; the Web API f
 | 2. App Spec apply and FlowAgent as the lane identity | Whether they work as `getai-fl1-exec` | Script on a runner, no AI: `az login` with the federated token, then the model-apps build engine with `--non-interactive`, and FlowAgent's MCP server called by a small client | **App Spec: works** (run 39563486). **FlowAgent: in part**: reads and edits work; list, turn on, turn off and run are refused (HTTP 401) on both paths |
 | 3. MCP count and retry | The cap's number, the shim, safe retries | A stdio shim in front of the Dataverse local proxy, driven by a scripted client; the count per session from part 4's sessions | **Shim works** (run 39749076): counts, cap and retries hold. Safe to retry: reads, and a create with its own ID. Not safe: a plain create (it wrote twice). The cap's number waits on part 4 |
 | 4. The skills in `copilot -p` | Where the skills stop for approval | Copilot CLI on a runner, with Microsoft's plugins pinned, `POWER_PLATFORM_SKILLS_NONINTERACTIVE=1`, the lane's sign-ins and the shim in front of Dataverse MCP; two tiny stories | **Known** (run 40121696): the App Spec skill stops at the apply on an existing app (it needs `--allow-destructive`, which the driver never passes); FlowAgent's skill edits with its own dry run and needs no person. Flow story passed; App Spec story parked itself as it should. MCP calls 0 and 1 |
+| 4b. Option (b) for an existing app | Whether an App Spec story on an existing app can run at night without the App Spec apply | Copilot CLI as in part 4: the column by Dataverse MCP, the form and view by the Web API through a trusted helper, then publish; export before and after | **Works** (run 40126806, Session 29): all 18 checks; no `--allow-destructive`, the engine not run; only the three expected files changed; packed offline. 48 s, 15.7 credits, 1 MCP call |
 
 ## Decisions (Boroon, 18 November 2026)
 
@@ -387,6 +388,126 @@ What this does not show: a real transient MCP failure; the shim's refusal as the
 9. **14.4:** a row for spike 0.14's result, the retry rule and `tool_failure` (Boroon, 20 November), and the cap. **15.1:** close the 0.14 question; the MCP question's "The cap's number comes from spike 0.14" gets the number.
 10. **Section 12 (risks):** a line that most App Spec stories on existing apps PARK under (a), until (b) is tried.
 
+## Part 4b: option (b), an additive change without the App Spec engine
+
+`tools.yml` (job `part4`, mode `part4b`), `probe/tools_probe.py` (`part4b` mode) and a new `probe/webapi.py`, in `GetAI-IP/export-probe` at `35a5779` (copies here; the passing run ran there). Session 29, 21 November 2026, at Boroon's word (proposal 2: test (b) before agreeing the approach). The plan is not edited.
+
+### Method
+
+**The story** is part 4's App Spec story again, on the same scratch: add a text column "Category" (`fspk_category`, 100 characters) to "Spike app row" (`fspk_spikeapprow`) in `FactorySpike`, and show it on the main form "Spike app row" and in the view "Active Spike app rows". The table has two main forms ("Spike app row", from the App Spec, and "Information", Dataverse's own), so the story names the one to change. "Active Spike app rows" is the stock default view's exact name; part 4's probe checked for "Active spike app rows", which never matched (harmless there, as the column was not made).
+
+**The route, with no App Spec apply:**
+
+- the column by Dataverse MCP `update_table`, through the shim (cap 60, the accepted retry rule; `update_table` is never repeated);
+- the form's `formxml` and the view's `layoutxml` and `fetchxml` by the Web API, as updates to the existing `systemform` and `savedquery` rows;
+- then `PublishXml` for the table, and a read back.
+
+**The Web API goes through a trusted helper,** `probe/webapi.py` (`python3 webapi.py METHOD PATH [--body JSON|@FILE] [--out FILE]`). It stands in for plan 5.6's "trusted helper scripts for the Web API", which the Stage 3 driver would ship. It:
+
+- gets its token from the Azure CLI's cache, as the lane identity, and never prints or logs it;
+- sends every write with `MSCRM.SolutionUniqueName: FactorySpike`, which the agent cannot change;
+- takes GET, POST and PATCH only: DELETE and PUT are refused (an additive story deletes nothing, and a metadata PUT replaces a whole definition), and so are `$batch` and the solution actions that export, import or remove;
+- sends every PATCH with `If-Match: *`, so a PATCH to a row that does not exist fails instead of making one (a plain PATCH upserts);
+- logs each call (method, path, status, seconds, error text) for the driver.
+
+Microsoft's own route was not used: the Dataverse skills' `dv-metadata` makes forms and views with its Python SDK (`PowerPlatform-Dataverse-Client`, installed by `pip`, which the night denies and which is not pinned), and uses `dataverse api request` only to publish. Its own notes say a form or view made by the SDK lands in the default solution and must be added to the solution by hand. Read from the plugin at its pin, not run.
+
+**The session** is one `copilot -p` run, as in part 4 (Copilot CLI 1.0.113, `claude-sonnet-5.5`, unattended, the same allow and deny lists, fresh sign-ins, `--secret-env-vars` with the OIDC variables), with these differences:
+
+- plugins: model-apps and the Dataverse skills, so the build engine is there to reach for; not power-automate, and no FlowAgent server;
+- `--add-dir` for the probe folder (where the helper is), and a deny rule on writes there;
+- the prompt names the route and says: do not run `build-model-app.js` at all, not even a dry run, and do not use the app-builder skill; update the existing form and view, do not make new ones;
+- `PLUGIN_ROOT` is not set.
+
+**No deny rule can stop the engine alone.** Copilot CLI's own help says a shell rule matches a command and at most its first subcommand, and `shell(node:*)` must stay allowed for the plugins. So the guard is the prompt, and a check afterwards on the commands the session started (`tool.execution_start`), not on any event text: any command naming `build-model-app` fails the run, and one with `--apply` is flagged.
+
+**The driver, around the session:**
+
+1. Reads the table's columns, every form and view on it (their XML hashed), the solution's components, the ID of every form and view in the environment, the `fspk_` tables and the other spike table's columns. Stops if `fspk_category` already exists. (The first try, run 40125881, filtered forms by `createdon`, which `systemform` does not have; it stopped at that read, before any change. Spike 0.19 found the same: forms keep no maker. So the probe compares every ID before and after, at `74ca863`.)
+2. Exports and unpacks `FactorySpike` before the story, so the story's own change shows file by file.
+3. Runs the session, ending it on a shim stop or after 30 minutes.
+4. Reads all of step 1 again, and whether the column became a solution component of its own.
+5. Exports and unpacks again; compares with the export before; checks that only the table's `Entity.xml`, the one form file and the one view file changed; signs out; packs again normally and with no network.
+6. Checks that the helper and the shim were not changed during the session (hashes).
+
+**Exit checks (18):** the session ran and ended itself; the engine was not run; no `--allow-destructive`; the column made (text, 100, "Category"); the column on the form "Spike app row" (published); other forms unchanged; the column in the view's layout and fetch (published); other views unchanged; no new form or view; nothing made outside the solution; nothing left the solution; the column, form and view in the export; only the expected files changed; the trusted files unchanged; packs signed out; packs with no network.
+
+**Local check before the run** (21 November 2026, scratch harness, not committed). None of Microsoft's code ran on the laptop. Session 28's harness was copied and extended: a fake Web API with both main forms, the card form and two views, each with an unpublished and a published copy (a read returns the published one, as Dataverse does; `PublishXml` copies one to the other), `If-Match` handling (without it, a PATCH upserts), and a record of every write's headers; the fake MCP proxy's `update_table` adds the column; the Copilot stand-in drove the real shim and the real helper the way a session would, and the `pac` stand-in exported published forms and views only. Two runs:
+
+- **Run a:** 17 of 18 checks passed; the no-network pack needs Linux (as in parts 1 to 4). The stand-in saw only the `dataverse` server, both plugin folders and the probe folder, the write deny rule, the helper path in the prompt, `PLUGIN_ROOT` unset, and the OIDC variables in `--secret-env-vars`. `update_table` went through the shim once. Every helper write carried the solution header and every PATCH `If-Match: *`. The helper refused DELETE, PUT, `ExportSolution`, `$batch` and a full URL (exit 2), and a PATCH to a form that does not exist came back 404 instead of making one. No token in any output file.
+- **Run b:** the stand-in also started `node .../build-model-app.js --apply`: the run failed on "engine not run", and `engine_applied` was set.
+
+After run 40126131 (finding 2), the local check ran twice more: the helper with paths that have no leading slash (run c, as run a), and the new `part4b-undo` mode, which took the column off the form and view, published, and deleted the column (run c), and deleted nothing when a row held a value in the column (run d).
+
+### Findings (runs 40125881, 40126131, 40126711 and 40126806, 21 November 2026)
+
+Four runs: 40125881 stopped at the driver's first read (step 1 above), before any change. 40126131 ran the story and only the column landed (finding 2). 40126711 (`part4b-undo`) deleted that column. 40126806 ran the story again, with the helper fixed, and passed.
+
+1. **Option (b) works, headless, as the lane identity: all 18 checks pass** (run 40126806, at `35a5779`). In one `copilot -p` session of 48 seconds, with no App Spec apply and no `--allow-destructive`:
+   - the column by Dataverse MCP `update_table` through the shim (1 call): "Category", text, 100 characters;
+   - the main form "Spike app row": one new row with the column, after "Note"; "Information" and the other forms unchanged;
+   - the view "Active Spike app rows": the column in its layout and its fetch; the other six views unchanged;
+   - `PublishXml` for the table, and a read back of the column, the form and the view, all by the helper.
+
+   No new form or view anywhere (962 forms and 3,246 views, the same IDs before and after), no new table, the other spike table unchanged, and nothing left the solution. The session ended itself (`task_complete`); its handoff lists each change, the one refused command (finding 4) and, under stops and approvals needed, "None".
+2. **Copilot CLI reads a shell argument that starts with `/` as a file path, and a night run denies it** (run 40126131). The helper's first form took Web API paths like `/systemforms?...`. Copilot CLI checks paths in shell commands against the working folder, the system temp folder and `--add-dir`, and asks about any other; in `-p` that is a denial: *"Permission denied because no interactive user response was available"*. Only `webapi.py --help` ran. So only the column was made (by MCP); the form and view were not changed, and the agent said so in its handoff and did not try another route. The fix was the helper's documented path form, with no leading slash (`systemforms(<id>)`), at `35a5779`. For Stage 3: trusted helpers must take arguments that do not look like paths outside the session, or the driver adds their folders with `--add-dir`. `--allow-all-paths` would also work, but it removes the check for everything.
+3. **A column made by MCP `update_table` reaches the export, but only because the table is in the solution with all its parts** (both runs). `update_table` takes no solution name, and Dataverse adds a column made without one to the default solution only (Microsoft's docs). The column did not become a solution component of its own (no new `solutioncomponent` row). It is in the export because `FactorySpike` holds `fspk_spikeapprow` with `behavior="0"` (include all its parts). A table held with only some of its parts would leave the column outside the solution: the export would not show it, and the leftover finder would stop the lane (plan 5.4). So either lane solutions hold their tables with all parts, or columns go through the helper (a POST to the table's `Attributes` with the solution header, which also adds the component), or the driver adds them with `AddSolutionComponent`.
+4. **The deny list matched once, inside a compound command** (run 40126806). One command ended with `rm` of the agent's temporary files; `shell(rm:*)` denied the whole command (*"Permission to run this tool was denied due to the following rules: `shell(rm:*)`"*). The agent ran it again without the `rm`, and named the refusal in its handoff. This is the first deny rule seen to fire in spike 0.14 (part 4 finding 6). The two-word rules, such as `shell(pac solution export:*)`, are still untested; Copilot CLI's help says a rule names a command and at most its first subcommand, so they may never match [inference].
+5. **The export changed in exactly the three files expected,** each with a small additive diff:
+   - `Entities/fspk_spikeapprow/Entity.xml`: the new `attribute` block (`fspk_Category`, `nvarchar`, `MaxLength` 100, display name "Category");
+   - `FormXml/main/{7836bd17-...}.xml`: one `<row>` with one cell and a text control bound to `fspk_category`;
+   - `SavedQueries/{e3daadf8-...}.xml`: one `<cell name="fspk_category" width="100" />` and one `<attribute name="fspk_category" />`.
+
+   `Other/Solution.xml` and `Other/Customizations.xml` did not change. The tree packed again signed out and with no network, with the export's members and root components, and the round trip was byte-identical.
+6. **What the session did, in order:** read the helper's help; listed the table's main forms and views (helper GETs); added the column (`update_table`); read the form's `formxml` and the view's XML into files under `/tmp`; edited them with short `python3` scripts (new GUIDs for the cell and control, the text control's `classid`); PATCHed the form and the view; published; read all three back, and the "Information" form to check it was untouched. 12 helper calls: 9 reads (one a 400 for a `$select` on the wrong metadata type, which it corrected), 2 PATCHes (3.7 and 1.5 seconds) and `PublishXml` (8.4 seconds). It did not run the build engine, use the app-builder skill, or try `--allow-destructive`. No tool was refused except the `rm` (finding 4).
+7. **The helper's rules held,** in the run and the local checks: every write carried `MSCRM.SolutionUniqueName: FactorySpike`, every PATCH `If-Match: *`; the helper and the shim had the same hashes after the session; no token in the run's log or artifact. It is a probe, not a gate script: it allows a PATCH to any table, so a night version should allow only the tables and actions of the change class (for this one: `systemforms`, `savedqueries`, a table's `Attributes`, `PublishXml`).
+8. **MCP's `update_table` answer is not a read of what it made.** Its answer said `ALTER TABLE fspk_spikeapprow ADD (fspk_Category VARCHAR(MAX))`; Dataverse made `nvarchar` with `MaxLength` 100, as asked (`describe` and the Web API agree). The agent's arguments were `item: [{name: "Category", type: "string", maxLength: 100}]`; the publisher prefix came from the table. Agents should read a change back, as this one did.
+9. **Time, AI credits and MCP calls** (`--usage-output-file`, the shim):
+
+   | Run | Session | Model calls | Tokens in (of which cache read) | Tokens out | AI credits | MCP calls |
+   |---|---|---|---|---|---|---|
+   | 40126131 (helper denied) | 30.8 s | 7 | 217,631 (184,467) | 1,791 | 11.93 | 2 (`update_table`, `describe`) |
+   | 40126806 (pass) | 48.0 s | 8 | 273,594 (235,259) | 3,714 | 15.65 | 1 (`update_table`) |
+
+   The model check took 4.84 credits each time. The passing story cost about USD 0.16 in AI credits (1 credit is USD 0.01, part 4 finding 9) and 0.1 Copilot Credit for its one MCP call: about half the 29.7 credits of part 4's App Spec story, which changed nothing. The whole job took 3.2 minutes, of which the two exports 14 seconds each. The admin centre should show 3 more billed rows of 0.1 for 21 November from part 4b (the 2 and the 1), with part 4's 1.
+10. **The undo works for the column** (run 40126711, `part4b-undo`). As the lane identity, by the Web API: it found the column from run 40126131 on no form or view, with no row holding a value, and deleted it (HTTP 204); a read back found it gone. Taking a column off a form and a view, then publishing, was run only in the local check.
+
+What this does not show:
+
+- whether the app shows the new column to a user (no verifier clicked through; the app's form and view keep their IDs, so the app still uses them);
+- other kinds of change to an existing app: a new form or view, a site map or navigation entry, a choice or lookup column, a relationship, a role, anything that removes. Each needs its own Web API knowledge; under (b) they would PARK until tried;
+- the App Spec in Git, if a project keeps one as the app's builder input (plan 5.6 point 3): a (b) change leaves it stale. The model-apps plugin can download the deployed app back into a spec, as part 4's agent did read-only, so the driver could refresh it after the export [inference, untested];
+- a longer or larger story, a real MCP failure, or the shim's stop as the model sees it.
+
+### Option (a) and option (b) side by side (for Boroon to agree the approach)
+
+(c), the driver granting `--allow-destructive`, stays not recommended and is left out.
+
+| | (a) PARK at the apply, apply by day | (b) MCP and the Web API at night, no App Spec apply |
+|---|---|---|
+| Tested | Part 4, run 40121696: spec, lint and dry run at night; the apply refused; the agent PARKed with a handoff | Part 4b, run 40126806: column, form, view and publish at night, as the lane identity; exported, packed offline; all 18 checks |
+| What the night delivers | Nothing in the lane; a spec, a dry run and a handoff | The change, in the solution and the export; the PR the same night |
+| Night cost (this story) | 49 s, 29.7 AI credits (about USD 0.30), 0 MCP calls | 48 s, 15.7 AI credits (about USD 0.16), 1 MCP call (0.1 Copilot Credit) |
+| Human cost | 15 to 25 more minutes per story by day, about USD 35 to 60 per accepted story (Session 28's estimate, [inference]) | The normal morning review; nothing extra [inference] |
+| Elapsed | About a day more per story | Same night |
+| `--allow-destructive` | Never | Never; the build engine is not run |
+| What guards the change | Microsoft's engine refuses; a person approves by day | The trusted helper (solution header, no DELETE or PUT, `If-Match`, an allow-list of tables to add), the shim's cap, the driver's export diff (three files here), the leftover finder and the lane stop rule, then the gate: Merge Danger, the import into Test, the scenarios and the verifiers |
+| What it covers | Any App Spec change, once a person approves | Additive changes only: a column on an existing table, and that column on an existing form and view. Anything else on an existing app PARKs, as under (a), until tried |
+| How Microsoft supports it | The App Spec loop: spec, lint, dry run, apply, verify | Changing components in the environment through the Web API, then exporting: the loop plan 5.6 already uses. Forms and views are ordinary rows (`systemform`, `savedquery`), as Microsoft's own `dv-metadata` skill treats them. No exported file is edited |
+| Its own risks | Many PARKs; `views-forms-additive` never runs at night, so it cannot earn L2 | The agent writes form and view XML; a bad edit would show only later, at publish, the import into Test or the verifiers [inference]. A column made by MCP is outside the solution unless the table is held with all its parts (finding 3). The App Spec in Git goes stale. Copilot CLI's path check (finding 2) |
+| To build for Stage 3 | Nothing new | The trusted Web API helper in the driver's repo, narrowed to the change class's tables; the lane instructions naming the route; columns through the helper or added to the solution by the driver; a Merge Danger row for the class; the plan text |
+
+**Proposed approach (for Boroon):** both, by kind of change. At night, (b) for additive changes to an existing app (a column on an existing table, shown on an existing form and view), through a trusted helper the driver ships; the App Spec apply for a new app (part 2); and (a), a PARK with the dry run as evidence, for any other change to an existing app until its route is tried. This keeps `views-forms-additive` on the night path, so it can earn L2 on evidence (rule 12).
+
+### Proposed plan edits from part 4b (not made; at Boroon's word)
+
+These change proposals 2 and 10 above, if Boroon agrees the approach:
+
+1. **5.6, "Model-driven apps":** the three routes by kind of change (the approach above); the trusted Web API helper as a driver component, with its rules (finding 7); a column on an existing table made through the helper with the solution header, or added to the solution by the driver (finding 3); and the App Spec in Git refreshed from the app after a (b) change, if the project keeps one.
+2. **5.2 (the engine):** Copilot CLI's path check denies a shell argument that looks like a path outside the session, so helpers take arguments that do not, or their folders are added with `--add-dir` (finding 2); a one-word deny rule matches inside a compound command (finding 4).
+3. **11.1, row 0.14, and section 12:** the result: option (b) passes for an additive change; the risk line of proposal 10 becomes "App Spec changes to existing apps other than additive ones PARK".
+4. **Appendix B (Merge Danger):** a row for this class, keyed on the export diff: only a table's `Entity.xml` gaining an attribute, and forms and views gaining cells and attributes.
+
 ## Run order and results
 
 Runs start with `GH_HOST=getai.ghe.com gh workflow run <file> -R GetAI-IP/export-probe --ref main`, with `-f mode=... -f tenant_id=... -f app_id=... -f env_url=https://factory-lane-1.crm6.dynamics.com/` for `tools.yml`.
@@ -398,6 +519,10 @@ Runs start with `GH_HOST=getai.ghe.com gh workflow run <file> -R GetAI-IP/export
 | 3 | 39563486 | tools, part2 | **App Spec works; FlowAgent in part** (13 of 17 checks pass). `az login` as the lane identity; App Spec lint, dry run and apply (109 s, verify 13 of 13); table and app in the export; FlowAgent's update on both paths in the export; packed signed out and offline. Failed: FlowAgent's list, and its run on both paths (HTTP 401, part 2 finding 6). 3.6 minutes |
 | 4 | 39749076 | tools, part3 | **Pass** (10 of 10 checks). The shim passed `initialize`, `tools/list`, reads and a create; the cap of 2 held; the bad query and the missing table were each tried four times; the dropped-answer create was retried and wrote twice; the own-ID create wrote once. 20 calls sent, 2 refused. All 4 rows deleted. 1 minute |
 | 5 | 40121696 | tools, part4 | **The skills run headless; App Spec stops at an existing app** (probe: 10 of 12 checks; the two misses are the column, rightly not made, and a false alarm on `--allow-destructive`). Model check `claude-sonnet-5.5` "ready". App Spec story: lint and dry run passed, the apply refused without `--allow-destructive`, agent stopped with a handoff; 0 MCP calls, 29.7 credits, 49 s. Flow story: FlowAgent `edit_flow` changed the Compose step, flow left off; `list_flows` 401, flow found by 1 MCP read; 12.7 credits, 46 s. No tool denied. Exported, packed signed out and offline, round trip byte-identical. 3.9 minutes |
+| 6 | 40125881 | tools, part4b | **Stopped at the first read,** before any change: `systemform` has no `createdon` to filter on. The probe compares every form and view ID instead (`74ca863`). 0.9 minutes |
+| 7 | 40126131 | tools, part4b | **Only the column** (14 of 18 checks pass). The column by MCP `update_table` landed and exported; every helper call but `--help` was denied by Copilot CLI's path check (paths starting with `/`); the agent stopped with a clear handoff. 30.8 s, 11.9 credits, 2 MCP calls. Packed signed out and offline. 3.5 minutes |
+| 8 | 40126711 | tools, part4b-undo | **Pass.** Run 40126131's column, on no form or view and with no value in any row, deleted by the Web API (HTTP 204) and gone on a read back. 0.4 minutes |
+| 9 | 40126806 | tools, part4b | **Pass** (18 of 18) at `35a5779`, the helper taking paths with no leading slash. Column by MCP, form and view by the helper, published; nothing new or outside the solution; the export changed in the three expected files only; packed signed out and offline, round trip byte-identical. 48 s, 15.7 credits, 1 MCP call; one `rm` refused by the deny list. 3.2 minutes |
 
 ## Left to do
 
@@ -406,7 +531,8 @@ Runs start with `GH_HOST=getai.ghe.com gh workflow run <file> -R GetAI-IP/export
 3. ~~**Part 4**~~: done in Session 28 (run 40121696), above.
 4. ~~**Check the bill for part 3**~~: done 21 November: 20 billed rows (part 3 finding 10).
 5. **Boroon:** accept or change the exit test verdict, choose between the App Spec options (proposal 2), and say which plan edits to make (proposals 1 to 10, with the retry rule and `tool_failure` he accepted on 20 November). Then the plan edits, and the scratch deleted at his word.
-6. Not done, could follow: a part-4 style run of option (b) (an additive change to the existing app without the App Spec engine); one refused command on purpose, to see the model's answer and test the deny list; the shim's stop as the model sees it; part 4's one MCP call in the admin centre (one row of 0.1 for 21 November).
+6. Not done, could follow: one refused command on purpose, to see the model's answer and test the two-word deny rules (part 4b saw `shell(rm:*)` fire, finding 4); the shim's stop as the model sees it; part 4's one MCP call in the admin centre (one row of 0.1 for 21 November).
+7. ~~**Option (b)**~~: done in Session 29 (run 40126806): it works for an additive change. **Boroon:** agree the approach (part 4b, the side-by-side table and the proposed approach), and say which of part 4b's plan edits to make. Part 4b's three MCP calls in the admin centre (21 November).
 
 ## Scratch
 
@@ -418,6 +544,8 @@ New in this spike, kept until it ends, then deleted with 0.18's and 0.19's at Bo
 | Part 3's rows in `fspk_spikeitem` | `factory-lane-1` | None left: run 39749076 deleted all 4 by the Web API |
 | Cloud flow "Factory spike timer flow", in `FactorySpike`, off (made by run 39347126; its Compose step changed by FlowAgent in run 39563486, and again by the Copilot session in run 40121696, to "factory spike timer v5 (Copilot CLI, part 4)") | `factory-lane-1` | `tools.yml`, `mode=flow-undo`; 0.18's `teardown` does not know it, so run this first |
 | Part 4 (run 40121696) added nothing else to the lane: the App Spec apply was refused before it wrote anything, so there is no `fspk_category` column and the app, form and view are unchanged; its one MCP call was a read. The session's downloaded spec and handoff were on the runner only | `factory-lane-1` | Nothing to undo beyond the flow row above |
+| Part 4b's change (run 40126806): the text column `fspk_category` ("Category", 100) on `fspk_spikeapprow`, one row with it on the main form "Spike app row", and the column in the view "Active Spike app rows", published. Not solution components of their own; in `FactorySpike` through the table (`behavior="0"`). Run 40126131's column was deleted by run 40126711 | `factory-lane-1` | `tools.yml`, `mode=part4b-undo` (off the form and view, publish, then the column; it deletes nothing if a row holds a value; run for the column alone in run 40126711, the rest only in the local check). Or it goes with the table when the App Spec scratch below is deleted |
+| `probe/webapi.py` and the `part4b` and `part4b-undo` modes, and their runs | `GetAI-IP/export-probe` | Go with the repo |
 | The App Spec's table "Spike app row" (`fspk_spikeapprow`) with its forms and views, the app "Factory spike app" (`fspk_factoryspikeapp`) with its site map and two app settings, and the icon web resource `fspk_factoryspikeapp_icon`, all in `FactorySpike` (made by run 39563486) | `factory-lane-1` | Not written yet: a `part2-undo` mode by the Web API (the app, then the site map, the table and the web resource), run before 0.18's `teardown`. **Do not use Microsoft's `teardown-model-app.js`:** its last step deletes the solution the spec names, which is `FactorySpike` |
 | FlowAgent's own backups of the flow (it keeps one before each change) | the runner's home folder | Gone with the runner |
 

@@ -34,7 +34,7 @@ Next steps:
   - the fresh export, unpacked, equalled the reset commit in all 23 files.
 
   How to find what the lane identity made outside the solution turned out not to be `solutioncomponent.createdby`: the Default Solution's rows are by SYSTEM. The finder asks each component table for its maker, and finds tables and columns by state against a bootstrap list. The plan is edited for it (11 November 2026, at Boroon's word), with his rule that a table or column found outside the solution stops the lane for a person to check (ADO 2843). Record: `docs/plans/spike-0.19/README.md`. The scratch (0.18's plus one environment variable value) is **kept for spike 0.14**, at Boroon's word.
-- **Spike 0.14 has all four parts run** (Sessions 25 to 28, 18 to 21 November 2026, ADO 2461, Building until Boroon accepts the verdict). Part 1 passes: a flow with no connector, made by the Web API as `getai-fl1-exec`, runs, exports and packs again offline. Part 2: the App Spec apply works as the lane identity for a new app (unattended, never `--allow-destructive`); FlowAgent reads and edits flows as the lane identity but cannot list, turn on, turn off or run them (HTTP 401). Part 3: a stdio shim in front of the Dataverse CLI's local proxy counts every MCP call, holds a cap and retries; a retried create whose answer was lost writes twice; every call that reaches Dataverse is billed, tool errors included. Part 4 (Session 28): Copilot CLI runs Microsoft's skills headless as the lane identity on `claude-sonnet-5.5`; the flow story passed; **the App Spec skill stops at the apply on an existing app**, which needs `--allow-destructive` even for one new column; MCP calls per session 0 and 1. Proposed verdict: pass, with the fallback for App Spec changes to existing apps. Record: `docs/plans/spike-0.14/README.md`.
+- **Spike 0.14 has all four parts run** (Sessions 25 to 28, 18 to 21 November 2026, ADO 2461, Building until Boroon accepts the verdict). Part 1 passes: a flow with no connector, made by the Web API as `getai-fl1-exec`, runs, exports and packs again offline. Part 2: the App Spec apply works as the lane identity for a new app (unattended, never `--allow-destructive`); FlowAgent reads and edits flows as the lane identity but cannot list, turn on, turn off or run them (HTTP 401). Part 3: a stdio shim in front of the Dataverse CLI's local proxy counts every MCP call, holds a cap and retries; a retried create whose answer was lost writes twice; every call that reaches Dataverse is billed, tool errors included. Part 4 (Session 28): Copilot CLI runs Microsoft's skills headless as the lane identity on `claude-sonnet-5.5`; the flow story passed; **the App Spec skill stops at the apply on an existing app**, which needs `--allow-destructive` even for one new column; MCP calls per session 0 and 1. Proposed verdict: pass, with the fallback for App Spec changes to existing apps. **Part 4b (Session 29, 21 November 2026): option (b), an additive change to the existing app with no App Spec apply (the column by Dataverse MCP, the form and view by the Web API through a trusted helper), passed all 18 checks headless as the lane identity (run 40126806).** The approach for existing apps waits on Boroon (side-by-side table in the README). Record: `docs/plans/spike-0.14/README.md`.
 - **ADO is current** (Session 19): every update Sessions 17 and 18 left is made, and the schedule-order query matches `docs/plans/schedule.md`. Session 20 moved 2463 to Done.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
@@ -108,6 +108,43 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 29, 2026-11-21, branch `claude/session-29-2461-option-b`
+
+ADO 2461: spike 0.14, part 4b, option (b) for App Spec stories on an existing app, at Boroon's word (21 November: test (b) in a separate session, then agree the approach). A side session started from Session 28, on the laptop (desktop app). Branch made from `claude/session-28-2461-skills-copilot` at `d6f7127`, in its own git worktree, so Session 28's checkout was not touched. Every run in this session only. Sydney time: 21 November 15:49 to about 16:35.
+
+Done:
+- **A `part4b` mode** (copies in `docs/plans/spike-0.14/`; in `GetAI-IP/export-probe` at `35a5779`): part 4's App Spec story again (the column "Category" on `fspk_spikeapprow`, shown on the main form "Spike app row" and in the view "Active Spike app rows"), in one `copilot -p` session as in part 4, with no App Spec apply:
+  - the column by Dataverse MCP `update_table` through the shim;
+  - the form and view by the Web API, through a new trusted helper, `webapi.py`: it signs in from the Azure CLI's cache, puts the solution header on every write, sends PATCH with `If-Match: *`, and refuses DELETE, PUT, `$batch` and the export, import and removal actions;
+  - then `PublishXml`.
+
+  The model-apps plugin stays loaded; the prompt says not to run the build engine, and the probe checks the commands the session started. The driver exports before and after and compares file by file, and checks every form and view ID, the `fspk_` tables, and the helper's and shim's hashes.
+- **A `part4b-undo` mode:** takes the column off the forms and views, publishes, then deletes the column. It deletes nothing if any row holds a value.
+- **Local checks first** (Session 28's harness, extended: forms and views with published copies, `If-Match`, the helper's headers): four runs. None of Microsoft's code ran on the laptop.
+- **Four runs, 21 November:**
+  - 40125881: stopped at the first read (`systemform` has no `createdon`), before any change;
+  - 40126131: only the column landed; Copilot CLI denied every helper call with a path starting `/` as a file path outside the session (finding 2);
+  - 40126711: the undo deleted that column;
+  - **40126806: pass, 18 of 18.** Column, form and view changed and published; nothing new or outside the solution; the export changed in exactly three files; packed signed out and offline; 48 s, 15.7 AI credits, 1 MCP call; no `--allow-destructive`; the engine not run; one `rm` refused by the deny list, and the agent went on without it.
+- README: "Part 4b" with method, local check, 10 findings, an (a) and (b) side-by-side table, a proposed approach, and 4 proposed plan edits; rows in the parts, runs, left-to-do and scratch tables. `CLAUDE.md`: the map row and the open question.
+
+Decisions: none new. Boroon's decisions of 18 November (Microsoft's plugins unread, pinned, scratch only), 20 November (the retry rule and `tool_failure`) and 21 November (the shim's two cautious choices; test (b) here) were followed. The plan is not edited.
+
+Files changed: `docs/plans/spike-0.14/` (`README.md`, `tools.yml`, `tools_probe.py`, new `webapi.py`), `CLAUDE.md`, `docs/progress.md`. In `GetAI-IP/export-probe`: `tools.yml`, `probe/tools_probe.py`, new `probe/webapi.py` (`a0fd9e8`, `74ca863`, `35a5779`). In `factory-lane-1`: the column `fspk_category` on `fspk_spikeapprow`, one row with it on the form "Spike app row", and the column in the view "Active Spike app rows", published (undo: `mode=part4b-undo`, or it goes with the table).
+
+Time and tokens (for 2461's body; session `b2cc769d`; measured before the closing commit): active time 0 h 37 min (gaps over 10 minutes not counted), from 21 Nov 15:49 to 21 Nov 16:26 (UTC+11). Tokens: 131,335 output; 36,263,210 processed in all, of which 35,684,049 were cache reads. From 1 local transcript(s).
+
+Open items:
+- **Boroon to decide:** the approach for App Spec stories on existing apps. Proposed: (b) at night for additive changes through a trusted helper the driver ships, the App Spec apply for new apps, and (a) PARK for any other change to an existing app until its route is tried. Then which of part 4b's 4 plan edits to make, with part 4's 10.
+- For the Stage 3 helper, if (b) is agreed: narrow it to the change class's tables, and make columns through it with the solution header (or have the driver add them), because a column made by MCP is in the export only when the table is held with all its parts (finding 3).
+- **Copilot CLI's two-word deny rules** (for example `shell(pac solution export:*)`) may never match: its help says a rule names a command and at most its first subcommand. Untested; one refused command on purpose would show it. Part 4b saw `shell(rm:*)` fire.
+- The admin centre should show part 4b's 3 MCP calls (3 rows of 0.1) for 21 November, with part 4's 1.
+- `GetAI-IP/export-probe` tracks a compiled file, `probe/__pycache__/reset_probe.cpython-315.pyc`, since spike 0.19. Harmless scratch; goes with the repo.
+
+Next steps:
+1. Boroon reads part 4b's side-by-side table and agrees the approach; then the verdict, the plan edits (part 4's and part 4b's), and 2461 to Done.
+2. Then 2511, and the dates after 2461 at Boroon's word.
 
 ## Session 28, 2026-11-20 to 21, branch `claude/session-28-2461-skills-copilot`
 

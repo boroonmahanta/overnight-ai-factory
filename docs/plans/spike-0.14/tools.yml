@@ -22,6 +22,12 @@
 #              Dataverse-skills, run unread for this spike only, telemetry off), unattended,
 #              the shim in front of `dataverse mcp`, an explicit allow and deny list; two tiny
 #              stories in FactorySpike, one session each; then export, compare, pack again
+#   part4b     option (b) for part 4's App Spec story, in the part4 job (Session 29): the same additive
+#              change to the existing app with no App Spec apply, in one copilot -p session: the column
+#              by Dataverse MCP (through the shim), the form and view by the Web API through the
+#              trusted helper probe/webapi.py, then publish; export before and after, compare, pack
+#   part4b-undo  take part 4b's column back out by the Web API (off the forms and views, then the
+#              column); deletes nothing if a row holds a value in it. No pac, no AI
 #
 # Hand start only (workflow_dispatch), and only from main: no pull request code
 # runs (rule 5). No secrets. The tenant ID, app ID and Dataverse URL come in as
@@ -32,9 +38,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: flow, flow-undo, part2, part3 or part4
+        description: flow, flow-undo, part2, part3, part4, part4b or part4b-undo
         type: choice
-        options: [flow, flow-undo, part2, part3, part4]
+        options: [flow, flow-undo, part2, part3, part4, part4b, part4b-undo]
         default: flow
       tenant_id:
         description: Entra tenant ID
@@ -55,7 +61,7 @@ concurrency:
 
 jobs:
   tools:
-    if: inputs.mode != 'part4'
+    if: inputs.mode != 'part4' && inputs.mode != 'part4b'
     runs-on: ubuntu-latest
     environment: fl1-exec
     timeout-minutes: 60
@@ -188,7 +194,7 @@ jobs:
         run: python3 -I probe/tools_probe.py "$MODE"
 
       - name: Clear the sign-in profiles
-        if: always() && (env.MODE == 'flow' || env.MODE == 'part2' || env.MODE == 'part3')
+        if: always() && (env.MODE == 'flow' || env.MODE == 'part2' || env.MODE == 'part3' || env.MODE == 'part4b-undo')
         run: |
           pac auth clear 2>/dev/null || true
           az logout 2>/dev/null || true
@@ -197,12 +203,12 @@ jobs:
 
       # No token-shaped string leaves the runner, whatever a tool wrote.
       - name: Scan the output for tokens
-        if: always() && (env.MODE == 'flow' || env.MODE == 'part2' || env.MODE == 'part3')
+        if: always() && (env.MODE == 'flow' || env.MODE == 'part2' || env.MODE == 'part3' || env.MODE == 'part4b-undo')
         run: python3 -I probe/tools_probe.py scan
 
       # Scratch output only: the scratch solution's files, the zips, the logs and the results. No credentials.
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: always() && (env.MODE == 'flow' || env.MODE == 'part2' || env.MODE == 'part3')
+        if: always() && (env.MODE == 'flow' || env.MODE == 'part2' || env.MODE == 'part3' || env.MODE == 'part4b-undo')
         with:
           name: tools-probe-${{ inputs.mode }}
           path: ${{ runner.temp }}/tools-probe/
@@ -214,9 +220,9 @@ jobs:
         if: always() && (env.MODE == 'flow' || env.MODE == 'part2' || env.MODE == 'part3')
         run: python3 -I probe/tools_probe.py summary
 
-  # Part 4: the skills in `copilot -p`. A job of its own, so only it holds copilot-requests: write.
+  # Part 4 (and 4b): the skills in `copilot -p`. A job of its own, so only it holds copilot-requests: write.
   part4:
-    if: inputs.mode == 'part4'
+    if: inputs.mode == 'part4' || inputs.mode == 'part4b'
     runs-on: ubuntu-latest
     environment: fl1-exec
     timeout-minutes: 100
@@ -226,7 +232,7 @@ jobs:
       copilot-requests: write   # Copilot CLI with the job's own GITHUB_TOKEN, billed to the organisation
     env:
       PAC_VERSION: "2.14.1"
-      MODE: part4
+      MODE: ${{ inputs.mode }}
       TENANT_ID: ${{ inputs.tenant_id }}
       APP_ID: ${{ inputs.app_id }}
       ENV_URL: ${{ inputs.env_url }}
@@ -331,10 +337,10 @@ jobs:
           az version --output tsv --query '"azure-cli"'
 
       # The probe signs pac, the Dataverse CLI and az in afresh before each story (GitHub OIDC, no secret).
-      - name: Run the two stories
+      - name: Run the stories
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: python3 -I probe/tools_probe.py part4
+        run: python3 -I probe/tools_probe.py "$MODE"
 
       - name: Clear the sign-in profiles
         if: always()
@@ -352,7 +358,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
-          name: tools-probe-part4
+          name: tools-probe-${{ inputs.mode }}
           path: ${{ runner.temp }}/tools-probe/
           retention-days: 3
           if-no-files-found: warn
