@@ -138,7 +138,16 @@ Done:
   - The probe's own result said FAIL (10 of 12): the column (rightly not made) and a false alarm on `--allow-destructive` (it matched the engine's refusal text). Two checks fixed after the run (`4641e57`).
 - README: part 4's method, local checks, 13 findings, the proposed verdict and 10 proposed plan edits; the bill under part 3; the run table, left to do and the scratch.
 
-Decisions: none new. Boroon's decisions of 18 November (Microsoft's plugins unread, pinned, scratch only) and 20 November (the retry rule and `tool_failure`) were followed.
+Decisions:
+- Boroon's decisions of 18 November (Microsoft's plugins unread, pinned, scratch only) and 20 November (the retry rule and `tool_failure`) were followed.
+- **Boroon, 21 November 2026:**
+  - he confirmed the shim's two cautious choices: tools other than reads and row writes are never repeated, and a batch write of unknown fate is a PARK;
+  - he said "not yet" to the plan edits;
+  - he asked to test App Spec option (b) (an additive change without the App Spec engine) in a separate session, then agree the approach. That is Session 29, started from this branch.
+- He asked what option (a) would really cost. The answer is in the spike README under proposal 2:
+  - it hits most XS and S model-driven stories;
+  - it adds about a day each, and roughly USD 35 to 60 per accepted story [inference, from the plan's 10.4 model];
+  - it keeps `views-forms-additive` off the night path, so that class cannot earn L2.
 
 Files changed: `docs/plans/spike-0.14/` (`README.md`, `mcp_shim.py`, `tools.yml`, `tools_probe.py`, new `copilot/package.json` and `copilot/package-lock.json`), `CLAUDE.md` (map row), `docs/progress.md`. In `GetAI-IP/export-probe`: `tools.yml`, `probe/tools_probe.py`, `probe/mcp_shim.py`, new `probe/copilot/`. In `factory-lane-1`: the timer flow's Compose step (now "v5"), nothing else.
 
