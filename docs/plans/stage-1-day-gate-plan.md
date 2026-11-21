@@ -100,6 +100,8 @@ Done when: the three templates match the skill's formats, and nothing in them is
 
 ### DG2. Spike 0.17, session export (2466). Friday 20 November (brought forward from Wednesday 18 to Monday 16 November on 13 November 2026, missed, then set to Friday 20 November on 18 November 2026). Laptop, apps only, no tenant
 
+**Run 21 November 2026** (Session 31): passes for all four tools; record and how-to in `docs/plans/spike-0.17/README.md`. Copilot CLI's `--share` exports Copilot CLI, Copilot app and VS Code chat sessions (one shared store); Claude Code's `/export` works in a live terminal session. The folder is `Factory session exports` in Boroon's OneDrive, not a team site (none was named); the "Request files" link and the cloud read check are still open (`docs/progress.md`, Session 31).
+
 Read: plan 7.3 (lines 1136 to 1142), spike 0.17 (line 1435).
 
 1. On the laptop, export one session by hand from each tool an engineer uses: VS Code Copilot Chat, the Copilot app if there is one, Copilot CLI, and Claude Code (`/export <file>` writes plain text; the raw transcript is `~/.claude/projects/<project>/<session>.jsonl`). Record the command, the format, and whether tool calls and file edits are included. This session could not check the VS Code or GitHub docs (their hosts did not resolve), so this is the first check.

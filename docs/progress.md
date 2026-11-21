@@ -35,6 +35,7 @@ Next steps:
 
   How to find what the lane identity made outside the solution turned out not to be `solutioncomponent.createdby`: the Default Solution's rows are by SYSTEM. The finder asks each component table for its maker, and finds tables and columns by state against a bootstrap list. The plan is edited for it (11 November 2026, at Boroon's word), with his rule that a table or column found outside the solution stops the lane for a person to check (ADO 2843). Record: `docs/plans/spike-0.19/README.md`. The scratch (0.18's plus one environment variable value) was kept for spike 0.14, and **deleted on 21 November 2026** at Boroon's word.
 - **Spike 0.14 has all four parts run** (Sessions 25 to 28, 18 to 21 November 2026, ADO 2461, **Done** on 21 November 2026 at Boroon's word; its dates not moved). Part 1 passes: a flow with no connector, made by the Web API as `getai-fl1-exec`, runs, exports and packs again offline. Part 2: the App Spec apply works as the lane identity for a new app (unattended, never `--allow-destructive`); FlowAgent reads and edits flows as the lane identity but cannot list, turn on, turn off or run them (HTTP 401). Part 3: a stdio shim in front of the Dataverse CLI's local proxy counts every MCP call, holds a cap and retries; a retried create whose answer was lost writes twice; every call that reaches Dataverse is billed, tool errors included. Part 4 (Session 28): Copilot CLI runs Microsoft's skills headless as the lane identity on `claude-sonnet-5.5`; the flow story passed; **the App Spec skill stops at the apply on an existing app**, which needs `--allow-destructive` even for one new column; MCP calls per session 0 and 1. Verdict: passed, with the fallback where it applies. **Part 4b (Session 29, 21 November 2026): option (b), an additive change to the existing app with no App Spec apply (the column by Dataverse MCP, the form and view by the Web API through a trusted helper), passed all 18 checks headless as the lane identity (run 40126806).** **Boroon agreed the approach on 21 November 2026:** (b) at night for additive changes to an existing app (a column on an existing table, shown on an existing form and view) through a trusted Web API helper the driver ships; the App Spec apply for a new app; (a), a PARK with the dry run as evidence, for any other change to an existing app until its route is tried. **Edited into the plan the same day, at Boroon's word** (5.6, 11.1, 14.4, 15.1, Appendix C, by Session 29), **with the rest of the spike's results** (Session 28, branch `claude/session-28-2461-plan-edits`: 5.2, 5.4, 5.6, 5.9, 5.11, 5.14, 11.1, risk 34, 14.4, 15.1, Appendices B.1 and D). Record: `docs/plans/spike-0.14/README.md`.
+- **Spike 0.17 passes for all four tools** (Session 31, 21 November 2026, ADO 2466, DG2; Building until Boroon says done). Each tool gave a readable export of a test session with no client data. Copilot CLI's `--share` writes the fullest (Markdown with tool calls, file edits and shell output), and it also exports Copilot app and VS Code chat sessions, because all three share `~/.copilot/session-state/`; it runs on a copy of the session, so the original never changes. Claude Code's `/export` writes plain text, in a live terminal session only. The how-to for engineers and the checklist for removing client data: `docs/plans/spike-0.17/README.md`. Exports go to `Factory session exports` in Boroon's OneDrive, through a "Request files" link he still has to make. The Microsoft 365 connector reads it from the laptop; the cloud read check is pending.
 - **ADO is current** (Session 19): every update Sessions 17 and 18 left is made, and the schedule-order query matches `docs/plans/schedule.md`. Session 20 moved 2463 to Done.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
@@ -104,6 +105,47 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 31, 2026-11-21, branch `claude/session-31-2466-session-export`
+
+ADO 2466: spike 0.17, session export for mining (DG2). On the laptop (desktop app), apps only, no tenant, a day after its Fri 20 Nov date. Branch stacked on Session 30's (not merged, no pull request yet), so one pull request can carry both. Session renamed "27. Stage 1 - Spike - Session export for mining", like the others. Boroon ran the Copilot app step in a side session.
+
+Done:
+- **Spike 0.17 run: passes for all four tools.** `docs/plans/spike-0.17/README.md`: what was tested, 12 findings, the how-to for engineers (one section per tool), the checklist for removing client data, a correction-note template for the fallback, file naming and sending, a draft message for Boroon to send, where exports go, and the scratch list. Each test used a fresh session in the scratchpad with the same small prompt (a file edit, a shell command, an answer), so no client data. Raw exports stayed in the scratchpad.
+  - Copilot CLI 1.0.113 (installed in the scratchpad from spike 0.14's lockfile, `npm ci --ignore-scripts`; already signed in through the Copilot app): `-p ... --share <file>` writes Markdown with every tool call, the file edit, shell output and refused calls.
+  - GitHub Copilot app 1.2.0: no file export (its menu has "Share as secret gist", which uploads, and "Copy", the session ID). Copilot CLI exports its sessions: they share `~/.copilot/session-state/`.
+  - VS Code 1.138.0: "Copy All" is readable but drops output; "Export Chat..." is JSON with everything. Its chat ran on the Copilot CLI engine, so Copilot CLI exported it in full.
+  - Claude Code: `/export <name>` writes plain text in a live terminal session, never headless; shell commands are folded to a count, and the opening box shows the account email. The desktop app's Export is a zip of the raw JSONL.
+  - The tested export command for any Copilot session: copy the session folder into a throwaway `COPILOT_HOME`, then `copilot --resume <id> --model auto --deny-tool shell --deny-tool write -p "Reply with the single word OK." --share <file>`. The original stays unchanged (checked), a session VS Code holds open can still be exported, and `--model auto` avoids "Model ... is not available". The export turn cost 0.08 AI credits; the CLI's closing figure is the session's running total.
+- **The exports folder:** `Factory session exports` in Boroon's OneDrive, made through the Mac's OneDrive sync folder, private to him, with a test file `spike-0.17-cloud-read-test.md` (no client data). The Microsoft 365 connector is read only (`Files.Read.All`, no write scope), so it could not make the folder; it reads the test file from the laptop.
+- **The cloud read check:** a cloud session started at Boroon's word, asked only to read the test file and list the folder through the connector. Result pending (cloud sessions do not report back here).
+- 2511 needed nothing: Session 30 had already recorded the merge, 2511 Done and its tasks Closed.
+- ADO: 2466 to Building.
+
+Decisions (Boroon, 21 November 2026, asked in this session):
+- Install Copilot CLI in the scratchpad only, pinned, install scripts off.
+- Exports go to a folder only Boroon can read, through a "Request files" link (upload only). No team site was named, so the folder is in his OneDrive.
+- Start one small cloud session for the read check.
+
+Found:
+- The Copilot app, Copilot CLI and VS Code's chat on the Copilot CLI engine keep one session store; `client_name` in `workspace.yaml` says which tool made a session.
+- Every export shows full file paths, and folder names can carry client names (in the checklist).
+- The SharePoint search shows client folder names; none is written in this repo.
+
+Files changed: `docs/plans/spike-0.17/README.md` (new), `docs/progress.md`, `docs/plans/schedule.md`, `docs/plans/stage-1-day-gate-plan.md`, `CLAUDE.md`.
+
+Open items:
+- **The cloud read check result.** Record it in the README ("Where exports go") and decide where mining batches run (2548).
+- **Boroon makes the "Request files" link** on `Factory session exports` in OneDrive in the browser, then sends the engineers the how-to (the README's draft message). This is the checkpoint set for Fri 20 Nov, now due.
+- **Keeping exports** (proposal, Boroon to decide): delete each batch's files once its findings are in `docs/analysis/session-mining.md`, and all of them when DG6 closes (Fri 11 Dec); move the folder to a team site if mining becomes the weekly routine.
+- **A possible plan edit** (Boroon to decide): record spike 0.17's result in 11.1, row 0.17.
+- **2466 to Done** at Boroon's word, once the cloud result is recorded.
+- **The scratch** (README, last section): four Copilot test sessions, one Claude Code test session, the VS Code window and the OneDrive test file. Only at Boroon's word.
+
+Next steps:
+1. Record the cloud read check; 2466 to Done at Boroon's word.
+2. Boroon: the "Request files" link and the message to the engineers.
+3. Mon 23 Nov: 2509, the Ignite re-check and the first component register review.
 
 ## Session 30, 2026-11-21, branch `claude/session-30-2511-gate-live-build`
 
