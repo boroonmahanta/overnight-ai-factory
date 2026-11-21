@@ -32,12 +32,12 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 | Fri 13 Nov | Fri 13 Nov | 2505 | Review and merge Dependabot PRs #9, #10 and #11 | Laptop | | **Done 13 Nov** (Session 24; #10 and #11 were superseded on 9 Nov by #14 and #13; Boroon merged #9, #13 and #14) |
 | Wed 18 Nov | Thu 19 Nov | 2461 | Spike 0.14: skills and lane tools headless, as the lane identity (moved from Mon 16 to Tue 17 Nov) | Laptop | 2462 | **Done 21 Nov**, two days after its finish date (Sessions 25 to 29; `docs/plans/spike-0.14/`: passed, with the fallback where it applies; the plan edited at Boroon's word) |
 | Thu 19 Nov | Fri 20 Nov | 2511 | Bring `factory-gates` in line with the live-build plan (moved from Wed 18 to Thu 19 Nov) | Laptop | 2462 | **Done 21 Nov**, a day after its finish date (Session 30; gate PR 15 merged by Boroon; task 2517 moved to 2538) |
-| Fri 20 Nov | Fri 20 Nov | 2466 | Spike 0.17: session export for mining (DG2; the export how-to and the SharePoint folder; brought forward from Wed 18 to Mon 16 Nov on 13 Nov, missed, set to Fri 20 Nov on 18 Nov, at Boroon's word) | Laptop (apps only, no tenant) | | **Run Sat 21 Nov**, a day after its date (Session 31; `docs/plans/spike-0.17/`: passes for all four tools; the cloud read check pending; ADO Building until Boroon says done) |
+| Fri 20 Nov | Fri 20 Nov | 2466 | Spike 0.17: session export for mining (DG2; the export how-to and the SharePoint folder; brought forward from Wed 18 to Mon 16 Nov on 13 Nov, missed, set to Fri 20 Nov on 18 Nov, at Boroon's word) | Laptop (apps only, no tenant) | | **Run Sat 21 Nov**, a day after its date (Session 31; `docs/plans/spike-0.17/`: passes for all four tools; a cloud session can read the exports folder; ADO Building until Boroon says done) |
 | Fri 20 Nov | Fri 20 Nov | 2545 | The standards (50, with the four `TOK`), anonymised, into a new private `GetAI-IP/factory-manifestos`; read the older vault's retro workflow and design template (DG3). 2545 finishes here, not on Tue 17 Nov | Laptop | 2545 templates (done 7 Nov) | **Done 13 Nov** (Session 23; `GetAI-IP/factory-manifestos` pull request 1, 50 standards, merged by Boroon) |
 | Mon 23 Nov | Mon 23 Nov | 2509 | Pin the Copilot CLI install in `verify-in-test` (moved from Fri 20 Nov) | Laptop | | |
 | Tue 24 Nov | Mon 30 Nov | 2538 | Write the remaining Stage 1 gate scripts (now also the `check_spec.py` job, D3) (moved from Mon 23 to Fri 27 Nov) | Laptop | 2511, 2543 | |
 | Mon 23 Nov | Wed 25 Nov | 2544 | Pin Spec Kit 1.3.x (D2); GET AI and `getai-lcp` presets v0; the spec check script (D3) (DG4, DG5) | Documents | 2543, 2545, the Ignite re-check | |
-| Thu 26 Nov | Fri 11 Dec | 2548 | Mine at least 20 human-led sessions, in four batches: 26 Nov, 3 Dec, 8 Dec, 11 Dec (DG6) | Documents, or laptop if a cloud session cannot read the exports | 2543, 2466, engineers' exports | |
+| Thu 26 Nov | Fri 11 Dec | 2548 | Mine at least 20 human-led sessions, in four batches: 26 Nov, 3 Dec, 8 Dec, 11 Dec (DG6) | Documents (a cloud session can read the exports, spike 0.17); Boroon's own sessions on the laptop | 2543, 2466, engineers' exports | |
 | Tue 1 Dec | Tue 1 Dec | 2537 | Create the gate reader and holdout reader token Apps (moved from Mon 30 Nov) | Laptop | | |
 | Mon 30 Nov | Tue 15 Dec | 2546 | Locked scenario conventions and the Playwright kit v0 (draft 30 Nov to 2 Dec, DG7; test against `factory-test` on Northwind 14 to 15 Dec, DG9) | Documents, then laptop | 2543, 2447, 2541, 2538 (the YAML runner) | |
 | Wed 2 Dec | Wed 2 Dec | 2451 | Spike 0.6: Copilot CLI on GHE.com (one day, not two: spike 0.14's run 39346986 already showed the CLI runs on a getai.ghe.com runner with the job's own token) | Laptop | | |
@@ -76,6 +76,7 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 
 Date them when Stage 4 ends.
 
+- 3019, a restricted Factory home for session exports (Session 31, 21 November 2026, Proposed): its first step, checking that "Request files" can work in the tenant, comes before the engineers are asked for exports. Date it at Boroon's word.
 - A1, keep pinned kits current (Boroon, 7 November 2026; `docs/plans/stage-1-day-gate-plan.md`): a pin register, Dependabot where it can, and a monthly manual pass. Only its first pass is dated (23 November). ADO 2740, created 8 November 2026 (Session 19), Proposed, no dates.
 
 ## Changes

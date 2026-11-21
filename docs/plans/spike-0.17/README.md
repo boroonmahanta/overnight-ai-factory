@@ -2,7 +2,7 @@
 
 Plan section 11.1, row 0.17 (ADO 2466), and DG2 of `docs/plans/stage-1-day-gate-plan.md`. Session 31, 21 November 2026, on the laptop, apps only, no tenant. A day after its Friday 20 November date. Part of the Copilot app check ran in a side session Boroon opened the same day.
 
-**Result: the exit test passes for all four tools.** Each tool gave a readable transcript of a test session with no client data. Copilot CLI's `--share` writes the fullest export. It also covers the GitHub Copilot app and VS Code's Copilot Chat, because all three keep their sessions in one shared store on disk (`~/.copilot/session-state/`). Claude Code's `/export` writes plain text, but only in a live terminal session. The how-to for engineers and the checklist for removing client data are below. The cloud read check is under "Where exports go".
+**Result: the exit test passes for all four tools.** Each tool gave a readable transcript of a test session with no client data. Copilot CLI's `--share` writes the fullest export. It also covers the GitHub Copilot app and VS Code's Copilot Chat, because all three keep their sessions in one shared store on disk (`~/.copilot/session-state/`). Claude Code's `/export` writes plain text, but only in a live terminal session. The how-to for engineers and the checklist for removing client data are below. A cloud session can read the exports folder through the Microsoft 365 connector, so mining batches can run in the cloud ("Where exports go").
 
 Exit test (plan 11.1): export a VS Code and a Copilot app chat session by hand; pass if the transcript is readable and holds no client data. If it fails, engineers write short correction notes instead. DG2 widened it to every tool an engineer uses: VS Code Copilot Chat, the Copilot app, Copilot CLI and Claude Code.
 
@@ -123,6 +123,7 @@ If a session is too full of client detail to clean, send a correction note inste
 - File name: `<tool>-<yyyymmdd>-<n>.md`, for example `copilot-cli-20261124-1.md` or `claude-code-20261124-2.txt`. No client, engagement or person names in the file name.
 - Upload it through the "Request files" link Boroon sends you. You cannot see the folder or other people's files.
 - Never put a raw or cleaned export in a repo, a Teams chat or an email.
+- If you want to keep the raw export, put it in that engagement's own channel folder in Teams (GET AI only), not in Downloads, and never in a channel shared with the client. If it holds a secret, delete it instead.
 
 ### A message Boroon can send (draft)
 
@@ -133,13 +134,26 @@ If a session is too full of client detail to clean, send a correction note inste
 - **Folder:** `Factory session exports` in Boroon's OneDrive (made 21 November 2026 through the Mac's OneDrive sync folder). Private to Boroon: a new OneDrive folder is shared with no one.
 - **How engineers send:** a "Request files" link on that folder, which Boroon makes in OneDrive in the browser (folder menu, Request files). Senders can upload but cannot open the folder or see other files. **Not made yet.**
 - **The Microsoft 365 connector is read only.** It has `Files.Read.All` and `Sites.Read.All` and no write scope, so it could not make the folder (`FORBIDDEN: Missing scope 'Files.ReadWrite.All'`). Granting write consent is a tenant security change and is not needed: mining only reads. The laptop session read the test file through the connector.
-- **Cloud read check:** pending. A cloud session (started 21 November 2026, at Boroon's word) is asked to read the test file `spike-0.17-cloud-read-test.md` in that folder through the connector, list the folder, and give a verdict. If it can read, mining batches (2548, DG6) can run in the cloud; if not, they run on the laptop.
-- **Keeping:** proposed, for Boroon to decide: delete each batch's files once its findings are in `docs/analysis/session-mining.md`, and all of them when DG6 closes (Friday 11 December). If mining becomes the weekly routine (plan 7.3), move the folder to a team site, since a OneDrive folder goes with its owner's account.
+- **Cloud read check: a cloud session can read the folder** (21 November 2026, at Boroon's word). A cloud session, asked only to read, had the same Microsoft 365 connector as the laptop and read the test file `spike-0.17-cloud-read-test.md` by its path, token and all. So mining batches (2548, DG6) can run in a cloud session.
+- **List the folder by its ID, not its path.** The cloud session's listing by path failed (`INTERNAL_ERROR: Failed to fetch OneDrive metadata caused by: Invalid request`, Graph 400): the connector reads a folder path's last part as an item ID, with or without a trailing slash. From the laptop, `sharepoint_folder_search` for "Factory session exports" gives the folder's item ID, and reading `file:///<driveId>/<itemId>` lists it. A file reads by path. The cloud session has the same search tool; the listing by ID was tried on the laptop only.
+- **Its lasting home** (Boroon, 21 November 2026; plan 7.3): a private channel for session exports in an internal Factory Team. It outlives any one account, only its members can read it, and the "Request files" link works there too if "Anyone" links are allowed on that one site. A private channel is its own SharePoint site, so the vault's operating model treats it as an access exception that needs admin review. The OneDrive folder is the stopgap until then. Moving gives the folder a new drive ID and item ID, so the connector read check runs again after the move (ADO 3019, which also holds the "Anyone" links check below).
+- **Raw exports.** An engineer who wants to keep a raw, uncleaned export keeps it in that engagement's own channel folder, which is GET AI only, not in Downloads, and never in a channel shared with the client. Ordinary internal folders are readable across GET AI (vault operating model), so an export that holds a secret is deleted, not kept. Only the cleaned copy goes to the factory folder.
+- **Keeping:** proposed, for Boroon to decide: delete each batch's files once its findings are in `docs/analysis/session-mining.md`, and all of them when DG6 closes (Friday 11 December).
+
+## What can fail
+
+1. **"Request files" may be off in GET AI's tenant.** Microsoft's page "Enable file requests in SharePoint or OneDrive" says it works only if "Anyone" links are allowed for the organisation and on the folder, and "Allow only specific security groups" is off. Whoever holds the link can then upload without signing in. Check that the folder's menu in the browser shows Request files. If it does not: one subfolder per engineer, shared with that engineer alone, or the tenant admin's call.
+2. **Finding the folder by search.** The folder search matches part of a name across every site Boroon can read. With one Team per client it can return several folders, and a new folder takes a while to appear. Pick the result by its drive ID, then work by item ID; the vault's rule is the same ("Record actual provisioned URLs/IDs; never derive resource addresses from display names").
+3. **Long exports come in pages.** The read tool returns about 200,000 characters a call and ends a longer file with a "re-call with startPage" note. A mining session must follow it, or it reads only part of the session.
+4. **The connector reads as Boroon.** If his sign-in lapses or the tenant changes the connector's consent, reads fail on the laptop and in the cloud alike.
+5. **Uploaders' names in file names** (unverified). The upload page may ask for the sender's name and add it to the file name. Check the first upload; mining records only codes such as `S07`.
+6. **Client names in paths.** With one channel per engagement, a synced channel folder puts the client's name in every path an export shows. Cleaning paths is a step on nearly every export.
+7. **Tested once:** one small file, one cloud session. Not tried: listing by ID in the cloud, many files, large files, VS Code's JSON.
 
 ## What this means for the plan and for 2548
 
 - The exit test passes, so the fallback is not needed as the main route; correction notes stay for sessions that cannot be cleaned.
-- Mining (DG6) reads Markdown and plain text, plus the raw JSONL of Boroon's own Claude Code sessions on the laptop (D5).
+- Mining (DG6) reads Markdown and plain text, plus the raw JSONL of Boroon's own Claude Code sessions on the laptop (D5). Engineers' exports can be mined in a cloud session, which reads the folder through the connector; Boroon's own JSONL can be mined only on the laptop.
 - The checkpoint (send the how-to and ask for exports) is due now: it was set for Friday 20 November.
 - Possible plan edit, for Boroon to decide: in 11.1, row 0.17, record the result (passes for all four tools; Copilot CLI's `--share` exports Copilot app, CLI and VS Code sessions; Claude Code's `/export` in a live session) and point to this file.
 
