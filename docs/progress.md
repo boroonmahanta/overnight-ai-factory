@@ -35,7 +35,7 @@ Next steps:
 
   How to find what the lane identity made outside the solution turned out not to be `solutioncomponent.createdby`: the Default Solution's rows are by SYSTEM. The finder asks each component table for its maker, and finds tables and columns by state against a bootstrap list. The plan is edited for it (11 November 2026, at Boroon's word), with his rule that a table or column found outside the solution stops the lane for a person to check (ADO 2843). Record: `docs/plans/spike-0.19/README.md`. The scratch (0.18's plus one environment variable value) was kept for spike 0.14, and **deleted on 21 November 2026** at Boroon's word.
 - **Spike 0.14 has all four parts run** (Sessions 25 to 28, 18 to 21 November 2026, ADO 2461, **Done** on 21 November 2026 at Boroon's word; its dates not moved). Part 1 passes: a flow with no connector, made by the Web API as `getai-fl1-exec`, runs, exports and packs again offline. Part 2: the App Spec apply works as the lane identity for a new app (unattended, never `--allow-destructive`); FlowAgent reads and edits flows as the lane identity but cannot list, turn on, turn off or run them (HTTP 401). Part 3: a stdio shim in front of the Dataverse CLI's local proxy counts every MCP call, holds a cap and retries; a retried create whose answer was lost writes twice; every call that reaches Dataverse is billed, tool errors included. Part 4 (Session 28): Copilot CLI runs Microsoft's skills headless as the lane identity on `claude-sonnet-5.5`; the flow story passed; **the App Spec skill stops at the apply on an existing app**, which needs `--allow-destructive` even for one new column; MCP calls per session 0 and 1. Verdict: passed, with the fallback where it applies. **Part 4b (Session 29, 21 November 2026): option (b), an additive change to the existing app with no App Spec apply (the column by Dataverse MCP, the form and view by the Web API through a trusted helper), passed all 18 checks headless as the lane identity (run 40126806).** **Boroon agreed the approach on 21 November 2026:** (b) at night for additive changes to an existing app (a column on an existing table, shown on an existing form and view) through a trusted Web API helper the driver ships; the App Spec apply for a new app; (a), a PARK with the dry run as evidence, for any other change to an existing app until its route is tried. **Edited into the plan the same day, at Boroon's word** (5.6, 11.1, 14.4, 15.1, Appendix C, by Session 29), **with the rest of the spike's results** (Session 28, branch `claude/session-28-2461-plan-edits`: 5.2, 5.4, 5.6, 5.9, 5.11, 5.14, 11.1, risk 34, 14.4, 15.1, Appendices B.1 and D). Record: `docs/plans/spike-0.14/README.md`.
-- **Spike 0.17 passes for all four tools** (Session 31, 21 November 2026, ADO 2466, DG2; **Done** at Boroon's word). Each tool gave a readable export of a test session with no client data. Copilot CLI's `--share` writes the fullest (Markdown with tool calls, file edits and shell output), and it also exports Copilot app and VS Code chat sessions, because all three share `~/.copilot/session-state/`; it runs on a copy of the session, so the original never changes. Claude Code's `/export` writes plain text, in a live terminal session only. The how-to for engineers and the checklist for removing client data: `docs/plans/spike-0.17/README.md`. Exports go to `Factory session exports` in Boroon's OneDrive, through a "Request files" link he still has to make. The Microsoft 365 connector reads it from the laptop and from a cloud session, so mining batches (2548) can run in the cloud; list the folder by its item ID, not its path.
+- **Spike 0.17 passes for all four tools** (Session 31, 21 November 2026, ADO 2466, DG2; **Done** at Boroon's word). Each tool gave a readable export of a test session with no client data. Copilot CLI's `--share` writes the fullest (Markdown with tool calls, file edits and shell output), and it also exports Copilot app and VS Code chat sessions, because all three share `~/.copilot/session-state/`; it runs on a copy of the session, so the original never changes. Claude Code's `/export` writes plain text, in a live terminal session only. The how-to for engineers and the checklist for removing client data: `docs/plans/spike-0.17/README.md`. Exports go to `Factory session exports` in Boroon's OneDrive, through a "Request files" link he still has to make (Request files works there, Session 32). Their lasting home, a private channel in an internal Factory Team, is ADO 3019 (Building), waiting on the admins and on Boroon making the Team. The Microsoft 365 connector reads it from the laptop and from a cloud session, so mining batches (2548) can run in the cloud; list the folder by its item ID, not its path.
 - **ADO is current** (Session 19): every update Sessions 17 and 18 left is made, and the schedule-order query matches `docs/plans/schedule.md`. Session 20 moved 2463 to Done.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
 - The main plan is V3.1, dated 1 November 2026: `docs/sources/plan-v3.1.md`.
@@ -105,6 +105,36 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 32, 2026-11-21, branch `claude/session-32-3019-exports-home`
+
+ADO 3019: a restricted Factory home for session exports. On the laptop (desktop app), with the built-in browser under Boroon's sign-in and the Microsoft 365 connector (read only). Branch from `main` after pull requests 41 and 42 merged. Session renamed "28. Stage 1 - Build - Factory home for session exports", like the others.
+
+Done:
+- **Step 1 passes for the OneDrive stopgap.** "Request files" shows in the OneDrive command bar when `Factory session exports` is selected (looked at, not clicked; no link made). So the tenant allows "Anyone" links for OneDrive and the stopgap needs no admin change. The checkpoint (send the engineers the how-to and ask for exports) is unblocked.
+- **Corrected a setting name in 3019.** OneDrive's switch is `OneDriveRequestFilesLinkEnabled`; `CoreRequestFilesLinkEnabled` is SharePoint's, which the channel needs (Microsoft, "Enable file requests in SharePoint or OneDrive").
+- **Found in Microsoft's pages** (untested): "Private channels in Microsoft Teams" says a private channel's site inherits guest access from its parent Team's site and cannot be shared separately, while "Change the sharing settings for a site" shows an admin setting a channel site's sharing from the Channel sites column. So the admins try the channel's site alone first, and the Team's site too if needed. Microsoft's Entra guidance advises against "Anyone" links and says to set an expiry if they are used. New Teams sites default to guest sharing, not "Anyone".
+- The exports folder is empty (web view, connector listing by ID, sync folder): Session 31 deleted its test file at Boroon's word.
+- `docs/plans/spike-0.17/README.md`: a new section, "The Factory Team's home (ADO 3019)": what was checked, the steps for Boroon and the admins, and a draft message to the admins. No names (public repo).
+- ADO 3019: body rewritten with the decision, the admins' names (ADO is private) and the steps; moved to **Building**.
+
+Decisions (Boroon, 21 November 2026, asked in this session):
+- The private channel keeps "Request files", **renewed quarterly**: the link expires after 90 days and Boroon makes and sends a new one each quarter. (Offered instead: one folder per engineer, or a Microsoft Forms upload; both avoid "Anyone" links.)
+- The SharePoint and Teams admins: three people, named in ADO 3019.
+
+Files changed: `docs/plans/spike-0.17/README.md`, `docs/plans/schedule.md`, `docs/progress.md`.
+
+Open items:
+- **A possible plan edit** (Boroon to decide): 7.3's "needs 'Anyone' links allowed on that one site" becomes "on the channel's site, and on the Factory Team's site if the channel's site cannot differ from it", plus "the link expires after 90 days and is renewed each quarter"; the same in the 14.4 row "Session exports and Teams".
+- **Boroon:** make the "Request files" link on `Factory session exports` and send the engineers the how-to (due since Fri 20 Nov); send the admins the README's draft message; create the Factory Team and its private channel (the mining reviewers are not named yet).
+- **3019's dates**, at Boroon's word.
+
+Time and tokens (in 3019's body; session `1a5096fb`; measured before the commit): active time 0 h 20 min (gaps over 10 minutes not counted), from 21 Nov 21:44 to 21 Nov 22:04 (UTC+11). Tokens: 35,244 output; 8,857,566 processed in all, of which 8,623,534 were cache reads. From 1 local transcript(s).
+
+Next steps:
+1. Boroon: make the OneDrive link and send the engineers the how-to; send the admins the message.
+2. Mon 23 Nov: 2509, the Ignite re-check and the first component register review.
+3. Thu 26 Nov: 2548's first mining batch, if exports have arrived.
 
 ## Session 31, 2026-11-21, branch `claude/session-31-2466-session-export`
 
