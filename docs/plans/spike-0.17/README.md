@@ -153,7 +153,7 @@ What was checked:
 
 Steps:
 
-1. **Boroon:** create the internal Factory Team (private, GET AI only) and a private channel for session exports. Channel members: Boroon and the mining reviewers. Make a folder in the channel's Files, since new private channels have none.
+1. **Boroon:** create the internal Factory Team (private, GET AI only) and a private channel for session exports. Channel members: Boroon and the mining reviewers. Make a folder in the channel's Files, since new private channels have none. **Done on 21 November 2026:** the Factory Team and a private channel, "Cleaned AI Factory Sessions Exports", which the connector shows as private (IDs in ADO 3019). The Team's standard channel is General, and its folder in the Team's own library is readable by every Team member, so no export goes there. **Still to do:** the folder in the private channel's Files, and the channel site's real URL (Files, Open in SharePoint), since the connector could not find that site yet. The channel's members are not checked: the connector cannot list them.
 2. **The admins:**
    - review the private channel as an access exception (delivery vault operating model);
    - tenant: `CoreRequestFilesLinkEnabled` true (`Get-SPOTenant`, then `Set-SPOTenant -CoreRequestFilesLinkEnabled $true` if needed); "Anyone" links for folders allow "View, edit, and upload" or "View and upload"; note any tenant expiry on "Anyone" links;
