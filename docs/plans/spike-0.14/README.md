@@ -358,7 +358,7 @@ What this does not show: a real transient MCP failure; the shim's refusal as the
    - (b) **Another route for additive changes:** a column by Dataverse MCP `update_table` (which adds columns) or the Web API, and the form and view by the Web API (`systemform`, `savedquery`), then the driver's export as usual. No `--allow-destructive`. Untested: worth one more part-4 style run before Stage 3.
    - (c) **The driver grants `--allow-destructive`** only when a trusted check of the dry run finds nothing but creates and reuses. Not recommended: the flag authorises every destructive step of the apply, not only what the dry run showed.
 
-   Recommended: (a) for Stage 3, and try (b) first. **Boroon, 21 November 2026:** test (b) in a separate session (Session 29), then agree the approach.
+   Recommended: (a) for Stage 3, and try (b) first. **Boroon, 21 November 2026:** test (b) in a separate session (Session 29), then agree the approach. **Agreed by Boroon on 21 November 2026, after part 4b:** (b) at night for additive changes to an existing app, the App Spec apply for a new app, and (a) for any other change to an existing app (part 4b, "Approach"). The plan text is not edited yet.
 
    **What (a) would really cost** (Session 28, 21 November 2026, for that decision; the numbers are estimates from the plan's own story model in 10.4, not measured):
    - **Which stories it hits:** every App Spec change to an existing model-driven app, which means a new column, form, view, chart, navigation entry or role on an app that already exists. By the work sizes, that is most XS stories ("view-column tweak"), most S ("one additive change in one app") and the UI part of many M. These are the factory's lowest-risk, highest-volume stories, and after an engagement's first build most model-driven stories are of this kind [inference: no measured mix yet]. It does not hit new apps (part 2), flows (part 4), Copilot Studio, code parts, or anything the agent does by the Web API or MCP.
@@ -479,7 +479,7 @@ What this does not show:
 - the App Spec in Git, if a project keeps one as the app's builder input (plan 5.6 point 3): a (b) change leaves it stale. The model-apps plugin can download the deployed app back into a spec, as part 4's agent did read-only, so the driver could refresh it after the export [inference, untested];
 - a longer or larger story, a real MCP failure, or the shim's stop as the model sees it.
 
-### Option (a) and option (b) side by side (for Boroon to agree the approach)
+### Option (a) and option (b) side by side (the approach agreed by Boroon, 21 November 2026)
 
 (c), the driver granting `--allow-destructive`, stays not recommended and is left out.
 
@@ -497,11 +497,11 @@ What this does not show:
 | Its own risks | Many PARKs; `views-forms-additive` never runs at night, so it cannot earn L2 | The agent writes form and view XML; a bad edit would show only later, at publish, the import into Test or the verifiers [inference]. A column made by MCP is outside the solution unless the table is held with all its parts (finding 3). The App Spec in Git goes stale. Copilot CLI's path check (finding 2) |
 | To build for Stage 3 | Nothing new | The trusted Web API helper in the driver's repo, narrowed to the change class's tables; the lane instructions naming the route; columns through the helper or added to the solution by the driver; a Merge Danger row for the class; the plan text |
 
-**Proposed approach (for Boroon):** both, by kind of change. At night, (b) for additive changes to an existing app (a column on an existing table, shown on an existing form and view), through a trusted helper the driver ships; the App Spec apply for a new app (part 2); and (a), a PARK with the dry run as evidence, for any other change to an existing app until its route is tried. This keeps `views-forms-additive` on the night path, so it can earn L2 on evidence (rule 12).
+**Approach, agreed by Boroon on 21 November 2026** (proposed here, answered "Agree"): both, by kind of change. At night, (b) for additive changes to an existing app (a column on an existing table, shown on an existing form and view), through a trusted helper the driver ships; the App Spec apply for a new app (part 2); and (a), a PARK with the dry run as evidence, for any other change to an existing app until its route is tried. This keeps `views-forms-additive` on the night path, so it can earn L2 on evidence (rule 12).
 
 ### Proposed plan edits from part 4b (not made; at Boroon's word)
 
-These change proposals 2 and 10 above, if Boroon agrees the approach:
+They would put the agreed approach into the plan, replacing proposals 2 and 10 above. Still proposals: Boroon has not said to edit the plan (his "Not yet" to the plan edits, 21 November 2026, stands):
 
 1. **5.6, "Model-driven apps":** the three routes by kind of change (the approach above); the trusted Web API helper as a driver component, with its rules (finding 7); a column on an existing table made through the helper with the solution header, or added to the solution by the driver (finding 3); and the App Spec in Git refreshed from the app after a (b) change, if the project keeps one.
 2. **5.2 (the engine):** Copilot CLI's path check denies a shell argument that looks like a path outside the session, so helpers take arguments that do not, or their folders are added with `--add-dir` (finding 2); a one-word deny rule matches inside a compound command (finding 4).
@@ -530,9 +530,9 @@ Runs start with `GH_HOST=getai.ghe.com gh workflow run <file> -R GetAI-IP/export
 2. ~~**Part 3**~~: done in Session 27 (run 39749076), above.
 3. ~~**Part 4**~~: done in Session 28 (run 40121696), above.
 4. ~~**Check the bill for part 3**~~: done 21 November: 20 billed rows (part 3 finding 10).
-5. **Boroon:** accept or change the exit test verdict, choose between the App Spec options (proposal 2), and say which plan edits to make (proposals 1 to 10, with the retry rule and `tool_failure` he accepted on 20 November). Then the plan edits, and the scratch deleted at his word.
+5. **Boroon:** accept or change the exit test verdict, ~~choose between the App Spec options (proposal 2)~~ (agreed 21 November 2026, part 4b), and say which plan edits to make (proposals 1 to 10, with the retry rule and `tool_failure` he accepted on 20 November). Then the plan edits, and the scratch deleted at his word.
 6. Not done, could follow: one refused command on purpose, to see the model's answer and test the two-word deny rules (part 4b saw `shell(rm:*)` fire, finding 4); the shim's stop as the model sees it; part 4's one MCP call in the admin centre (one row of 0.1 for 21 November).
-7. ~~**Option (b)**~~: done in Session 29 (run 40126806): it works for an additive change. **Boroon:** agree the approach (part 4b, the side-by-side table and the proposed approach), and say which of part 4b's plan edits to make. Part 4b's three MCP calls in the admin centre (21 November).
+7. ~~**Option (b)**~~: done in Session 29 (run 40126806): it works for an additive change. ~~**Boroon:** agree the approach~~: agreed on 21 November 2026 (part 4b, "Approach"). Still for Boroon: which of part 4b's plan edits to make, with part 4's. Part 4b's three MCP calls in the admin centre (21 November).
 
 ## Scratch
 
