@@ -19,7 +19,7 @@ End:
 1. Add an entry to `docs/progress.md`: decisions, files changed, open items, next steps.
 2. If a decision changes this file, update this file too.
 3. Record the session's time and tokens (Boroon, 7 November 2026). Run `python3 -I tools/session_usage.py --latest` (or `--session <id prefixes>` to add forks and side sessions), and add its last line to the body of the session's stories in the ADO project `getai-overnight-ai-factory`. Cloud sessions have no local transcript; say so instead.
-4. Commit and push to the session's working branch. Do not open a pull request unless asked.
+4. Commit and push to the session's working branch. Do not open a pull request unless asked. **Never push to `main` (Boroon, 21 November 2026, after Session 32's commits reached it directly).** Other sessions share this folder and can switch its checkout mid-session, so check the branch in the same command as every commit (`test "$(git branch --show-current)" = <branch> && git commit ...`), push only with the branch named (`git push origin <branch>`, never a bare `git push`), and read the push output in full: a "bypassed rule" line means the push went through. When other sessions may write in this folder, work in a separate worktree.
 5. `main` is the default branch and is protected by a ruleset. Start session branches from `main`. Merge into `main` only by pull request (rule 1). **Boroon merges every pull request into `main` himself, by hand (decided 2 November 2026). Open the pull request and stop. Do not merge it, even if asked to in passing, unless he says so in that moment.**
 
 ## How Boroon likes to work
