@@ -150,6 +150,8 @@ Each run took 1 to 3.5 minutes, install included.
 
 ## Scratch to delete (only at Boroon's word)
 
+**Deleted on 21 November 2026, at Boroon's word** (Session 28, with spike 0.14's and 0.19's scratch). How, and what was kept: `docs/plans/spike-0.14/README.md`, "Scratch".
+
 **Kept for spike 0.14** (Boroon, 10 November 2026): 0.14 makes and updates a flow by the Web API as the lane identity and exports it, which this scratch makes quicker. Delete all of 0.18's and 0.19's scratch together after 0.14, at his word.
 
 Spike 0.18's list (`docs/plans/spike-0.18/README.md`) still holds and covers almost everything. 0.18's `teardown` mode deletes environment variable values before the definition, so it also takes the value 0.19 made.

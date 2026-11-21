@@ -112,6 +112,8 @@ Left for `GetAI-IP/factory-gates` (the follow-up list in `docs/progress.md`, for
 
 ## Scratch to delete (only at Boroon's word)
 
+**Deleted on 21 November 2026, at Boroon's word** (Session 28, with spike 0.14's and 0.19's scratch). How, and what was kept: `docs/plans/spike-0.14/README.md`, "Scratch".
+
 **Kept until spike 0.19 is written up** (Boroon, 8 November 2026): 0.19 reuses the solution as its baseline, and the repo and credential to run as the lane identity. Then delete all of it, at his word.
 
 | Thing | Where | How |

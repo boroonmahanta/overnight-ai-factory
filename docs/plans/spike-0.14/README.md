@@ -534,13 +534,32 @@ Runs start with `GH_HOST=getai.ghe.com gh workflow run <file> -R GetAI-IP/export
 2. ~~**Part 3**~~: done in Session 27 (run 39749076), above.
 3. ~~**Part 4**~~: done in Session 28 (run 40121696), above.
 4. ~~**Check the bill for part 3**~~: done 21 November: 20 billed rows (part 3 finding 10).
-5. ~~**Boroon:** the verdict, the App Spec option and the plan edits~~: the approach agreed and every plan edit made on 21 November 2026 (above). 2461 moved to Done on 21 November 2026, at his word. Left for him: the scratch deleted at his word.
+5. ~~**Boroon:** the verdict, the App Spec option and the plan edits~~: the approach agreed and every plan edit made on 21 November 2026 (above). 2461 moved to Done on 21 November 2026, at his word, and the scratch deleted the same day ("Scratch", below). Nothing is left.
 6. Not done, could follow: one refused command on purpose, to see the model's answer and test the two-word deny rules (part 4b saw `shell(rm:*)` fire, finding 4); the shim's stop as the model sees it; part 4's one MCP call in the admin centre (one row of 0.1 for 21 November).
 7. ~~**Option (b)**~~: done in Session 29 (run 40126806): it works for an additive change. ~~**Boroon:** agree the approach~~: agreed on 21 November 2026 (part 4b, "Approach"). Part 4b's plan edits made on 21 November 2026 with part 4's. Part 4b's three MCP calls in the admin centre (21 November).
 
 ## Scratch
 
-New in this spike, kept until it ends, then deleted with 0.18's and 0.19's at Boroon's word:
+**All deleted on 21 November 2026, at Boroon's word** ("delete the spike scratch", then "Yes, delete it all" to the list below), with spike 0.18's and 0.19's. Every file of the scratch repo was first checked against its copy here (`spike-0.14/`, `spike-0.18/`, `spike-0.19/`): all identical, except `reset-commit/`, the scratch solution's own export, which went with it.
+
+1. **In `factory-lane-1`, as the lane identity, by the Web API** (`tools.yml` modes `scratch-list`, read only, and `scratch-delete`, children first; checked locally first against a fake Web API that refuses a table while an app uses it).
+   - The listing (run 40132386) found exactly the expected parts:
+     - two cloud flows ("Factory spike flow", "Factory spike timer flow");
+     - the role "Factory spike role";
+     - the environment variable `fspk_SpikeSetting` and its value outside the solution;
+     - the connection reference `fspk_spikedataverse`;
+     - the app `fspk_factoryspikeapp`, with two app settings, its site map and the icon `fspk_factoryspikeapp_icon`;
+     - the tables `fspk_spikeitem` and `fspk_spikeapprow`;
+     - the solution `FactorySpike` and the publisher `factoryspike`.
+   - The delete (run 40132651) removed all but the icon, which answered HTTP 503 (`0x80044151`, a SQL timeout). Run 40133136 got the same.
+   - Nothing depended on the icon (`RetrieveDependenciesForDelete`, read under Boroon's sign-in). A third delete under Boroon's own sign-in on the laptop went through (HTTP 204, after 56 seconds), most likely once Dataverse had finished its clean-up after the two table deletes [inference].
+   - A last listing as the lane identity (run 40133776) found nothing left.
+2. **The repo `GetAI-IP/export-probe`** on `getai.ghe.com`, with its workflows, runs, the `fl1-exec` environment and the reset commit (`gh repo delete`).
+3. **The federated credential `export-probe-fl1-exec`** on `getai-fl1-exec`, through the Azure CLI under Boroon's sign-in. The app now has no federated credential.
+
+**Kept for Stage 3:** `getai-fl1-exec` and its application user, `factory-lane-1`, and the allowed MCP client `new_getaifl1exec`.
+
+What the spike made, for the record (all of it now deleted):
 
 | Thing | Where | How to delete |
 |---|---|---|
