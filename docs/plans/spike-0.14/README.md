@@ -1,6 +1,6 @@
 # Spike 0.14: skills and lane tools headless, as the lane identity
 
-Plan section 11.1, row 0.14 (ADO 2461). Session 25, 18 November 2026 (Sydney time), Session 26, 18 to 19 November 2026, Session 27, 19 November 2026, and Session 28, 20 to 21 November 2026, laptop sessions. Started two days after its Mon 16 to Tue 17 Nov slot; all four parts run by Saturday 21 November. The exit test verdict and the plan edits wait on Boroon (proposed at the end of part 4).
+Plan section 11.1, row 0.14 (ADO 2461). Session 25, 18 November 2026 (Sydney time), Session 26, 18 to 19 November 2026, Session 27, 19 November 2026, and Session 28, 20 to 21 November 2026, laptop sessions. Started two days after its Mon 16 to Tue 17 Nov slot; all four parts run by Saturday 21 November, with part 4b (Session 29) the same day. **Result: passed, with the fallback where it applies, and in the plan since 21 November 2026** at Boroon's word (11.1 row 0.14; the edits are listed under part 4's and part 4b's plan edits below).
 
 **So far (19 November 2026):** part 1 passes for a flow with no connector: made, updated, turned on, run, exported and packed again offline, as the lane identity (run 39347126). Copilot CLI runs on a getai.ghe.com runner with the job's own token (run 39346986), so part 4 can run there. Part 2 (run 39563486): the App Spec apply works as the lane identity, unattended and without `--allow-destructive`, and all it made landed in the solution and packs offline; FlowAgent reads and edits flows as the lane identity but cannot list, turn on, turn off or run them (HTTP 401 on both of its paths). Part 3 (run 39749076): a stdio shim in front of the Dataverse CLI's local proxy counts every MCP call, holds a cap and retries; a retried create whose answer was lost **writes twice**, and a create that carries its own row ID does not; the bill shows every call that reached Dataverse, tool errors included (checked 21 November). Part 4 (run 40121696, 21 November): Copilot CLI ran Microsoft's skills headless as the lane identity, on `claude-sonnet-5.5`, with the shim in front of Dataverse MCP. **The flow story passed** (FlowAgent edited the Compose step; its `list_flows` failed with 401 again, and the agent found the flow with one Dataverse MCP read instead). **The App Spec story stopped at the approval point:** the build engine refuses an unattended apply to an existing app without `--allow-destructive`, even for one new column, and the agent stopped and wrote a clear handoff. MCP calls per session: 0 and 1. AI credits: 29.7 and 12.7. No tool was denied. Findings that matter beyond this spike: Microsoft's server update changed the version stamp in the export (part 1 finding 6); a lane flow that uses the Dataverse connector needs a licence to run as the lane identity (the licence rule, part 1 finding 4); an App Spec app brings a missing dependency on a Microsoft platform solution into the export (part 2 finding 3); and the GitHub OIDC token lasts 5 minutes, so the driver must keep the Azure CLI signed in (part 2 finding 9).
 
@@ -336,9 +336,9 @@ The job took 3.9 minutes: installs 1 minute, each story under 50 seconds, the ex
 
 What this does not show: a real transient MCP failure; the shim's refusal as the model sees it (no stop happened); the deny list hit; a longer story; any story that needs a connection.
 
-### Exit test: proposed verdict
+### Exit test: verdict
 
-**Pass, with one fallback for the App Spec update path** (for Boroon to accept):
+**Pass, with one fallback for the App Spec update path.** Proposed in Session 28; in the plan since 21 November 2026, at Boroon's word ("Yes, edit the plan"): 11.1 row 0.14 and a 14.4 row.
 
 | Exit test item | Result |
 |---|---|
@@ -350,7 +350,9 @@ What this does not show: a real transient MCP failure; the shim's refusal as the
 | A way to count and retry | The shim, on the accepted rule, in front of the real proxy and inside a real Copilot session |
 | Which MCP errors are safe to retry | Settled by Boroon's rule (20 November), from part 3; every call that reaches Dataverse is billed, so a retry costs like a new call |
 
-### Proposed plan edits (not made; at Boroon's word)
+### Plan edits: made on 21 November 2026, at Boroon's word
+
+All ten were made in Session 28 on 21 November 2026, after Boroon answered "Yes, edit the plan" to "Make the plan edits now, with the agreed approach?". Proposal 2 was made by Session 29 as the agreed approach (5.6, 14.4, Appendix C). Where each landed: 1 in 11.1 and 14.4; 2 in 5.6; 3 in 5.11 and Appendix D; 4 in 5.14, with the cap at 50 and both never-repeat choices; 5 in 5.2; 6 in 5.9 and 5.14; 7 in 5.4; 8 in 5.6 (the missing dependency, for 2538); 9 in 14.4 and 15.1; 10 as risk 34 in section 12. The text below is the proposals as written.
 
 1. **11.1, row 0.14:** the result above, and the fallback for existing apps.
 2. **5.6 (live build), App Spec on an existing app** (a decision for Boroon). Options:
@@ -499,11 +501,11 @@ What this does not show:
 
 **Approach, agreed by Boroon on 21 November 2026** (proposed here, answered "Agree"): both, by kind of change. At night, (b) for additive changes to an existing app (a column on an existing table, shown on an existing form and view), through a trusted helper the driver ships; the App Spec apply for a new app (part 2); and (a), a PARK with the dry run as evidence, for any other change to an existing app until its route is tried. This keeps `views-forms-additive` on the night path, so it can earn L2 on evidence (rule 12).
 
-### Plan edits from part 4b (the decision made, 21 November 2026; the rest still proposals)
+### Plan edits from part 4b (all made, 21 November 2026)
 
 **Made on 21 November 2026, at Boroon's word** ("Yes, edit the plan", for this decision only): 5.6 ("Model-driven apps": the three routes as a table, the trusted Web API helper and its rules, columns with the solution header, and the App Spec in Git left open; point 1 and point 3 of "Live build"), 11.1 row 0.14 (a note in its fallback), 14.4 (a new row), 15.1 (the 0.14 question) and Appendix C (an `lcp-executor` rule). This covers proposal 1 below and the 11.1 part of proposal 3, and settles part 4's proposal 2.
 
-**Still proposals,** waiting on his word with part 4's other proposals:
+**The rest, made by Session 28 the same day** with part 4's proposals: 2 in 5.2 (the path check and the deny rule inside a compound command); 3 as risk 34; 4 in Appendix B.1 (the small-addition class, `views-forms-additive`, keyed on the three export files). The text below is the proposals as written:
 
 1. ~~**5.6, "Model-driven apps":**~~ made (above). The three routes by kind of change (the approach above); the trusted Web API helper as a driver component, with its rules (finding 7); a column on an existing table made through the helper with the solution header, or added to the solution by the driver (finding 3); and the App Spec in Git refreshed from the app after a (b) change, if the project keeps one.
 2. **5.2 (the engine):** Copilot CLI's path check denies a shell argument that looks like a path outside the session, so helpers take arguments that do not, or their folders are added with `--add-dir` (finding 2); a one-word deny rule matches inside a compound command (finding 4).
@@ -532,9 +534,9 @@ Runs start with `GH_HOST=getai.ghe.com gh workflow run <file> -R GetAI-IP/export
 2. ~~**Part 3**~~: done in Session 27 (run 39749076), above.
 3. ~~**Part 4**~~: done in Session 28 (run 40121696), above.
 4. ~~**Check the bill for part 3**~~: done 21 November: 20 billed rows (part 3 finding 10).
-5. **Boroon:** accept or change the exit test verdict, ~~choose between the App Spec options (proposal 2)~~ (agreed 21 November 2026, part 4b), and say which plan edits to make (proposals 1 to 10, with the retry rule and `tool_failure` he accepted on 20 November). Then the plan edits, and the scratch deleted at his word.
+5. ~~**Boroon:** the verdict, the App Spec option and the plan edits~~: the approach agreed and every plan edit made on 21 November 2026 (above). Left for him: move 2461 to Done, and the scratch deleted at his word.
 6. Not done, could follow: one refused command on purpose, to see the model's answer and test the two-word deny rules (part 4b saw `shell(rm:*)` fire, finding 4); the shim's stop as the model sees it; part 4's one MCP call in the admin centre (one row of 0.1 for 21 November).
-7. ~~**Option (b)**~~: done in Session 29 (run 40126806): it works for an additive change. ~~**Boroon:** agree the approach~~: agreed on 21 November 2026 (part 4b, "Approach"). Still for Boroon: which of part 4b's plan edits to make, with part 4's. Part 4b's three MCP calls in the admin centre (21 November).
+7. ~~**Option (b)**~~: done in Session 29 (run 40126806): it works for an additive change. ~~**Boroon:** agree the approach~~: agreed on 21 November 2026 (part 4b, "Approach"). Part 4b's plan edits made on 21 November 2026 with part 4's. Part 4b's three MCP calls in the admin centre (21 November).
 
 ## Scratch
 
