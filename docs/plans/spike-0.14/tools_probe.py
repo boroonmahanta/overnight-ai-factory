@@ -26,6 +26,17 @@ run by .github/workflows/tools.yml. One subcommand per step:
              exist, a call past the cap, and creates whose answer the shim drops
              before it retries). Every row it makes is named "spike-0.14 part3
              (...)" and is deleted by the Web API at the end
+  part4      the skills in `copilot -p` (Copilot CLI pinned, Microsoft's plugins pinned,
+             unattended, telemetry off), with the shim in front of Dataverse MCP: two
+             tiny stories in FactorySpike, one session each (an App Spec change to the
+             existing app; a change to the timer flow's Compose step, the flow left off).
+             Then export and unpack, compare, and pack again signed out and offline
+  part4b     option (b) for part 4's App Spec story (Session 29): the same additive change to the existing
+             app without the App Spec build engine, in one `copilot -p` session: the column by Dataverse
+             MCP update_table (through the shim), the form and view by the Web API through the trusted
+             helper webapi.py, then PublishXml. Export before and after, compare, pack again offline
+  part4b-undo  take part 4b's change out of the lane by the Web API: the column off the table's forms
+             and views (published), then the column. Deletes nothing if any row holds a value in it
   scan       delete any output file that holds a token-shaped string (before upload)
   summary    write the result table; exit 1 if the step failed
 
@@ -34,6 +45,7 @@ Not a gate script. Never prints a token. Standard library only (python3 -I).
 
 import base64
 import difflib
+import hashlib
 import json
 import os
 import queue
@@ -47,8 +59,9 @@ import urllib.parse
 import urllib.request
 import uuid
 import zipfile
+from xml.etree import ElementTree
 
-LOGIN_BASE = "https://login.microsoftonline.com"
+LOGIN_BASE = os.environ.get("LOGIN_BASE", "https://login.microsoftonline.com")   # local checks point it at a fake
 API = "/api/data/v9.2"
 FLOW_SERVICE = "https://service.flow.microsoft.com"
 FLOW_RP = "https://api.flow.microsoft.com"
@@ -1395,6 +1408,943 @@ def cmd_part3():
                           "writes_twice": results.get("writes_twice")}, indent=2))
 
 
+# ---------- part 4: the skills in copilot -p ----------
+#
+# Copilot CLI 1.0.113 (probe/copilot/package-lock.json) with Microsoft's plugins loaded from
+# their pinned folders (--plugin-dir), run unread for this spike only (Boroon, 18 November
+# 2026). The Dataverse MCP server is the shim in front of `dataverse mcp`, named "dataverse"
+# (the Dataverse skills look for any tool whose name holds "dataverse"). FlowAgent is defined
+# again in the session's MCP config, so its folder and settings are known. One session per
+# story; the lane's sign-ins (pac, az, the Dataverse CLI) are made fresh before each.
+
+DVS_ROOT = env("DVS_ROOT")
+DV_PLUGIN = os.path.join(DVS_ROOT, ".github", "plugins", "dataverse")
+COPILOT = env("COPILOT_BIN", "copilot")
+PLAN_MODEL = env("COPILOT_PLAN_MODEL", "claude-sonnet-5.5")   # plan 5.2's default; checked before use
+MAX_AI_CREDITS = env("COPILOT_MAX_AI_CREDITS", "150")          # per story; the CLI's minimum is 30
+STORY_SECONDS = int(env("STORY_SECONDS", "1800"))
+MCP_CAP = int(env("MCP_CAP", "60"))                            # well above a small story's calls
+NEW_COLUMN = "fspk_category"
+APP_VIEW = "Active spike app rows"
+COMPOSE_V5 = "factory spike timer v5 (Copilot CLI, part 4)"
+OIDC_VARS = ("ACTIONS_ID_TOKEN_REQUEST_TOKEN", "ACTIONS_ID_TOKEN_REQUEST_URL")
+
+# What the session may do without asking. In -p and autopilot runs, anything else is denied.
+ALLOW_TOOLS = ["shell(node:*)", "shell(pac:*)", "shell(az:*)", "shell(dataverse:*)", "shell(python3:*)",
+               "shell(mkdir:*)", "write", "dataverse", "flowagent", "microsoft-learn"]
+# Denied even where an allow rule matches (deny wins): the driver's jobs, sign-ins, installs, deletes.
+DENY_TOOLS = ["shell(pac solution export:*)", "shell(pac solution import:*)", "shell(pac solution delete:*)",
+              "shell(pac solution pack:*)", "shell(pac auth create:*)", "shell(pac auth clear:*)",
+              "shell(pac auth delete:*)", "shell(pac auth select:*)", "shell(az login:*)", "shell(az logout:*)",
+              "shell(az account get-access-token:*)", "shell(dataverse auth:*)", "shell(dataverse mcp:*)",
+              "shell(git push:*)", "shell(curl:*)", "shell(wget:*)", "shell(sudo:*)", "shell(npm:*)",
+              "shell(npx:*)", "shell(pip:*)", "shell(pip3:*)", "shell(rm:*)"]
+
+UNATTENDED = """You are working unattended, as part of a night run: nobody will answer questions and nobody
+can approve anything until morning.
+
+Environment: {url} (Dataverse). pac, az and the dataverse CLI are already signed in to it, as an
+application user. Solution: FactorySpike (publisher prefix fspk).
+
+{story}
+
+Rules for this run:
+- Build in the environment. Do not export, import, pack or delete any solution: another step exports
+  the solution after you.
+- Never pass --allow-destructive. If the change would need it, stop and say so.
+- If a tool or command is refused, do not try to get round it. Note it, and carry on if you can, or stop.
+- Before you finish, write handoff.md in the working directory: what you changed; each point where you
+  stopped, or would have asked a person for approval; each tool or command that was refused and what you
+  did then; anything left undone."""
+
+STORIES = [
+    {"key": "app_spec", "plugin": "model-apps", "story": (
+        "In it, the model-driven app \"Factory spike app\" (fspk_factoryspikeapp) shows the table \"Spike app row\"\n"
+        "(fspk_spikeapprow), which has the columns fspk_name and fspk_note.\n\n"
+        "Story: add one text column to that table, display name \"Category\", logical name fspk_category, at most 100\n"
+        "characters, and show it on the table's main form \"Spike app row\" and in the view \"Active spike app rows\".\n"
+        "Change nothing else. Use the app-builder skill of the model-apps plugin.")},
+    {"key": "flow", "plugin": "power-automate", "story": (
+        "In it, the cloud flow \"Factory spike timer flow\" (a schedule trigger and one Compose step) is turned off.\n\n"
+        f"Story: change the input of its Compose step to exactly \"{COMPOSE_V5}\".\n"
+        "Leave the flow turned off: do not turn it on and do not run it. Change nothing else. Use the Power Automate\n"
+        "plugin's skills and its FlowAgent tools.")},
+]
+
+
+def redact_tree(folder):
+    """Rewrite every text file under `folder` with token-shaped strings removed (Copilot writes some files itself)."""
+    changed = []
+    for here, _, names in os.walk(folder):
+        for name in names:
+            path = os.path.join(here, name)
+            try:
+                with open(path, "rb") as handle:
+                    data = handle.read()
+            except OSError:
+                continue
+            if not re.search(JWT.pattern.encode(), data):
+                continue
+            try:
+                text = data.decode("utf-8")
+            except UnicodeDecodeError:
+                os.remove(path)
+                changed.append(os.path.relpath(path, folder) + " (deleted, not text)")
+                continue
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write(redact(text))
+            changed.append(os.path.relpath(path, folder))
+    return changed
+
+
+def quiet(argv, extra_env=None, drop=(), timeout=180):
+    """Run a command, keep only whether it worked and a redacted tail."""
+    child_env = {k: v for k, v in dict(os.environ, **(extra_env or {})).items() if k not in drop}
+    try:
+        process = subprocess.run(argv, stdin=subprocess.DEVNULL, capture_output=True, text=True, env=child_env,
+                                 timeout=timeout)
+        return {"ok": process.returncode == 0, "exit": process.returncode,
+                "tail": clip(redact(process.stdout + process.stderr)[-600:], 600)}
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return {"ok": False, "exit": None, "tail": clip(error, 300)}
+
+
+def lane_sign_in(label):
+    """Fresh sign-ins for one story: pac, the Dataverse CLI and az, each with a new GitHub OIDC token."""
+    tenant, app, url = env("TENANT_ID"), env("APP_ID"), env("ENV_URL")
+    out = {"pac_clear": quiet(["pac", "auth", "clear"])}
+    out["pac"] = quiet(["pac", "auth", "create", "--name", "lane", "--githubFederated", "--tenant", tenant,
+                        "--applicationId", app, "--environment", url])
+    out["pac_who"] = quiet(["pac", "org", "who"])
+    out["dataverse_clear"] = quiet(["dataverse", "auth", "remove", "--all"])
+    out["dataverse"] = quiet(["dataverse", "auth", "create", "--name", "lane-dv", "--githubFederated", "--tenant",
+                              tenant, "--applicationId", app, "--environment", url, "--accept-cleartext-caching"])
+    out["dataverse_who"] = quiet(["dataverse", "org", "who"])
+    out["az"] = az_login(f"az, {label}")
+    out["az_tokens"] = az_tokens()   # every token at once, while the OIDC token is fresh (part 2 finding 9)
+    out["ok"] = all(out[k]["ok"] for k in ("pac", "pac_who", "dataverse", "dataverse_who", "az"))
+    note(f"sign in for {label} (pac, dataverse, az)", out["ok"], 0, json.dumps({k: v.get("ok") for k, v in out.items()
+                                                                                if isinstance(v, dict) and "ok" in v}))
+    return out
+
+
+def without_oidc_check():
+    """Do the lane's sign-ins still work with the OIDC variables gone, as --secret-env-vars would leave them?"""
+    url = env("ENV_URL")
+    out = {"pac_org_who": quiet(["pac", "org", "who"], drop=OIDC_VARS),
+           "dataverse_org_who": quiet(["dataverse", "org", "who"], drop=OIDC_VARS),
+           "az_dataverse_token": az_token_without_oidc(url)}
+    out["all_ok"] = all(v["ok"] for v in out.values())
+    return out
+
+
+def az_token_without_oidc(url):
+    process = subprocess.run(["az", "account", "get-access-token", "--resource", url, "--query", "expiresOn",
+                              "--output", "tsv"], stdin=subprocess.DEVNULL, capture_output=True, text=True,
+                             env={k: v for k, v in os.environ.items() if k not in OIDC_VARS}, timeout=120)
+    return {"ok": process.returncode == 0, "exit": process.returncode,
+            "tail": clip(redact(process.stdout + process.stderr)[-300:], 300)}
+
+
+def copilot_env(extra=None):
+    base = dict(os.environ, **node_env(), COPILOT_AUTO_UPDATE="false", COPILOT_TELEMETRY_DISABLED="true",
+                COPILOT_PLUGIN_DIR_ONLY="true", DATAVERSE_TELEMETRY_OPT_OUT="1", NO_COLOR="1")
+    base.update(extra or {})
+    return base
+
+
+def model_check():
+    """One tiny prompt with plan 5.2's model. If the CLI refuses the name, the stories use its default."""
+    folder = os.path.join(work_dir(), "model-check")
+    os.makedirs(folder, exist_ok=True)
+    usage = os.path.join(folder, "usage.json")
+    argv = [COPILOT, "-p", "Reply with the single word: ready", "-s", "--no-ask-user", "--disable-builtin-mcps",
+            f"--model={PLAN_MODEL}", f"--max-ai-credits={30}", f"--usage-output-file={usage}", "-C", folder]
+    started = time.time()
+    try:
+        process = subprocess.run(argv, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=300,
+                                 env=copilot_env())
+        code, out = process.returncode, redact(process.stdout + "\n" + process.stderr)
+    except subprocess.TimeoutExpired:
+        code, out = 124, "timed out"
+    result = {"model": PLAN_MODEL, "exit": code, "seconds": round(time.time() - started, 1),
+              "answer": clip(out, 1200), "usage": read_json(usage)}
+    result["use_model"] = code == 0 and "ready" in out.lower()
+    note(f"model check ({PLAN_MODEL})", result["use_model"], result["seconds"], result["answer"])
+    return result
+
+
+def mcp_config(folder, env_id, keys_path, with_flowagent=True):
+    """The session's MCP servers: the shim in front of `dataverse mcp`, and FlowAgent from its pinned folder
+    (part 4b leaves FlowAgent out)."""
+    shim_dir = os.path.join(folder, "shim")
+    os.makedirs(shim_dir, exist_ok=True)
+    paths = {k: os.path.join(shim_dir, f) for k, f in (("log", "calls.jsonl"), ("proxy_log", "proxy-stderr.log"),
+                                                       ("summary", "summary.json"), ("stop", "stop.json"))}
+    config = {"mcpServers": {
+        "dataverse": {"type": "local", "command": sys.executable, "tools": ["*"],
+                      "args": ["-I", SHIM, "--cap", str(MCP_CAP), "--timeout", "60", "--keys-file", keys_path,
+                               "--webapi", resource(), "--log", paths["log"], "--proxy-log", paths["proxy_log"],
+                               "--summary", paths["summary"], "--stop-file", paths["stop"], "--",
+                               env("DATAVERSE_BIN", "dataverse"), "mcp", resource()],
+                      "env": {"DATAVERSE_TELEMETRY_OPT_OUT": "1"}}}}
+    if with_flowagent:
+        with open(os.path.join(POWER_AUTOMATE, ".mcp.json"), encoding="utf-8") as handle:
+            flowagent = json.load(handle)["mcpServers"]["flowagent"]
+        config["mcpServers"]["flowagent"] = {
+            "type": "local", "command": flowagent["command"], "args": flowagent.get("args", []),
+            "cwd": POWER_AUTOMATE, "tools": ["*"],
+            "env": dict(node_env(), PLUGIN_ROOT=POWER_AUTOMATE, PA_DEFAULT_ENVIRONMENT=env_id)}
+    path = os.path.join(folder, "mcp-config.json")
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump(config, handle, indent=2)
+    return path, paths
+
+
+def walk_strings(value):
+    if isinstance(value, dict):
+        for item in value.values():
+            yield from walk_strings(item)
+    elif isinstance(value, list):
+        for item in value:
+            yield from walk_strings(item)
+    elif isinstance(value, str):
+        yield value
+
+
+def first_key(value, names):
+    """The first value under any of `names`, searching nested objects."""
+    if isinstance(value, dict):
+        for name in names:
+            if isinstance(value.get(name), (str, int, float)):
+                return value[name]
+        for item in value.values():
+            found = first_key(item, names)
+            if found is not None:
+                return found
+    elif isinstance(value, list):
+        for item in value:
+            found = first_key(item, names)
+            if found is not None:
+                return found
+    return None
+
+
+DENIED = re.compile(r"denied|not permitted|permission|was refused|not allowed", re.I)
+
+
+def read_events(path):
+    """Copilot's --output-format json lines: event types, tool calls by name, anything that reads as a denial."""
+    events = read_jsonl(path)
+    types, tools, denials, messages = {}, {}, [], []
+    for event in events:
+        kind = str(event.get("type") or event.get("event") or "?")
+        types[kind] = types.get(kind, 0) + 1
+        if "tool" in kind.lower():
+            name = first_key(event, ("toolName", "tool_name", "mcpToolName", "name"))
+            if name:
+                tools.setdefault(str(name), {}).setdefault(kind, 0)
+                tools[str(name)][kind] += 1
+        joined = " ".join(walk_strings(event))
+        data = event.get("data") or {}
+        # A denial is a tool call that did not succeed with a permission message, or a permission event. Matching any
+        # event text (as run 40121696 did) also caught ordinary words in handoffs and summaries.
+        failed = kind == "tool.execution_complete" and data.get("success") is False
+        if (failed and DENIED.search(json.dumps(data.get("error")))) or "permission" in kind.lower():
+            denials.append({"type": kind, "tool": first_key(event, ("toolName", "tool_name", "name")),
+                            "text": clip(joined, 700)})
+        if failed:
+            bucket = tools.setdefault("(failed)", {})
+            reason = clip(json.dumps(data.get("error")), 160)
+            bucket[reason] = bucket.get(reason, 0) + 1
+        if "message" in kind.lower() and "assistant" in kind.lower():
+            messages.append(clip(first_key(event, ("content", "text", "message")) or joined, 1500))
+    return {"events": len(events), "types": types, "tools": tools, "denials": denials,
+            "last_messages": messages[-3:]}
+
+
+PLUGIN_FOLDERS = {"model-apps": lambda: MODEL_APPS, "power-automate": lambda: POWER_AUTOMATE, "dataverse": lambda: DV_PLUGIN}
+
+
+def started_commands(path):
+    """The shell commands the session started (tool.execution_start), redacted and clipped."""
+    found = []
+    for event in read_jsonl(path):
+        if event.get("type") != "tool.execution_start":
+            continue
+        command = ((event.get("data") or {}).get("arguments") or {}).get("command")
+        if command:
+            found.append(clip(redact(str(command)), 400))
+    return found
+
+
+def run_story(story, model_ok, secrets, env_id, keys_path):
+    """One `copilot -p` session. A story may name its own plugins, extra allow and deny rules, extra
+    folders, environment, and whether FlowAgent is served (part 4b uses these; part 4 used the defaults)."""
+    folder = os.path.join(work_dir(), "story-" + story["key"])
+    os.makedirs(folder, exist_ok=True)
+    config_path, shim = mcp_config(folder, env_id, keys_path, story.get("flowagent", True))
+    files = {k: os.path.join(folder, f) for k, f in (("events", "events.jsonl"), ("stderr", "copilot-stderr.log"),
+                                                     ("usage", "usage.json"), ("share", "transcript.md"),
+                                                     ("otel", "otel.jsonl"), ("handoff", "handoff.md"),
+                                                     ("webapi", "webapi-calls.jsonl"))}
+    plugins = [PLUGIN_FOLDERS[name]() for name in story.get("plugins", ("model-apps", "power-automate", "dataverse"))]
+    prompt = UNATTENDED.format(url=resource() + "/", story=story["story"])
+    argv = [COPILOT, "-p", prompt, "--autopilot", "--max-autopilot-continues=10", f"--max-ai-credits={MAX_AI_CREDITS}",
+            "--no-ask-user", "--output-format=json", f"--share={files['share']}",
+            f"--usage-output-file={files['usage']}", f"--log-dir={os.path.join(folder, 'copilot-logs')}",
+            "--log-level=info", "--disable-client-telemetry", "--disable-builtin-mcps",
+            "--disable-mcp-server=playwright", f"--additional-mcp-config=@{config_path}", "-C", folder]
+    for plugin in plugins:
+        argv += [f"--plugin-dir={plugin}", f"--add-dir={plugin}"]
+    argv += [f"--add-dir={extra}" for extra in story.get("add_dirs", [])]
+    argv += [f"--allow-tool={rule}" for rule in ALLOW_TOOLS] + [f"--deny-tool={rule}" for rule in DENY_TOOLS]
+    argv += [f"--deny-tool={rule}" for rule in story.get("deny_extra", [])]
+    if model_ok:
+        argv.append(f"--model={PLAN_MODEL}")
+    argv.append("--secret-env-vars=" + ",".join(secrets))
+    extra_env = {"COPILOT_OTEL_FILE_EXPORTER_PATH": files["otel"], "WEBAPI_LOG": files["webapi"]}
+    if story.get("plugin"):
+        extra_env["PLUGIN_ROOT"] = PLUGIN_FOLDERS[story["plugin"]]()
+    extra_env.update(story.get("env", {}))
+    child_env = copilot_env(extra_env)
+    shown = list(argv)
+    shown[2] = f"<the {story['key']} prompt>"
+    with open(os.path.join(folder, "command.json"), "w", encoding="utf-8") as handle:
+        json.dump({"argv": shown, "prompt": prompt}, handle, indent=2)
+    result = {"key": story["key"], "prompt": prompt, "ended_by": "copilot"}
+    print(f"\n::group::story {story['key']}")
+    started = time.time()
+    with open(files["events"], "w", encoding="utf-8") as out, open(files["stderr"], "w", encoding="utf-8") as err:
+        process = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=err, text=True,
+                                   env=child_env, bufsize=1)
+        lines = queue.Queue()
+        threading.Thread(target=lambda: [lines.put(line) for line in process.stdout] + [lines.put(None)],
+                         daemon=True).start()
+        while True:
+            try:
+                line = lines.get(timeout=2)
+            except queue.Empty:
+                line = ""
+            if line is None:
+                break
+            if line:
+                out.write(redact(line))
+                out.flush()
+            stop = read_json(shim["stop"])
+            if stop and result["ended_by"] == "copilot":
+                result["ended_by"] = f"driver: shim stop, PARK {stop.get('park')}"
+                process.terminate()
+            if time.time() - started > STORY_SECONDS and result["ended_by"] == "copilot":
+                result["ended_by"] = f"driver: past {STORY_SECONDS} s"
+                process.terminate()
+        try:
+            process.wait(timeout=60)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
+    result["exit"] = process.returncode
+    result["seconds"] = round(time.time() - started, 1)
+    print(f"::endgroup::\nstory {story['key']}: exit {result['exit']} in {result['seconds']} s, {result['ended_by']}")
+    result["redacted_files"] = redact_tree(folder)
+    result["events"] = read_events(files["events"])
+    usage = read_json(files["usage"]) or {}
+    result["usage"] = usage
+    nano = first_key(usage, ("totalNanoAiu",))
+    result["ai_credits"] = round(float(nano) / 1e9, 2) if isinstance(nano, (int, float)) else None
+    result["shim"] = read_json(shim["summary"])
+    result["shim_stop"] = read_json(shim["stop"])
+    result["mcp_calls"] = (result["shim"] or {}).get("attempts")
+    shim_events = read_jsonl(shim["log"])
+    result["mcp_tools_listed"] = next((e.get("names") for e in shim_events if e.get("event") == "tools-list"), None)
+    result["mcp_call_list"] = [{k: e.get(k) for k in ("call", "tool", "kind", "attempt", "text", "correlation_id")}
+                               for e in shim_events if e.get("event") == "answer"]
+    for e in result["mcp_call_list"]:
+        e["text"] = clip(e.get("text"), 400)
+    with open(files["stderr"], encoding="utf-8", errors="replace") as handle:
+        result["stderr_tail"] = clip(redact(handle.read())[-2500:], 2500)
+    try:
+        with open(files["handoff"], encoding="utf-8") as handle:
+            result["handoff"] = redact(handle.read())[:6000]
+    except OSError:
+        result["handoff"] = None
+    # A command the session ran with --allow-destructive. Only the commands it started count: the prompt's own rule
+    # and the build engine's refusal both name the flag (run 40121696 flagged the refusal by mistake).
+    result["destructive_flag_seen"] = any(
+        "--allow-destructive" in str(((event.get("data") or {}).get("arguments") or {}).get("command", ""))
+        for event in read_jsonl(files["events"]) if event.get("type") == "tool.execution_start")
+    # Part 4b: did the session start the App Spec build engine at all, or apply with it? Again only the commands
+    # the session started count, not the prompt that names the engine.
+    result["commands"] = started_commands(files["events"])
+    result["engine_runs"] = [c for c in result["commands"] if "build-model-app" in c]
+    result["engine_applied"] = any("--apply" in c for c in result["engine_runs"])
+    result["webapi_calls"] = read_jsonl(files["webapi"])
+    result["workflow_log"] = None
+    for here, _, names in os.walk(folder):
+        if "workflow-log.md" in names:
+            with open(os.path.join(here, "workflow-log.md"), encoding="utf-8", errors="replace") as handle:
+                result["workflow_log"] = clip(redact(handle.read()), 4000)
+            break
+    note(f"story {story['key']}", result["exit"] == 0 and result["ended_by"] == "copilot", result["seconds"],
+         result["stderr_tail"][-800:])
+    return result
+
+
+def app_state(dv):
+    """The spike app table's columns, and whether the new column is on its main form and in the view."""
+    out = {}
+    attributes = dv.rows(f"/EntityDefinitions(LogicalName='{APP_TABLE}')/Attributes?$select=LogicalName")
+    out["columns"] = sorted(a["LogicalName"] for a in attributes)
+    forms = dv.rows(f"/systemforms?$select=name,type,formxml&$filter=objecttypecode eq '{APP_TABLE}' and type eq 2")
+    out["main_forms"] = {f["name"]: NEW_COLUMN in (f.get("formxml") or "") for f in forms}
+    views = dv.rows(f"/savedqueries?$select=name,layoutxml,fetchxml&$filter=returnedtypecode eq '{APP_TABLE}'")
+    out["views_with_column"] = sorted(v["name"] for v in views if NEW_COLUMN in (v.get("layoutxml") or ""))
+    out["view_named"] = {v["name"]: NEW_COLUMN in (v.get("layoutxml") or "") for v in views if v["name"] == APP_VIEW}
+    return out
+
+
+def cmd_part4():
+    results = {"mode": "part4", "run_id": env("GITHUB_RUN_ID"), "steps": STEPS, "started_utc": utc_now(),
+               "settings": {"max_ai_credits_per_story": MAX_AI_CREDITS, "mcp_cap": MCP_CAP, "allow": ALLOW_TOOLS,
+                            "deny": DENY_TOOLS, "plan_model": PLAN_MODEL, "story_seconds": STORY_SECONDS}}
+    try:
+        results["tools"] = tool_versions()
+        results["tools"]["copilot"] = quiet([COPILOT, "--version"], extra_env={"COPILOT_AUTO_UPDATE": "false"})["tail"]
+        process = subprocess.run(["git", "-C", DVS_ROOT, "rev-parse", "HEAD"], capture_output=True, text=True)
+        results["tools"]["dataverse-skills head"] = process.stdout.strip()
+        results["tools"]["dataverse-skills head is the pin"] = process.stdout.strip() == env("DVS_COMMIT")
+        dv = Dataverse()
+        org = dv.get("/RetrieveCurrentOrganization(AccessType=Microsoft.Dynamics.CRM.EndpointAccessType'Default')")
+        env_id = (org.get("Detail") or {}).get("EnvironmentId")
+        if not env_id:
+            raise ProbeError("no environment ID from RetrieveCurrentOrganization")
+        solution_id = dv.rows(f"/solutions?$select=solutionid&$filter=uniquename eq '{SOLUTION}'")[0]["solutionid"]
+        keys = {row["LogicalName"]: row["PrimaryIdAttribute"]
+                for row in dv.rows("/EntityDefinitions?$select=LogicalName,PrimaryIdAttribute") if row.get("PrimaryIdAttribute")}
+        keys_path = os.path.join(work_dir(), "primary-keys.json")
+        with open(keys_path, "w", encoding="utf-8") as handle:
+            json.dump(keys, handle)
+        results["primary_keys_read"] = len(keys)
+        before_parts = solution_parts(dv, solution_id)
+        results["app_before"] = app_state(dv)
+        timer = find_flow(dv, TIMER_FLOW)
+        results["flow_before"] = {"compose": compose_text(timer), "state": [timer.get("statecode"), timer.get("statuscode")]}
+
+        results["model_check"] = model_check()
+        stories = results["stories"] = {}
+        for story in STORIES:
+            sign_in = lane_sign_in(story["key"])
+            results.setdefault("sign_ins", {})[story["key"]] = sign_in
+            if "without_oidc" not in results:
+                results["without_oidc"] = without_oidc_check()
+            secrets = ["GITHUB_TOKEN", "GH_TOKEN", "COPILOT_GITHUB_TOKEN"]
+            if results["without_oidc"]["all_ok"]:
+                secrets += list(OIDC_VARS)
+            results.setdefault("secret_env_vars", {})[story["key"]] = secrets
+            try:
+                stories[story["key"]] = run_story(story, results["model_check"]["use_model"], secrets, env_id, keys_path)
+            except (OSError, ProbeError) as error:
+                stories[story["key"]] = {"key": story["key"], "error": f"{type(error).__name__}: {clip(error, 400)}"}
+
+        # What the stories changed, read by the Web API with a fresh token.
+        dv = Dataverse()
+        after_parts = solution_parts(dv, solution_id)
+        results["solution_parts_added"] = [{"type": COMPONENT_TYPES.get(t, str(t)), "id": i}
+                                           for t, i in after_parts if (t, i) not in before_parts]
+        results["solution_parts_removed"] = [{"type": COMPONENT_TYPES.get(t, str(t)), "id": i}
+                                             for t, i in before_parts if (t, i) not in after_parts]
+        results["app_after"] = app_state(dv)
+        timer = find_flow(dv, TIMER_FLOW)
+        results["flow_after"] = {"compose": compose_text(timer), "state": [timer.get("statecode"), timer.get("statuscode")]}
+        if timer.get("statecode") == 1:   # never leave the timer flow on
+            results["flow_backstop_off"] = set_state(dv, timer["workflowid"], False)
+
+        # The driver's part: export, compare, pack again signed out and offline.
+        lane_sign_in("export")
+        zip_path, folder = export_unpack("after-part4")
+        results["vs_reset_commit"] = compare(RESET_COMMIT, folder, "reset-commit", "export")
+        files = sorted(tree(folder))
+        results["column_in_export"] = []
+        for name in files:
+            if name.lower().startswith(("entities/" + APP_TABLE, "appmodules/")):
+                with open(os.path.join(folder, name), encoding="utf-8-sig", errors="replace") as handle:
+                    if NEW_COLUMN in handle.read():
+                        results["column_in_export"].append(name)
+        timer_json = [n for n in files if n.lower().startswith("workflows/factoryspiketimerflow") and n.endswith(".json")]
+        if timer_json:
+            with open(os.path.join(folder, timer_json[0]), encoding="utf-8-sig") as handle:
+                results["exported_compose"] = json.load(handle)["properties"]["definition"]["actions"]["Compose"]["inputs"]
+        results["pack"] = pack_offline(zip_path, folder)
+        results["writes"] = dv.writes
+    except ProbeError as error:
+        results["error"] = str(error)
+    finally:
+        subprocess.run(["az", "logout"], stdin=subprocess.DEVNULL, capture_output=True)
+        results["ended_utc"] = utc_now()
+        app_story = results.get("stories", {}).get("app_spec", {})
+        flow_story = results.get("stories", {}).get("flow", {})
+        app_after = results.get("app_after", {})
+        results["exit_test"] = {
+            "sessions_ran": bool(app_story.get("events", {}).get("events")) and bool(flow_story.get("events", {}).get("events")),
+            "app_column_made": NEW_COLUMN in app_after.get("columns", []),
+            "app_column_on_main_form": any(app_after.get("main_forms", {}).values()),
+            "app_column_in_view": any(app_after.get("view_named", {}).values()),
+            "flow_compose_changed": results.get("flow_after", {}).get("compose") == COMPOSE_V5,
+            "flow_left_off": results.get("flow_after", {}).get("state", [None])[0] == 0,
+            "no_allow_destructive": not app_story.get("destructive_flag_seen") and not flow_story.get("destructive_flag_seen"),
+            "nothing_left_the_solution": not results.get("solution_parts_removed"),
+            "column_exported": any(n.lower().startswith("entities/") for n in results.get("column_in_export", [])),
+            "flow_change_exported": results.get("exported_compose") == COMPOSE_V5,
+            "packs_signed_out": bool(results.get("pack", {}).get("pack"))
+                                and results.get("pack", {}).get("repack_vs_export", {}).get("same_root_components", False),
+            "packs_with_no_network": bool(results.get("pack", {}).get("pack_no_network")),
+        }
+        results["exit_test"]["pass"] = all(results["exit_test"].values())
+        save("results.json", results)
+        print(json.dumps(results["exit_test"], indent=2))
+
+
+# ---------- part 4b: option (b), an additive change to the existing app without the App Spec engine ----------
+#
+# Part 4's App Spec story again (a column on the existing table, shown on the main form "Spike app row" and in
+# the view "Active Spike app rows"), but by another route: the column by Dataverse MCP `update_table` (through the
+# shim), the form's formxml and the view's layoutxml and fetchxml by the Web API, then PublishXml. The Web API goes
+# through a trusted helper (probe/webapi.py): it signs in from the Azure CLI's cache, adds the solution header to
+# every write, and refuses DELETE, PUT and the driver's solution actions. The model-apps plugin stays loaded, so
+# the session could reach for the build engine; the prompt says not to, and the probe checks the commands it ran.
+
+APP_FORM = "Spike app row"
+OTHER_MAIN_FORM = "Information"
+APP_VIEW_EXACT = "Active Spike app rows"   # the stock default view's name (part 4's APP_VIEW had the case wrong)
+PROBE_DIR = os.path.dirname(os.path.abspath(__file__))
+WEBAPI_HELPER = os.path.join(PROBE_DIR, "webapi.py")
+
+STORY_4B = {"key": "app_additive", "plugin": None, "plugins": ("model-apps", "dataverse"), "flowagent": False,
+            "add_dirs": [PROBE_DIR], "deny_extra": [f"write({PROBE_DIR}/**)"], "story": (
+    "In it, the model-driven app \"Factory spike app\" (fspk_factoryspikeapp) shows the table \"Spike app row\"\n"
+    "(fspk_spikeapprow), which has the columns fspk_name and fspk_note. The table has two main forms, \"Spike app\n"
+    "row\" and \"Information\", and its views include \"Active Spike app rows\".\n\n"
+    "Story: add one text column to that table, display name \"Category\", logical name fspk_category, at most 100\n"
+    "characters, and show it on the main form \"Spike app row\" (only that form) and in the view \"Active Spike app\n"
+    "rows\". Change nothing else.\n\n"
+    "How, because the app already exists:\n"
+    "- Do not run the model-apps build engine (build-model-app.js) at all, not even a dry run, and do not use the\n"
+    "  app-builder skill: at night it cannot apply a change to an existing app.\n"
+    "- Add the column with the dataverse MCP server's update_table tool.\n"
+    "- Change the form and the view through the Dataverse Web API, with the trusted helper\n"
+    f"    python3 {WEBAPI_HELPER} METHOD PATH [--body JSON|@FILE] [--out FILE]\n"
+    "  where PATH has no leading slash, for example systemforms(<formid>). Run it with --help first.\n"
+    "  The form is a row in systemforms (column formxml), the view a row in savedqueries (columns layoutxml\n"
+    "  and fetchxml). Read the existing row, add the new column to its XML, and PATCH that row.\n"
+    "  Do not create a new form or view. The helper signs in and adds the solution header itself; it refuses deletes.\n"
+    "- Then publish the table's customisations with the helper (POST PublishXml), and read the column, the form\n"
+    "  and the view back to check.\n"
+    "- The Dataverse skills' Python SDK is not installed and pip is not allowed: use the helper and the MCP tools.")}
+
+
+def sha(text):
+    return hashlib.sha256((text or "").encode()).hexdigest()[:16]
+
+
+def label_text(label):
+    return ((label or {}).get("UserLocalizedLabel") or {}).get("Label")
+
+
+def app_detail(dv):
+    """The spike app table's columns, every form and view on it (hashed), and the new column's definition."""
+    out = {}
+    attributes = dv.rows(f"/EntityDefinitions(LogicalName='{APP_TABLE}')/Attributes?$select=LogicalName,AttributeType")
+    out["columns"] = sorted(a["LogicalName"] for a in attributes)
+    if NEW_COLUMN in out["columns"]:
+        status, _, column = dv.call(
+            "GET", f"/EntityDefinitions(LogicalName='{APP_TABLE}')/Attributes(LogicalName='{NEW_COLUMN}')"
+                   "/Microsoft.Dynamics.CRM.StringAttributeMetadata?$select=LogicalName,AttributeType,MaxLength,"
+                   "DisplayName,RequiredLevel,MetadataId", ok=(200, 400, 404))
+        out["new_column"] = ({"type": column.get("AttributeType"), "max_length": column.get("MaxLength"),
+                              "display_name": label_text(column.get("DisplayName")),
+                              "required": (column.get("RequiredLevel") or {}).get("Value"),
+                              "metadata_id": column.get("MetadataId")} if status == 200 else {"status": status})
+    forms = dv.rows(f"/systemforms?$select=formid,name,type,formxml,publishedon&$filter=objecttypecode eq '{APP_TABLE}'")
+    out["forms"] = {bare(f["formid"]): {"name": f.get("name"), "type": f.get("type"), "sha": sha(f.get("formxml")),
+                                        "has_column": NEW_COLUMN in (f.get("formxml") or ""),
+                                        "published_on": f.get("publishedon")} for f in forms}
+    views = dv.rows(f"/savedqueries?$select=savedqueryid,name,querytype,layoutxml,fetchxml"
+                    f"&$filter=returnedtypecode eq '{APP_TABLE}'")
+    out["views"] = {bare(v["savedqueryid"]): {"name": v.get("name"), "querytype": v.get("querytype"),
+                                              "sha_layout": sha(v.get("layoutxml")), "sha_fetch": sha(v.get("fetchxml")),
+                                              "in_layout": NEW_COLUMN in (v.get("layoutxml") or ""),
+                                              "in_fetch": NEW_COLUMN in (v.get("fetchxml") or "")} for v in views}
+    return out
+
+
+def outside_state(dv):
+    """What could be made outside the solution: every form and view in the environment by ID (systemform has no
+    createdon to filter on, run 40125881; spike 0.19 found forms keep no maker), the fspk_ tables, and the other
+    spike table's columns."""
+    forms = {bare(f["formid"]): [f.get("name"), f.get("objecttypecode")]
+             for f in dv.rows("/systemforms?$select=formid,name,objecttypecode")}
+    views = {bare(v["savedqueryid"]): [v.get("name"), v.get("returnedtypecode")]
+             for v in dv.rows("/savedqueries?$select=savedqueryid,name,returnedtypecode")}
+    tables = sorted(row["LogicalName"] for row in dv.rows("/EntityDefinitions?$select=LogicalName")
+                    if row["LogicalName"].startswith("fspk_"))
+    item_columns = sorted(a["LogicalName"] for a in dv.rows(
+        f"/EntityDefinitions(LogicalName='{SPIKE_TABLE}')/Attributes?$select=LogicalName"))
+    return {"forms": forms, "views": views, "fspk_tables": tables, "spikeitem_columns": item_columns}
+
+
+def outside_change(before, after):
+    """New or gone forms and views anywhere, and any change to the fspk_ tables or the other spike table."""
+    return {"forms_new": [dict(id=i, name=after["forms"][i][0], table=after["forms"][i][1])
+                          for i in sorted(set(after["forms"]) - set(before["forms"]))],
+            "forms_gone": sorted(set(before["forms"]) - set(after["forms"])),
+            "views_new": [dict(id=i, name=after["views"][i][0], table=after["views"][i][1])
+                          for i in sorted(set(after["views"]) - set(before["views"]))],
+            "views_gone": sorted(set(before["views"]) - set(after["views"])),
+            "fspk_tables_before": before["fspk_tables"], "fspk_tables_after": after["fspk_tables"],
+            "spikeitem_columns_same": before["spikeitem_columns"] == after["spikeitem_columns"],
+            "forms_counted": [len(before["forms"]), len(after["forms"])],
+            "views_counted": [len(before["views"]), len(after["views"])]}
+
+
+def file_sha(path):
+    try:
+        with open(path, "rb") as handle:
+            return hashlib.sha256(handle.read()).hexdigest()[:16]
+    except OSError:
+        return None
+
+
+def cmd_part4b():
+    started = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    results = {"mode": "part4b", "run_id": env("GITHUB_RUN_ID"), "steps": STEPS, "started_utc": started,
+               "settings": {"max_ai_credits_per_story": MAX_AI_CREDITS, "mcp_cap": MCP_CAP, "allow": ALLOW_TOOLS,
+                            "deny": DENY_TOOLS + STORY_4B["deny_extra"], "plan_model": PLAN_MODEL,
+                            "story_seconds": STORY_SECONDS, "plugins": list(STORY_4B["plugins"])}}
+    trusted = {name: file_sha(os.path.join(PROBE_DIR, name)) for name in ("webapi.py", "mcp_shim.py")}
+    results["trusted_files_before"] = trusted
+    try:
+        results["tools"] = tool_versions()
+        results["tools"]["copilot"] = quiet([COPILOT, "--version"], extra_env={"COPILOT_AUTO_UPDATE": "false"})["tail"]
+        process = subprocess.run(["git", "-C", DVS_ROOT, "rev-parse", "HEAD"], capture_output=True, text=True)
+        results["tools"]["dataverse-skills head is the pin"] = process.stdout.strip() == env("DVS_COMMIT")
+        dv = Dataverse()
+        org = dv.get("/RetrieveCurrentOrganization(AccessType=Microsoft.Dynamics.CRM.EndpointAccessType'Default')")
+        env_id = (org.get("Detail") or {}).get("EnvironmentId")
+        if not env_id:
+            raise ProbeError("no environment ID from RetrieveCurrentOrganization")
+        solution_id = dv.rows(f"/solutions?$select=solutionid&$filter=uniquename eq '{SOLUTION}'")[0]["solutionid"]
+        keys = {row["LogicalName"]: row["PrimaryIdAttribute"]
+                for row in dv.rows("/EntityDefinitions?$select=LogicalName,PrimaryIdAttribute") if row.get("PrimaryIdAttribute")}
+        keys_path = os.path.join(work_dir(), "primary-keys.json")
+        with open(keys_path, "w", encoding="utf-8") as handle:
+            json.dump(keys, handle)
+        before_parts = solution_parts(dv, solution_id)
+        results["app_before"] = app_detail(dv)
+        outside_before = outside_state(dv)
+        if NEW_COLUMN in results["app_before"]["columns"]:
+            raise ProbeError(f"{NEW_COLUMN} already exists: this story needs the table as part 4 left it")
+
+        # The driver's export before the story, so the story's own change shows file by file.
+        lane_sign_in("export before")
+        _, before_folder = export_unpack("before-part4b")
+
+        results["model_check"] = model_check()
+        sign_in = results["sign_in"] = lane_sign_in(STORY_4B["key"])
+        results["without_oidc"] = without_oidc_check()
+        secrets = ["GITHUB_TOKEN", "GH_TOKEN", "COPILOT_GITHUB_TOKEN"]
+        if results["without_oidc"]["all_ok"]:
+            secrets += list(OIDC_VARS)
+        results["secret_env_vars"] = secrets
+        if not sign_in["ok"]:
+            raise ProbeError("the lane's sign-ins failed before the story")
+        try:
+            results["story"] = run_story(STORY_4B, results["model_check"]["use_model"], secrets, env_id, keys_path)
+        except (OSError, ProbeError) as error:
+            results["story"] = {"key": STORY_4B["key"], "error": f"{type(error).__name__}: {clip(error, 400)}"}
+        results["trusted_files_after"] = {name: file_sha(os.path.join(PROBE_DIR, name)) for name in trusted}
+
+        # What the story changed, read by the Web API with a fresh token.
+        dv = Dataverse()
+        after_parts = solution_parts(dv, solution_id)
+        results["solution_parts_added"] = [{"type": COMPONENT_TYPES.get(t, str(t)), "id": i}
+                                           for t, i in after_parts if (t, i) not in before_parts]
+        results["solution_parts_removed"] = [{"type": COMPONENT_TYPES.get(t, str(t)), "id": i}
+                                             for t, i in before_parts if (t, i) not in after_parts]
+        results["app_after"] = app_detail(dv)
+        results["outside"] = outside_change(outside_before, outside_state(dv))
+        column_id = bare((results["app_after"].get("new_column") or {}).get("metadata_id"))
+        results["column_is_solution_component"] = bool(column_id) and (2, column_id) in after_parts
+
+        # The driver's part: export, compare with the export before, pack again signed out and offline.
+        lane_sign_in("export")
+        zip_path, folder = export_unpack("after-part4b")
+        results["vs_before"] = compare(before_folder, folder, "before", "after")
+        form_ids = {i for i, f in results["app_after"]["forms"].items() if f["name"] == APP_FORM and f["type"] == 2}
+        view_ids = {i for i, v in results["app_after"]["views"].items() if (v["name"] or "").lower() == APP_VIEW_EXACT.lower()}
+        expected = {f"Entities/{APP_TABLE}/Entity.xml"}
+        expected |= {f"Entities/{APP_TABLE}/FormXml/main/{{{i}}}.xml" for i in form_ids}
+        expected |= {f"Entities/{APP_TABLE}/SavedQueries/{{{i}}}.xml" for i in view_ids}
+        changed = set(results["vs_before"].get("only_in_first", []) + results["vs_before"].get("only_in_second", [])
+                      + results["vs_before"].get("raw_differ", []))
+        results["export_expected_files"] = sorted(expected)
+        results["export_changed_files"] = sorted(changed)
+        results["export_unexpected_changes"] = sorted(n for n in changed if n.lower() not in {e.lower() for e in expected})
+        results["column_in_export"] = []
+        for name in sorted(tree(folder)):
+            if name.lower().startswith("entities/" + APP_TABLE):
+                with open(os.path.join(folder, name), encoding="utf-8-sig", errors="replace") as handle:
+                    if NEW_COLUMN in handle.read():
+                        results["column_in_export"].append(name)
+        results["pack"] = pack_offline(zip_path, folder)
+        results["writes"] = dv.writes
+    except ProbeError as error:
+        results["error"] = str(error)
+    finally:
+        subprocess.run(["az", "logout"], stdin=subprocess.DEVNULL, capture_output=True)
+        results["ended_utc"] = utc_now()
+        story = results.get("story", {})
+        before, after = results.get("app_before", {}), results.get("app_after", {})
+        column = after.get("new_column") or {}
+        target_forms = [i for i, f in after.get("forms", {}).items() if f["name"] == APP_FORM and f["type"] == 2]
+        target_views = [i for i, v in after.get("views", {}).items() if (v["name"] or "").lower() == APP_VIEW_EXACT.lower()]
+        others_same = lambda kind, targets, keys: all(
+            {k: before.get(kind, {}).get(i, {}).get(k) for k in keys} == {k: item.get(k) for k in keys}
+            for i, item in after.get(kind, {}).items() if i not in targets)
+        out = results.get("outside", {})
+        results["exit_test"] = {
+            "session_ran": bool(story.get("events", {}).get("events")) and story.get("ended_by") == "copilot",
+            "engine_not_run": not story.get("engine_runs") and "events" in story,
+            "no_allow_destructive": not story.get("destructive_flag_seen") and "events" in story,
+            "column_made": column.get("type") == "String" and column.get("max_length") == 100
+                           and column.get("display_name") == "Category",
+            "column_on_the_form": bool(target_forms) and all(after["forms"][i]["has_column"] for i in target_forms),
+            "other_forms_unchanged": bool(after.get("forms")) and others_same("forms", target_forms, ("sha",)),
+            "column_in_the_view": bool(target_views) and all(after["views"][i]["in_layout"] and after["views"][i]["in_fetch"]
+                                                             for i in target_views),
+            "other_views_unchanged": bool(after.get("views")) and others_same("views", target_views,
+                                                                                ("sha_layout", "sha_fetch")),
+            "no_new_forms_or_views": set(before.get("forms", {})) == set(after.get("forms", {}))
+                                     and set(before.get("views", {})) == set(after.get("views", {})) and bool(after),
+            "nothing_made_outside": bool(out) and not out.get("forms_new") and not out.get("views_new")
+                                    and not out.get("forms_gone") and not out.get("views_gone")
+                                    and out.get("fspk_tables_after") == out.get("fspk_tables_before")
+                                    and bool(out.get("spikeitem_columns_same")),
+            "nothing_left_the_solution": "solution_parts_removed" in results and not results["solution_parts_removed"],
+            "column_exported": f"Entities/{APP_TABLE}/Entity.xml" in results.get("column_in_export", []),
+            "form_change_exported": any("/formxml/main/" in n.lower() for n in results.get("column_in_export", [])),
+            "view_change_exported": any("/savedqueries/" in n.lower() for n in results.get("column_in_export", [])),
+            "only_the_expected_files_changed": "export_unexpected_changes" in results
+                                               and not results["export_unexpected_changes"],
+            "trusted_files_unchanged": results.get("trusted_files_after") == trusted,
+            "packs_signed_out": bool(results.get("pack", {}).get("pack"))
+                                and results.get("pack", {}).get("repack_vs_export", {}).get("same_root_components", False),
+            "packs_with_no_network": bool(results.get("pack", {}).get("pack_no_network")),
+        }
+        results["exit_test"]["pass"] = all(results["exit_test"].values())
+        save("results.json", results)
+        print(json.dumps(results["exit_test"], indent=2))
+
+
+def strip_form_column(formxml):
+    """The form XML with every cell bound to NEW_COLUMN removed, and any row that only held such a cell."""
+    root = ElementTree.fromstring(formxml)
+    removed = 0
+    for rows in root.iter("rows"):
+        for row in list(rows.findall("row")):
+            cells = row.findall("cell")
+            hits = [c for c in cells if any(ctl.get("datafieldname") == NEW_COLUMN for ctl in c.iter("control"))]
+            for cell in hits:
+                row.remove(cell)
+                removed += 1
+            if hits and len(hits) == len(cells):
+                rows.remove(row)
+    return ElementTree.tostring(root, encoding="unicode"), removed
+
+
+def strip_view_column(layoutxml, fetchxml):
+    """The view's layout and fetch with NEW_COLUMN's cell, attribute, order and conditions removed."""
+    layout, fetch, removed = ElementTree.fromstring(layoutxml), ElementTree.fromstring(fetchxml), 0
+    for row in layout.iter("row"):
+        for cell in [c for c in row.findall("cell") if c.get("name") == NEW_COLUMN]:
+            row.remove(cell)
+            removed += 1
+    for parent in list(fetch.iter()):
+        for child in [c for c in list(parent) if c.tag in ("attribute", "order", "condition")
+                      and NEW_COLUMN in (c.get("name"), c.get("attribute"))]:
+            parent.remove(child)
+            removed += 1
+    return ElementTree.tostring(layout, encoding="unicode"), ElementTree.tostring(fetch, encoding="unicode"), removed
+
+
+def cmd_part4b_undo():
+    """Take part 4b's change back out of the lane: the column off the table's forms and views (published), then the
+    column itself. Stops, deleting nothing, if any row holds a value in the column."""
+    results = {"mode": "part4b-undo", "run_id": env("GITHUB_RUN_ID"), "steps": STEPS, "started_utc": utc_now()}
+    try:
+        dv = Dataverse()
+        solution_header = {"MSCRM.SolutionUniqueName": SOLUTION}
+        status, _, _ = dv.call("GET", f"/EntityDefinitions(LogicalName='{APP_TABLE}')/Attributes(LogicalName='{NEW_COLUMN}')"
+                                      "?$select=LogicalName", ok=(200, 404))
+        results["column_found"] = status == 200
+        if status == 200:
+            entity_set = dv.get(f"/EntityDefinitions(LogicalName='{APP_TABLE}')?$select=EntitySetName")["EntitySetName"]
+            held = dv.get(f"/{entity_set}?$select={NEW_COLUMN}&$filter={NEW_COLUMN} ne null&$top=1").get("value", [])
+            results["rows_with_a_value"] = len(held)
+            if held:
+                raise ProbeError(f"a row holds a value in {NEW_COLUMN}: nothing deleted, a person decides")
+            changed = []
+            for form in dv.rows(f"/systemforms?$select=formid,name,formxml&$filter=objecttypecode eq '{APP_TABLE}'"):
+                if NEW_COLUMN in (form.get("formxml") or ""):
+                    xml, removed = strip_form_column(form["formxml"])
+                    dv.call("PATCH", f"/systemforms({form['formid']})", {"formxml": xml}, dict(solution_header, **{"If-Match": "*"}))
+                    changed.append({"form": form["name"], "cells_removed": removed})
+            for view in dv.rows(f"/savedqueries?$select=savedqueryid,name,layoutxml,fetchxml"
+                                f"&$filter=returnedtypecode eq '{APP_TABLE}'"):
+                if NEW_COLUMN in (view.get("layoutxml") or "") + (view.get("fetchxml") or ""):
+                    layout, fetch, removed = strip_view_column(view["layoutxml"], view["fetchxml"])
+                    dv.call("PATCH", f"/savedqueries({view['savedqueryid']})", {"layoutxml": layout, "fetchxml": fetch},
+                            dict(solution_header, **{"If-Match": "*"}))
+                    changed.append({"view": view["name"], "parts_removed": removed})
+            results["forms_and_views_changed"] = changed
+            if changed:
+                dv.call("POST", "/PublishXml", {"ParameterXml": f"<importexportxml><entities><entity>{APP_TABLE}</entity>"
+                                                                "</entities></importexportxml>"})
+            dv.call("DELETE", f"/EntityDefinitions(LogicalName='{APP_TABLE}')/Attributes(LogicalName='{NEW_COLUMN}')")
+            status, _, _ = dv.call("GET", f"/EntityDefinitions(LogicalName='{APP_TABLE}')/Attributes(LogicalName='{NEW_COLUMN}')"
+                                          "?$select=LogicalName", ok=(200, 404))
+            results["column_gone"] = status == 404
+        results["app_after"] = {k: v for k, v in app_detail(dv).items() if k != "views"}
+        results["writes"] = dv.writes
+    except ProbeError as error:
+        results["error"] = str(error)
+    finally:
+        results["ended_utc"] = utc_now()
+        save("results.json", results)
+        print(json.dumps({k: results.get(k) for k in ("column_found", "rows_with_a_value", "forms_and_views_changed",
+                                                      "column_gone", "writes", "error")}, indent=2, default=str))
+    return 1 if results.get("error") or (results.get("column_found") and not results.get("column_gone")) else 0
+
+
+# ---------- deleting the scratch of spikes 0.14, 0.18 and 0.19 (Boroon, 21 November 2026) ----------
+#
+# Everything the spikes made in factory-lane-1 carries the publisher prefix fspk_, the names "Factory spike ...",
+# or the solution FactorySpike and publisher factoryspike. scratch-list reads them; scratch-delete deletes them,
+# children first, then lists again and fails if anything is left. Kept: getai-fl1-exec, its application user,
+# factory-lane-1 and the allowed MCP client new_getaifl1exec (plan, Stage 3).
+
+PREFIX = "fspk_"
+
+
+def scratch_query(dv, label, path, id_field, name_field, keep=None):
+    try:
+        rows = dv.rows(path)
+    except ProbeError as error:
+        return {"label": label, "error": str(error), "rows": []}
+    rows = [r for r in rows if keep is None or keep(r)]
+    return {"label": label, "rows": [{"id": r.get(id_field), "name": r.get(name_field),
+                                      **({"parent": r.get("_parentroleid_value")} if "_parentroleid_value" in r else {}),
+                                      **({"state": r.get("statecode")} if label == "cloud flows" else {})}
+                                     for r in rows]}
+
+
+def scratch_parts(dv):
+    """Every scratch part in the lane, found by its scratch names. Read only."""
+    tables = scratch_query(dv, "tables", "/EntityDefinitions?$select=LogicalName,MetadataId,IsCustomEntity",
+                           "LogicalName", "LogicalName", keep=lambda r: str(r.get("LogicalName", "")).startswith(PREFIX))
+    parts = [
+        scratch_query(dv, "cloud flows", "/workflows?$select=workflowid,name,statecode,category"
+                      "&$filter=startswith(name,'Factory spike')", "workflowid", "name"),
+        scratch_query(dv, "security roles", "/roles?$select=roleid,name,_parentroleid_value"
+                      "&$filter=startswith(name,'Factory spike')", "roleid", "name"),
+        scratch_query(dv, "environment variable values", "/environmentvariablevalues?$select=environmentvariablevalueid,"
+                      f"schemaname&$filter=startswith(schemaname,'{PREFIX}')", "environmentvariablevalueid", "schemaname"),
+        scratch_query(dv, "environment variable definitions", "/environmentvariabledefinitions?$select="
+                      f"environmentvariabledefinitionid,schemaname&$filter=startswith(schemaname,'{PREFIX}')",
+                      "environmentvariabledefinitionid", "schemaname"),
+        scratch_query(dv, "connection references", "/connectionreferences?$select=connectionreferenceid,"
+                      f"connectionreferencelogicalname&$filter=startswith(connectionreferencelogicalname,'{PREFIX}')",
+                      "connectionreferenceid", "connectionreferencelogicalname"),
+        scratch_query(dv, "model-driven apps", f"/appmodules?$select=appmoduleid,uniquename&$filter=startswith(uniquename,'{PREFIX}')",
+                      "appmoduleid", "uniquename"),
+        scratch_query(dv, "site maps", "/sitemaps?$select=sitemapid,sitemapnameunique"
+                      f"&$filter=startswith(sitemapnameunique,'{PREFIX}')", "sitemapid", "sitemapnameunique"),
+        scratch_query(dv, "web resources", f"/webresourceset?$select=webresourceid,name&$filter=startswith(name,'{PREFIX}')",
+                      "webresourceid", "name"),
+        tables,
+        scratch_query(dv, "solutions", "/solutions?$select=solutionid,uniquename&$filter=uniquename eq 'FactorySpike'",
+                      "solutionid", "uniquename"),
+        scratch_query(dv, "publishers", "/publishers?$select=publisherid,uniquename&$filter=uniquename eq 'factoryspike'",
+                      "publisherid", "uniquename"),
+    ]
+    for app in parts[5]["rows"]:
+        settings = scratch_query(dv, "app settings", "/appsettings?$select=appsettingid,uniquename"
+                                 f"&$filter=_parentappmoduleid_value eq {app['id']}", "appsettingid", "uniquename")
+        settings["label"] = f"app settings of {app['name']}"
+        parts.insert(5, settings)
+    return parts
+
+
+def scratch_table(parts):
+    lines = ["| Part | Found | Names |", "|---|---|---|"]
+    for part in parts:
+        names = ", ".join(str(r["name"]) for r in part["rows"]) or ("(read failed: " + part["error"][:200] + ")"
+                                                                    if part.get("error") else "")
+        lines.append(f"| {part['label']} | {len(part['rows'])} | {names} |")
+    return lines
+
+
+def cmd_scratch_list():
+    dv = Dataverse()
+    parts = scratch_parts(dv)
+    save("results.json", {"mode": "scratch-list", "parts": parts})
+    lines = ["### Scratch in the lane (read only)", ""] + scratch_table(parts)
+    summary_write("\n".join(lines) + "\n")
+    print("\n".join(lines))
+    return 1 if any(p.get("error") for p in parts) else 0
+
+
+SET_FOR = {"cloud flows": "workflows", "security roles": "roles", "environment variable values": "environmentvariablevalues",
+           "environment variable definitions": "environmentvariabledefinitions",
+           "connection references": "connectionreferences", "model-driven apps": "appmodules", "site maps": "sitemaps",
+           "web resources": "webresourceset", "solutions": "solutions", "publishers": "publishers"}
+
+
+def cmd_scratch_delete():
+    """Delete every scratch part, children first; then list again. Only at Boroon's word (21 November 2026)."""
+    dv = Dataverse()
+    before = scratch_parts(dv)
+    done = []
+    for part in before:
+        label = part["label"]
+        for row in part["rows"]:
+            if label == "cloud flows" and row.get("state") == 1:
+                done.append({"part": label, "name": row["name"], "turned_off": set_state(dv, row["id"], False)["status"]})
+            if label == "security roles" and row.get("parent"):
+                continue   # a business unit's copy goes with its root role
+            if label == "tables":
+                path = f"/EntityDefinitions(LogicalName='{row['id']}')"
+            elif label.startswith("app settings"):
+                path = f"/appsettings({row['id']})"
+            else:
+                path = f"/{SET_FOR[label]}({row['id']})"
+            status, _, parsed = http("DELETE", dv.base + path, dv.token,
+                                     headers={"OData-MaxVersion": "4.0", "OData-Version": "4.0"}, timeout=600)
+            done.append({"part": label, "name": row["name"], "status": status,
+                         **({"error": error_text(parsed)} if status not in (200, 204, 404) else {})})
+            print(f"DELETE {label} {row['name']}: HTTP {status}")
+    after = scratch_parts(dv)
+    left = [{"part": p["label"], "names": [r["name"] for r in p["rows"]]} for p in after if p["rows"]]
+    save("results.json", {"mode": "scratch-delete", "before": before, "deleted": done, "after": after, "left": left})
+    lines = ["### Scratch deleted", "", "Before:", ""] + scratch_table(before) + ["", "Deletes:", ""]
+    lines += [f"- {d['part']}: {d['name']}: HTTP {d.get('status')}" + (f" ({d['error']})" if d.get("error") else "")
+              for d in done]
+    lines += ["", "After:", ""] + scratch_table(after)
+    lines += ["", f"## Result: **{'nothing left' if not left else 'LEFT: ' + json.dumps(left)}**"]
+    summary_write("\n".join(lines) + "\n")
+    print("\n".join(lines))
+    return 1 if left or any(p.get("error") for p in after) else 0
+
+
 def cmd_scan():
     """Delete any output file that holds a token-shaped string, before the artifact upload."""
     root = os.path.join(env("RUNNER_TEMP", "/tmp"), "tools-probe")
@@ -1431,8 +2381,9 @@ def cmd_summary():
     lines += [f"| {s['name']} | {s['exit']} | {s['seconds']} |" for s in results["steps"]]
     lines += ["", "| Check | Result |", "|---|---|"]
     lines += [f"| {k} | {mark(v)} |" for k, v in results.get("exit_test", {}).items()]
-    if results["mode"] in ("part2", "part3"):
-        lines += summary_part2(results) if results["mode"] == "part2" else summary_part3(results)
+    if results["mode"] in ("part2", "part3", "part4", "part4b"):
+        lines += {"part2": summary_part2, "part3": summary_part3, "part4": summary_part4,
+                  "part4b": summary_part4b}[results["mode"]](results)
         summary_write("\n".join(lines) + "\n")
         print("\n".join(lines))
         return 0 if results.get("exit_test", {}).get("pass") else 1
@@ -1531,8 +2482,84 @@ def summary_part3(results):
     return lines
 
 
-COMMANDS = {"flow": cmd_flow, "flow-undo": cmd_flow_undo, "part2": cmd_part2, "part3": cmd_part3, "scan": cmd_scan,
-            "summary": cmd_summary}
+def summary_part4(results):
+    def short(value, limit=900):
+        return json.dumps(value, default=str)[:limit]
+    lines = []
+    if results.get("error"):
+        lines += ["", f"**error**: {results['error']}"]
+    for key in ("started_utc", "ended_utc", "tools", "settings", "model_check", "without_oidc", "secret_env_vars",
+                "primary_keys_read", "app_before", "app_after", "flow_before", "flow_after", "solution_parts_added",
+                "solution_parts_removed", "column_in_export", "exported_compose"):
+        if key in results:
+            lines += ["", f"**{key}**: `{short(results[key], 1500)}`"]
+    for key, story in results.get("stories", {}).items():
+        lines += ["", f"#### Story {key}", ""]
+        lines += [f"**{k}**: `{short(story[k], 1500)}`" for k in (
+            "exit", "seconds", "ended_by", "ai_credits", "mcp_calls", "shim_stop", "destructive_flag_seen", "error",
+            "redacted_files") if k in story]
+        events = story.get("events", {})
+        lines += [f"**event types**: `{short(events.get('types'), 1200)}`", f"**tools**: `{short(events.get('tools'), 2000)}`",
+                  f"**denials** ({len(events.get('denials', []))}):"]
+        lines += [f"- `{short(d, 500)}`" for d in events.get("denials", [])[:25]]
+        lines += ["", "| MCP call | Tool | Kind | Attempt | Answer |", "|---|---|---|---|---|"]
+        lines += [f"| {c.get('call')} | {c.get('tool')} | {c.get('kind')} | {c.get('attempt')} | "
+                  f"{str(c.get('text') or '')[:200].replace('|', '/')} |" for c in story.get("mcp_call_list", [])]
+        lines += ["", "**usage**: `" + short(story.get("usage"), 1500) + "`", "", "**handoff.md**:", "", "```",
+                  (story.get("handoff") or "(none)")[:3000], "```", "", "**copilot stderr tail**:", "", "```",
+                  (story.get("stderr_tail") or "")[-1500:], "```"]
+    c = results.get("vs_reset_commit", {})
+    lines += ["", f"**vs_reset_commit**: only in the commit {c.get('only_in_first')}; only in the export "
+              f"{c.get('only_in_second')}; files that differ {c.get('raw_differ')}",
+              f"**pack**: `{short(results.get('pack'), 1200)}`", f"**writes**: `{short(results.get('writes'))}`",
+              "", f"## Part 4 result: **{mark(results.get('exit_test', {}).get('pass'))}**"]
+    return lines
+
+
+def summary_part4b(results):
+    def short(value, limit=900):
+        return json.dumps(value, default=str)[:limit]
+    lines = []
+    if results.get("error"):
+        lines += ["", f"**error**: {results['error']}"]
+    for key in ("started_utc", "ended_utc", "tools", "settings", "model_check", "without_oidc", "secret_env_vars",
+                "trusted_files_before", "trusted_files_after", "app_before", "app_after", "outside",
+                "solution_parts_added", "solution_parts_removed", "column_is_solution_component",
+                "export_expected_files", "export_changed_files", "export_unexpected_changes", "column_in_export"):
+        if key in results:
+            lines += ["", f"**{key}**: `{short(results[key], 2000)}`"]
+    story = results.get("story", {})
+    lines += ["", f"#### Story {story.get('key')}", ""]
+    lines += [f"**{k}**: `{short(story[k], 1500)}`" for k in (
+        "exit", "seconds", "ended_by", "ai_credits", "mcp_calls", "shim_stop", "destructive_flag_seen", "engine_runs",
+        "engine_applied", "error", "redacted_files") if k in story]
+    events = story.get("events", {})
+    lines += [f"**event types**: `{short(events.get('types'), 1200)}`", f"**tools**: `{short(events.get('tools'), 2000)}`",
+              f"**denials** ({len(events.get('denials', []))}):"]
+    lines += [f"- `{short(d, 500)}`" for d in events.get("denials", [])[:25]]
+    lines += ["", "| MCP call | Tool | Kind | Attempt | Answer |", "|---|---|---|---|---|"]
+    lines += [f"| {c.get('call')} | {c.get('tool')} | {c.get('kind')} | {c.get('attempt')} | "
+              f"{str(c.get('text') or '')[:200].replace('|', '/')} |" for c in story.get("mcp_call_list", [])]
+    lines += ["", "| Web API call | Status | Seconds | Error |", "|---|---|---|---|"]
+    lines += [f"| {c.get('method')} {str(c.get('path'))[:140].replace('|', '/')} | {c.get('status', c.get('refused'))} | "
+              f"{c.get('seconds')} | {str(c.get('error') or '')[:160].replace('|', '/')} |" for c in story.get("webapi_calls", [])]
+    lines += ["", "**commands started**:", ""] + [f"- `{c[:300]}`" for c in story.get("commands", [])[:60]]
+    lines += ["", "**usage**: `" + short(story.get("usage"), 1500) + "`", "", "**handoff.md**:", "", "```",
+              (story.get("handoff") or "(none)")[:3000], "```", "", "**copilot stderr tail**:", "", "```",
+              (story.get("stderr_tail") or "")[-1500:], "```"]
+    c = results.get("vs_before", {})
+    lines += ["", f"**vs_before**: only before {c.get('only_in_first')}; only after {c.get('only_in_second')}; "
+              f"files that differ {c.get('raw_differ')}"]
+    for name, sample in list(c.get("samples", {}).items())[:6]:
+        lines += [f"`{name}`:", "```diff", *sample, "```"]
+    lines += [f"**pack**: `{short(results.get('pack'), 1200)}`", f"**writes**: `{short(results.get('writes'))}`",
+              "", f"## Part 4b result: **{mark(results.get('exit_test', {}).get('pass'))}**"]
+    return lines
+
+
+COMMANDS = {"flow": cmd_flow, "flow-undo": cmd_flow_undo, "part2": cmd_part2, "part3": cmd_part3, "part4": cmd_part4,
+            "part4b": cmd_part4b, "part4b-undo": cmd_part4b_undo, "scratch-list": cmd_scratch_list,
+            "scratch-delete": cmd_scratch_delete, "scan": cmd_scan, "summary": cmd_summary}
 
 
 def main(argv):

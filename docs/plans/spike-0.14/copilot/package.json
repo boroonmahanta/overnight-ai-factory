@@ -1,0 +1,8 @@
+{
+  "name": "spike-0-14-copilot",
+  "private": true,
+  "description": "Copilot CLI pinned for spike 0.14 part 4. npm ci --ignore-scripts checks every package against the integrity values in package-lock.json.",
+  "dependencies": {
+    "@github/copilot": "1.0.113"
+  }
+}
