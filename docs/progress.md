@@ -130,7 +130,9 @@ Open items:
 - **Session 34's branch (`claude/session-34-2509-copilot-pin`) is not merged into `main`** and may also edit `schedule.md` and `progress.md`; expect a merge conflict in both.
 - **Done: the plan now says when Stage 0 spikes run** (Boroon, 23 November 2026, "yes, do it"). Plan 11.1: Stage 0 is not one block in days 1 to 14; each spike passes before the first build that depends on it, listed by stage (Stage 1's exit test: 0.6, 0.10, 0.11 still to run; Stage 2: 0.13, 0.15, 0.20, and 0.12 before `lcp-verify agent`; Stage 3: 0.1, 0.4, 0.7, 0.16; Stage 5: 0.5; Stage 6: 0.8). Spike 0.20 now runs before stage 2, not in stage 1. A 14.4 row; `CLAUDE.md`'s line map and Stage 0 row updated.
 
-Next steps: Tue 24 Nov, start 2538 (laptop A), 2541 (laptop B), 2537 (laptop C) and the 2546 draft (documents).
+- **Done: all 14 open Stage 1 stories put in order this week** (Boroon, 23 November 2026, "reorder the stories … move all proposed stories to the right sequence"). New in `schedule.md`: a day-by-day table, "This week, in order", per session A, B, C and documents. 3019 dated Tue 24 Nov (before 2548), 2740 (A1's first pass) Wed 25 Nov (before 2739), 2738 (spike 0.20) Fri 27 Nov (from Mon 30 Nov, as it is in the Stage 1 epic). On Thu, 2739 goes first so 2538's spec-check job follows it. ADO: those three stories' dates, and predecessor links 3019 before 2548 and 2740 before 2739, read back from the write's reply.
+
+Next steps: Tue 24 Nov, in this order: 2538 day 1 (laptop A); 2541 (laptop B); 3019, then 2537 (laptop C); the 2546 draft (documents). The full week is in `docs/plans/schedule.md`, "This week, in order".
 
 ## Session 36, 2026-11-23, branch `claude/nifty-thompson-22d47f`
 
