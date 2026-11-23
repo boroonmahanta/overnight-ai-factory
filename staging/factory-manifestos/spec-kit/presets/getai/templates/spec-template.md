@@ -17,7 +17,7 @@ prototype: "[link to the approved mock or prototype on the ADO item; or n/a: rea
   GET AI. Every acceptance scenario above starts with an ID: "1. **AC-1**: **Given** ...".
   IDs run AC-1, AC-2 and so on across the whole spec. Map each one to the IDs of its
   locked scenarios (workflow scenarios, Playwright specs, Copilot Studio test sets).
-  Someone other than the worker writes the locked scenarios, and @acceptance-owners
+  Someone other than the worker writes the locked scenarios, and @ai-factory-acceptance-owners
   approve them (rule 3). A criterion with no scenario ID fails the spec check.
 -->
 

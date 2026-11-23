@@ -18,7 +18,7 @@
 
 - [x] CHK005 Every acceptance scenario has an `AC-<n>` ID
 - [x] CHK006 Every `AC-<n>` maps to at least one locked scenario ID in the Acceptance Scenario Map
-- [x] CHK007 The locked scenarios are written by someone other than the worker and approved by `@acceptance-owners`
+- [x] CHK007 The locked scenarios are written by someone other than the worker and approved by `@ai-factory-acceptance-owners`
 
 ## Quality and scope
 

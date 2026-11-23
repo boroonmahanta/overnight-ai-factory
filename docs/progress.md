@@ -111,31 +111,34 @@ Next steps:
 
 ## Session 39, 2026-11-23, branch `claude/session-39-3026-teams-story`
 
-A short laptop session, in its own worktree (`.claude/worktrees/session-39-3026`, from `main` at `1f848be`), because Sessions 34 to 38 share the folder. Boroon pasted a side chat about the three CODEOWNERS teams and asked for a story.
+A laptop session, in its own worktree (`.claude/worktrees/session-39-3026`, from `main` at `1f848be`), because Sessions 34 to 38 share the folder. Boroon pasted a side chat about the three CODEOWNERS teams and asked for a story; then he chose new names, and the session did the rename. The `factory-gates` work ran in its own worktree too (`.claude/worktrees/gate-3026-team-names`), apart from Session 38's `static-file-checks`.
 
 Done:
-- **ADO 3026, "Name and create the three CODEOWNERS teams on getai.ghe.com"** (User Story, Proposed, under Feature 2519, a predecessor of 2521, related to 2520; Tue 24 to Wed 25 Nov; tags `factory-build`, `stage-1`). Work size S, written in the body (this project has no `Custom.WorkSize` field). Its body holds the steps: settle the names, rename by a gate PR and a plan edit if they change, create the teams in the portal, members, and what not to touch.
-- **Checked against `factory-gates`** (`release` at `65031e4`, read only): the names are `platform-team`, `acceptance-owners` and `factory-reviewers`, written `@AI-Business-Solutions/<team>` in `templates/CODEOWNERS`. **None of the three exists yet** in `AI-Business-Solutions` or `GetAI-IP` (listed with `gh api`, 23 November 2026).
-- Schedule: a 3026 row, 2521 now needs 3026, and the checkpoint row points at it.
+- **ADO 3026, "Name and create the three CODEOWNERS teams on getai.ghe.com"** (User Story, now Building, under Feature 2519, a predecessor of 2521, related to 2520; Tue 24 to Wed 25 Nov; tags `factory-build`, `stage-1`). Work size S, written in the body (this project has no `Custom.WorkSize` field). Its body holds the steps, the names table and what is left.
+- **Checked against `factory-gates`** (`release` at `65031e4`): the old names were `platform-team`, `acceptance-owners` and `factory-reviewers`, written `@AI-Business-Solutions/<team>` in `templates/CODEOWNERS`. **None of the teams exists yet**, by any name, in `AI-Business-Solutions` or `GetAI-IP` (listed with `gh api`, 23 November 2026).
+- **Gate PR 20** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/20, branch `ai-factory-team-names`, open): the rename in `templates/CODEOWNERS`, `rulesets/org.json`, `lcp/make_rulesets.py` (`BYPASS_TEAMS`), `lcp/apply_rulesets.py`, `README.md` (step 1 of "Applying to the real organisation" now says to make each team Visible and keep machine accounts out), one comment in `lcp-gate.yml`, the two ruleset tests, and `scripts.sha256` (four lines). The generated rulesets do not change: they hold team IDs, not names. 172 tests OK; `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check` clean; `self-test` green (run 40546006). `lcp-gate`'s `map lane` fails, as on every gate PR (19 and 16 too), because `factory-gates` is not a project repo.
+- **The plan and documents:** every `@acceptance-owners` and `@factory-reviewers` in plan 2, 5.1, 5.3, 5.7, 5.8, 5.10, 6.2 and Appendix A; 5.7's bypass line now names `@ai-factory-platform-admins`; a 14.4 row. Also `docs/plans/stage-1-day-gate-plan.md`, `docs/plans/stage-1-gate-build-plan.md`, the staged Spec Kit spec template and checklist, the spec check's two fixture checklists (98 tests OK), `CLAUDE.md` (the plan row and the `factory-gates` row) and the schedule.
+
+Decisions:
+- **The team names (Boroon, 23 November 2026):** `ai-factory-platform-admins` (was `platform-team`), `ai-factory-acceptance-owners` (was `acceptance-owners`), `ai-factory-merge-reviewers` (was `factory-reviewers`). One set per org, by role, shared by low-code and pro-code. In the plan as a 14.4 row.
 
 Found (in 3026's body):
-- No team IDs need copying by hand: `apply_rulesets.py resolve` reads them from the org into `rulesets/org.json` (2521). The side chat's "note the team IDs in ADO" step is not needed.
-- `factory-gates` has no CODEOWNERS file of its own, so its `release` ruleset alone cannot require the platform team's approval (README move step 6). For 2520.
-- The teams are one set per org, by role, shared by low-code and pro-code.
+- No team IDs need copying by hand: `apply_rulesets.py resolve` reads them from the org into `rulesets/org.json` (2521).
+- `factory-gates` has no CODEOWNERS file of its own, so its `release` ruleset alone cannot require the platform admins' approval (README move step 6). For 2520.
 
-Decisions: none. **The new names are proposals, waiting on Boroon:** `factory-platform-admins`, `factory-acceptance-owners`, `factory-merge-reviewers`. A rename means a gate PR (about eight files, the rulesets and `scripts.sha256` regenerated) and about 12 plan edits, before the teams are made.
+Not changed, on purpose: the one-pager (`docs/one-pager/GET-AI-Factory-Ways-of-Working.html` still says `@factory-reviewers`; it is already out of date and is also a published artifact), `docs/plans/factory-gates-move-step-8.patch` (a record), the log above, and "the platform team" where the plan means people rather than the team (5.4, 15.1).
 
-Files changed: `docs/plans/schedule.md`, `docs/progress.md`.
+Files changed: `docs/sources/plan-v3.1.md`, `docs/plans/stage-1-day-gate-plan.md`, `docs/plans/stage-1-gate-build-plan.md`, `docs/plans/schedule.md`, `staging/factory-manifestos/spec-kit/presets/getai/templates/spec-template.md`, `staging/factory-manifestos/spec-kit/presets/getai/templates/getai-checklist.md`, `staging/factory-gates/tests/fixtures/specs/project/specs/90101-order-follow-up/checklists/getai.md`, `staging/factory-gates/tests/fixtures/specs/project/specs/90102-open-orders-export/checklists/getai.md`, `CLAUDE.md`, `docs/progress.md`. In `factory-gates`: the nine files of gate PR 20.
 
 Open items:
-- 3026 and 2538 both change `factory-gates` on Tue 24 to Wed 25 Nov: merge one gate PR before the other regenerates `scripts.sha256`.
+- **Gate PR 20 and 2538's gate work both change hashed files.** Whichever merges second must make `scripts.sha256` again first.
 - Session 37's schedule redraft (branch `claude/session-37-stage-1-this-week`, not merged when this was written) rewrites the same table; whichever merges second needs the 3026 row carried over. Its dates already put the teams on Wed 25 Nov.
 
-Time and tokens (in 3026's body; session `c61993de`, measured before the last commit, the side chat not counted): active time 0 h 04 min (gaps over 10 minutes not counted), from 23 Nov 20:32 to 23 Nov 20:37 (UTC+11). Tokens: 18,244 output; 3,660,817 processed in all, of which 3,511,855 were cache reads. From 1 local transcript.
+Time and tokens (in 3026's body; session `c61993de`, measured before the last commit, the side chat not counted): active time 0 h 10 min (gaps over 10 minutes not counted), from 23 Nov 20:32 to 23 Nov 20:57 (UTC+11). Tokens: 42,243 output; 11,059,580 processed in all, of which 10,838,288 were cache reads. From 1 local transcript.
 
 Next steps:
-1. Boroon: keep the names or take the proposed ones.
-2. Tue 24 Nov: 3026, the rename (if any) and then the teams in the portal.
+1. Boroon: merge gate PR 20 (make the manifest again first if another gate PR merged before it), and this branch's pull request when opened.
+2. Then the portal (3026 steps 4 to 6): the three teams in `AI-Business-Solutions`, `ai-factory-platform-admins` in `GetAI-IP` with Write on `factory-gates`, all Visible, Boroon a member.
 
 ## Session 36, 2026-11-23, branch `claude/nifty-thompson-22d47f`
 
