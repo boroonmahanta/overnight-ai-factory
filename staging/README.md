@@ -9,7 +9,7 @@ On Friday 4 December 2026, one laptop session (DG8) moves everything here to `Ge
 | Folder | Moves to | How |
 |---|---|---|
 | `factory-manifestos/` | `GetAI-IP/factory-manifestos` (private, created 13 November 2026). This folder is its root | With its history (a subtree split), merged by pull request beside the coding standards from DG3. The repo's starter README is replaced by this folder's |
-| `factory-gates/` (DG5: `spec/check_spec.py`, `tests/test_check_spec.py`, `tests/fixtures/specs/`; DG7 adds `playwright/`) | `GetAI-IP/factory-gates`. This folder mirrors its root | By pull request there: `spec/`, its tests and fixtures, and `playwright/`. Regenerate `scripts.sha256` and add a README row for `spec/check_spec.py`. After the move, the test class that compares the script with the extension's copy and the low-code template skips (they are in another repo); the gate's CI job checks the vendored copy's hash instead (2538) |
+| `factory-gates/` (DG7 adds `playwright/`) | `GetAI-IP/factory-gates`. This folder mirrors its root | By pull request there: `playwright/`. **DG5's `spec/check_spec.py`, `tests/test_check_spec.py` and `tests/fixtures/specs/` moved early** (Boroon, 23 November 2026), byte for byte, in 2538's slice C (Session 42, gate branch `verify-in-test`), and were deleted here. There, the test class that compares the script with the extension's copy and the low-code template skips (they are not beside it), and the gate's `locks` job checks each project's vendored copy against its own. Until DG8, change `check_spec.py` in the gate and its copy in `factory-manifestos/spec-kit/extensions/getai-spec-check/scripts/` together |
 
 ## Rules
 
