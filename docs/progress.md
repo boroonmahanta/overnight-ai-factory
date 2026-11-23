@@ -144,7 +144,7 @@ Files changed: here, `staging/factory-gates/` (deleted), `staging/README.md`, `d
 Open items:
 - **Boroon: open slice C's gate PR?** Not opened (this repo's rule: no pull request unless asked). Before merging: `self-test` green on Python 3.11, and the manifest made again if `release` moves first.
 - **Plan edits for Boroon** (none made): Appendix A's checker step flags, the SARIF upload's `checkout_path`, `--plan` on `parse_verdict.py`, the verifier wait's `|| true` (finding 17), and the spec step in `locks`; 5.7's job table (`locks` now runs the spec check); a 14.4 row for the three decisions above.
-- **The Stage 1 exit test (2539, now Fri 27 Nov) cannot run `verify-in-test` whole as written:** `run_holdout.py` waits for `factory-holdout` and `cs-runner/run.mjs` for spike 0.12 (January), and `verdict_gate.py` requires their files. Settle this week, before 2539 on Fri 27 Nov: make those steps conditional on the project having a held-out set and agents, or write empty summaries until then. Not decided.
+- **Done: optional suites (Boroon, 24 November 2026, option 1, over empty results).** Each project declares `holdout` and `agents` in `projects/<project>/gate.json` in the gate repo; `lcp/project_settings.py` gates the held-out and Copilot Studio steps; `verdict_gate.py --settings` requires a suite the project has and notes a skipped one. Gate commit `57c53ec`, 563 tests. **For 2539:** add Northwind's `gate.json` (both false) by a reviewed gate PR.
 - `danger`'s review step has the same `wait "$pid"` (finding 17): slice B2.
 
 Next steps:
