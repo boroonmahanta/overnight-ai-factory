@@ -119,6 +119,7 @@ ADO 2538, slice B: Boroon's two decisions, then slice B1 as **gate PR 23** (http
 - The gate work: a worktree of the gate clone at `factory-gates/` inside it, off `release` at `973a421`. The shared gate clone was not switched.
 - Session renamed "35. Stage 1 - Build - Merge Danger rules", at Boroon's word, after "34. Stage 1 - Build - Export plan and lints" (Session 40).
 - Sessions 38 and 40's log entries are on their own unmerged branches, so this entry sits above Session 39's here.
+- This record is **pull request 53** (https://github.com/boroonmahanta/overnight-ai-factory/pull/53), branch `claude/session-41-2538-b-floors`, into `main`, opened at Boroon's word on 23 November 2026. Boroon merges.
 
 Read for it:
 - Sessions 38 and 40's entries (their branches).
