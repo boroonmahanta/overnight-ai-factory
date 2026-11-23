@@ -173,6 +173,7 @@ Done:
 - **Confirmed: gate finding 11.** `pac solution pack --packagetype Managed` on that unmanaged export stops with "Solution package type did not match requested type". So as written, `build` fails on every PR at the managed pack.
 
 Decisions:
+- **Boroon, 23 November 2026: finding 11's route is "export both", tried in spike 0.10 (2459, Wed 25 Nov).** The driver exports the lane solution unmanaged and managed, and unpacks both into `src/` with `--packagetype Both`. The gate then packs both kinds offline from that tree, and Test imports the managed zip. If it fails, the fallback is for the gate to import the unmanaged zip into Test, at his word. Either way the plan is edited after the spike, at his word (5.6, 5.7, Appendix A `build`). 2459's body now holds the steps and what to record: both packs offline on pac 2.4.1 and 2.15.1, the extra files `Both` writes, a byte-identical second export, and the export time.
 - Boroon, 23 November 2026: the split above. 2538 is done when A, B and C are merged. The six scripts to wait stay on `pending-scripts.txt` and are not part of 2538; each is written when what it waits on exists (DG7 for `trace_criteria.py`, the inventory decision for `check_inventory.py`, `factory-holdout` for `run_holdout.py`, spike 0.12 for `cs-runner/run.mjs`, a need for canvas apps at night or in human PRs for the two canvas lints).
 
 Made by this session without asking (say if any is wrong; gate README, "The manifest check"):
@@ -187,7 +188,7 @@ ADO: 2538 moved to **Building**; its body holds this session's result, the propo
 Files changed: here, `docs/progress.md` only. In `GetAI-IP/factory-gates` (gate PR 21): `lcp/check_manifest.py` (new), `tests/test_check_manifest.py` (new), `tests/fixtures/export/` (new, 26 files), `README.md`, `pending-scripts.txt` (19 lines), `scripts.sha256`.
 
 Open items:
-- **Finding 11 needs Boroon's call before the Stage 1 exit test (2539, Fri 27 Nov).** The ways out:
+- **Finding 11: decided, "export both", to try in spike 0.10** (Decisions above). After 0.10: if `Both` adds files, teach them to `check_manifest.py` (and A2's export-diff plan) by a reviewed gate PR before the exit test. The ways out, as first listed:
   - the driver exports managed as well and unpacks with `--packagetype Both`;
   - the gate imports the unmanaged zip into Test;
   - a trusted step imports unmanaged into a build environment and exports managed (needs credentials).
