@@ -38,6 +38,10 @@
 
 - [ ] CHK016 No client production data, secret or personal detail appears in the spec, its examples or its scenarios
 
+## Traceability
+
+- [ ] CHK017 The spec's `ado_id`, its folder (`specs/<ado-id>-<short-name>`) and its day branch carry the same ADO work item ID; no Spec Kit numbered or timestamped folder
+
 ## Notes
 
 - `__SPECKIT_COMMAND_IMPLEMENT__` reads checklist state as a gate and must not change markers

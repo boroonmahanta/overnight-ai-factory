@@ -121,18 +121,18 @@ Done:
 - `docs/component-register.md`: a Spec Kit row, the first kit row for A1.
 
 Decisions (Boroon, 23 November 2026, asked in this session):
+- **Every spec carries an ADO ID; no Spec Kit numbering** (asked mid-session: "don't fall back to Spec Kit's own numbering, force creation of an ADO ID if one doesn't exist"). The GET AI specify rules now take the ID from the input, else find the story in ADO, else create a User Story in the engagement's project once the owner agrees the project and title; with no ID they stop. The folder is always `specs/<ado-id>-<short-name>`. A new GET AI checklist item, CHK017, checks the ID matches across header, folder and day branch. Retested: the composed specify skill carries the rule.
 - **Pin Spec Kit 1.4.3**, not the newest 1.3.x (D2 as written), with the small plan edit that needs. **The plan is edited:** 6.1 and 11.2 say 1.4.3; a 14.4 row "The Spec Kit pin". The plan grew by one line (2,797 to 2,798); `CLAUDE.md`'s line map, plan row, pin and staging row follow.
 
 Made by this session without asking (say if any is wrong):
 - The lean preset left out of the bundle (finding above).
 - One field beyond plan 6.3's table, marked proposed: "Kind of change to a model-driven app" (plan 5.6), so the owner sees by day whether a story can run at night.
-- The spec folder named `specs/<ado-id>-<short-name>` when the ADO ID is known, matching day branches (plan 6.4).
 - In clarify, new terms and decision records are written to `glossary.md` and `docs/adr/` on the spec's day branch, so they reach `main` only through the reviewed spec pull request (rule 17).
 
 Files changed: `staging/factory-manifestos/spec-kit/` (new, 16 files), `staging/factory-manifestos/README.md`, `docs/plans/stage-1-day-gate-plan.md`, `docs/plans/schedule.md`, `docs/component-register.md`, `docs/sources/plan-v3.1.md` (at Boroon's word), `CLAUDE.md`, `docs/progress.md`.
 
 Open items:
-- **DG5:** `staging/factory-gates/spec/check_spec.py`, its tests and fixtures, and the extension's byte-identical copy in `spec-kit/extensions/getai-spec-check/scripts/`. It reads the YAML header with the standard library (simple `key: "value"` lines), the `AC-<n>` IDs, the Acceptance Scenario Map, the NFR lines, the approval marks on Assumptions, the Low-Code Fields (`Not applicable: <reason>` allowed, a bracketed placeholder fails) and the checklists.
+- **DG5:** `staging/factory-gates/spec/check_spec.py`, its tests and fixtures, and the extension's byte-identical copy in `spec-kit/extensions/getai-spec-check/scripts/`. It reads the YAML header with the standard library (simple `key: "value"` lines), the `AC-<n>` IDs, the Acceptance Scenario Map, the NFR lines, the approval marks on Assumptions, the ADO ID (missing or not digits fails, and so does a spec folder that does not start with it), the Low-Code Fields (`Not applicable: <reason>` allowed, a bracketed placeholder fails) and the checklists.
 - Not tested: running specify and clarify with an agent end to end. Worth one dry run on a made-up story before DG6 or 2539.
 - The untracked `docs/plans/spike-0.17/engineer-how-to.md` in the main checkout is not this session's; left alone.
 

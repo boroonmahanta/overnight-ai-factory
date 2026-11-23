@@ -134,6 +134,7 @@ Done when: `coding-standards.md` is merged in `factory-manifestos` with all 50 s
 - **Spec Kit's shell resolver needs PyYAML** on the system `python3` to compose preset layers.
 - Step 2's two checks: the three-marker cap is in the core `specify` command, not a template; `update-agent-context` is now the opt-in `agent-context` extension, which `specify init` does not install.
 - Each override is one composition step (`wrap`, `append` or `replace-section`) over Spec Kit's own file, because a preset may contribute only once per template or command. No Spec Kit file is copied.
+- **Every spec carries an ADO ID; no Spec Kit numbering** (Boroon, 23 November 2026). Specify finds the story in ADO or creates it, after the owner agrees the project and title, and names the folder `specs/<ado-id>-<short-name>`. With no ID it stops. DG5's script fails a spec whose `ado_id` is missing or not digits, or whose folder does not start with it.
 - One field beyond plan 6.3's table, proposed: "Kind of change to a model-driven app" (plan 5.6), so the owner sees by day whether a story can run at night.
 
 Read: plan 6.1 to 6.3 (lines 940 to 998), 6.6 and 6.7 (lines 1035 to 1066), 8.3 (lines 1202 to 1211); the delivery vault's `templates/solution-design.md` and `templates/build-handoff.md`; DG3's notes in the progress log; the Ignite re-check from the same morning.

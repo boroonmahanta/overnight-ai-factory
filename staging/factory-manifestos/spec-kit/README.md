@@ -73,7 +73,8 @@ Not tested: running the commands with an agent; the bundle install (needs the ca
 
 - **Spec Kit's three-marker cap** lives in the core `specify` command (Outline step 6.3, step 8c and "For AI Generation"), not in a template. Clarify's caps (five per session, one at a time) are in its Outline steps 4 and 5.
 - **`update-agent-context` is now the opt-in `agent-context` extension.** `specify init` does not install it, so it is off unless someone adds it. Do not add it (plan 6.1: it writes to a protected file).
-- **`specify init` no longer installs the `git` extension** by default, so no hook creates branches. Name the day branch `<ado-id>-<slug>` by hand (plan 6.4); the GET AI rules name the spec folder the same way.
+- **`specify init` no longer installs the `git` extension** by default, so no hook creates branches. Name the day branch `<ado-id>-<slug>` by hand (plan 6.4).
+- **No Spec Kit numbering (Boroon, 23 November 2026).** Every spec needs an ADO work item ID. The GET AI specify rules find the story in ADO, or create it (after the owner agrees the project and title) when none exists, and always set the folder to `specs/<ado-id>-<short-name>`. If no ID can be found or created, specify stops. Spec Kit's own `001-` or timestamp folders are never used.
 - **The hook is a prompt, not a lock.** A mandatory hook asks the agent to run the command; an agent can still skip it. The gate's CI check, running its trusted copy of the script, is the lock (D3, 2538).
 
 ## Prototypes (plan 6.7)
