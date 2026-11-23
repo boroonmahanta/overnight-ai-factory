@@ -119,15 +119,16 @@ Done:
 
 Decisions:
 - Boroon: aim to finish Stage 1 this week.
+- Boroon: Stage 0 spikes run before the first build that needs each one, not all in days 1 to 14 (plan 11.1, 14.4).
 
-Files changed: `docs/plans/schedule.md`, `docs/progress.md`.
+Files changed: `docs/plans/schedule.md`, `docs/progress.md`, `docs/sources/plan-v3.1.md` (11.1, 14.4), `CLAUDE.md`.
 
 Open items:
 - **Done: ADO dates moved** at Boroon's word ("Yes, update ADO", 23 November 2026): Start and Finish Dates of the 18 moved stories, read back and checked; the dashboard synced after. Predecessor links not changed. This session's time and tokens are not yet in any story body.
 - **The second approver and the three CODEOWNERS teams are now due Wed 25 Nov** (was Fri 4 Dec). Without them 2520, 2529, 2521 and 2539 cannot run this week.
 - **Engineers' session exports:** chase them Tue 24 Nov; the mining cut-off (D5) is now Thu 26 Nov.
 - **Session 34's branch (`claude/session-34-2509-copilot-pin`) is not merged into `main`** and may also edit `schedule.md` and `progress.md`; expect a merge conflict in both.
-- Stage 0 spikes running after the Stage 1 exit test is a change to the plan's order (11.1): only those 2539 does not need. Boroon to confirm.
+- **Done: the plan now says when Stage 0 spikes run** (Boroon, 23 November 2026, "yes, do it"). Plan 11.1: Stage 0 is not one block in days 1 to 14; each spike passes before the first build that depends on it, listed by stage (Stage 1's exit test: 0.6, 0.10, 0.11 still to run; Stage 2: 0.13, 0.15, 0.20, and 0.12 before `lcp-verify agent`; Stage 3: 0.1, 0.4, 0.7, 0.16; Stage 5: 0.5; Stage 6: 0.8). Spike 0.20 now runs before stage 2, not in stage 1. A 14.4 row; `CLAUDE.md`'s line map and Stage 0 row updated.
 
 Next steps: Tue 24 Nov, start 2538 (laptop A), 2541 (laptop B), 2537 (laptop C) and the 2546 draft (documents).
 
