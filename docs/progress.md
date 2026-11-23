@@ -86,6 +86,7 @@ Next steps:
 - **Until a second approver exists** (Boroon, 3 November 2026): `release-protection` in `GetAI-IP/factory-gates` has 0 required approvals, and `factory-gates` is excluded from the `GetAI-IP` org ruleset `protect-main`. Rule 17's "reviewed" is self-review meanwhile, so keep write access to Boroon alone. Before step 12 makes the gate required on any org: set approvals to 1, tick "Require approval of the most recent reviewable push", and remove the exclusion. When someone other than Boroon starts working on the factory, also make `self-test` a required status check (see the `self-test` bullet below).
 - **Done: the second Dependabot round** (Session 24, 13 November 2026). #10 and #11 were closed by Dependabot on 9 November as superseded by #14 and #13; Boroon merged #9, #13 and #14. Kept here one session for the record. **For each new Dependabot pull request, the routine stays:** read the release notes for every major crossed, check the pin against the tag with `git ls-remote`, see `self-test` green on today's `release` (if its run is older than the last merge, `@dependabot rebase` first), then Boroon merges. Close none.
 - **When the gate reader and holdout reader Apps are made, switch `app-id` to `client-id`** in the `create-github-app-token` steps of `lcp-gate.yml` (lines 64 and 119 on `release` at `b37a9f0`). v3 of the action deprecates `app-id`; it still works with a warning, seen again in Session 24's runs. From Session 11's follow-ups; a gate slice, by pull request there.
+- **A third token App, the team reader, for 2537** (Session 44, Boroon's choice on 24 November 2026; gate README finding 19). `danger`'s merge policy reads the merge reviewers' team with it, because the job token cannot read teams. It has organisation Members read only, no repository permissions, and is installed on the project's org (`AI-Business-Solutions` today), with the org variable `TEAM_READER_CLIENT_ID` and the secret `TEAM_READER_KEY`. Unlike the other two, it must be installed on each project org: one App per org, or one owned by the `GetAI` enterprise if GHE.com offers enterprise-owned Apps (the docs don't say; check in the enterprise settings). Gate PR 26 already uses `client-id` for it.
 - **The follow-ups in `GetAI-IP/factory-gates` are done in PR 7** (Session 10), merged 4 November 2026: README step 9 and the move marked done, the `dependabot.yml` comment, and next slice 2, the self-test workflow.
 - **`self-test` is not a required status check** on `release-protection`. **Boroon, 4 November 2026: turn it on when someone other than him starts working on the factory**, with the second-approver changes above. The change: in `release-protection`, add "Require status checks to pass" with the check `self-test`, source GitHub Actions; leave "require branches to be up to date" off. Until then `self-test` is advice, not a lock: a pull request into `release` can merge with it red, so check it is green before merging, Dependabot pull requests included.
 - **The allowed MCP client entry for `getai-fl1-exec` stays in `factory-lane-1`** (Boroon, 6 November 2026, Session 13): name `getai-fl1-exec`, unique name `new_getaifl1exec`, enabled. It grants nothing while the app has no credential. At Stage 3, either keep it or replace it with one added by code (a GET AI solution with the `getai` publisher, or `dataverse mcp allow`), and give lanes 2 and 3 theirs the same way. The list as it was before the spike is in `docs/plans/spike-0.3/README.md`, step B.
@@ -108,6 +109,53 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 44, 2026-11-24, branch `claude/focused-pare-44ad71`
+
+Gate README finding 19 settled in code: **gate PR 26** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/26, branch `gate-merge-policy-token`, commit `0294a7c`, on `release` at `0db69f6` after gate PR 25). `self-test` is green on Python 3.11, 642 tests OK (run 40659146). `lcp-gate` is red at `map lane`, as on every gate PR (run 40659141). Open, for Boroon to merge.
+- Where it ran: on the laptop (desktop app), as a side session started by Session 43's session. The planning branch is in its own worktree, from `main` and brought up to `ea618a5` (Session 43's merge). The gate branch is in a worktree of the gate clone inside it, `factory-gates/`. The shared gate clone was not switched.
+
+Read for it: Session 43's entry; in the gate repo `lcp/merge_policy.py`, `danger` in `lcp-gate.yml`, `rulesets/org.json`, the tests for both, and README findings 19 and 20.
+
+**What GitHub's docs say** (Enterprise Cloud docs, read 24 November 2026; no live check needed):
+- The job token's permissions "are limited to the repository that contains your workflow". None of its `permissions:` keys is at organisation level.
+- Both `GET /orgs/{org}/teams/{team}` and `.../memberships/{user}` need the organisation permission Members (read). User and App installation tokens can hold it.
+- A token that cannot see a team can get a 404, which GitHub also uses for "not a member". So the policy as written would have shown every approver as outside the team, with no hint at the token.
+- The pinned `create-github-app-token` (v3.4.0) takes `client-id`, `owner` and `permission-members: read`. It errors when the App lacks a permission it asks for, and revokes the token in its post step.
+
+**Decision (Boroon, 24 November 2026): a dedicated read-only App,** "New team-reader App", not more permissions on the gate reader App.
+
+Done (gate PR 26):
+- **`lcp-gate.yml`, `danger`:** a token step just before the policy, after both review sessions have ended, so no agent runs while the token exists.
+  - Its inputs: `client-id: vars.TEAM_READER_CLIENT_ID`, `private-key: secrets.TEAM_READER_KEY`, `owner: github.repository_owner`, `permission-members: read`.
+  - Only the policy step reads the token, as `TEAM_READER_TOKEN`. `GH_TOKEN` stays the job token, for the PR and its reviews.
+- **`lcp/merge_policy.py`:** each token is used only for its own calls. The team is read first. If that fails, the answer names another team, or a membership read fails with anything but 404, the policy says "the team reader token cannot read @org/team ..., so no approval can count", and names finding 19. A missing team token on the human path is exit 2. The auto-merge path needs neither token.
+- **Tests:** 6 new, 642 in all (4 skipped by design). The fake GitHub shows the team only to the team reader token and the PR only to the job token, and every policy test fails if either token reaches the other's calls or shows in any output. Proved by breaking a copy 18 ways; all 18 failed.
+- **README:** finding 19 settled in code; a new section "The team reader token (finding 19)" with the docs, the App to make, the workflow, across orgs and the tests; the file table, counts and next slice 6.
+- `scripts.sha256` made last. `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check` are clean.
+
+**Across orgs (the callers' check (d)), half settled by the docs:**
+- A private App "can only be installed on the account that owns the app". The gate reader and holdout reader read only `GetAI-IP` repos, so they need no install anywhere else, only their ID and key in each project org.
+- The team reader reads the project org's own teams, so it must be installed on each project org. That means one App per org, owned by that org, or one App owned by the `GetAI` enterprise, which "can only be installed on your enterprise or organizations within your enterprise". The docs don't say whether GHE.com with data residency has enterprise-owned Apps.
+
+ADO: 2538 stays **Done**. Its body gains this session's result and time line. 2537's body gains the third App.
+
+Time and tokens (in 2538's body; session `1980209e`, measured before the last commit; from a worktree, with `--root` set to this worktree's own project folder and `--session`). Active time 0 h 18 min (gaps over 10 minutes not counted), from 24 Nov 10:08 to 24 Nov 10:39 (UTC+11). Tokens: 88,492 output; 17,440,022 processed in all, of which 16,933,544 were cache reads. From 1 local transcript.
+
+Files changed:
+- Here: `docs/progress.md`.
+- In `GetAI-IP/factory-gates` (gate PR 26): `.github/workflows/lcp-gate.yml`, `lcp/merge_policy.py`, `tests/test_merge_policy.py`, `tests/test_workflow.py`, `README.md`, `scripts.sha256`.
+
+Open items:
+- **Gate PR 26 is for Boroon to merge.** It changes a hashed file, and `scripts.sha256` is already remade on its branch. If `release` moves first, rebase and make the manifest again.
+- **2537 (Tue 1 Dec) now makes three Apps.** The third is `factory-team-reader`: organisation Members read only, installed on `AI-Business-Solutions`, with the org variable `TEAM_READER_CLIENT_ID` and the secret `TEAM_READER_KEY`. First check in the enterprise settings whether the enterprise can own Apps. Until it exists, `danger` fails at the token step, which is the same answer as before: no human merge passes.
+- **Plan edit for Boroon** (none made): Appendix A's `danger` job lacks the team reader token step and `TEAM_READER_TOKEN`. Appendix A's job table (the `danger` row) and its note "The gate reader keys are secrets" could name the third App.
+- Not tested: the App and the token step on `getai.ghe.com`; what GitHub answers there to the job token on a team endpoint (403 or 404; both are handled); whether an org installation can select no repositories.
+- `CLAUDE.md`'s `factory-gates` row is still several sessions behind (not edited). When it is: once gate PR 26 merges, `release` has 642 tests and the team reader token.
+
+Next steps:
+1. Boroon merges gate PR 26.
+2. 2537: make the three Apps, then the first real `lcp-gate` run.
 
 ## Session 43, 2026-11-24, branch `claude/xenodochial-carson-eb7fd6`
 
