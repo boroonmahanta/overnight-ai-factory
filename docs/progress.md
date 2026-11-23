@@ -185,8 +185,22 @@ Open items:
 - **Plan Appendix A needs `fetch-depth: 0` on `verify-in-test`'s PR checkout**, as gate PR 23 has it. Boroon's word needed.
 - **Not tested against a real export:** the two new kinds of unsafe text and an environment variable value file. No fixture holds one.
 - **A site map entry added comes out as `other_changed` (3),** not B.1's small-addition 2: the export-diff plan does not read site maps. Conservative; teach the plan site maps if a story class needs them at L2.
-- **For slice C:** `checker_gate.py` must write `checker-summary.json` with `counts` by severity (`Critical`, `High`, `Medium`, `Low`, `Informational`) beside `checker.sarif`.
+- **Agreed with the slice C session (ADO 2538 C, gate branch `verify-in-test`), 23 November 2026:**
+  - `checker_gate.py` writes `evidence/checker-summary.json` whether or not it fails. Its fields:
+    - `schema_version` 1, `fail_on` `High`, and `category_fail_on`, which holds `Accessibility: Medium`;
+    - `counts` by severity: `Critical`, `High`, `Medium`, `Low`, `Informational`;
+    - `failing`, a list of rule, severity, category, file and line;
+    - `failed`, and `notes`.
+  - The severity is read from Microsoft's real SARIF, where each result has `properties.severity`. The category is the rule's `properties.primaryCategory`. `pac solution check` exits 0 even with Critical results.
+  - B1's floor reads only `counts.Medium`. It does not check `schema_version`.
+  - C's gate PR follows gate PR 23's merge, rebased on `release`, with the manifest made last.
 - **For B2:** `merge_policy.py` reads the floor's `rows`, `auto_merge`, `protected_paths` and `unchecked`, and never auto-merges while `unchecked` is not empty. It reads `trust.yml` through `simple_yaml.py`, and team names from `rulesets/org.json`. Before writing B2, capture one real `copilot -p --output-format json` review output to read its shape.
+  - It also reads C's `evidence/verdict.json` (from `parse_verdict.py`, written whatever the verdict). Its fields:
+    - `schema_version` 1, and `verdict`: `PASS`, `NEEDS_WORK`, `RESTART` or `NO_VERDICT`. The strictest wins, in that order. `NO_VERDICT` is B.3's "No verdict: a human looks".
+    - `sessions`, each with focus, verdict, reasons, `failed_criteria` and unknowns;
+    - `missing_focuses`.
+  - Anything but `PASS` is not mergeable, and `NO_VERDICT` never auto-merges.
+  - C's suite summaries (`scenarios.json`, `holdout-summary.json`, `conversations.json`, each `{schema_version, suite, total, passed, failed: [case ids]}`) are for `verdict_gate.py`, not the floor.
 - `CLAUDE.md`'s `factory-gates` row and `docs/plans/schedule.md` are not edited, because Sessions 34, 37, 38 and 40's unmerged branches touch them. Once gate PR 23 merges, `release` holds 355 tests and 12 pending scripts, and slice B1 is done.
 - Sessions 38 and 40's branches are not merged here. When they are, the log order is 41, 40, 39, 38.
 
