@@ -111,9 +111,18 @@ Next steps:
 
 ## Session 41, 2026-11-23, branch `claude/session-41-2538-b-floors`
 
-ADO 2538, slice B started: the two decisions Session 40 left for Boroon. On the laptop (desktop app), in its own worktree (`.claude/worktrees/session-41-2538-b`, from `main` at `3bce4e9`), because other sessions share the folder. Session renamed "35. Stage 1 - Build - Merge Danger rules", at Boroon's word, after "34. Stage 1 - Build - Export plan and lints" (Session 40). No gate code changed: the shared gate clone was only read (`origin/release` at `973a421`). Sessions 38 and 40's log entries are on their own unmerged branches, so this entry sits above Session 39's here.
+ADO 2538, slice B: Boroon's two decisions, then slice B1 as **gate PR 23** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/23, branch `merge-danger-floor`, commit `8dac7a0`, open, for Boroon to merge; `self-test` green on Python 3.11, run 40571776; `lcp-gate` red at `map lane`, as on every gate PR).
+- Where it ran: on the laptop (desktop app), a day before B's Wed 25 Nov date, in its own worktree (`.claude/worktrees/session-41-2538-b`, from `main` at `3bce4e9`), because other sessions share the folder.
+- The gate work: a worktree of the gate clone at `factory-gates/` inside it, off `release` at `973a421`. The shared gate clone was not switched.
+- Session renamed "35. Stage 1 - Build - Merge Danger rules", at Boroon's word, after "34. Stage 1 - Build - Export plan and lints" (Session 40).
+- Sessions 38 and 40's log entries are on their own unmerged branches, so this entry sits above Session 39's here.
 
-Read for it: Sessions 38 and 40's entries (their branches), the gate README's rule table and finding 14, `plan_from_export.py` and `lint_logic_apps.py` on `release`, plan B.1 and B.2, and the low-code coding standards on GHE (`factory-manifestos`, `practices/lcp/coding-standards.md`), which the plan's default rule says to use where the plan is silent.
+Read for it:
+- Sessions 38 and 40's entries (their branches).
+- The gate README's rule table and finding 14.
+- `plan_from_export.py`, `lint_logic_apps.py` and `lcp-gate.yml` on `release`.
+- Plan 5.10 and Appendix B.
+- The low-code coding standards on GHE (`factory-manifestos`, `practices/lcp/coding-standards.md`), which the plan's default rule says to use where the plan is silent.
 
 Decisions (Boroon, 23 November 2026, each my recommendation):
 - **Merge Danger floors for the findings B.2 had no row for:** Session 40's proposals, with three changes.
@@ -121,28 +130,70 @@ Decisions (Boroon, 23 November 2026, each my recommendation):
   - A relationship or global choice **added** goes to 2, not 3. A new table brings about six system relationships (the real export pair shows six), so at 3 every new table would floor above B.2's "additive table: 2".
   - **New rule:** auditing turned on or off for a table or column, 7. Plan 5.3 turns auditing on everywhere. The export-diff plan reports it as `table_changed` or `column_changed` with `IsAuditEnabled` in `changed`, without the direction, so the floor matches either way.
   - The rest as Session 40 proposed: a narrower range 6, a removed global choice 6, a changed relationship 6, a removed relationship 8, connection references and environment variables removed or changed 5, everything else 3.
-- **The flow check's unsafe text:** keep Session 40's seven kinds and add two, from the vault's `ALM-002` and `ALM-007`: a flow's trigger URL, signed or not (`logic.azure.com/workflows/`, `*.environment.api.powerplatform.com`), because a hard-coded child-flow URL makes Test call Dev while every run passes; and a secret inside a string (`client_secret=`, `password=` or `pwd=`, an Azure Functions `code=`, `subscription-key=`). GUIDs (`TBL-006` allows fixed ones), mailbox addresses and other endpoints stay with the review agent (B.4) and the gardening scan (7.4).
-- **ALM-007 in the flow check:** in slice B's gate PR, `lint_logic_apps.py` also runs the same list over environment variable default values, and fails any current-value file (`environmentvariablevalues.json`) in the export.
+- **The flow check's unsafe text:** keep Session 40's seven kinds and add two, from the vault's `ALM-002` and `ALM-007`:
+  - a flow's trigger URL, signed or not (`logic.azure.com/workflows/`, `*.environment.api.powerplatform.com`), because a hard-coded child-flow URL makes Test call Dev while every run passes;
+  - a secret inside a string (`client_secret=`, `password=` or `pwd=`, an Azure Functions `code=`, `subscription-key=`).
+  GUIDs (`TBL-006` allows fixed ones), mailbox addresses and other endpoints stay with the review agent (B.4) and the gardening scan (7.4).
+- **ALM-007 in the flow check:** `lint_logic_apps.py` also runs the same list over environment variable default values, and fails any current-value file in the export.
+- **Slice B split in two:** B1 now (offline: rules, floor, verifier count, flow-check additions); B2 next (`merge_danger_combine.py`, `merge_policy.py`), after one real Copilot review output has been captured, because they read Copilot CLI's JSON output and call GitHub's API.
+- **What the floor cannot check yet** (shared use, which needs the inventory; scenario coverage, which needs `trace_criteria.py`): scored as seen, listed under `unchecked` in the floor's output, and the merge policy never auto-merges while that list is not empty. Not "fail closed at 3".
 
 Done:
-- **Plan B.2 edited at Boroon's word:** a row for every export-diff finding, ordered by floor, and a paragraph saying how rules map to rows and why the rows were added. A 14.4 row records both decisions and the defaults check. Plan 5.7 and Appendix A still say "unsafe substrings"; the 14.4 row is the definition.
+- **Plan B.2 edited at Boroon's word:**
+  - a row for every export-diff finding, ordered by floor;
+  - a paragraph saying how rules map to rows and why the rows were added;
+  - a 14.4 row recording both decisions and the defaults check.
+  Plan 5.7 and Appendix A still say "unsafe substrings"; the 14.4 row is the definition.
+- **Gate PR 23 (slice B1):**
+  - `lcp/danger-rules.yml` (task 2517): B.1's path rows (`deploy` and `protected` equal `check_protected_paths.py`'s list), B.2's rows for every plan rule, B.3's gate rules, and the `unchecked` list.
+  - `lcp/merge_danger_floor.py`: `--pre` in `verify-in-test`, full in `danger`. A plan rule no row names stops the run.
+  - `lcp/verifier_plan.py`: B.6.
+  - `lcp/simple_yaml.py`: the gate scripts stay standard library only (D3), so this is a strict reader of the gate's own YAML, tested against PyYAML.
+  - `lint_logic_apps.py`: the nine kinds, defaults and value files.
+  - `lcp-gate.yml`: `verify-in-test` checks the PR out with `fetch-depth: 0`, because the pre-floor diffs `BASE...HEAD`.
+  - 59 new tests, 355 in all.
+  - Proved by breaking a copy 39 ways. The one break that survived the first run was a real gap: a literal secret starting with `@` (`Password=@bcd1234;`) slipped through, so the `@` exclusion went and a test was added.
+  - `pending-scripts.txt` is down to 12. `scripts.sha256` was made last, adding the four new files and changing `lint_logic_apps.py`. `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check` are clean.
+  - The README has a section "The Merge Danger floor (ADO 2538, slice B1)", and finding 14 is settled.
 - `CLAUDE.md`: the plan row and the line-number map (it was a session behind).
 
-ADO: 2538 stays in **Building**; its body holds this session's decisions and time line. Task 2517's body now maps each plan rule to its B.2 floor for `danger-rules.yml`.
+Made by this session without asking (say if any is wrong; gate README, "The Merge Danger floor"):
+- Row ids: `docs`, `dev-tests`, `generator`, `agents`, `code-apps`, `reference-data`, `plugins-dependencies`, `deploy`, `secrets`, `protected`, `unlisted-path`; plan rows `export-additive`, `export-flow-logic`, `export-other`, `connection-environment`, `column-one-way`, `choice-removed`, `relationship-changed`, `security`, `auditing`, `privilege-widened`, `column-security-off`, `role-removed`, `column-dropped`, `table-dropped`. Plan B.6's `trust.yml` example names `export-additive`, `export-flow-logic`, `localisation` and `docs`; the others are new.
+- A changed path no row names floors at 3 (`unlisted-path`, never auto-merges). No row yet for localisation files (1), interface changes needing `sync_agent_tools.py` (4) or money logic (8, per project): no path shows them, so they fall to 3. The interface change is the one case where 3 is lower than B.1's floor.
+- The paths for B.1's "dependency or tool version bumps" (5): `package.json`, `package-lock.json`, `requirements*.txt`, `global.json`, `*.csproj`, `Directory.Packages.props` at any depth, and `.config/dotnet-tools.json`. For "credentials, secrets" (10): `.env`, `.env.*`, `*.pfx`, `*.p12`, `*.pem`, `*.key` at any depth.
+- Specs (`specs/*/spec.md`, `specs/*/checklists/**`) floor at 10 with the other protected paths, though B.1's floor-10 row does not list them.
+- "More than 25 changed source files" counts every changed path outside the `docs` row. The real pair (a table swapped) is 29 files, so a story that adds a table and more can reach it.
+- The checker's Medium count comes from `checker-summary.json` (`counts.Medium`), which `checker_gate.py` must write in slice C. The full run fails without it.
+- Each path and each finding takes only its highest row, so a change class (B2) reads the rows that set each part of the floor.
 
-Time and tokens (session `166167c4`, measured before the last commit; `--latest` finds no transcript from a worktree, so run with `--root` set to the main folder's project and `--session`): active time 0 h 13 min (gaps over 10 minutes not counted), from 23 Nov 22:33 to 23 Nov 22:47 (UTC+11). Tokens: 39,443 output; 7,493,119 processed in all, of which 7,276,384 were cache reads. From 1 local transcript.
+ADO:
+- 2538 stays in **Building**. Its body holds the decisions, gate PR 23 and the time line.
+- Task 2517's body maps each plan rule to its B.2 floor. It stays New until gate PR 23 merges.
 
-Files changed: `docs/sources/plan-v3.1.md` (B.2, a 14.4 row), `CLAUDE.md`, `docs/progress.md`.
+Time and tokens (session `166167c4`, measured before the last commit). `--latest` finds no transcript from a worktree, so run with `--root` set to the main folder's project and `--session`. Active time 0 h 56 min (gaps over 10 minutes not counted), from 23 Nov 22:33 to 23 Nov 23:49 (UTC+11). Tokens: 164,046 output; 31,232,974 processed in all, of which 30,693,068 were cache reads. From 1 local transcript.
+
+Files changed:
+- Here: `docs/sources/plan-v3.1.md` (B.2, a 14.4 row), `CLAUDE.md`, `docs/progress.md`.
+- In `GetAI-IP/factory-gates` (gate PR 23):
+  - `lcp/danger-rules.yml`, `lcp/merge_danger_floor.py`, `lcp/simple_yaml.py`, `lcp/verifier_plan.py` (new);
+  - `lcp/lint_logic_apps.py`, `.github/workflows/lcp-gate.yml`;
+  - four test files (new) and two changed;
+  - `README.md`, `pending-scripts.txt`, `scripts.sha256`.
 
 Open items:
-- **Not tested against a real export:** the two new kinds of unsafe text (no fixture holds a trigger URL or a secret in a string), and an environment variable value file (none seen yet). Slice B's tests break copies of the real export to show each fires, and that the real exports still pass.
+- **Boroon: review and merge gate PR 23.** If `release` moves first, make `scripts.sha256` again before merging.
+- **Plan Appendix A needs `fetch-depth: 0` on `verify-in-test`'s PR checkout**, as gate PR 23 has it. Boroon's word needed.
+- **Not tested against a real export:** the two new kinds of unsafe text and an environment variable value file. No fixture holds one.
 - **A site map entry added comes out as `other_changed` (3),** not B.1's small-addition 2: the export-diff plan does not read site maps. Conservative; teach the plan site maps if a story class needs them at L2.
-- `lint_logic_apps.py`'s docstring and the gate README's A2 section still list seven kinds and call them "a choice for Boroon": update both in slice B's gate PR.
-- Sessions 38 and 40's branches are not merged here; when they are, the log order is 41, 40, 39, 38.
+- **For slice C:** `checker_gate.py` must write `checker-summary.json` with `counts` by severity (`Critical`, `High`, `Medium`, `Low`, `Informational`) beside `checker.sarif`.
+- **For B2:** `merge_policy.py` reads the floor's `rows`, `auto_merge`, `protected_paths` and `unchecked`, and never auto-merges while `unchecked` is not empty. It reads `trust.yml` through `simple_yaml.py`, and team names from `rulesets/org.json`. Before writing B2, capture one real `copilot -p --output-format json` review output to read its shape.
+- `CLAUDE.md`'s `factory-gates` row and `docs/plans/schedule.md` are not edited, because Sessions 34, 37, 38 and 40's unmerged branches touch them. Once gate PR 23 merges, `release` holds 355 tests and 12 pending scripts, and slice B1 is done.
+- Sessions 38 and 40's branches are not merged here. When they are, the log order is 41, 40, 39, 38.
 
 Next steps:
-1. Slice B's gate PR (Wed 25 Nov), from `release` at `973a421` or newer, manifest made last: `danger-rules.yml` (task 2517, with B.1's rows and the rule names `export-additive` and `export-flow-logic`, the shared-use rule, and B.2 as edited here), `merge_danger_floor.py` (reads `export-plan.json`, `schema_version` 1), `verifier_plan.py`, `merge_danger_combine.py`, `merge_policy.py` (team names from `rulesets/org.json`), and the `lint_logic_apps.py` additions above.
-2. Then C (Thu 26 Nov).
+1. Boroon merges gate PR 23.
+2. Slice B2 (`merge_danger_combine.py`, `merge_policy.py`), after one real Copilot review output.
+3. Slice C (Thu 26 Nov): `checker_gate.py` (writing `checker-summary.json`), `run_workflow.py`, `parse_verdict.py`, `verdict_gate.py`, and the `check_spec.py` job.
 
 ## Session 39, 2026-11-23, branch `claude/session-39-3026-teams-story`
 
