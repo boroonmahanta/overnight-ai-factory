@@ -109,6 +109,34 @@ Next steps:
 
 ## Log
 
+## Session 39, 2026-11-23, branch `claude/session-39-3026-teams-story`
+
+A short laptop session, in its own worktree (`.claude/worktrees/session-39-3026`, from `main` at `1f848be`), because Sessions 34 to 38 share the folder. Boroon pasted a side chat about the three CODEOWNERS teams and asked for a story.
+
+Done:
+- **ADO 3026, "Name and create the three CODEOWNERS teams on getai.ghe.com"** (User Story, Proposed, under Feature 2519, a predecessor of 2521, related to 2520; Tue 24 to Wed 25 Nov; tags `factory-build`, `stage-1`). Work size S, written in the body (this project has no `Custom.WorkSize` field). Its body holds the steps: settle the names, rename by a gate PR and a plan edit if they change, create the teams in the portal, members, and what not to touch.
+- **Checked against `factory-gates`** (`release` at `65031e4`, read only): the names are `platform-team`, `acceptance-owners` and `factory-reviewers`, written `@AI-Business-Solutions/<team>` in `templates/CODEOWNERS`. **None of the three exists yet** in `AI-Business-Solutions` or `GetAI-IP` (listed with `gh api`, 23 November 2026).
+- Schedule: a 3026 row, 2521 now needs 3026, and the checkpoint row points at it.
+
+Found (in 3026's body):
+- No team IDs need copying by hand: `apply_rulesets.py resolve` reads them from the org into `rulesets/org.json` (2521). The side chat's "note the team IDs in ADO" step is not needed.
+- `factory-gates` has no CODEOWNERS file of its own, so its `release` ruleset alone cannot require the platform team's approval (README move step 6). For 2520.
+- The teams are one set per org, by role, shared by low-code and pro-code.
+
+Decisions: none. **The new names are proposals, waiting on Boroon:** `factory-platform-admins`, `factory-acceptance-owners`, `factory-merge-reviewers`. A rename means a gate PR (about eight files, the rulesets and `scripts.sha256` regenerated) and about 12 plan edits, before the teams are made.
+
+Files changed: `docs/plans/schedule.md`, `docs/progress.md`.
+
+Open items:
+- 3026 and 2538 both change `factory-gates` on Tue 24 to Wed 25 Nov: merge one gate PR before the other regenerates `scripts.sha256`.
+- Session 37's schedule redraft (branch `claude/session-37-stage-1-this-week`, not merged when this was written) rewrites the same table; whichever merges second needs the 3026 row carried over. Its dates already put the teams on Wed 25 Nov.
+
+Time and tokens (in 3026's body; session `c61993de`, measured before the last commit, the side chat not counted): active time 0 h 04 min (gaps over 10 minutes not counted), from 23 Nov 20:32 to 23 Nov 20:37 (UTC+11). Tokens: 18,244 output; 3,660,817 processed in all, of which 3,511,855 were cache reads. From 1 local transcript.
+
+Next steps:
+1. Boroon: keep the names or take the proposed ones.
+2. Tue 24 Nov: 3026, the rename (if any) and then the teams in the portal.
+
 ## Session 36, 2026-11-23, branch `claude/nifty-thompson-22d47f`
 
 ADO 2544, part 2: day-gate session DG5, the spec check script. On the laptop (desktop app), in its own worktree, started by Session 35 as a side session. The branch starts from Session 35's branch tip `5fa167c`. Pull request 47 (Session 35, DG4) was merged by Boroon on 23 November 2026 (`7476871`) during this session, and `main`'s content equals `5fa167c`, so this branch's pull request targets `main` and shows only Session 36's commits.
