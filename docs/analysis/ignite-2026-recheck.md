@@ -2,7 +2,7 @@
 
 Date: 23 November 2026 (Session 33, a laptop session in its own worktree). The schedule's checkpoint "Ignite re-check" (`docs/plans/schedule.md`), recorded as ADO story 3024 under Feature 2711. Microsoft Ignite ran from 17 to 20 November 2026. The plan always meant to re-check product names, Copilot Studio evaluation APIs and Git integration after it (plan 1.1, 1.4, risk 27, 15.1).
 
-**Proposals only.** Nothing here edits the plan or `CLAUDE.md`. Boroon decides each change.
+**Edited into the plan on 23 November 2026, at Boroon's word** ("Yes, edit the plan and then open a PR"): every row of table 1 and the facts in section 4 that are plan text, with a 14.4 row "The Ignite re-check". Not edited in: the AUD price note and the version list in section 4 (not plan text, and the AUD note was not re-checked), and the unclear list (section 3). The two actions in section 6 are still Boroon's.
 
 ## Bottom line
 
@@ -110,7 +110,7 @@ Most important first. "At Ignite" means made GA from 17 to 20 November 2026; "ea
 
 ## 6. What Boroon decides
 
-Each row of table 1 and each fact in section 4 is a proposed plan edit. None is urgent for Stage 1. Two have actions outside the plan:
+Boroon said "Yes, edit the plan" on 23 November 2026, and the edits are made (see the top of this file). Two actions sit outside the plan and are still his:
 
 1. **Row 1:** before anyone in the tenant builds a Copilot Managed Runtime app, the platform team sets the routing rules and the app creation spaces (Microsoft 365 admin centre, Apps, Set up app creation spaces).
 2. **Row 4:** check that no team on `getai.ghe.com` sets default Copilot plugins.
