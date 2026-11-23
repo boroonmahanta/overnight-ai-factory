@@ -16,7 +16,7 @@ Next steps:
 
 ## Current state
 
-- Mostly documents. The first code, the gate, now lives in its own repo **`GetAI-IP/factory-gates` on `getai.ghe.com`**, branch `release` (moved 3 November 2026, Session 9): stage 1 slice 1 and Builds 1 to 3, 154 tests passing there (gate PR 12, merged 4 November 2026). **Gate PR 15** (Session 30, 21 November 2026, ADO 2511) brings it in line with the live-build plan: **merged by Boroon on 21 November 2026**; `release` is at `96b6c61`, with 163 tests passing. It has not yet run as a gate on any project repo. No pipelines or GitHub Apps exist yet. The rulesets are files, not applied. **The first tenant objects exist since spike 0.2** (Session 12, 4 November 2026): the Power Platform environment `factory-lane-1` (Sandbox, Managed, Australia, `https://factory-lane-1.crm6.dynamics.com/`) and the Entra app `getai-fl1-exec` with its application user there (System Administrator).
+- Mostly documents. The first code, the gate, now lives in its own repo **`GetAI-IP/factory-gates` on `getai.ghe.com`**, branch `release` (moved 3 November 2026, Session 9): stage 1 slice 1 and Builds 1 to 3, 154 tests passing there (gate PR 12, merged 4 November 2026). **Gate PR 15** (Session 30, 21 November 2026, ADO 2511) brings it in line with the live-build plan: **merged by Boroon on 21 November 2026**; `release` is at `96b6c61`, with 163 tests passing. **Gate PR 16** (Session 34, 23 November 2026, ADO 2509) pins the Copilot CLI install; open, 172 tests on its branch. It has not yet run as a gate on any project repo. No pipelines or GitHub Apps exist yet. The rulesets are files, not applied. **The first tenant objects exist since spike 0.2** (Session 12, 4 November 2026): the Power Platform environment `factory-lane-1` (Sandbox, Managed, Australia, `https://factory-lane-1.crm6.dynamics.com/`) and the Entra app `getai-fl1-exec` with its application user there (System Administrator).
 - **Build 1 is done** (Session 6). PR 11 merged into `main` on 3 November 2026.
 - **Build 2 is done** (Session 7). PR 12 merged into `main` on 3 November 2026.
 - **Build 3 is done** (Session 8). PR 13 merged into `main` on 3 November 2026.
@@ -89,7 +89,7 @@ Next steps:
 - **`self-test` is not a required status check** on `release-protection`. **Boroon, 4 November 2026: turn it on when someone other than him starts working on the factory**, with the second-approver changes above. The change: in `release-protection`, add "Require status checks to pass" with the check `self-test`, source GitHub Actions; leave "require branches to be up to date" off. Until then `self-test` is advice, not a lock: a pull request into `release` can merge with it red, so check it is green before merging, Dependabot pull requests included.
 - **The allowed MCP client entry for `getai-fl1-exec` stays in `factory-lane-1`** (Boroon, 6 November 2026, Session 13): name `getai-fl1-exec`, unique name `new_getaifl1exec`, enabled. It grants nothing while the app has no credential. At Stage 3, either keep it or replace it with one added by code (a GET AI solution with the `getai` publisher, or `dataverse mcp allow`), and give lanes 2 and 3 theirs the same way. The list as it was before the spike is in `docs/plans/spike-0.3/README.md`, step B.
 - **The lane's MCP cap is a call count in the driver** (Boroon, 13 November 2026, Session 22; plan 5.11, 5.14, 14.4). Dataverse MCP calls are billed 0.1 Copilot Credit each from the tenant's shared prepaid pool. "Draw from tenant" stays on, with no allocation per lane. The driver counts each session's MCP calls, stops at a cap per session held in the lane config, and retries a failed call up to three times; either stop is a PARK. Still to settle, in spike 0.14 (2461) and the Stage 3 driver spec: the cap's number (from the calls part 4 counts). **Tried in part 3** (Session 27, run 39749076): a stdio shim in front of the local proxy counts and retries (`docs/plans/spike-0.14/mcp_shim.py`); a retried create whose answer was lost **did write twice**, and one with its own row ID did not; the agent's own mistakes (bad query, missing table) came back the same four times, so retrying them only spends calls and would PARK the night on a typo. **Decided (Boroon, 20 November 2026), both as proposed in Session 27:** retry only where it is safe and can help (the table under part 3 in the spike README): no retry on a tool result with `isError`, which goes back to the agent with no PARK; retry no answer, proxy errors and throttling up to three times; retry writes only by row ID, with the shim adding a row ID to every create. And the PARK type `tool_failure` for a call that still fails (`budget` stays for the cap). **In the plan since 21 November 2026** (5.11, 5.14, Appendix D, 14.4; Session 28): the retry rule, `tool_failure`, both never-repeat choices, billing of every call that reaches Dataverse, and the starting cap of 50. **Since Session 28:** the shim follows the accepted rule (21 local checks); the bill confirms every call that reaches Dataverse is billed, tool errors included (20 rows of 0.1 for part 3); part 4's two tiny stories made 0 and 1 MCP calls; the proposed starting cap is 50 per session (spike README, proposal 4).
-- **The gate installs Copilot CLI unpinned** (seen in Session 13, not changed): `lcp-gate.yml` on `release`, `verify-in-test`, runs `npm install --global @github/copilot` with no version or hash. Spike 0.3 shows a pattern that works on a hosted runner for a package with no dependencies: fetch the tarball, check it against the registry's `sha512`, `npm install --global --offline --ignore-scripts` from the file. Check first whether `@github/copilot` has dependencies (if so, pin with a lockfile instead). A gate slice, by pull request there.
+- **The gate installs Copilot CLI unpinned: fixed in gate PR 16, not yet merged** (Session 34, 23 November 2026, ADO 2509, https://getai.ghe.com/GetAI-IP/factory-gates/pull/16). Both `verify-in-test` and `danger` now install Copilot CLI 1.0.113 by `npm ci --ignore-scripts` from a hashed lockfile in `tools/copilot/`, and Dependabot watches it weekly. Waits on Boroon's merge. First seen in Session 13.
 - **Sources are complete.** Boroon uploaded the whole research folder as a zip. Every file was checked by checksum against the repo, duplicates were skipped, and the rest were added. The other session ("Overnight AI software factory", id `session_019bVvHWrUECf7G5YiXU3fKW`) is no longer needed for sources and can be deleted.
 - **Not read in full.** The files added from the zip were saved but not read in this session: the reports V1 and V2, the runtime and costs note, the eight GitHub and Azure notes, the five Power Platform notes and the one-pager. The five workshop slide images were saved but not viewed. The plan condenses most of them. Read one only when a task needs its detail.
 - **Decisions still waiting on Boroon** (from `docs/analysis/tshirt-sizing.md`): approve the shortlist of skills to read in full before any are adopted (plan section 8.3); decide whether to write a GET AI router skill that routes by size. The sizes themselves are approved, and the ADO field `Custom.WorkSize` is decided (7 November 2026, Session 16).
@@ -107,6 +107,42 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 34, 2026-11-23, branch `claude/session-34-2509-copilot-pin`
+
+ADO 2509: pin the Copilot CLI install in the gate. On the laptop (desktop app), on its date. Planning branch in its own worktree from `main` at `0e2dab1` (after pull request 46); gate branch `pin-copilot-cli` in a separate worktree of the gate clone, off `release` at `96b6c61`, so neither shared checkout was switched.
+
+Done:
+- **Gate PR 16** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/16, commits `7a20b26` and `b9eb188`), open, for Boroon to merge:
+  - `tools/copilot/` (new, hashed): `package.json` pins `@github/copilot` **1.0.113**, the version spike 0.14 ran headless; `package-lock.json` holds the loader, its eight platform packages and `detect-libc`, each with its `sha512` value. Made again with `npm install --package-lock-only --ignore-scripts`, it matches spike 0.14's lockfile entry for entry (10 packages, no install scripts), and the loader's value matches the registry's.
+  - `lcp-gate.yml`: `verify-in-test` and `danger` both run `npm ci --prefix gate/tools/copilot --ignore-scripts` after the hash check, put its `.bin` on `GITHUB_PATH` and print the version. The story named only `verify-in-test`, but `danger` had the same unpinned line, so both are fixed. `danger` installs in its own step now.
+  - `dependabot.yml`: npm for `/tools/copilot`, weekly.
+  - Tests: `test_copilot_pin.py` (8) and one in `test_workflow.py`; **172 pass** (163 before); manifest and rulesets checks clean. Sixteen deliberate breaks of a copy each failed. `npm ci` from the lockfile, run as the gate runs it in a scratch folder, installed the CLI and `copilot --version` printed 1.0.113.
+  - README: a section "The Copilot CLI pin (ADO 2509)", with why a lockfile, the routine for its Dependabot pull requests, and what is untested.
+  - **`self-test` green** on both commits (runs 40519751 and 40520046). `lcp-gate` red at `map lane`, as expected on the gate repo's own pull requests (README step 10).
+- **Why a lockfile, not spike 0.3's tarball:** `@github/copilot` is a 6 KB loader with a dependency and eight optional platform packages; the binary is in one of those. Spike 0.14 found this, and plan 5.2 already says to install from a lockfile.
+- ADO 2509: Building, with the result and this session's time in its body.
+
+Decisions (Boroon, 23 November 2026, asked in this session):
+- **Dependabot watches the pin weekly**, like the actions. Found after he answered: `package.json` and the lockfile are hashed (his 3 November rule: every file a gate job reads), so each Dependabot pull request for it fails `self-test` until the manifest is made again on its branch. The routine for it is in the gate README. If that is too much, dropping the npm entry is one small pull request.
+
+Not decided here (defaults taken, for Boroon to change if wanted):
+- The pin is 1.0.113, the tested version, not 1.0.114 (already out); Dependabot will offer 1.0.114.
+
+Files changed: `docs/progress.md`, `docs/plans/schedule.md`, `CLAUDE.md`. In `GetAI-IP/factory-gates` (branch `pin-copilot-cli`): `.github/dependabot.yml`, `.github/workflows/lcp-gate.yml`, `README.md`, `scripts.sha256`, `tests/test_workflow.py`, `tests/test_copilot_pin.py` (new), `tools/copilot/package.json` and `package-lock.json` (new).
+
+Open items:
+- **Boroon: merge gate PR 16** (`self-test` green on its last commit, `b9eb188`). Then 2509 goes to Done.
+- **A possible plan edit** (Boroon to decide): Appendix A still shows `npm install --global @github/copilot` in `verify-in-test` and `danger` (lines 2051 and 2245), though 5.2 says to install from a lockfile. The edit would match the gate.
+- **Not tested** (gate README): the install from the gate repo on a runner (needs the gate reader App, 2537); a Dependabot npm pull request on GHE.com; whether `copilot -p` exits non-zero on an empty final answer on 1.0.113 (Session 33's note; the verifier and review steps `wait` under `set -e`, so it would fail the step). That last one is for spike 0.6 (2451).
+- Not done today, though due (from Session 33): A1's first pass and the first component register review. The Copilot CLI pin is one of A1's kits.
+
+Time and tokens (in 2509's body; session `0c84374a`; measured before the last commit): active time 0 h 11 min (gaps over 10 minutes not counted), from 23 Nov 18:06 to 23 Nov 18:18 (UTC+11). Tokens: 47,648 output; 9,767,242 processed in all, of which 9,515,949 were cache reads. From 1 local transcript(s).
+
+Next steps:
+1. Boroon merges gate PR 16; 2509 to Done.
+2. Tue 24 Nov: 2538, the remaining Stage 1 gate scripts.
+3. A1's first pass and the component register review.
 
 ## Session 33, 2026-11-23, branch `claude/ignite-recheck-df24ce`
 
