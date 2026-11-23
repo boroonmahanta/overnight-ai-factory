@@ -153,9 +153,12 @@ Open items:
 - Not tested: the App and the token step on `getai.ghe.com`; what GitHub answers there to the job token on a team endpoint (403 or 404; both are handled); whether an org installation can select no repositories.
 - `CLAUDE.md`'s `factory-gates` row is still several sessions behind (not edited). When it is: `release` is at `7663cc9`, with 642 tests, 7 pending scripts and the team reader token.
 
+Planning PR: https://github.com/boroonmahanta/overnight-ai-factory/pull/56, opened at Boroon's word on 24 November 2026, for him to merge.
+
 Next steps:
 1. Done: Boroon merged gate PR 26.
-2. 2537: make the three Apps, then the first real `lcp-gate` run.
+2. Boroon merges planning PR 56.
+3. 2537: make the three Apps, then the first real `lcp-gate` run.
 
 ## Session 43, 2026-11-24, branch `claude/xenodochial-carson-eb7fd6`
 
