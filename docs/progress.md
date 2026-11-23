@@ -114,6 +114,7 @@ Next steps:
 ADO 2538, slice B2: `merge_danger_combine.py` and `merge_policy.py`, the last two Merge Danger scripts, as **gate PR 25** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/25, branch `merge-danger-combine`, commit `b0251f1`, on `release` at `3a4db23` after slice C's gate PR 24). `self-test` is green on Python 3.11 (run 40647126). `lcp-gate` is red at `map lane`, as on every gate PR. Open, for Boroon to merge.
 - Where it ran: on the laptop (desktop app). The planning branch is in its own worktree (`.claude/worktrees/xenodochial-carson-eb7fd6`, from `main`, brought up to `0916057` with Session 42's merge). The gate branch is in a worktree of the gate clone inside it, `factory-gates/`. The shared gate clone was not switched.
 - Started by Session 41's session as a side session. At Boroon's word it was moved to the top level and renamed "37. Stage 1 - Build - Merge Danger combine and policy", after "36. Stage 1 - Build - Checker, verdicts and spec check" (Session 42).
+- This record is **pull request 55** (https://github.com/boroonmahanta/overnight-ai-factory/pull/55), branch `claude/xenodochial-carson-eb7fd6`, into `main`, opened at Boroon's word on 24 November 2026. Boroon merges.
 
 Read for it:
 - Sessions 41 and 42's entries.
