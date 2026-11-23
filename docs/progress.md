@@ -109,6 +109,41 @@ Next steps:
 
 ## Log
 
+## Session 41, 2026-11-23, branch `claude/session-41-2538-b-floors`
+
+ADO 2538, slice B started: the two decisions Session 40 left for Boroon. On the laptop (desktop app), in its own worktree (`.claude/worktrees/session-41-2538-b`, from `main` at `3bce4e9`), because other sessions share the folder. Session renamed "35. Stage 1 - Build - Merge Danger rules", at Boroon's word, after "34. Stage 1 - Build - Export plan and lints" (Session 40). No gate code changed: the shared gate clone was only read (`origin/release` at `973a421`). Sessions 38 and 40's log entries are on their own unmerged branches, so this entry sits above Session 39's here.
+
+Read for it: Sessions 38 and 40's entries (their branches), the gate README's rule table and finding 14, `plan_from_export.py` and `lint_logic_apps.py` on `release`, plan B.1 and B.2, and the low-code coding standards on GHE (`factory-manifestos`, `practices/lcp/coding-standards.md`), which the plan's default rule says to use where the plan is silent.
+
+Decisions (Boroon, 23 November 2026, each my recommendation):
+- **Merge Danger floors for the findings B.2 had no row for:** Session 40's proposals, with three changes.
+  - Column security turned **off** goes to 8, like a widened privilege: more people see the data. Turned on stays 7.
+  - A relationship or global choice **added** goes to 2, not 3. A new table brings about six system relationships (the real export pair shows six), so at 3 every new table would floor above B.2's "additive table: 2".
+  - **New rule:** auditing turned on or off for a table or column, 7. Plan 5.3 turns auditing on everywhere. The export-diff plan reports it as `table_changed` or `column_changed` with `IsAuditEnabled` in `changed`, without the direction, so the floor matches either way.
+  - The rest as Session 40 proposed: a narrower range 6, a removed global choice 6, a changed relationship 6, a removed relationship 8, connection references and environment variables removed or changed 5, everything else 3.
+- **The flow check's unsafe text:** keep Session 40's seven kinds and add two, from the vault's `ALM-002` and `ALM-007`: a flow's trigger URL, signed or not (`logic.azure.com/workflows/`, `*.environment.api.powerplatform.com`), because a hard-coded child-flow URL makes Test call Dev while every run passes; and a secret inside a string (`client_secret=`, `password=` or `pwd=`, an Azure Functions `code=`, `subscription-key=`). GUIDs (`TBL-006` allows fixed ones), mailbox addresses and other endpoints stay with the review agent (B.4) and the gardening scan (7.4).
+- **ALM-007 in the flow check:** in slice B's gate PR, `lint_logic_apps.py` also runs the same list over environment variable default values, and fails any current-value file (`environmentvariablevalues.json`) in the export.
+
+Done:
+- **Plan B.2 edited at Boroon's word:** a row for every export-diff finding, ordered by floor, and a paragraph saying how rules map to rows and why the rows were added. A 14.4 row records both decisions and the defaults check. Plan 5.7 and Appendix A still say "unsafe substrings"; the 14.4 row is the definition.
+- `CLAUDE.md`: the plan row and the line-number map (it was a session behind).
+
+ADO: 2538 stays in **Building**; its body holds this session's decisions and time line. Task 2517's body now maps each plan rule to its B.2 floor for `danger-rules.yml`.
+
+Time and tokens (session `166167c4`, measured before the last commit; `--latest` finds no transcript from a worktree, so run with `--root` set to the main folder's project and `--session`): active time 0 h 13 min (gaps over 10 minutes not counted), from 23 Nov 22:33 to 23 Nov 22:47 (UTC+11). Tokens: 39,443 output; 7,493,119 processed in all, of which 7,276,384 were cache reads. From 1 local transcript.
+
+Files changed: `docs/sources/plan-v3.1.md` (B.2, a 14.4 row), `CLAUDE.md`, `docs/progress.md`.
+
+Open items:
+- **Not tested against a real export:** the two new kinds of unsafe text (no fixture holds a trigger URL or a secret in a string), and an environment variable value file (none seen yet). Slice B's tests break copies of the real export to show each fires, and that the real exports still pass.
+- **A site map entry added comes out as `other_changed` (3),** not B.1's small-addition 2: the export-diff plan does not read site maps. Conservative; teach the plan site maps if a story class needs them at L2.
+- `lint_logic_apps.py`'s docstring and the gate README's A2 section still list seven kinds and call them "a choice for Boroon": update both in slice B's gate PR.
+- Sessions 38 and 40's branches are not merged here; when they are, the log order is 41, 40, 39, 38.
+
+Next steps:
+1. Slice B's gate PR (Wed 25 Nov), from `release` at `973a421` or newer, manifest made last: `danger-rules.yml` (task 2517, with B.1's rows and the rule names `export-additive` and `export-flow-logic`, the shared-use rule, and B.2 as edited here), `merge_danger_floor.py` (reads `export-plan.json`, `schema_version` 1), `verifier_plan.py`, `merge_danger_combine.py`, `merge_policy.py` (team names from `rulesets/org.json`), and the `lint_logic_apps.py` additions above.
+2. Then C (Thu 26 Nov).
+
 ## Session 39, 2026-11-23, branch `claude/session-39-3026-teams-story`
 
 A laptop session, in its own worktree (`.claude/worktrees/session-39-3026`, from `main` at `1f848be`), because Sessions 34 to 38 share the folder. Boroon pasted a side chat about the three CODEOWNERS teams and asked for a story; then he chose new names, and the session did the rename. The `factory-gates` work ran in its own worktree too (`.claude/worktrees/gate-3026-team-names`), apart from Session 38's `static-file-checks`.
