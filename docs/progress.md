@@ -142,7 +142,7 @@ Time and tokens (in 3026's body; session `c61993de`, measured before the last co
 
 Next steps:
 1. Done: both merged, the teams made, 3026 Done (23 November 2026).
-2. When the second approver is named: add them to all three teams (and to `ai-factory-platform-admins` in `GetAI-IP`), then 2520. Boroon alone in every team is a stopgap: it does not yet give the separation rule 3 and a second reviewer need.
+2. **Done the same evening: second approvers named** (Boroon, 23 November 2026). Each of the four teams now has a second person besides Boroon, all User accounts: in `AI-Business-Solutions` one person in the platform admins and acceptance owners, and a different person in the merge reviewers, so the scenario writer is not the reviewer; in `GetAI-IP` a third person in the platform admins. Names and accounts are in ADO 2520 and 2521 only (public repo). For 2520, all of whose stopgaps are in `GetAI-IP`: give `ai-factory-platform-admins` there Write on `factory-manifestos` first (no team is on it, and an approval without Write does not count); the `GetAI-IP` approver uses an admin account for now, and a normal one is better (least privilege); the `AI-Business-Solutions` approver is not in `GetAI-IP`, so cannot approve gate PRs unless added.
 3. 2538's gate PR (`static-file-checks`) must make `scripts.sha256` again on top of `3c23ca5` before it merges.
 
 ## Session 36, 2026-11-23, branch `claude/nifty-thompson-22d47f`
