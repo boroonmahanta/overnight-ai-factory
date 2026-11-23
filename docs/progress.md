@@ -112,7 +112,7 @@ Next steps:
 
 ## Session 44, 2026-11-24, branch `claude/focused-pare-44ad71`
 
-Gate README finding 19 settled in code: **gate PR 26** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/26, branch `gate-merge-policy-token`, commit `0294a7c`, on `release` at `0db69f6` after gate PR 25). `self-test` is green on Python 3.11, 642 tests OK (run 40659146). `lcp-gate` is red at `map lane`, as on every gate PR (run 40659141). Open, for Boroon to merge.
+Gate README finding 19 settled in code: **gate PR 26** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/26, branch `gate-merge-policy-token`, commit `0294a7c`, on `release` at `0db69f6` after gate PR 25). `self-test` is green on Python 3.11, 642 tests OK (run 40659146). `lcp-gate` is red at `map lane`, as on every gate PR (run 40659141). **Merged by Boroon on 24 November 2026** (10:46 UTC+11): `release` is at `7663cc9`, with the same tree as the tested `0294a7c`.
 - Where it ran: on the laptop (desktop app), as a side session started by Session 43's session. The planning branch is in its own worktree, from `main` and brought up to `ea618a5` (Session 43's merge). The gate branch is in a worktree of the gate clone inside it, `factory-gates/`. The shared gate clone was not switched.
 
 Read for it: Session 43's entry; in the gate repo `lcp/merge_policy.py`, `danger` in `lcp-gate.yml`, `rulesets/org.json`, the tests for both, and README findings 19 and 20.
@@ -138,7 +138,7 @@ Done (gate PR 26):
 - A private App "can only be installed on the account that owns the app". The gate reader and holdout reader read only `GetAI-IP` repos, so they need no install anywhere else, only their ID and key in each project org.
 - The team reader reads the project org's own teams, so it must be installed on each project org. That means one App per org, owned by that org, or one App owned by the `GetAI` enterprise, which "can only be installed on your enterprise or organizations within your enterprise". The docs don't say whether GHE.com with data residency has enterprise-owned Apps.
 
-ADO: 2538 stays **Done**. Its body gains this session's result and time line. 2537's body gains the third App.
+ADO: 2538 stays **Done**. Its body gains this session's result and time line, and a comment records the merge. 2537's body gains the third App.
 
 Time and tokens (in 2538's body; session `1980209e`, measured before the last commit; from a worktree, with `--root` set to this worktree's own project folder and `--session`). Active time 0 h 18 min (gaps over 10 minutes not counted), from 24 Nov 10:08 to 24 Nov 10:39 (UTC+11). Tokens: 88,492 output; 17,440,022 processed in all, of which 16,933,544 were cache reads. From 1 local transcript.
 
@@ -147,14 +147,14 @@ Files changed:
 - In `GetAI-IP/factory-gates` (gate PR 26): `.github/workflows/lcp-gate.yml`, `lcp/merge_policy.py`, `tests/test_merge_policy.py`, `tests/test_workflow.py`, `README.md`, `scripts.sha256`.
 
 Open items:
-- **Gate PR 26 is for Boroon to merge.** It changes a hashed file, and `scripts.sha256` is already remade on its branch. If `release` moves first, rebase and make the manifest again.
+- **Done: gate PR 26 merged by Boroon on 24 November 2026.** `release` is at `7663cc9`, with the same tree as the tested `0294a7c` (`2dded0e`); the remote branch was deleted on merge. Checked on `release`: 642 tests OK (4 skipped by design); `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check` are clean; 7 scripts left on `pending-scripts.txt`. The gate worktree and its local branch are removed.
 - **2537 (Tue 1 Dec) now makes three Apps.** The third is `factory-team-reader`: organisation Members read only, installed on `AI-Business-Solutions`, with the org variable `TEAM_READER_CLIENT_ID` and the secret `TEAM_READER_KEY`. First check in the enterprise settings whether the enterprise can own Apps. Until it exists, `danger` fails at the token step, which is the same answer as before: no human merge passes.
 - **Plan edit for Boroon** (none made): Appendix A's `danger` job lacks the team reader token step and `TEAM_READER_TOKEN`. Appendix A's job table (the `danger` row) and its note "The gate reader keys are secrets" could name the third App.
 - Not tested: the App and the token step on `getai.ghe.com`; what GitHub answers there to the job token on a team endpoint (403 or 404; both are handled); whether an org installation can select no repositories.
-- `CLAUDE.md`'s `factory-gates` row is still several sessions behind (not edited). When it is: once gate PR 26 merges, `release` has 642 tests and the team reader token.
+- `CLAUDE.md`'s `factory-gates` row is still several sessions behind (not edited). When it is: `release` is at `7663cc9`, with 642 tests, 7 pending scripts and the team reader token.
 
 Next steps:
-1. Boroon merges gate PR 26.
+1. Done: Boroon merged gate PR 26.
 2. 2537: make the three Apps, then the first real `lcp-gate` run.
 
 ## Session 43, 2026-11-24, branch `claude/xenodochial-carson-eb7fd6`
