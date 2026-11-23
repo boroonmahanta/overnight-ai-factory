@@ -153,7 +153,7 @@ ADO 2538, the remaining Stage 1 gate scripts: started on Mon 23 Nov, a day befor
 **Gate PR 21** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/21, commit `c295d22`), open, for Boroon to merge.
 
 Done:
-- **Proposed a split of 2538 into three gate pull requests,** each merged before the next makes `scripts.sha256` again (Session 37's warning). Not yet agreed by Boroon:
+- **Split 2538 into three gate pull requests,** each merged before the next makes `scripts.sha256` again (Session 37's warning). **Agreed by Boroon on 23 November 2026** ("Agree the split"), with the list to wait:
   - **A, the `static` file checks:** A1 `check_manifest.py` (this session, gate PR 21); A2 `plan_from_export.py` with the small offline lints `check_root_components.py`, `lint_no_prototype.py`, `lint_static_results.py` and `lint_logic_apps.py`.
   - **B, Merge Danger:** `danger-rules.yml` (task 2517), `merge_danger_floor.py`, `verifier_plan.py`, `merge_danger_combine.py`, `merge_policy.py`.
   - **C, `verify-in-test` and the spec job:** `checker_gate.py` (solution checker SARIF), `run_workflow.py`, `parse_verdict.py`, `verdict_gate.py`, and the `check_spec.py` job (item 8).
@@ -171,6 +171,9 @@ Done:
   - only a missing flow `.json` or web resource content file made pack fail.
   The check catches every case where something in the tree still declares the component. A form, view or environment variable folder gone without trace is the export-diff plan's job (a removal against the base commit).
 - **Confirmed: gate finding 11.** `pac solution pack --packagetype Managed` on that unmanaged export stops with "Solution package type did not match requested type". So as written, `build` fails on every PR at the managed pack.
+
+Decisions:
+- Boroon, 23 November 2026: the split above. 2538 is done when A, B and C are merged. The six scripts to wait stay on `pending-scripts.txt` and are not part of 2538; each is written when what it waits on exists (DG7 for `trace_criteria.py`, the inventory decision for `check_inventory.py`, `factory-holdout` for `run_holdout.py`, spike 0.12 for `cs-runner/run.mjs`, a need for canvas apps at night or in human PRs for the two canvas lints).
 
 Made by this session without asking (say if any is wrong; gate README, "The manifest check"):
 - The check fails closed on any folder, file or root component type it does not know (for example `CanvasApps/`, `OptionSets/`, charts under `Visualizations/`), so each new kind comes in by a reviewed PR with a real export that shows it.
@@ -195,7 +198,7 @@ Open items:
 - Before Boroon merges gate PR 21: if `release` has moved since `65031e4`, regenerate the manifest on the branch first.
 
 Next steps:
-1. Boroon: review gate PR 21; agree or change the split and the list to wait; decide finding 11's route.
+1. Boroon: review gate PR 21; decide finding 11's route (the split is agreed).
 2. Tue 24 Nov (laptop A): A2, `plan_from_export.py` and the four small lints. Notes for it, from the real export: columns are `attribute` elements in `Entities/<table>/Entity.xml` with `Type`, `RequiredLevel` (`none`, `recommended`, `required`, `systemrequired`), `MaxLength` and `MinValue`/`MaxValue`; choice values are `option`, `state` and `status` elements under each column's `optionset`; role privileges are `RolePrivilege name level` with depths `Basic` < `Local` < `Deep` < `Global`; connection references sit in `Other/Customizations.xml`. The plan's JSON is the floor's input (B.2), so write it with B's rule names in mind.
 
 ## Session 36, 2026-11-23, branch `claude/nifty-thompson-22d47f`
