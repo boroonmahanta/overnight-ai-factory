@@ -683,13 +683,13 @@ The uploaded plan's PR checks ran the agent's own scripts from the PR branch, wi
 | Job | Runs PR code? | Credentials | Purpose |
 |---|---|---|---|
 | `map` | No | Read-only gate App token | Lane from the branch name `agent/fl<n>/<ado-id>-<attempt>`, validated against an allowed list. Trusted, hash-checked script. Hands `build` its two hash-checked scripts as a one-day artifact |
-| `locks` | No | Read-only gate App token | Second lock on protected paths; locked scenarios and the spec unchanged against the base. Trusted, hash-checked script; a rename counts as a delete plus an add |
+| `locks` | No | Read-only gate App token | Second lock on protected paths; locked scenarios and the spec unchanged against the base. Trusted, hash-checked script; a rename counts as a delete plus an add. Then the gate's own spec check on every spec the PR changes, failing when the copy vendored under `.specify/` differs from it (D3) |
 | `build` | **Yes** (generator-backed builders and code parts) | **None**: `contents: read`, no `id-token` | Generator-backed builders, the check that none wrote under `src/`, and their drift check against the commit, offline `pac solution pack` and `pac copilot pack`. Uploads the zips. Gets its two scripts from `map`, because it cannot check out the private gate repo without a token |
 | `static` | No | Read-only gate App token | Trusted scripts from the gate repo, hash-checked, read the PR files and zips as data: manifest check, export-diff plan check, lints, criteria trace |
-| `verify-in-test` | No (locked tests are proven unchanged by `locks`) | `getai-<proj>-test` over OIDC, pinned to the gate workflow; test user certificate | Solution checker SARIF, import, locked scenarios, Playwright, Copilot Studio conversations, held-out set, evaluator |
+| `verify-in-test` | No (locked tests are proven unchanged by `locks`) | `getai-<proj>-test` over OIDC, pinned to the gate workflow; test user certificate | Solution checker SARIF (fails on High or Critical, and on Accessibility from Medium), import, locked scenarios, Playwright, Copilot Studio conversations and the held-out set (each when the project's `gate.json` says it has them), evaluator, and the verdict gate |
 | `danger` | No | Job token with `checks: write`; Copilot requests | Deterministic floor, raise-only review agent, merge policy |
 
-Trusted scripts from the uploaded plan move into the gate repo: `run_workflow.py`, `lint_logic_apps.py` (fails on an `if()` expression over 8,192 characters or unsafe substrings), `check_root_components.py` and `reset_environment.py`. Live build (7 November 2026) drops `create_schema.py --plan`, `create_security.py --plan` and `sync_solutions.py`: no builder writes tables or roles any more. New trusted scripts: the protected-paths check (`check_protected_paths.py`, run by `locks`), the generator drift check (`check_builders.py`, now limited to generator wrappers in `workflows/build/`, and failing any builder that writes under `src/`) and the offline pack wrapper (`pack_offline.py`), both run by `build` and so only as trusted as that credential-free job; the driver's export (`export_lane.py`, run under the lane lock as the execution identity, like `reset_environment.py`); the export-diff plan check (`plan_from_export.py`, run by `static` with no Dataverse credentials: it diffs the exported table, column, choice and role definitions against the PR's base commit and feeds Appendix B.2); the manifest check; a standards lint for the "rule" standards in `coding-standards.md`, once they are adopted; a static-results lint, a `.pa.yaml` schema lint against Microsoft's published schema ([canvas source](https://learn.microsoft.com/power-apps/maker/canvas-apps/power-apps-yaml)), an accessible-label lint, a criteria-to-scenario trace, a prototype lint, the Merge Danger floor and pre-floor, the verifier plan, the trusted `lcp-verify` CLI and the merge policy by rung. The gate verifies a `scripts.sha256` manifest before running any of them. The manifest covers every file in the gate repo that a job reads, not only scripts: prompts, rubrics, agent definitions, `danger-rules.yml`, `trust.yml` and project settings (decided 3 November 2026). Only tests, docs, test-only files and the workflow folder sit outside it.
+Trusted scripts from the uploaded plan move into the gate repo: `run_workflow.py`, `lint_logic_apps.py` (fails on an `if()` expression over 8,192 characters or unsafe substrings), `check_root_components.py` and `reset_environment.py`. Live build (7 November 2026) drops `create_schema.py --plan`, `create_security.py --plan` and `sync_solutions.py`: no builder writes tables or roles any more. New trusted scripts: the protected-paths check (`check_protected_paths.py`, run by `locks`), the generator drift check (`check_builders.py`, now limited to generator wrappers in `workflows/build/`, and failing any builder that writes under `src/`) and the offline pack wrapper (`pack_offline.py`), both run by `build` and so only as trusted as that credential-free job; the driver's export (`export_lane.py`, run under the lane lock as the execution identity, like `reset_environment.py`); the export-diff plan check (`plan_from_export.py`, run by `static` with no Dataverse credentials: it diffs the exported table, column, choice and role definitions against the PR's base commit and feeds Appendix B.2); the manifest check; a standards lint for the "rule" standards in `coding-standards.md`, once they are adopted; a static-results lint, a `.pa.yaml` schema lint against Microsoft's published schema ([canvas source](https://learn.microsoft.com/power-apps/maker/canvas-apps/power-apps-yaml)), an accessible-label lint, a criteria-to-scenario trace, a prototype lint, the Merge Danger floor and pre-floor, the verifier plan, the trusted `lcp-verify` CLI, the score combine and the merge policy by rung; and, from ADO 2538, the checker gate (`checker_gate.py`: `pac solution check` exits 0 whatever it finds), the verdict parser and verdict gate (`parse_verdict.py`, `verdict_gate.py`), the project settings reader (`project_settings.py`) and the spec check (`check_specs.py`, run by `locks` with the gate's own copy of `spec/check_spec.py`). The gate verifies a `scripts.sha256` manifest before running any of them. The manifest covers every file in the gate repo that a job reads, not only scripts: prompts, rubrics, agent definitions, `danger-rules.yml`, `trust.yml` and project settings (decided 3 November 2026). Only tests, docs, test-only files and the workflow folder sit outside it.
 
 **3. Rulesets lock the paths, the branches and the bypass list,** following V2.1's stack ([available rules](https://docs.github.com/en/enterprise-cloud@latest/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)):
 
@@ -1668,6 +1668,8 @@ Board lens: these are reusable IP, Power Platform depth strengthens the Microsof
 | **The Spec Kit pin** (ADO 2544, DG4) | The newest 1.3.x (D2, 7 November 2026) | Spec Kit 1.4.3, commit `980b3d0` (Boroon, 23 November 2026). 1.3.3 was the last 1.3; 1.4.0 to 1.4.3 marked nothing as breaking. 1.4.3 adds section replacement for presets and 1.4.2 stamps each generated skill with its source and version (`staging/factory-manifestos/spec-kit/README.md`) | Each override is one composition step over Spec Kit's own file, not a copy, so updates flow through. A1 still reads every update before the pin moves |
 | **The CODEOWNERS team names** (ADO 3026) | `platform-team`, `acceptance-owners` and `factory-reviewers` (5.7, 5.8, 5.10), none yet created | `ai-factory-platform-admins`, `ai-factory-acceptance-owners` and `ai-factory-merge-reviewers` (Boroon, 23 November 2026). One set per org, by role, shared by low-code and pro-code; a split by profile, if ever wanted, uses child teams under each. Renamed in `factory-gates` by gate PR 20 | The old names were vague and only one had a shared prefix. The prefix groups the three on the org's Teams page and marks them as the factory's. Still product-neutral (rule 18) |
 | **Merge Danger floors and the flow check's unsafe text** (ADO 2538 slice B, `factory-gates` finding 14) | B.2 had rows for eight kinds of finding; the first real exports showed more. The uploaded plan's "unsafe substrings" for `lint_logic_apps.py` were never defined; gate PR 22 chose seven kinds as a proposal | B.2 has a row for every finding the export-diff plan makes: relationship and global choice added at 2; any other finding at 3; connection references and environment variables removed or changed at 5; a narrower range, a removed global choice and a changed relationship at 6; column security turned on, and auditing turned on or off, at 7; column security turned off and a removed relationship at 8. The flow check fails on nine kinds of text in a flow: a signed URL, a bearer token, a JSON web token, a private key, a storage or Service Bus key, a literal value in a secret-named field, a Dataverse environment URL, a flow's trigger URL whether signed or not, and a secret inside a string (`client_secret=`, `password=` or `pwd=`, an Azure Functions `code=`, `subscription-key=`). It runs the same list over environment variable default values, and fails any current-value file in the export. GUIDs, mailbox addresses and other endpoint URLs stay with the review agent (B.4) and the gardening scan (7.4). Appendix A's `verify-in-test` checks the PR out with full history, as `static` and `danger` do, because the pre-floor diffs `BASE...HEAD`; `factory-gates` has the same line (gate PR 23) (Boroon, 23 November 2026; Appendix B.2, Appendix A) | Without a row, a dropped lookup or column security turned off would have floored at 3. At 3, every new table, which brings its system relationships, would have floored above B.2's additive 2. Section 5.3 turns auditing on everywhere, so turning it off is security-relevant. The two text additions and the defaults check come from the Get AI Engineer's standards `ALM-002` and `ALM-007`: a hard-coded child-flow URL, or a Dev value shipped as a default, makes Test call Dev while every run still passes. Whether a GUID, mailbox or endpoint differs by environment needs judgement, which a lint cannot make |
+| **The review and verifier waits, the combine and the merge policy in Appendix A** (ADO 2538 slices C and B2, `factory-gates` findings 17 and 19) | The verifier step in `verify-in-test` and the review step in `danger` waited with `wait "$pid"` under `set -e`; `parse_verdict.py` had no list of planned focuses; the combine posted its check run with no commit named; the merge policy read only `danger.json`, the base, the trust file and the switch | Both waits are `wait "$pid" \|\| true`. A failed verifier session is NO_VERDICT (`parse_verdict.py --plan`, which also makes a planned focus with no log NO_VERDICT), and a failed review session is "no review", which never lowers the score and blocks auto-merge. The combine posts on the PR's head commit. The merge policy also reads `verdict.json` (anything but PASS is not mergeable), `rulesets/org.json` (the merge reviewers' team by its `merge_reviewers_team`, so no script names a team), the PR number and head commit, and in a merge group the queue's base and branch. Edited into Appendix A at Boroon's word (24 November 2026), as gate PR 24 (merged) and gate PR 25 (open) have it | Under `set -euo pipefail` one failed session ended the step, so no verdict or score was written and the evidence lost the reason. `github.base_ref` is empty in a merge group. Untested: whether the job's token can read team membership (finding 19); until it can, no human approval counts |
+| **`verify-in-test`'s results and the spec check** (ADO 2538 slice C, gate PR 24, `factory-gates` findings 15 and 16) | `checker_gate.py`, `run_workflow.py`, `parse_verdict.py` and `verdict_gate.py` all in 2538; the spec check to reach `factory-gates` in the DG8 move (D3); every suite in `verify-in-test` run for every project | `run_workflow.py` waits for DG7's scenario format and is its own story, ADO 3027 (Wed 25 to Thu 26 November 2026). `spec/check_spec.py` moved into `factory-gates` in slice C, ahead of DG8, and `locks` runs it on every spec the PR changes (5.7). Each project declares in `projects/<project>/gate.json` (hashed) whether it has a held-out set and Copilot Studio agents; those steps run only when it does, and `verdict_gate.py` requires each suite the project has. The locked scenarios and the verdict are never optional (Boroon, 23 and 24 November 2026; Appendix A) | `run_workflow.py`'s input format is DG7's to settle. The spec job could then be tested end to end. The Stage 1 exit test runs before `factory-holdout` and the Copilot Studio runner exist, and empty results would look the same as a suite that ran and found nothing. `pac solution check` exits 0 even with Critical results (finding 15), and in autopilot a verifier's answer is in `task_complete`, not the last message (finding 16) |
 
 ## 15. Open questions and evidence quality
 
@@ -1868,6 +1870,15 @@ jobs:
           LANE: ${{ needs.map.outputs.lane }}
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
         run: python3 -I ../gate/lcp/check_protected_paths.py --lane "$LANE" --base "$BASE_SHA"
+      # D3 (7 November 2026): the gate runs its own copy of the spec check on every spec the
+      # PR changes, and fails when the copy vendored under .specify/ (which the mandatory
+      # before_implement hook runs by day) differs from it. Ruleset workflows ignore paths
+      # filters, so the script finds the changed specs.
+      - name: Spec check (trusted copy) on changed specs, and the vendored copy's hash
+        working-directory: pr
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+        run: python3 -I ../gate/lcp/check_specs.py --base "$BASE_SHA" --check-spec ../gate/spec/check_spec.py --profile lcp
 
   build:
     name: generators, drift and pack (PR code, no credentials)
@@ -2048,11 +2059,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
+      # Copilot CLI comes from the gate repo's lockfile, which the hash check above covers.
+      # npm ci checks every package against its integrity value and runs no install
+      # scripts (section 5.2, spike 0.14; ADO 2509).
       - name: Install pinned tools
         run: |
           set -euo pipefail
           dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version "$PAC_VERSION"
-          npm install --global @github/copilot
+          npm ci --prefix gate/tools/copilot --ignore-scripts --no-audit --no-fund --no-update-notifier
+          echo "$GITHUB_WORKSPACE/gate/tools/copilot/node_modules/.bin" >> "$GITHUB_PATH"
+          gate/tools/copilot/node_modules/.bin/copilot --version
       - name: Sign in as the verification identity (OIDC, no secret)
         run: pac auth create --name verify --githubFederated --tenant "$TENANT_ID" --applicationId "$TEST_APP_ID" --environment "$TEST_ENV_URL"
       - uses: azure/login@v2              # for Key Vault (test user certificate, Direct Line secret) and Blob
@@ -2066,16 +2082,25 @@ jobs:
         with:
           name: export-plan
           path: evidence
-      - name: Solution checker, no exclusions or overrides (matches Managed Environment enforcement)
+      # pac exits 0 whatever the checker finds (seen 23 November 2026), so checker_gate.py
+      # decides: High or Critical fails, Accessibility from Medium (B.3, 5.9). A Managed
+      # Environment's own enforcement blocks only Critical. The summary carries the counts
+      # for the Merge Danger floor (Medium present: at least 3).
+      - name: Solution checker, no exclusions or overrides (as Managed Environment enforcement requires)
         run: |
           set -euo pipefail
           pac solution check --path out/solution_managed.zip --geo Australia --outputDirectory evidence/checker
-          python3 -I gate/lcp/checker_gate.py --dir evidence/checker --fail-on High --sarif-out evidence/checker.sarif
+          python3 -I gate/lcp/checker_gate.py --dir evidence/checker --fail-on High \
+            --fail-on-category Accessibility=Medium --source pr/src \
+            --sarif-out evidence/checker.sarif --summary-out evidence/checker-summary.json
+      # checker_gate.py writes artifact paths as repo paths (src/...), so the upload reads
+      # the PR checkout at pr/. Untested on GHE.com.
       - uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: evidence/checker.sarif
           category: solution-checker
+          checkout_path: pr
       - name: Import the managed solution into Test
         run: |
           set -euo pipefail
@@ -2098,11 +2123,18 @@ jobs:
           set -euo pipefail
           npm ci
           npx playwright test --config playwright.lcp.config.ts --reporter=html,junit
+      # Which optional suites this project has (Boroon, 24 November 2026): its gate.json,
+      # hashed in the gate repo. A suite the project has is required by verdict_gate.py.
+      - id: settings
+        name: Project gate settings (held-out set, Copilot Studio agents)
+        run: python3 -I gate/lcp/project_settings.py --file "gate/projects/$PROJECT_ID/gate.json"
       - name: Locked Copilot Studio conversations (Direct Line runner)
+        if: steps.settings.outputs.agents == 'true'
         run: |
           node gate/lcp/cs-runner/run.mjs --scripts pr/tests/acceptance/agents \
             --rubric gate/rubrics/copilot-agent.md --runs 3 --out evidence/conversations.json
       - id: holdout-token
+        if: steps.settings.outputs.holdout == 'true'
         uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ vars.HOLDOUT_READER_APP_ID }}
@@ -2110,12 +2142,14 @@ jobs:
           owner: getai
           repositories: factory-holdout
       - uses: actions/checkout@v5
+        if: steps.settings.outputs.holdout == 'true'
         with:
           repository: getai/factory-holdout
           token: ${{ steps.holdout-token.outputs.token }}
           path: holdout
           persist-credentials: false
       - name: Held-out set (only aggregate scores and failing case IDs leave this step)
+        if: steps.settings.outputs.holdout == 'true'
         run: |
           set -euo pipefail
           python3 -I gate/lcp/run_holdout.py --root "holdout/$PROJECT_ID" --env "$TEST_ENV_URL" \
@@ -2162,9 +2196,12 @@ jobs:
               > "../evidence/verifier-${focus}.jsonl" &
             pids="$pids $!"
           done < ../evidence/verifier-plan.txt
-          for pid in $pids; do wait "$pid"; done
-          # The strictest verdict wins: any NEEDS_WORK or RESTART beats PASS
-          python3 -I lcp/parse_verdict.py --strictest --out ../evidence/verdict.json ../evidence/verifier-*.jsonl
+          for pid in $pids; do wait "$pid" || true; done
+          # The strictest verdict wins: PASS < NEEDS_WORK < RESTART < NO_VERDICT. A session
+          # that failed, stopped early or left no log is NO_VERDICT, so the wait above never
+          # fails the step; parse_verdict.py exits 0 and verdict_gate.py decides at the end.
+          python3 -I lcp/parse_verdict.py --strictest --plan ../evidence/verifier-plan.txt \
+            --out ../evidence/verdict.json ../evidence/verifier-*.jsonl
       - name: Hash the evidence and write the job summary
         if: always()
         run: |
@@ -2184,7 +2221,7 @@ jobs:
           path: evidence/
           retention-days: 400
       - name: Fail on a failing verdict or any failed locked or held-out case
-        run: python3 -I gate/lcp/verdict_gate.py --dir evidence
+        run: python3 -I gate/lcp/verdict_gate.py --dir evidence --settings "gate/projects/$PROJECT_ID/gate.json"
 
   danger:
     name: merge danger (deterministic floor, review agent may only raise)
@@ -2232,6 +2269,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
+      # As in verify-in-test: from the hashed lockfile, no install scripts (ADO 2509).
+      - name: Install pinned Copilot CLI
+        run: |
+          set -euo pipefail
+          npm ci --prefix gate/tools/copilot --ignore-scripts --no-audit --no-fund --no-update-notifier
+          echo "$GITHUB_WORKSPACE/gate/tools/copilot/node_modules/.bin" >> "$GITHUB_PATH"
+          gate/tools/copilot/node_modules/.bin/copilot --version
       - name: Deterministic floor from paths, plans and gate results
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
@@ -2246,7 +2290,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          npm install --global @github/copilot
           pids=""
           for axis in standards spec; do
             OTEL_RESOURCE_ATTRIBUTES="${OTEL_RESOURCE_ATTRIBUTES},review_axis=${axis}" \
@@ -2258,27 +2301,38 @@ jobs:
               --output-format json > "../evidence/review-${axis}.jsonl" &
             pids="$pids $!"
           done
-          for pid in $pids; do wait "$pid"; done
+          # Under set -e a failed wait would end the step before the combine runs. A review
+          # that failed, stopped early or wrote nothing is "no review" to merge_danger_combine.py:
+          # it never lowers the score and the merge policy never auto-merges.
+          for pid in $pids; do wait "$pid" || true; done
       - name: Combine (final score = max of floor and both reviews) and post the check run
         env:
           GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha }}
         run: |
           python3 -I gate/lcp/merge_danger_combine.py --floor evidence/danger-floor.json \
             --review evidence/review-standards.jsonl --review evidence/review-spec.jsonl \
-            --out evidence/danger.json --post-check
+            --out evidence/danger.json --post-check --head-sha "$HEAD_SHA"
       - name: Merge policy by rung (human approval needed unless the class is at L2 or above; always into main; always for protected paths)
         env:
-          GH_TOKEN: ${{ github.token }}
-          BASE_REF: ${{ github.base_ref }}
+          GH_TOKEN: ${{ github.token }}   # must be able to read the team's members (factory-gates finding 19)
+          BASE_REF: ${{ github.base_ref || github.event.merge_group.base_ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          MERGE_GROUP_HEAD_REF: ${{ github.event.merge_group.head_ref }}
           TRUST_FILE: gate/projects/${{ vars.PROJECT_ID }}/trust.yml
           AUTOMERGE_ENABLED: ${{ vars.LCP_AUTOMERGE_ENABLED }}   # "false" until a change class reaches L2 with sign-off
         run: |
-          # Passes if: base is integration, the PR's change class is at L2 or above in trust.yml,
-          # the final score is within that rung's limit, no protected path, all checks green,
-          # and AUTOMERGE_ENABLED is true; or an approving review from @ai-factory-merge-reviewers exists
-          # on the head commit (a reviewer re-runs this job after approving).
-          python3 -I gate/lcp/merge_policy.py --danger evidence/danger.json \
-            --base "$BASE_REF" --trust "$TRUST_FILE" --automerge "$AUTOMERGE_ENABLED"
+          # Passes if the verdict is PASS and either: the base is integration, every row that
+          # fired is in one change class at L2 or above in trust.yml, the score is within that
+          # rung's limit, no protected path, no unchecked input, both reviews read, no row that
+          # never auto-merges, and AUTOMERGE_ENABLED is true; or a member of the merge reviewers
+          # team in rulesets/org.json approved the head commit (a reviewer re-runs this job
+          # after approving). In a merge group the PR comes from the queue's branch name.
+          python3 -I gate/lcp/merge_policy.py --danger evidence/danger.json --verdict evidence/verdict.json \
+            --base "$BASE_REF" --trust "$TRUST_FILE" --automerge "$AUTOMERGE_ENABLED" \
+            --org gate/rulesets/org.json --pr "$PR_NUMBER" --head-sha "$HEAD_SHA" \
+            --merge-group-head-ref "$MERGE_GROUP_HEAD_REF"
 ```
 
 ## Appendix B: The Merge Danger rubric, verifier count and the trust file

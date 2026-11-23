@@ -109,6 +109,102 @@ Next steps:
 
 ## Log
 
+## Session 43, 2026-11-24, branch `claude/xenodochial-carson-eb7fd6`
+
+ADO 2538, slice B2: `merge_danger_combine.py` and `merge_policy.py`, the last two Merge Danger scripts, as **gate PR 25** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/25, branch `merge-danger-combine`, commit `b0251f1`, on `release` at `3a4db23` after slice C's gate PR 24). `self-test` is green on Python 3.11 (run 40647126). `lcp-gate` is red at `map lane`, as on every gate PR. Open, for Boroon to merge.
+- Where it ran: on the laptop (desktop app). The planning branch is in its own worktree (`.claude/worktrees/xenodochial-carson-eb7fd6`, from `main`, brought up to `0916057` with Session 42's merge). The gate branch is in a worktree of the gate clone inside it, `factory-gates/`. The shared gate clone was not switched.
+- Started by Session 41's session as a side session. At Boroon's word it was moved to the top level and renamed "37. Stage 1 - Build - Merge Danger combine and policy", after "36. Stage 1 - Build - Checker, verdicts and spec check" (Session 42).
+- This record is **pull request 55** (https://github.com/boroonmahanta/overnight-ai-factory/pull/55), branch `claude/xenodochial-carson-eb7fd6`, into `main`, opened at Boroon's word on 24 November 2026. Boroon merges.
+
+Read for it:
+- Sessions 41 and 42's entries.
+- Plan 5.10 and Appendix B (B.4 to B.6).
+- `lcp-gate.yml`'s `danger` job.
+- The gate README's floor and slice C sections.
+- `merge_danger_floor.py`, `simple_yaml.py`, `rulesets/org.json`, `apply_rulesets.py` and its fake GitHub.
+- Slice C's `parse_verdict.py` and its fixture.
+
+Decision (Boroon, 24 November 2026): **one real review run on the laptop under his Copilot sign-in** ("Yes, run it"), before any code:
+- Copilot CLI 1.0.113, on a made-up two-commit diff in the session scratchpad, with no client data.
+- The danger step's flags apart from `--agent`, with a 50-credit cap.
+- 95 events, exit 0, one premium request.
+- Without autopilot there is no `task_complete`. The answer is the content of the last `assistant.message`, with `phase: final_answer`. The tool-calling message is `phase: commentary` and empty. A `result` event follows, with `exitCode` and `usage.codeChanges`.
+- A cut-down copy is the fixture `tests/fixtures/review/copilot-1.0.113-standards.jsonl`.
+
+Done (gate PR 25):
+- **`lcp/merge_danger_combine.py`** (5.10, B.4). The final score is the highest of the full floor and each review's `raise_to`.
+  - A review is **no review** when its log is missing, the session did not finish, it exited non-zero, or it gave no answer.
+  - It is **invalid** when the answer is not one B.4 JSON object (bare, or in one ```json fence), names the other axis, misses a field, raises without a written reason, ends on a commentary message, or the session changed files.
+  - Neither lowers anything: an invalid answer's readable raise still counts. Both make `reviews_complete` false, so the policy never auto-merges.
+  - It writes `danger.json`, then posts a neutral `merge-danger` check run on the head commit. The check run was tested against a fake GitHub only.
+- **`lcp/merge_policy.py`** (5.10, B.5). Anything but a PASS verdict is not mergeable, whoever approves.
+  - It never auto-merges when any of these hold: anything `unchecked`; the base is `main` or anything but `integration`; a protected path; a floor of 4 or more; a `never` row; a review missing or suspecting drift; the switch off.
+  - Otherwise auto-merge needs one class in `trust.yml`, signed off at L2 or above, that holds every row that fired, with the score within the rung's limit.
+  - Without auto-merge, the PR needs an approving review on the head commit from an active member of the team that `org.json`'s new `merge_reviewers_team` names, with no team member's latest review requesting changes.
+  - In a merge group, the PR number comes from the queue branch.
+- **`lcp-gate.yml`, `danger`:**
+  - the review wait is `wait "$pid" || true`, as slice C's finding 17;
+  - the combine gets `--head-sha`;
+  - the policy gets `--verdict`, `--org`, `--pr`, `--head-sha` and `--merge-group-head-ref`, and its `BASE_REF` falls back to the merge group's base.
+- `rulesets/org.json` gains `merge_reviewers_team`. `make_rulesets.py` and `apply_rulesets.py` ignore it.
+- 73 new tests, 636 in all (4 skipped by design), passing.
+  - `test_merge_danger_combine.py` has 37 and `test_merge_policy.py` 35.
+  - `test_workflow.py` gains 1, and two more scripts in its flags test.
+  - One test makes `danger.json` and `verdict.json` with the real combine and `parse_verdict.py` on their real fixtures, then runs the policy on them.
+- Proved by breaking a copy 60 ways.
+  - Two survived the first run. One was a typo in the break. The other was a real gap: a trust file that is a link to nothing was read as "no trust file". It still blocked auto-merge, but with the wrong reason. A test was added.
+- `pending-scripts.txt` is down to 7, none of them 2538's. `scripts.sha256` was made last. `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check` are clean.
+- README: the file table, the counts, a section "The combine and the merge policy (ADO 2538, slice B2)" with the choices made, and findings 18 to 20.
+
+Found (gate README):
+- **18. The review step names no `--model`**, so Copilot CLI's `auto` picked MAI Code 2 Flash ("the best choice out of the models available in your plan"). It raised a one-column additive change from 2 to 7 for a missing column description. Pin `--model` in both Copilot steps once plan 9.3's choice for review is made (spike 0.6), and calibrate the review prompts against real raises.
+- **19. The job token probably cannot read team membership** (untested). The policy counts only an active member's approval, and fails closed with "the token must be able to read the team's members". Before the first PR that needs a human merge goes through the gate (the Stage 1 exit test), give `danger` a token with organisation Members read, or confirm `github.token` can read it on `getai.ghe.com`.
+- **20. `danger`'s own evidence is never kept.** `danger.json`, the review logs and the decision live only in the job's workspace, against rule 16. The check run keeps the score and its parts. Not changed.
+
+Made by this session without asking (gate README, slice B2 section; say if any is wrong):
+- A readable raise counts even from an invalid answer.
+- Every B.4 field is required, and extra fields are ignored.
+- A review's drift suspicion blocks auto-merge, not a human merge. Its unknowns put an auto-merged PR in the sample.
+- The check run is always `neutral`.
+- Where several classes hold the rows, the strictest wins. L2 and L3 classes need `signed_off_by`.
+- A broken trust file blocks auto-merge, not a human merge. No trust file means every class is at L1.
+- A PR in another org than `org.json`'s cannot pass the human path.
+- Not done: B.5's second reviewer at 8 and above on client work (nothing in the inputs says which work is client work), and 5.10's comment beside the check run.
+
+ADO: 2538 is **Done** (24 November 2026, after gate PR 25 merged). Its body holds this session's result and the time line; comments record the plan edits and the merge.
+
+Time and tokens (in 2538's body; session `15db2b29`, measured before the last commit; from a worktree, run `tools/session_usage.py` with `--root` set to this worktree's own project folder and `--session`). Active time 0 h 43 min (gaps over 10 minutes not counted), from 24 Nov 00:35 to 24 Nov 09:56 (UTC+11). Tokens: 132,191 output; 23,208,417 processed in all, of which 22,029,450 were cache reads. From 1 local transcript.
+
+Files changed:
+- Here: `docs/progress.md`, `docs/sources/plan-v3.1.md` (Appendix A, a 14.4 row), `CLAUDE.md` (the plan row and the line map).
+- In `GetAI-IP/factory-gates` (gate PR 25):
+  - `lcp/merge_danger_combine.py`, `lcp/merge_policy.py`, `tests/test_merge_danger_combine.py`, `tests/test_merge_policy.py`, `tests/fixtures/review/` (new);
+  - `.github/workflows/lcp-gate.yml`, `rulesets/org.json`, `tests/test_workflow.py`;
+  - `README.md`, `pending-scripts.txt`, `scripts.sha256`.
+
+Open items:
+- **Done: gate PR 25 merged by Boroon on 24 November 2026.** `release` is at `0db69f6`, with the same tree as the tested `b0251f1`; the remote branch was deleted on merge. Checked on `release`: 636 tests OK (4 skipped by design); `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check` are clean; 7 scripts left on `pending-scripts.txt`, none of them 2538's. Slice B2 is done, so **2538 is Done** in ADO (all of A, B and C merged, Boroon's rule of 23 November). The gate worktree and its local branch are removed.
+- **`docs/plans/schedule.md` is not edited,** because Session 37's unmerged branch rewrites the same rows (2538 becomes Tue 24 to Thu 26 Nov there). When it merges, 2538's row should say: **Done Tue 24 Nov** (Sessions 38 and 40 to 43; gate PRs 21 to 25). Sessions 34 and 37's branches also change `CLAUDE.md`'s plan row and line map, which this session changed too, so expect a conflict there when they merge.
+- **Done: plan Appendix A edited at Boroon's word** ("Yes, edit the plan", 24 November 2026), with a 14.4 row:
+  - `verify-in-test`'s verifier step waits with `|| true`, and `parse_verdict.py` gets `--plan` (slice C's finding 17);
+  - `danger`'s review step waits with `|| true`, the combine gets `--head-sha`, and the policy step gets the gate's flags, `BASE_REF` and comment (B2).
+  - The edited YAML parses with PyYAML. `CLAUDE.md`'s plan row and line map are updated.
+- **Done: slice C's plan edits too, at Boroon's word** ("Yes, edit slice C's lines too", 24 November 2026):
+  - Appendix A: the spec check step in `locks`; the checker step's flags and comment; the SARIF upload's `checkout_path`; the project settings step, the `if:` on the Copilot Studio and held-out steps, and `verdict_gate.py --settings`.
+  - 5.7: the `locks` and `verify-in-test` rows of the job table, and the trusted-script list.
+  - A 14.4 row for slice C's decisions: `run_workflow.py` waits for DG7 as ADO 3027, the spec check moved in ahead of DG8, and the optional suites by `gate.json`.
+  - Compared step by step with the gate (pins, org names and comments ignored): `locks`, `verify-in-test` and `danger` now match. One difference was left: Appendix A still installed Copilot CLI with `npm install --global`.
+- **Done: Appendix A's Copilot CLI install, at Boroon's word** ("Yes, edit it", 24 November 2026). `verify-in-test` and a new `danger` step install it from the gate repo's lockfile with `npm ci --ignore-scripts`, as the gate does since ADO 2509 (gate PR 16; plan 5.2 and spike 0.14's 14.4 row already said so). Compared again, all six jobs match `factory-gates` step by step apart from comments, pins and the `setup-node` cache flag. `CLAUDE.md`'s Appendix A row says so.
+- **Before the Stage 1 exit test (2539):** finding 19, a token that can read team membership in `danger`. Without one, no human approval counts and no PR can pass `danger`.
+- **For spike 0.6 and plan 9.3:** finding 18, the review model.
+- `CLAUDE.md`'s `factory-gates` row is not edited (it is several sessions behind; its plan row and line map are). When it is: `release` is at `0db69f6`, with 636 tests and 7 pending scripts, and 2538's slices A, B and C are all merged (gate PRs 21 to 25).
+- The scratch review repo and its raw log stay in the session scratchpad. Nothing was kept outside it.
+
+Next steps:
+1. Done: Boroon merged gate PR 25, and 2538 is Done.
+2. Wed 25 Nov: spike 0.10 (2459), "export both".
+3. Finding 19 before the exit test on Fri 27 Nov.
+
 ## Session 42, 2026-11-23 to 24, branch `claude/session-42-2538-c`
 
 ADO 2538, slice C: the scripts for `verify-in-test`'s results and the spec job. On the laptop (desktop app), three days before its Thu 26 Nov date. Planning branch in its own worktree (`.claude/worktrees/session-42-2538-c`, from `main` at `3bce4e9`); gate branch `verify-in-test` in a worktree of the gate clone inside it, first off `release` at `973a421`, then rebased onto `70ce7f4` once Boroon merged slice B1 (gate PR 23) during the session. Session renamed "36. Stage 1 - Build - Checker, verdicts and spec check", at Boroon's word, after "35. Stage 1 - Build - Merge Danger rules" (Session 41). Session 41's entry came in with pull request 53, merged into this branch before its pull request; Sessions 38 and 40's are still on their own branches, so when they merge the order is 42, 41, 40, 39, 38.
