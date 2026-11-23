@@ -113,6 +113,8 @@ Next steps:
 
 A laptop session, in its own worktree (`.claude/worktrees/session-39-3026`, from `main` at `1f848be`), because Sessions 34 to 38 share the folder. Boroon pasted a side chat about the three CODEOWNERS teams and asked for a story; then he chose new names, and the session did the rename. The `factory-gates` work ran in its own worktree too (`.claude/worktrees/gate-3026-team-names`), apart from Session 38's `static-file-checks`.
 
+**Pull request 50** (https://github.com/boroonmahanta/overnight-ai-factory/pull/50), opened at Boroon's word on 23 November 2026, into `main`. Boroon merges.
+
 Done:
 - **ADO 3026, "Name and create the three CODEOWNERS teams on getai.ghe.com"** (User Story, now Building, under Feature 2519, a predecessor of 2521, related to 2520; Tue 24 to Wed 25 Nov; tags `factory-build`, `stage-1`). Work size S, written in the body (this project has no `Custom.WorkSize` field). Its body holds the steps, the names table and what is left.
 - **Checked against `factory-gates`** (`release` at `65031e4`): the old names were `platform-team`, `acceptance-owners` and `factory-reviewers`, written `@AI-Business-Solutions/<team>` in `templates/CODEOWNERS`. **None of the teams exists yet**, by any name, in `AI-Business-Solutions` or `GetAI-IP` (listed with `gh api`, 23 November 2026).
@@ -137,7 +139,7 @@ Open items:
 Time and tokens (in 3026's body; session `c61993de`, measured before the last commit, the side chat not counted): active time 0 h 10 min (gaps over 10 minutes not counted), from 23 Nov 20:32 to 23 Nov 20:57 (UTC+11). Tokens: 42,243 output; 11,059,580 processed in all, of which 10,838,288 were cache reads. From 1 local transcript.
 
 Next steps:
-1. Boroon: merge gate PR 20 (make the manifest again first if another gate PR merged before it), and this branch's pull request when opened.
+1. Boroon: merge gate PR 20 (make the manifest again first if another gate PR merged before it), and pull request 50.
 2. Then the portal (3026 steps 4 to 6): the three teams in `AI-Business-Solutions`, `ai-factory-platform-admins` in `GetAI-IP` with Write on `factory-gates`, all Visible, Boroon a member.
 
 ## Session 36, 2026-11-23, branch `claude/nifty-thompson-22d47f`
