@@ -111,7 +111,9 @@ Next steps:
 
 ## Session 36, 2026-11-23, branch `claude/nifty-thompson-22d47f`
 
-ADO 2544, part 2: day-gate session DG5, the spec check script. On the laptop (desktop app), in its own worktree, started by Session 35 as a side session. The branch starts from Session 35's branch tip `5fa167c`. Pull request 47 (Session 35, DG4) was merged by Boroon on 23 November 2026 (`7476871`) during this session, and `main`'s content equals `5fa167c`, so this branch's pull request, when asked for, targets `main` and shows only Session 36's commits.
+ADO 2544, part 2: day-gate session DG5, the spec check script. On the laptop (desktop app), in its own worktree, started by Session 35 as a side session. The branch starts from Session 35's branch tip `5fa167c`. Pull request 47 (Session 35, DG4) was merged by Boroon on 23 November 2026 (`7476871`) during this session, and `main`'s content equals `5fa167c`, so this branch's pull request targets `main` and shows only Session 36's commits.
+
+**Pull request 48** (https://github.com/boroonmahanta/overnight-ai-factory/pull/48), opened at Boroon's word on 23 November 2026, into `main`; mergeable, no CI checks on this repo. Boroon merges.
 
 Done:
 - **`staging/factory-gates/spec/check_spec.py --spec <spec.md> --profile lcp|pcp [--repo <root>]`.** Standard library only, run with `python3 -I`, exit 0 or 1 (usage errors are 1 too). It reads the DG4 spec format and fails on, by rule name: `header` (the YAML header and its lane, profile, ambition and work size), `ado-id` (digits, and the folder `<ado_id>-<name>`), `design` (the design and prototype fields), `marker`, `checklist`, `nfr`, `assumption`, `criteria` (the `AC-<n>` IDs and the Acceptance Scenario Map), `lcp-field` (all 17 Low-Code Fields), `scenario` (with `--repo`, each map ID resolves to a file under `tests/`) and `spec` (no such file). It warns on `design-leak` (plan 6.6). Each line of output says `FAIL [rule] path:line: message`, with what to do.
@@ -139,7 +141,7 @@ Open items:
 Time and tokens (in 2544's body; session `4d3d63dd`, measured before the last commit): active time 0 h 30 min (gaps over 10 minutes not counted), from 23 Nov 19:39 to 23 Nov 20:09 (UTC+11). Tokens: 121,041 output; 11,203,298 processed in all, of which 10,769,001 were cache reads. From 1 local transcript.
 
 Next steps:
-1. Boroon: review and merge this branch's pull request when one is asked for; say whether 2544 is Done.
+1. Boroon: review and merge pull request 48; say whether 2544 is Done.
 2. Tue 24 Nov: 2538, the remaining gate scripts, with the `check_spec.py` job (item 8 above).
 3. Thu 26 Nov: 2548's first mining batch.
 
