@@ -170,7 +170,7 @@ Made by this session without asking (gate README, slice B2 section; say if any i
 - A PR in another org than `org.json`'s cannot pass the human path.
 - Not done: B.5's second reviewer at 8 and above on client work (nothing in the inputs says which work is client work), and 5.10's comment beside the check run.
 
-ADO: 2538 stays **Building**. Its body holds this session's result and the time line. It is done when gate PR 25 merges.
+ADO: 2538 is **Done** (24 November 2026, after gate PR 25 merged). Its body holds this session's result and the time line; comments record the plan edits and the merge.
 
 Time and tokens (in 2538's body; session `15db2b29`, measured before the last commit; from a worktree, run `tools/session_usage.py` with `--root` set to this worktree's own project folder and `--session`). Active time 0 h 43 min (gaps over 10 minutes not counted), from 24 Nov 00:35 to 24 Nov 09:56 (UTC+11). Tokens: 132,191 output; 23,208,417 processed in all, of which 22,029,450 were cache reads. From 1 local transcript.
 
@@ -182,7 +182,8 @@ Files changed:
   - `README.md`, `pending-scripts.txt`, `scripts.sha256`.
 
 Open items:
-- **Gate PR 25 is for Boroon to merge.** It changes hashed files, and `scripts.sha256` is already made again on its branch. If `release` moves first, rebase and make the manifest again. After the merge, 2538 can go to Done.
+- **Done: gate PR 25 merged by Boroon on 24 November 2026.** `release` is at `0db69f6`, with the same tree as the tested `b0251f1`; the remote branch was deleted on merge. Checked on `release`: 636 tests OK (4 skipped by design); `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check` are clean; 7 scripts left on `pending-scripts.txt`, none of them 2538's. Slice B2 is done, so **2538 is Done** in ADO (all of A, B and C merged, Boroon's rule of 23 November). The gate worktree and its local branch are removed.
+- **`docs/plans/schedule.md` is not edited,** because Session 37's unmerged branch rewrites the same rows (2538 becomes Tue 24 to Thu 26 Nov there). When it merges, 2538's row should say: **Done Tue 24 Nov** (Sessions 38 and 40 to 43; gate PRs 21 to 25). Sessions 34 and 37's branches also change `CLAUDE.md`'s plan row and line map, which this session changed too, so expect a conflict there when they merge.
 - **Done: plan Appendix A edited at Boroon's word** ("Yes, edit the plan", 24 November 2026), with a 14.4 row:
   - `verify-in-test`'s verifier step waits with `|| true`, and `parse_verdict.py` gets `--plan` (slice C's finding 17);
   - `danger`'s review step waits with `|| true`, the combine gets `--head-sha`, and the policy step gets the gate's flags, `BASE_REF` and comment (B2).
@@ -195,11 +196,11 @@ Open items:
 - **Done: Appendix A's Copilot CLI install, at Boroon's word** ("Yes, edit it", 24 November 2026). `verify-in-test` and a new `danger` step install it from the gate repo's lockfile with `npm ci --ignore-scripts`, as the gate does since ADO 2509 (gate PR 16; plan 5.2 and spike 0.14's 14.4 row already said so). Compared again, all six jobs match `factory-gates` step by step apart from comments, pins and the `setup-node` cache flag. `CLAUDE.md`'s Appendix A row says so.
 - **Before the Stage 1 exit test (2539):** finding 19, a token that can read team membership in `danger`. Without one, no human approval counts and no PR can pass `danger`.
 - **For spike 0.6 and plan 9.3:** finding 18, the review model.
-- `CLAUDE.md`'s `factory-gates` row is not edited (it is several sessions behind; its plan row and line map are). When it is: `release` will have the two B2 scripts, 636 tests and 7 pending scripts once gate PR 25 merges.
+- `CLAUDE.md`'s `factory-gates` row is not edited (it is several sessions behind; its plan row and line map are). When it is: `release` is at `0db69f6`, with 636 tests and 7 pending scripts, and 2538's slices A, B and C are all merged (gate PRs 21 to 25).
 - The scratch review repo and its raw log stay in the session scratchpad. Nothing was kept outside it.
 
 Next steps:
-1. Boroon merges gate PR 25. Then 2538 is done.
+1. Done: Boroon merged gate PR 25, and 2538 is Done.
 2. Wed 25 Nov: spike 0.10 (2459), "export both".
 3. Finding 19 before the exit test on Fri 27 Nov.
 
