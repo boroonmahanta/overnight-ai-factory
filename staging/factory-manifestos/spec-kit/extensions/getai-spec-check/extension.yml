@@ -1,0 +1,33 @@
+schema_version: "1.0"
+
+extension:
+  id: "getai-spec-check"
+  name: "GET AI spec check"
+  version: "0.1.0"
+  description: "Runs the GET AI spec check before implement. A failed check stops implement."
+  author: "GET AI"
+  license: "Proprietary"
+
+requires:
+  speckit_version: ">=1.4.3,<1.5"
+  tools:
+    - name: "python3"
+      version: ">=3.10"
+      required: true
+
+provides:
+  commands:
+    - name: "speckit.getai-spec-check.run"
+      file: "commands/run.md"
+      description: "Run the GET AI spec check on the current feature's spec"
+
+hooks:
+  before_implement:
+    command: "speckit.getai-spec-check.run"
+    optional: false
+    description: "Run the GET AI spec check; stop implement if it fails"
+
+tags:
+  - "getai"
+  - "governance"
+  - "day-gate"
