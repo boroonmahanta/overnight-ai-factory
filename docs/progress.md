@@ -195,7 +195,15 @@ Open items:
 - **Plan 5.6 says XML pack dropping a component is untested.** It is now seen (finding 12). Edit 5.6 and risk 11 at Boroon's word.
 - **Run the manifest check on Northwind's export** once it is in `factory-test` (2541), before 2539: it will likely show kinds the check does not know yet (canvas apps, global choices, charts), which fail closed until added.
 - **`docs/plans/schedule.md` not edited** (Session 37's unmerged branch redrafts the same rows): when it merges, mark 2538 started on Mon 23 Nov with gate PR 21. `CLAUDE.md`'s `factory-gates` row also lags (tests 206 once PR 21 merges); Session 34's unmerged branch edits the same row.
-- Before Boroon merges gate PR 21: if `release` has moved since `65031e4`, regenerate the manifest on the branch first.
+- **Done: gate PR 21 rebased onto `release` at `3c23ca5`** (after gate PR 20, Session 39's team rename), now commit `9f46d30`. The README conflict kept PR 20's team names and this PR's counts. `scripts.sha256` made again: against `release` it adds only `lcp/check_manifest.py`. 206 tests OK; `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check` clean. If `release` moves again before the merge, do the same again.
+
+What Sessions 37 and 39, which finished during this session, change for 2538 (checked at Boroon's request):
+- **Session 39, gate PR 20 (merged, `release` at `3c23ca5`):** it changed hashed files, so PR 21's manifest was stale: fixed above. Every later 2538 pull request must likewise start from the newest `release` and make the manifest last.
+- **Session 39, the teams and second approvers:** the three teams now exist as `ai-factory-platform-admins`, `ai-factory-acceptance-owners` and `ai-factory-merge-reviewers`, with a second person in each. For B: `merge_policy.py` and the danger rules must read team names from `rulesets/org.json`, never hard-code the old ones. Once 2520 sets `release-protection` to 1 approval with approval of the most recent push, each gate pull request also needs the `GetAI-IP` second approver, and every push after an approval needs approving again. Session 37's schedule puts 2520 on Fri 27 Nov, after 2538 ends on Thu 26 Nov, so A2, B and C should merge under today's stopgap. If 2520 comes earlier, the approver is on 2538's critical path.
+- **Session 37, ADO dates moved** (at Boroon's word): 2538 is Tue 24 to Thu 26 Nov. With three pull requests each merged before the next: A2 Tue, B Wed, C Thu, with a Boroon merge between each.
+- **Session 37's schedule, the move (2739, DG8) is Thu 26 Nov on laptop C,** the same day as C. C's `check_spec.py` job needs `spec/check_spec.py` in `factory-gates`, which arrives with the move, and both change hashed files. So either the move merges first and C follows, or C adds the job with `spec/check_spec.py` on `pending-scripts.txt` and the move deletes that line. Settle on Thu 26 Nov.
+- **Session 37's schedule branch is still not merged into `main`.** This branch does not touch `docs/plans/schedule.md`, so it adds no conflict there.
+- Session 39 also changed the team names in the staged spec check's fixture checklists; no effect on C beyond that.
 
 Next steps:
 1. Boroon: review gate PR 21; decide finding 11's route (the split is agreed).
