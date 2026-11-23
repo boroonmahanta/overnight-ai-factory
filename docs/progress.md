@@ -113,7 +113,9 @@ Next steps:
 
 A laptop session, in its own worktree (`.claude/worktrees/session-39-3026`, from `main` at `1f848be`), because Sessions 34 to 38 share the folder. Boroon pasted a side chat about the three CODEOWNERS teams and asked for a story; then he chose new names, and the session did the rename. The `factory-gates` work ran in its own worktree too (`.claude/worktrees/gate-3026-team-names`), apart from Session 38's `static-file-checks`.
 
-**Pull request 50** (https://github.com/boroonmahanta/overnight-ai-factory/pull/50), opened at Boroon's word on 23 November 2026, into `main`. Boroon merges.
+**Pull request 50** (https://github.com/boroonmahanta/overnight-ai-factory/pull/50), opened at Boroon's word on 23 November 2026, into `main`. **Merged by Boroon on 23 November 2026 (`b6c5b76`)**, and gate PR 20 the same evening (`release` at `3c23ca5`). Then Boroon made the teams in the portal, and **3026 moved to Done** at his word. These record commits are on branch `claude/session-39-3026-done`.
+
+**Checked after the merges** (`gh api`, 23 November 2026): `release` at `3c23ca5` passes `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check`, with 172 tests OK. The teams: `ai-factory-platform-admins` (ID 71036), `ai-factory-acceptance-owners` (71041) and `ai-factory-merge-reviewers` (71046) in `AI-Business-Solutions`, and `ai-factory-platform-admins` (71051) in `GetAI-IP`, the only team on `factory-gates`, with Write (`push`). All Visible (`closed`), no parent; the only member is `boroon-mahanta` (a User), no machine account. No identity provider group is linked: members are kept by hand for now, Entra groups later when more people join (Boroon's comment on 3026).
 
 Done:
 - **ADO 3026, "Name and create the three CODEOWNERS teams on getai.ghe.com"** (User Story, now Building, under Feature 2519, a predecessor of 2521, related to 2520; Tue 24 to Wed 25 Nov; tags `factory-build`, `stage-1`). Work size S, written in the body (this project has no `Custom.WorkSize` field). Its body holds the steps, the names table and what is left.
@@ -136,11 +138,12 @@ Open items:
 - **Gate PR 20 and 2538's gate work both change hashed files.** Whichever merges second must make `scripts.sha256` again first.
 - Session 37's schedule redraft (branch `claude/session-37-stage-1-this-week`, not merged when this was written) rewrites the same table; whichever merges second needs the 3026 row carried over. Its dates already put the teams on Wed 25 Nov.
 
-Time and tokens (in 3026's body; session `c61993de`, measured before the last commit, the side chat not counted): active time 0 h 10 min (gaps over 10 minutes not counted), from 23 Nov 20:32 to 23 Nov 20:57 (UTC+11). Tokens: 42,243 output; 11,059,580 processed in all, of which 10,838,288 were cache reads. From 1 local transcript.
+Time and tokens (in 3026's body; session `c61993de`, measured before the last commit, the side chat not counted): active time 0 h 24 min (gaps over 10 minutes not counted), from 23 Nov 20:32 to 23 Nov 21:10 (UTC+11). Tokens: 57,477 output; 15,520,521 processed in all, of which 15,258,058 were cache reads. From 1 local transcript.
 
 Next steps:
-1. Boroon: merge gate PR 20 (make the manifest again first if another gate PR merged before it), and pull request 50.
-2. Then the portal (3026 steps 4 to 6): the three teams in `AI-Business-Solutions`, `ai-factory-platform-admins` in `GetAI-IP` with Write on `factory-gates`, all Visible, Boroon a member.
+1. Done: both merged, the teams made, 3026 Done (23 November 2026).
+2. When the second approver is named: add them to all three teams (and to `ai-factory-platform-admins` in `GetAI-IP`), then 2520. Boroon alone in every team is a stopgap: it does not yet give the separation rule 3 and a second reviewer need.
+3. 2538's gate PR (`static-file-checks`) must make `scripts.sha256` again on top of `3c23ca5` before it merges.
 
 ## Session 36, 2026-11-23, branch `claude/nifty-thompson-22d47f`
 
