@@ -108,6 +108,41 @@ Next steps:
 
 ## Log
 
+## Session 35, 2026-11-23, branch `claude/session-35-2544-spec-kit`
+
+ADO 2544, part 1: day-gate session DG4, the Spec Kit pin and the two presets, on its start date. On the laptop (desktop app), in its own worktree, from `main` at pull request 46's merge (`0e2dab1`). Numbered 35 because Session 34 (2509) ran the same day. Session renamed "31. Stage 1 - Build - Pin Spec Kit and the presets", at Boroon's word.
+
+Done:
+- **Read the Spec Kit release notes 1.3.0 to 1.4.3.** 1.3.3 (9 November) is the last 1.3; 1.4.0 to 1.4.3 (10 to 19 November) marked nothing as breaking. 1.4.3 adds `replace-section` for presets (#5462); 1.4.2 stamps each generated skill with its source and version (#5456). PyPI's `specify-cli` versions match the tags, published from each tag by Spec Kit's own `publish-pypi.yml` (no provenance attestations).
+- **Pinned 1.4.3** (commit `980b3d0`), at Boroon's word. Installed in the scratchpad from the commit, read in full every template and command we override, the lean preset, and the preset, extension and bundle API docs.
+- **Built `staging/factory-manifestos/spec-kit/`:** the `getai` preset (a YAML header with ADO ID, lane, profile, ambition, work size, SharePoint design identity and exact version, prototype; an Acceptance Scenario Map with `AC-<n>` IDs; Non-Functional Requirements; Constraints; the GET AI rules wrapped around `specify` and the grilling rules around `clarify`; the GET AI constitution; a reviewer-owned GET AI checklist), the `getai-lcp` preset (the 6.3 fields appended; the delivery vault's design and handoff sections in place of the plan template's source tree; low-code rules around `specify`; a low-code checklist), the `getai-spec-check` extension (the `before_implement` hook, `optional: false`; its command runs `check_spec.py`, which DG5 adds), the `getai-lcp` bundle, and a README with the pin, how to install, the test, the findings and the prototype guide. Each override is one composition step over Spec Kit's own file; no Spec Kit file is copied.
+- **DG4's test passes:** in a fresh scratch project, `specify init --integration copilot`, then `specify preset add --dev` for both presets and `extension add` for the three extensions, gives a spec template with the header, every core section, the three GET AI sections and all 17 low-code fields; a plan template with the ten low-code sections; the specify and clarify skills headed by our rules; and the hook registered as mandatory. `specify bundle validate --offline` passes the bundle (warnings only for the three catalog parts).
+- **Findings** (in the spec-kit README and DG4's entry in the day-gate plan): the lean preset is left out of the bundle, since its `implement` skips hooks and the checklist gate; a bundle cannot install presets or extensions from local folders, so DG8 makes a private `getai` catalog on GHE (a new DG8 step 5); Spec Kit's shell resolver needs PyYAML on the system `python3`; the three-marker cap is in the core `specify` command; `update-agent-context` is now an opt-in extension that `init` does not install; `init` no longer installs the `git` extension.
+- `docs/component-register.md`: a Spec Kit row, the first kit row for A1.
+
+Decisions (Boroon, 23 November 2026, asked in this session):
+- **Every spec carries an ADO ID; no Spec Kit numbering** (asked mid-session: "don't fall back to Spec Kit's own numbering, force creation of an ADO ID if one doesn't exist"). The GET AI specify rules now take the ID from the input, else find the story in ADO, else create a User Story in the engagement's project once the owner agrees the project and title; with no ID they stop. The folder is always `specs/<ado-id>-<short-name>`. A new GET AI checklist item, CHK017, checks the ID matches across header, folder and day branch. Retested: the composed specify skill carries the rule.
+- **Pin Spec Kit 1.4.3**, not the newest 1.3.x (D2 as written), with the small plan edit that needs. **The plan is edited:** 6.1 and 11.2 say 1.4.3; a 14.4 row "The Spec Kit pin". The plan grew by one line (2,797 to 2,798); `CLAUDE.md`'s line map, plan row, pin and staging row follow.
+
+Made by this session without asking (say if any is wrong):
+- The lean preset left out of the bundle (finding above).
+- One field beyond plan 6.3's table, marked proposed: "Kind of change to a model-driven app" (plan 5.6), so the owner sees by day whether a story can run at night.
+- In clarify, new terms and decision records are written to `glossary.md` and `docs/adr/` on the spec's day branch, so they reach `main` only through the reviewed spec pull request (rule 17).
+
+Files changed: `staging/factory-manifestos/spec-kit/` (new, 16 files), `staging/factory-manifestos/README.md`, `docs/plans/stage-1-day-gate-plan.md`, `docs/plans/schedule.md`, `docs/component-register.md`, `docs/sources/plan-v3.1.md` (at Boroon's word), `CLAUDE.md`, `docs/progress.md`.
+
+Open items:
+- **DG5:** `staging/factory-gates/spec/check_spec.py`, its tests and fixtures, and the extension's byte-identical copy in `spec-kit/extensions/getai-spec-check/scripts/`. It reads the YAML header with the standard library (simple `key: "value"` lines), the `AC-<n>` IDs, the Acceptance Scenario Map, the NFR lines, the approval marks on Assumptions, the ADO ID (missing or not digits fails, and so does a spec folder that does not start with it), the Low-Code Fields (`Not applicable: <reason>` allowed, a bracketed placeholder fails) and the checklists.
+- Not tested: running specify and clarify with an agent end to end. Worth one dry run on a made-up story before DG6 or 2539.
+- The untracked `docs/plans/spike-0.17/engineer-how-to.md` in the main checkout is not this session's; left alone.
+
+Time and tokens (in 2544's body; session `71b14df4`, measured before the last commit): active time 0 h 26 min (gaps over 10 minutes not counted), from 23 Nov 18:40 to 23 Nov 19:25 (UTC+11). Tokens: 72,014 output; 17,417,488 processed in all, of which 17,043,409 were cache reads. From 1 local transcript.
+
+Next steps:
+1. DG5 (2544 part 2), Tue 24 or Wed 25 Nov: the spec check script.
+2. Tue 24 Nov: 2538, the remaining gate scripts (now with the `check_spec.py` job).
+3. Thu 26 Nov: 2548's first mining batch, if exports have arrived.
+
 ## Session 33, 2026-11-23, branch `claude/ignite-recheck-df24ce`
 
 The Ignite re-check (the schedule's checkpoint for Mon 23 Nov). Boroon asked, through the session "Ignite re-check for plan" that started this one: "do the Ignite re-check for our plan and tell me anything that influences the plan and has been announced as GA (not In Preview)". On the laptop (desktop app), in its own worktree. Four research agents read the sources in parallel (Power Platform ALM; the night tools and Copilot Studio; GitHub; Azure, licensing and ADO); then every GA row was re-read on its primary page here. One agent claim failed that check and was dropped (that the Copilot SDK's BYOK takes API keys only: its docs show Entra bearer tokens).

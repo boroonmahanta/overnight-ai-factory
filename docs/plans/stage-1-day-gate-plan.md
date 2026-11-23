@@ -127,6 +127,16 @@ Done when: `coding-standards.md` is merged in `factory-manifestos` with all 50 s
 
 ### DG4. Spec Kit pin and the two presets (2544, part 1). Monday 23 and Tuesday 24 November. Cloud
 
+**Done 23 November 2026** (Session 35, laptop, branch `claude/session-35-2544-spec-kit`): `staging/factory-manifestos/spec-kit/`, whose README holds the pin, how to install, the test and the findings. The "done when" test passed with `specify preset add --dev`. Changes from the steps below:
+- **The pin is 1.4.3, not 1.3.x** (Boroon, 23 November 2026): 1.4.0 to 1.4.3 had shipped since D2, nothing marked as breaking, and 1.4.3 adds `replace-section` for presets. The plan is edited (6.1, 11.2, a 14.4 row).
+- **No lean preset in the bundle** (step 6): its `implement` has no hook step and no checklist gate, so the mandatory spec check would never run.
+- **The bundle cannot install the GET AI parts from staging:** in 1.4.3 a bundle takes presets and extensions only from Spec Kit's packaged set or a catalog. DG8 makes a private `getai` catalog (below).
+- **Spec Kit's shell resolver needs PyYAML** on the system `python3` to compose preset layers.
+- Step 2's two checks: the three-marker cap is in the core `specify` command, not a template; `update-agent-context` is now the opt-in `agent-context` extension, which `specify init` does not install.
+- Each override is one composition step (`wrap`, `append` or `replace-section`) over Spec Kit's own file, because a preset may contribute only once per template or command. No Spec Kit file is copied.
+- **Every spec carries an ADO ID; no Spec Kit numbering** (Boroon, 23 November 2026). Specify finds the story in ADO or creates it, after the owner agrees the project and title, and names the folder `specs/<ado-id>-<short-name>`. With no ID it stops. DG5's script fails a spec whose `ado_id` is missing or not digits, or whose folder does not start with it.
+- One field beyond plan 6.3's table, proposed: "Kind of change to a model-driven app" (plan 5.6), so the owner sees by day whether a story can run at night.
+
 Read: plan 6.1 to 6.3 (lines 940 to 998), 6.6 and 6.7 (lines 1035 to 1066), 8.3 (lines 1202 to 1211); the delivery vault's `templates/solution-design.md` and `templates/build-handoff.md`; DG3's notes in the progress log; the Ignite re-check from the same morning.
 
 1. Pick the pin (D2): the newest 1.3.x, after reading its release notes. Install in the scratchpad with `uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v1.3.<n>`. Check whether the PyPI `specify-cli` versions match the tags; if they do, a hashed requirements pin lets Dependabot watch it (A1).
@@ -222,8 +232,9 @@ Read: Session 9's entry in `docs/progress.md` (how `factory-gates` moved).
 2. `staging/factory-manifestos/` into `GetAI-IP/factory-manifestos` with its history (a subtree split, merged by PR beside DG3's standards).
 3. `staging/factory-gates/` into `GetAI-IP/factory-gates` by PR: `spec/`, its tests and fixtures, and `playwright/`. Regenerate `scripts.sha256`; run every test; check `self-test` is green.
 4. A PR here deleting `staging/`, leaving a pointer in `CLAUDE.md`.
-5. Settle how the two copies of the glossary and ADR formats stay the same (added Session 18). After the move, the skill (`.claude/skills/getai-domain-modeling/`) stays here and the templates are in `factory-manifestos`, so the staging rule "change both in the same PR" no longer works. Agree a way with Boroon, for example two PRs that link each other, and write it into the `factory-manifestos` README and `CLAUDE.md`.
-6. Boroon merges all three.
+5. Make the private Spec Kit catalog `getai` (added Session 35, DG4): a release archive for each of `getai`, `getai-lcp` and `getai-spec-check`, and a catalog JSON naming them, in `GetAI-IP/factory-manifestos`; then `~/.specify/auth.json` with the `github-cli` provider for `getai.ghe.com` and `api.getai.ghe.com`, and `specify preset catalog add` and `specify extension catalog add` with `install_allowed: true`. Test `specify bundle install` of `spec-kit/bundles/getai-lcp/bundle.yml` in a scratch project. Spec Kit's authentication reference covers GHE.com.
+6. Settle how the two copies of the glossary and ADR formats stay the same (added Session 18). After the move, the skill (`.claude/skills/getai-domain-modeling/`) stays here and the templates are in `factory-manifestos`, so the staging rule "change both in the same PR" no longer works. Agree a way with Boroon, for example two PRs that link each other, and write it into the `factory-manifestos` README and `CLAUDE.md`.
+7. Boroon merges all three.
 
 Done when: both GHE repos hold the files with tests passing, `staging/` is gone from `main` here, and the way the two format copies stay the same is written down.
 

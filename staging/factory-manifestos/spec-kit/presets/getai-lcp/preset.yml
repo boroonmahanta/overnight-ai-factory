@@ -1,0 +1,43 @@
+schema_version: "1.0"
+
+preset:
+  id: "getai-lcp"
+  name: "GET AI low-code"
+  version: "0.1.0"
+  description: "GET AI low-code profile, on top of the getai preset: the low-code fields of plan 6.3, the low-code plan sections from the delivery vault's design and handoff templates, and the low-code checklist."
+  author: "GET AI"
+  license: "Proprietary"
+
+requires:
+  speckit_version: ">=1.4.3,<1.5"
+
+provides:
+  templates:
+    - type: "template"
+      name: "spec-template"
+      file: "templates/spec-template.md"
+      description: "Low-code fields (plan 6.3), after the GET AI sections"
+      strategy: "append"
+
+    - type: "template"
+      name: "plan-template"
+      file: "templates/plan-template.md"
+      description: "Low-code design sections in place of the core source-tree section"
+      strategy: "replace-section"
+      selector: "project-structure"
+
+    - type: "template"
+      name: "getai-lcp-checklist"
+      file: "templates/getai-lcp-checklist.md"
+      description: "Reviewer-owned low-code checklist, written into every lcp spec's checklists folder"
+
+    - type: "command"
+      name: "speckit.specify"
+      file: "commands/speckit.specify.md"
+      description: "Low-code rules around the GET AI and core specify"
+      strategy: "wrap"
+
+tags:
+  - "getai"
+  - "low-code"
+  - "day-gate"

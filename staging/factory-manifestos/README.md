@@ -11,7 +11,7 @@ The repo holds, per practice: a `coding-standards.md`, an `AGENTS.md` fragment, 
 | `templates/project/glossary.md` | The glossary format, with the `_Schema_` line for both profiles and one example term | DG1 (2545), done |
 | `templates/project/docs/adr/README.md` | The decision record (ADR) format and the three tests for writing one | DG1 (2545), done |
 | `templates/project/coding-standards.md` | The header only: who reads the file, "rule" and "judgement", how it changes | DG1 (2545), done |
-| `spec-kit/` | The `getai` and `getai-lcp` presets, the `getai-spec-check` extension and the `getai-lcp` bundle | DG4 and DG5 (2544), not started |
+| `spec-kit/` | The `getai` and `getai-lcp` presets, the `getai-spec-check` extension and the `getai-lcp` bundle, on Spec Kit 1.4.3. Its README holds the pin, how to install and the findings | DG4 (2544), done 23 November 2026. The extension's script comes in DG5 |
 | `conventions/` | `locked-scenarios.md` and `scenario.schema.json` | DG7 (2546), not started |
 | `practices/lcp/coding-standards.md` | The low-code standards, 50 with their own IDs, anonymised. **On GHE only, never here** | DG3 (2545), done: pull request 1 in `GetAI-IP/factory-manifestos`, merged 13 November 2026 |
 
