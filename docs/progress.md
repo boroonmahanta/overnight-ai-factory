@@ -175,7 +175,7 @@ ADO: 2538 stays **Building**. Its body holds this session's result and the time 
 Time and tokens (in 2538's body; session `15db2b29`, measured before the last commit; from a worktree, run `tools/session_usage.py` with `--root` set to this worktree's own project folder and `--session`). Active time 0 h 43 min (gaps over 10 minutes not counted), from 24 Nov 00:35 to 24 Nov 09:56 (UTC+11). Tokens: 132,191 output; 23,208,417 processed in all, of which 22,029,450 were cache reads. From 1 local transcript.
 
 Files changed:
-- Here: `docs/progress.md`.
+- Here: `docs/progress.md`, `docs/sources/plan-v3.1.md` (Appendix A, a 14.4 row), `CLAUDE.md` (the plan row and the line map).
 - In `GetAI-IP/factory-gates` (gate PR 25):
   - `lcp/merge_danger_combine.py`, `lcp/merge_policy.py`, `tests/test_merge_danger_combine.py`, `tests/test_merge_policy.py`, `tests/fixtures/review/` (new);
   - `.github/workflows/lcp-gate.yml`, `rulesets/org.json`, `tests/test_workflow.py`;
@@ -183,10 +183,14 @@ Files changed:
 
 Open items:
 - **Gate PR 25 is for Boroon to merge.** It changes hashed files, and `scripts.sha256` is already made again on its branch. If `release` moves first, rebase and make the manifest again. After the merge, 2538 can go to Done.
-- **Plan edits for Boroon** (none made): Appendix A's `danger` lines changed here (the review wait, `--head-sha`, the policy's flags and `BASE_REF`), with slice C's.
+- **Done: plan Appendix A edited at Boroon's word** ("Yes, edit the plan", 24 November 2026), with a 14.4 row:
+  - `verify-in-test`'s verifier step waits with `|| true`, and `parse_verdict.py` gets `--plan` (slice C's finding 17);
+  - `danger`'s review step waits with `|| true`, the combine gets `--head-sha`, and the policy step gets the gate's flags, `BASE_REF` and comment (B2).
+  - The edited YAML parses with PyYAML. `CLAUDE.md`'s plan row and line map are updated.
+  - Still only in `factory-gates`, not in Appendix A: slice C's checker flags, the SARIF upload's `checkout_path`, the spec step in `locks`, and the optional-suite steps. Also 5.7's job table (`locks` runs the spec check) and a 14.4 row for slice C's three decisions. For Boroon, when he wants them.
 - **Before the Stage 1 exit test (2539):** finding 19, a token that can read team membership in `danger`. Without one, no human approval counts and no PR can pass `danger`.
 - **For spike 0.6 and plan 9.3:** finding 18, the review model.
-- `CLAUDE.md`'s `factory-gates` row is not edited (it is several sessions behind). When it is: `release` will have the two B2 scripts, 636 tests and 7 pending scripts once gate PR 25 merges.
+- `CLAUDE.md`'s `factory-gates` row is not edited (it is several sessions behind; its plan row and line map are). When it is: `release` will have the two B2 scripts, 636 tests and 7 pending scripts once gate PR 25 merges.
 - The scratch review repo and its raw log stay in the session scratchpad. Nothing was kept outside it.
 
 Next steps:

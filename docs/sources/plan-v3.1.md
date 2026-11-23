@@ -1668,6 +1668,7 @@ Board lens: these are reusable IP, Power Platform depth strengthens the Microsof
 | **The Spec Kit pin** (ADO 2544, DG4) | The newest 1.3.x (D2, 7 November 2026) | Spec Kit 1.4.3, commit `980b3d0` (Boroon, 23 November 2026). 1.3.3 was the last 1.3; 1.4.0 to 1.4.3 marked nothing as breaking. 1.4.3 adds section replacement for presets and 1.4.2 stamps each generated skill with its source and version (`staging/factory-manifestos/spec-kit/README.md`) | Each override is one composition step over Spec Kit's own file, not a copy, so updates flow through. A1 still reads every update before the pin moves |
 | **The CODEOWNERS team names** (ADO 3026) | `platform-team`, `acceptance-owners` and `factory-reviewers` (5.7, 5.8, 5.10), none yet created | `ai-factory-platform-admins`, `ai-factory-acceptance-owners` and `ai-factory-merge-reviewers` (Boroon, 23 November 2026). One set per org, by role, shared by low-code and pro-code; a split by profile, if ever wanted, uses child teams under each. Renamed in `factory-gates` by gate PR 20 | The old names were vague and only one had a shared prefix. The prefix groups the three on the org's Teams page and marks them as the factory's. Still product-neutral (rule 18) |
 | **Merge Danger floors and the flow check's unsafe text** (ADO 2538 slice B, `factory-gates` finding 14) | B.2 had rows for eight kinds of finding; the first real exports showed more. The uploaded plan's "unsafe substrings" for `lint_logic_apps.py` were never defined; gate PR 22 chose seven kinds as a proposal | B.2 has a row for every finding the export-diff plan makes: relationship and global choice added at 2; any other finding at 3; connection references and environment variables removed or changed at 5; a narrower range, a removed global choice and a changed relationship at 6; column security turned on, and auditing turned on or off, at 7; column security turned off and a removed relationship at 8. The flow check fails on nine kinds of text in a flow: a signed URL, a bearer token, a JSON web token, a private key, a storage or Service Bus key, a literal value in a secret-named field, a Dataverse environment URL, a flow's trigger URL whether signed or not, and a secret inside a string (`client_secret=`, `password=` or `pwd=`, an Azure Functions `code=`, `subscription-key=`). It runs the same list over environment variable default values, and fails any current-value file in the export. GUIDs, mailbox addresses and other endpoint URLs stay with the review agent (B.4) and the gardening scan (7.4). Appendix A's `verify-in-test` checks the PR out with full history, as `static` and `danger` do, because the pre-floor diffs `BASE...HEAD`; `factory-gates` has the same line (gate PR 23) (Boroon, 23 November 2026; Appendix B.2, Appendix A) | Without a row, a dropped lookup or column security turned off would have floored at 3. At 3, every new table, which brings its system relationships, would have floored above B.2's additive 2. Section 5.3 turns auditing on everywhere, so turning it off is security-relevant. The two text additions and the defaults check come from the Get AI Engineer's standards `ALM-002` and `ALM-007`: a hard-coded child-flow URL, or a Dev value shipped as a default, makes Test call Dev while every run still passes. Whether a GUID, mailbox or endpoint differs by environment needs judgement, which a lint cannot make |
+| **The review and verifier waits, the combine and the merge policy in Appendix A** (ADO 2538 slices C and B2, `factory-gates` findings 17 and 19) | The verifier step in `verify-in-test` and the review step in `danger` waited with `wait "$pid"` under `set -e`; `parse_verdict.py` had no list of planned focuses; the combine posted its check run with no commit named; the merge policy read only `danger.json`, the base, the trust file and the switch | Both waits are `wait "$pid" \|\| true`. A failed verifier session is NO_VERDICT (`parse_verdict.py --plan`, which also makes a planned focus with no log NO_VERDICT), and a failed review session is "no review", which never lowers the score and blocks auto-merge. The combine posts on the PR's head commit. The merge policy also reads `verdict.json` (anything but PASS is not mergeable), `rulesets/org.json` (the merge reviewers' team by its `merge_reviewers_team`, so no script names a team), the PR number and head commit, and in a merge group the queue's base and branch. Edited into Appendix A at Boroon's word (24 November 2026), as gate PR 24 (merged) and gate PR 25 (open) have it | Under `set -euo pipefail` one failed session ended the step, so no verdict or score was written and the evidence lost the reason. `github.base_ref` is empty in a merge group. Untested: whether the job's token can read team membership (finding 19); until it can, no human approval counts |
 
 ## 15. Open questions and evidence quality
 
@@ -2162,9 +2163,12 @@ jobs:
               > "../evidence/verifier-${focus}.jsonl" &
             pids="$pids $!"
           done < ../evidence/verifier-plan.txt
-          for pid in $pids; do wait "$pid"; done
-          # The strictest verdict wins: any NEEDS_WORK or RESTART beats PASS
-          python3 -I lcp/parse_verdict.py --strictest --out ../evidence/verdict.json ../evidence/verifier-*.jsonl
+          for pid in $pids; do wait "$pid" || true; done
+          # The strictest verdict wins: PASS < NEEDS_WORK < RESTART < NO_VERDICT. A session
+          # that failed, stopped early or left no log is NO_VERDICT, so the wait above never
+          # fails the step; parse_verdict.py exits 0 and verdict_gate.py decides at the end.
+          python3 -I lcp/parse_verdict.py --strictest --plan ../evidence/verifier-plan.txt \
+            --out ../evidence/verdict.json ../evidence/verifier-*.jsonl
       - name: Hash the evidence and write the job summary
         if: always()
         run: |
@@ -2258,27 +2262,38 @@ jobs:
               --output-format json > "../evidence/review-${axis}.jsonl" &
             pids="$pids $!"
           done
-          for pid in $pids; do wait "$pid"; done
+          # Under set -e a failed wait would end the step before the combine runs. A review
+          # that failed, stopped early or wrote nothing is "no review" to merge_danger_combine.py:
+          # it never lowers the score and the merge policy never auto-merges.
+          for pid in $pids; do wait "$pid" || true; done
       - name: Combine (final score = max of floor and both reviews) and post the check run
         env:
           GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha }}
         run: |
           python3 -I gate/lcp/merge_danger_combine.py --floor evidence/danger-floor.json \
             --review evidence/review-standards.jsonl --review evidence/review-spec.jsonl \
-            --out evidence/danger.json --post-check
+            --out evidence/danger.json --post-check --head-sha "$HEAD_SHA"
       - name: Merge policy by rung (human approval needed unless the class is at L2 or above; always into main; always for protected paths)
         env:
-          GH_TOKEN: ${{ github.token }}
-          BASE_REF: ${{ github.base_ref }}
+          GH_TOKEN: ${{ github.token }}   # must be able to read the team's members (factory-gates finding 19)
+          BASE_REF: ${{ github.base_ref || github.event.merge_group.base_ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          MERGE_GROUP_HEAD_REF: ${{ github.event.merge_group.head_ref }}
           TRUST_FILE: gate/projects/${{ vars.PROJECT_ID }}/trust.yml
           AUTOMERGE_ENABLED: ${{ vars.LCP_AUTOMERGE_ENABLED }}   # "false" until a change class reaches L2 with sign-off
         run: |
-          # Passes if: base is integration, the PR's change class is at L2 or above in trust.yml,
-          # the final score is within that rung's limit, no protected path, all checks green,
-          # and AUTOMERGE_ENABLED is true; or an approving review from @ai-factory-merge-reviewers exists
-          # on the head commit (a reviewer re-runs this job after approving).
-          python3 -I gate/lcp/merge_policy.py --danger evidence/danger.json \
-            --base "$BASE_REF" --trust "$TRUST_FILE" --automerge "$AUTOMERGE_ENABLED"
+          # Passes if the verdict is PASS and either: the base is integration, every row that
+          # fired is in one change class at L2 or above in trust.yml, the score is within that
+          # rung's limit, no protected path, no unchecked input, both reviews read, no row that
+          # never auto-merges, and AUTOMERGE_ENABLED is true; or a member of the merge reviewers
+          # team in rulesets/org.json approved the head commit (a reviewer re-runs this job
+          # after approving). In a merge group the PR comes from the queue's branch name.
+          python3 -I gate/lcp/merge_policy.py --danger evidence/danger.json --verdict evidence/verdict.json \
+            --base "$BASE_REF" --trust "$TRUST_FILE" --automerge "$AUTOMERGE_ENABLED" \
+            --org gate/rulesets/org.json --pr "$PR_NUMBER" --head-sha "$HEAD_SHA" \
+            --merge-group-head-ref "$MERGE_GROUP_HEAD_REF"
 ```
 
 ## Appendix B: The Merge Danger rubric, verifier count and the trust file
