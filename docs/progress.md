@@ -113,7 +113,7 @@ Next steps:
 
 ADO 2538, slice A2 (the export-diff plan and four static lints), on the laptop (desktop app), a day before its Tue 24 Nov date. Started from Session 38 as a side session. Planning branch in its own worktree from `main` at `3bce4e9`. Gate branch `export-plan-and-lints` off `release` at `b25cb2f` (gate PR 21 merged), in its own worktree of the gate clone at `factory-gates/` inside this session's worktree (the edit hook allows writes only there); the shared gate clone was not switched. Numbered 40 because Session 39's three branches are the newest.
 
-**Gate PR 22** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/22, commit `6123c13`), open, for Boroon to merge.
+**Gate PR 22** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/22, commit `6123c13`): **merged by Boroon on 23 November 2026**; `release` is at `973a421`, with the same tree as the tested commit, so the manifest holds. Slice A of 2538 is done.
 
 Done:
 - **`lcp/plan_from_export.py`, the export-diff plan** (plan 5.7, B.1, B.2). Reads `src/` on disk and `src/` in the base commit with `git ls-tree` and `git cat-file --batch` (no checkout, no filters), and writes `export-plan.json`. One finding per change, each with a rule name for slice B's floor: tables, columns (type, shorter length, stricter required level, narrower range, column security), choice values, forms and views (fields or columns only added, or anything else), roles and privileges (added, removed, widened, narrowed), relationships, flows (logic or settings), connection references, environment variables, the solution and its missing dependencies, and every other file by path. `additive_only` for B.1's small-addition row. Never writes a value. Ignores Microsoft's version stamp, the solution version and empty placeholder elements.
@@ -143,15 +143,15 @@ Time and tokens (session `c377ce18`, measured before the last commit): active ti
 Files changed: here, `docs/progress.md` only. In `GetAI-IP/factory-gates` (gate PR 22): five scripts in `lcp/` (new), five test files (new), `tests/fixtures/export-base/` (new, 23 files), `README.md`, `pending-scripts.txt`, `scripts.sha256`.
 
 Open items:
-- **Boroon: review and merge gate PR 22.** `self-test` passed on the runner (Python 3.11, which the laptop does not have; run 40559901); `lcp-gate` is red at `map lane`, as on every gate PR (README step 10). If `release` moves before the merge: regenerate the manifest first.
+- **Done: gate PR 22 merged by Boroon on 23 November 2026** (`release` at `973a421`). `self-test` had passed on the runner (Python 3.11, which the laptop does not have; run 40559901); `lcp-gate` was red at `map lane`, as on every gate PR (README step 10).
 - **Slice B (Wed 25 Nov):** `danger-rules.yml` maps the plan's rule names to floors (the README table); confirm the proposed floors and the unsafe-text list with Boroon. `merge_danger_floor.py` reads `export-plan.json` as written here (`schema_version` 1).
 - Not seen in a real export yet, so handled from Microsoft's format only: global choices, lookup or many-to-many relationships, field security profiles, an environment variable value file, classic workflows, Copilot Studio agent flows. Northwind's export (2541) is the first chance.
-- `CLAUDE.md`'s `factory-gates` row and `docs/plans/schedule.md` not edited (Sessions 34, 37 and 38's unmerged branches touch them): once PR 22 merges, `release` holds 296 tests and 14 pending scripts.
-- The gate worktree at `factory-gates/` inside this session's worktree can be removed after the merge (`git worktree remove` from the shared gate clone).
+- `CLAUDE.md`'s `factory-gates` row and `docs/plans/schedule.md` not edited (Sessions 34, 37 and 38's unmerged branches touch them): `release` now holds 296 tests and 14 pending scripts, and slice A of 2538 (gate PRs 21 and 22) is done.
+- Done: the gate worktree at `factory-gates/` inside this session's worktree removed after the merge, with its local branch.
 
 Next steps:
-1. Boroon: merge gate PR 22.
-2. Slice B of 2538 (Wed 25 Nov), then C (Thu 26 Nov), each from the newest `release`, manifest made last.
+1. Slice B of 2538 (Wed 25 Nov), from `release` at `973a421` or newer, manifest made last; settle the proposed floors and the unsafe-text list with Boroon there.
+2. Then C (Thu 26 Nov).
 
 ## Session 39, 2026-11-23, branch `claude/session-39-3026-teams-story`
 
