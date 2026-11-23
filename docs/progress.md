@@ -109,6 +109,50 @@ Next steps:
 
 ## Log
 
+## Session 40, 2026-11-23, branch `claude/session-40-2538-a2`
+
+ADO 2538, slice A2 (the export-diff plan and four static lints), on the laptop (desktop app), a day before its Tue 24 Nov date. Started from Session 38 as a side session. Planning branch in its own worktree from `main` at `3bce4e9`. Gate branch `export-plan-and-lints` off `release` at `b25cb2f` (gate PR 21 merged), in its own worktree of the gate clone at `factory-gates/` inside this session's worktree (the edit hook allows writes only there); the shared gate clone was not switched. Numbered 40 because Session 39's three branches are the newest.
+
+**Gate PR 22** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/22, commit `6123c13`), open, for Boroon to merge.
+
+Done:
+- **`lcp/plan_from_export.py`, the export-diff plan** (plan 5.7, B.1, B.2). Reads `src/` on disk and `src/` in the base commit with `git ls-tree` and `git cat-file --batch` (no checkout, no filters), and writes `export-plan.json`. One finding per change, each with a rule name for slice B's floor: tables, columns (type, shorter length, stricter required level, narrower range, column security), choice values, forms and views (fields or columns only added, or anything else), roles and privileges (added, removed, widened, narrowed), relationships, flows (logic or settings), connection references, environment variables, the solution and its missing dependencies, and every other file by path. `additive_only` for B.1's small-addition row. Never writes a value. Ignores Microsoft's version stamp, the solution version and empty placeholder elements.
+- **Four lints,** each `--root pr`: `check_root_components.py` (a custom component whose publisher prefix is not the solution's has leaked in; one solution under `src/`), `lint_no_prototype.py` (any solution in the PR, unpacked or zipped, with the prefix `proto`), `lint_static_results.py` (flow mocks, on or off), `lint_logic_apps.py` (expressions over 8,192 characters, Power Automate's limit checked on Microsoft Learn; secrets or a Dataverse environment URL in a flow; never prints what it found).
+- All five follow `check_manifest.py`'s rules: standard library only, symbolic links and DOCTYPEs refused, `FAIL [kind] path: message`.
+- **Tests: 90 new, 296 in all, passing** (Python 3.15 locally; `self-test` runs 3.11). On two real exports of the scratch solution `FactorySpike`: the existing fixture (spike 0.14 part 4, cut down) and a new one, `tests/fixtures/export-base/` (spike 0.19's reset commit, whole, from an old scratchpad; no client data). The real pair shows exactly what changed between them, and nothing for the moved version stamp or the new empty placeholders. Spike 0.14 part 4b's small addition (a column on a form and in a view) comes out additive only. The four lints also pass on spike 0.14 part 4's full export.
+- **Proved by breaking a copy 56 ways** (26 in the plan, 30 in the lints). Two survived the first run (a removed or changed form cell beside an added one), so three tests were added; then all 56 failed a test.
+- `pending-scripts.txt` is down to 14 lines; `scripts.sha256` made last, adding only the five scripts against `release`; `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check` clean. Gate README: a section "The export-diff plan and four lints" with the rule table, choices and tests, and findings 13 and 14.
+
+Found:
+- **Gate finding 13:** between spike 0.19's export and spike 0.14 part 4's, `Other/Customizations.xml` gained three empty elements (`<WebResources />`, `<AppModuleSiteMaps />`, `<AppModules />`) when the solution first held those kinds. A plan comparing the file would report a change in every such PR; the plan ignores empty placeholders.
+- **Gate finding 14:** Appendix B.2 has no row for much of what an export shows (narrower range, column security, a relationship removed or its cascade changed, a global choice removed, a connection reference or environment variable changed or removed, a form or view removed). The README proposes a floor for each; settle in slice B with `danger-rules.yml` (task 2517), and edit B.2 at Boroon's word.
+
+Made by this session without asking (say if any is wrong; gate README, "The export-diff plan and four lints"):
+- The rule names and the proposed floors for rules with no plan row.
+- **"Unsafe substrings" in `lint_logic_apps.py`:** the uploaded plan never says what they are. Chosen: a signed URL (`sig=`), a bearer token, a JSON web token, a private key, a storage or Service Bus key, a literal value in a secret-named field, and a Dataverse environment URL.
+- A move from `none` to `recommended` counts as a stricter required level (conservative).
+- What counts as only adding to a form or view: cells (and fetch attributes) gained, nothing removed, changed, moved or reordered, and the rest the same.
+- `check_root_components.py` reads "the wrong root solution" as a publisher-prefix leak; it fails closed on another publisher's table or column, Microsoft's included (an allowed list later, by PR), and cannot check the spec's target solution until projects have settings.
+- A static result turned off still fails.
+- An unknown required level or privilege depth counts as the worse finding, with `"unknown": true`.
+
+ADO: 2538 stays in **Building** (B and C follow); its body holds this session's result and time line.
+
+Time and tokens (session `c377ce18`, measured before the last commit): active time 0 h 44 min (gaps over 10 minutes not counted), from 23 Nov 21:44 to 23 Nov 22:28 (UTC+11). Tokens: 165,426 output; 22,785,416 processed in all, of which 22,252,762 were cache reads. From 1 local transcript.
+
+Files changed: here, `docs/progress.md` only. In `GetAI-IP/factory-gates` (gate PR 22): five scripts in `lcp/` (new), five test files (new), `tests/fixtures/export-base/` (new, 23 files), `README.md`, `pending-scripts.txt`, `scripts.sha256`.
+
+Open items:
+- **Boroon: review and merge gate PR 22,** with `self-test` green first (it runs Python 3.11, which the laptop does not have). If `release` moves before the merge: regenerate the manifest first.
+- **Slice B (Wed 25 Nov):** `danger-rules.yml` maps the plan's rule names to floors (the README table); confirm the proposed floors and the unsafe-text list with Boroon. `merge_danger_floor.py` reads `export-plan.json` as written here (`schema_version` 1).
+- Not seen in a real export yet, so handled from Microsoft's format only: global choices, lookup or many-to-many relationships, field security profiles, an environment variable value file, classic workflows, Copilot Studio agent flows. Northwind's export (2541) is the first chance.
+- `CLAUDE.md`'s `factory-gates` row and `docs/plans/schedule.md` not edited (Sessions 34, 37 and 38's unmerged branches touch them): once PR 22 merges, `release` holds 296 tests and 14 pending scripts.
+- The gate worktree at `factory-gates/` inside this session's worktree can be removed after the merge (`git worktree remove` from the shared gate clone).
+
+Next steps:
+1. Boroon: merge gate PR 22.
+2. Slice B of 2538 (Wed 25 Nov), then C (Thu 26 Nov), each from the newest `release`, manifest made last.
+
 ## Session 39, 2026-11-23, branch `claude/session-39-3026-teams-story`
 
 A laptop session, in its own worktree (`.claude/worktrees/session-39-3026`, from `main` at `1f848be`), because Sessions 34 to 38 share the folder. Boroon pasted a side chat about the three CODEOWNERS teams and asked for a story; then he chose new names, and the session did the rename. The `factory-gates` work ran in its own worktree too (`.claude/worktrees/gate-3026-team-names`), apart from Session 38's `static-file-checks`.
