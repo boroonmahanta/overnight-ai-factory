@@ -187,7 +187,11 @@ Open items:
   - `verify-in-test`'s verifier step waits with `|| true`, and `parse_verdict.py` gets `--plan` (slice C's finding 17);
   - `danger`'s review step waits with `|| true`, the combine gets `--head-sha`, and the policy step gets the gate's flags, `BASE_REF` and comment (B2).
   - The edited YAML parses with PyYAML. `CLAUDE.md`'s plan row and line map are updated.
-  - Still only in `factory-gates`, not in Appendix A: slice C's checker flags, the SARIF upload's `checkout_path`, the spec step in `locks`, and the optional-suite steps. Also 5.7's job table (`locks` runs the spec check) and a 14.4 row for slice C's three decisions. For Boroon, when he wants them.
+- **Done: slice C's plan edits too, at Boroon's word** ("Yes, edit slice C's lines too", 24 November 2026):
+  - Appendix A: the spec check step in `locks`; the checker step's flags and comment; the SARIF upload's `checkout_path`; the project settings step, the `if:` on the Copilot Studio and held-out steps, and `verdict_gate.py --settings`.
+  - 5.7: the `locks` and `verify-in-test` rows of the job table, and the trusted-script list.
+  - A 14.4 row for slice C's decisions: `run_workflow.py` waits for DG7 as ADO 3027, the spec check moved in ahead of DG8, and the optional suites by `gate.json`.
+  - Compared step by step with the gate (pins, org names and comments ignored): `locks`, `verify-in-test` and `danger` now match. **One difference is left:** Appendix A still installs Copilot CLI with `npm install --global`, where the gate installs it from its lockfile (ADO 2509). That was not slice C's, so it is not edited.
 - **Before the Stage 1 exit test (2539):** finding 19, a token that can read team membership in `danger`. Without one, no human approval counts and no PR can pass `danger`.
 - **For spike 0.6 and plan 9.3:** finding 18, the review model.
 - `CLAUDE.md`'s `factory-gates` row is not edited (it is several sessions behind; its plan row and line map are). When it is: `release` will have the two B2 scripts, 636 tests and 7 pending scripts once gate PR 25 merges.
