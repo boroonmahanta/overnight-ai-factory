@@ -173,7 +173,7 @@ ADO:
 Time and tokens (session `166167c4`, measured before the last commit). `--latest` finds no transcript from a worktree, so run with `--root` set to the main folder's project and `--session`. Active time 0 h 56 min (gaps over 10 minutes not counted), from 23 Nov 22:33 to 23 Nov 23:49 (UTC+11). Tokens: 164,046 output; 31,232,974 processed in all, of which 30,693,068 were cache reads. From 1 local transcript.
 
 Files changed:
-- Here: `docs/sources/plan-v3.1.md` (B.2, a 14.4 row), `CLAUDE.md`, `docs/progress.md`.
+- Here: `docs/sources/plan-v3.1.md` (B.2, a 14.4 row, Appendix A's `verify-in-test` checkout), `CLAUDE.md`, `docs/progress.md`.
 - In `GetAI-IP/factory-gates` (gate PR 23):
   - `lcp/danger-rules.yml`, `lcp/merge_danger_floor.py`, `lcp/simple_yaml.py`, `lcp/verifier_plan.py` (new);
   - `lcp/lint_logic_apps.py`, `.github/workflows/lcp-gate.yml`;
@@ -182,7 +182,7 @@ Files changed:
 
 Open items:
 - **Boroon: review and merge gate PR 23.** If `release` moves first, make `scripts.sha256` again before merging.
-- **Plan Appendix A needs `fetch-depth: 0` on `verify-in-test`'s PR checkout**, as gate PR 23 has it. Boroon's word needed.
+- **Done: plan Appendix A's `verify-in-test` now checks the PR out with `fetch-depth: 0`**, as gate PR 23 has it (Boroon, "Yes, edit the plan", 23 November 2026); the Session 41 row in 14.4 says so. Kept here one session for the record.
 - **Not tested against a real export:** the two new kinds of unsafe text and an environment variable value file. No fixture holds one.
 - **A site map entry added comes out as `other_changed` (3),** not B.1's small-addition 2: the export-diff plan does not read site maps. Conservative; teach the plan site maps if a story class needs them at L2.
 - **Agreed with the slice C session (ADO 2538 C, gate branch `verify-in-test`), 23 November 2026:**
