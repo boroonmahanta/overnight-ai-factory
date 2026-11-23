@@ -1,0 +1,3 @@
+# Stand-in for a locked workflow scenario (fixture for check_spec.py). DG7 (2546) sets the real format.
+id: wf-follow-up-clear-01
+criteria: [AC-2]

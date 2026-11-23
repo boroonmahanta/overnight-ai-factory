@@ -1,0 +1,3 @@
+# Stand-in for a locked Web API test (fixture for check_spec.py). DG7 (2546) sets the real format.
+id: api-follow-up-set-01
+criteria: [AC-1]
