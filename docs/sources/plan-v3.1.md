@@ -2059,11 +2059,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
+      # Copilot CLI comes from the gate repo's lockfile, which the hash check above covers.
+      # npm ci checks every package against its integrity value and runs no install
+      # scripts (section 5.2, spike 0.14; ADO 2509).
       - name: Install pinned tools
         run: |
           set -euo pipefail
           dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version "$PAC_VERSION"
-          npm install --global @github/copilot
+          npm ci --prefix gate/tools/copilot --ignore-scripts --no-audit --no-fund --no-update-notifier
+          echo "$GITHUB_WORKSPACE/gate/tools/copilot/node_modules/.bin" >> "$GITHUB_PATH"
+          gate/tools/copilot/node_modules/.bin/copilot --version
       - name: Sign in as the verification identity (OIDC, no secret)
         run: pac auth create --name verify --githubFederated --tenant "$TENANT_ID" --applicationId "$TEST_APP_ID" --environment "$TEST_ENV_URL"
       - uses: azure/login@v2              # for Key Vault (test user certificate, Direct Line secret) and Blob
@@ -2264,6 +2269,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
+      # As in verify-in-test: from the hashed lockfile, no install scripts (ADO 2509).
+      - name: Install pinned Copilot CLI
+        run: |
+          set -euo pipefail
+          npm ci --prefix gate/tools/copilot --ignore-scripts --no-audit --no-fund --no-update-notifier
+          echo "$GITHUB_WORKSPACE/gate/tools/copilot/node_modules/.bin" >> "$GITHUB_PATH"
+          gate/tools/copilot/node_modules/.bin/copilot --version
       - name: Deterministic floor from paths, plans and gate results
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
@@ -2278,7 +2290,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          npm install --global @github/copilot
           pids=""
           for axis in standards spec; do
             OTEL_RESOURCE_ATTRIBUTES="${OTEL_RESOURCE_ATTRIBUTES},review_axis=${axis}" \
