@@ -22,7 +22,7 @@ The PyPI package `specify-cli` carries the same versions, published by Spec Kit'
 |---|---|
 | `presets/getai/` | Every profile. Wraps the core spec template: a YAML header (ADO ID, lane, profile, ambition, work size, design document and exact version, prototype) before it; an Acceptance Scenario Map, Non-Functional Requirements and Constraints after it. Wraps `specify` and `clarify` with the GET AI rules. Replaces the constitution template. Adds the `getai-checklist` template |
 | `presets/getai-lcp/` | Low-code, on top of `getai`. Appends the Low-Code Fields (plan 6.3) to the spec template. Replaces the plan template's source-tree section with the delivery vault's design and handoff sections. Wraps `specify` with the low-code rules. Adds the `getai-lcp-checklist` template |
-| `extensions/getai-spec-check/` | The mandatory `before_implement` hook (`optional: false`). Its command runs `scripts/check_spec.py`, a byte-identical copy of `factory-gates` `spec/check_spec.py` (D3). **The script comes in DG5** (Wednesday 25 November) |
+| `extensions/getai-spec-check/` | The mandatory `before_implement` hook (`optional: false`). Its command runs `scripts/check_spec.py`, a byte-identical copy of `factory-gates` `spec/check_spec.py` (D3; built in DG5, 23 November 2026). Never edit the copy: change `factory-gates` and copy it again. While both are staged, a test there fails if the hashes differ |
 | `bundles/getai-lcp/` | Spec Kit's `assess` and `bug` extensions, the spec check and both presets, `getai-lcp` on top |
 
 ### How the overrides are made
@@ -67,7 +67,22 @@ In a scratch folder: `specify init t1 --integration copilot --non-interactive`, 
 - `.specify/extensions.yml` registers `speckit.getai-spec-check.run` under `before_implement` with `optional: false`. The core `implement` skill reads `before_implement` hooks.
 - `specify bundle validate --offline` passes the bundle, with a warning for each of the three `getai` catalog parts it cannot check offline.
 
-Not tested: running the commands with an agent; the bundle install (needs the catalog, DG8); the spec check script (DG5).
+Not tested: running the commands with an agent; the bundle install (needs the catalog, DG8).
+
+## The spec check (DG5, 23 November 2026)
+
+`scripts/check_spec.py --spec <spec.md> --profile lcp|pcp [--repo <root>]`, Python standard library only, run with `python3 -I`. It reads the format above and fails on, by rule name: `header`, `ado-id`, `design`, `marker`, `checklist`, `nfr`, `assumption`, `criteria`, `lcp-field`, `scenario` (with `--repo`) and `spec` (no such file). It warns, without failing, on `design-leak`: a library, schema or file layout named outside Constraints (plan 6.6); the Low-Code Fields and the Acceptance Scenario Map are exempt, because plan 6.3 asks for names there. The script's docstring lists each rule in full. Its tests and fixtures are in `factory-gates` (`tests/test_check_spec.py`, `tests/fixtures/specs/`).
+
+What a spec needs, beyond what the templates say:
+
+- **Checklists:** `checklists/getai.md` always, and `checklists/lcp.md` for profile lcp, each with at least one item. Every `- [ ]` item in any file under `checklists/` fails, Spec Kit's own `requirements.md` included. Items inside HTML comments do not count.
+- **Markers count everywhere,** inside HTML comments too. Everything else ignores comments, so the templates' guidance comments can stay.
+- **Assumptions:** each line ends `(approved: <who>, <YYYY-MM-DD>)`, with a real date. A line that says only `None.` needs no approval.
+- **Criteria:** every list item that starts with **Given** needs an `AC-<n>` ID; an ID may be defined once; every map row names a defined ID; lane A needs at least 20 (plan 6.6). In the map, the second column holds the scenario IDs, separated by commas.
+- **Scenario IDs (with `--repo`):** an ID resolves to a file under `tests/` whose name is the ID plus its extensions (`tests/scenarios/<id>.yaml`, `tests/acceptance/ui/<id>.spec.ts`), or, if the ID holds a slash, to that path under `tests/`. DG7 (2546) sets the scenario conventions and may change this.
+- **Header:** `ambition` is `low` or `high` (the two values the plan names); `profile: lcp` needs `lane: B` (plan 6.3); the header ends with `---` before the spec's title.
+
+Tested the same day, on Spec Kit 1.4.3 in a scratch project: `specify extension add --dev` copies `scripts/check_spec.py` to `.specify/extensions/getai-spec-check/scripts/`, byte for byte, which is the path the hook's command runs. With `.specify/feature.json` pointing at a copy of the good low-code fixture, the hook's own steps (`check-prerequisites.sh --json --paths-only`, then the command in `commands/run.md`) passed it. A spec and both checklists composed by Spec Kit's own resolver straight from the templates failed on every rule, 42 failures. The script runs on Python 3.9, 3.14 and 3.15.
 
 ## Findings
 

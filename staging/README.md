@@ -9,7 +9,7 @@ On Friday 4 December 2026, one laptop session (DG8) moves everything here to `Ge
 | Folder | Moves to | How |
 |---|---|---|
 | `factory-manifestos/` | `GetAI-IP/factory-manifestos` (private, created 13 November 2026). This folder is its root | With its history (a subtree split), merged by pull request beside the coding standards from DG3. The repo's starter README is replaced by this folder's |
-| `factory-gates/` (not created yet; DG5 and DG7) | `GetAI-IP/factory-gates`. This folder mirrors its root | By pull request there: `spec/`, its tests and fixtures, and `playwright/` |
+| `factory-gates/` (DG5: `spec/check_spec.py`, `tests/test_check_spec.py`, `tests/fixtures/specs/`; DG7 adds `playwright/`) | `GetAI-IP/factory-gates`. This folder mirrors its root | By pull request there: `spec/`, its tests and fixtures, and `playwright/`. Regenerate `scripts.sha256` and add a README row for `spec/check_spec.py`. After the move, the test class that compares the script with the extension's copy and the low-code template skips (they are in another repo); the gate's CI job checks the vendored copy's hash instead (2538) |
 
 ## Rules
 

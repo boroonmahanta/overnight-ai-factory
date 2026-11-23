@@ -160,6 +160,13 @@ Done when: in a scratch folder, `specify init`, then installing the bundle from 
 
 ### DG5. The spec check script (2544, part 2). Wednesday 25 November. Cloud
 
+**Done 23 November 2026** (Session 36, laptop, branch `claude/nifty-thompson-22d47f`, from Session 35's branch): `staging/factory-gates/spec/check_spec.py`, its 98 tests in `staging/factory-gates/tests/test_check_spec.py`, the fixtures in `staging/factory-gates/tests/fixtures/specs/`, and the extension's byte-identical copy. All tests pass (`python3 -B -m unittest discover -s staging/factory-gates/tests`). The two exit-clause fixtures are `exit-clause/open-marker.md` and `exit-clause/no-scenarios.md`; each is the good low-code spec with one change, and each fails. The spec-kit README has what a spec needs and the test on Spec Kit 1.4.3. Beyond the steps below:
+- **More it fails on**, each a small step from a rule below: the ADO ID and its folder (Session 35's decision), the work size, the design and prototype fields (a version saying "latest", a document with no version, a Teams link), profile lcp on a lane other than B (plan 6.3), fewer than 20 criteria on lane A (plan 6.6), a scenario with no `AC-<n>`, an ID defined twice, a map row for an undefined ID, and a missing `checklists/getai.md` (and `lcp.md` for lcp).
+- **The Low-Code Fields and the map are exempt from the design-leak warning,** as Constraints is: plan 6.3 asks for schema names there.
+- **A scenario ID resolves** to a file under `tests/` named the ID plus its extensions, or to a path under `tests/`. DG7 may change this when it sets the conventions.
+- **Failing cases are made in the test** from the good spec, one change each, and the test checks the failure is that rule alone; only the exit-clause pair are whole files.
+- **Step 4:** the 2538 item still holds; `docs/progress.md` now adds the vendored path, the command and where the profile comes from.
+
 Read: plan 6.1 rules (line 957), 6.4 (lines 1000 to 1011), 6.6 (lines 1035 to 1042).
 
 1. `staging/factory-gates/spec/check_spec.py --spec <spec.md> --profile lcp [--repo <root>]`. It fails on:
@@ -254,7 +261,7 @@ Done when: the Northwind specs and scenarios pass headless in `factory-test`, an
 
 | Exit clause (plan 11.2) | Met by |
 |---|---|
-| A spec with an open marker or no scenarios cannot become Factory Eligible | DG5's fixtures; then 2539 on a real spec PR |
+| A spec with an open marker or no scenarios cannot become Factory Eligible | DG5's fixtures (shown 23 November 2026: both fail); then 2539 on a real spec PR |
 | A human PR runs the full gate in Test and posts evidence | DG7 and DG9, on Northwind (D6); with 2538, 2541, 2447 |
 | At least 20 human-led sessions mined; each repeated correction a PR or a recorded "no action" | DG6 (D5) |
 | Spec Kit pinned, presets v0 with the grilling rules, templates and the prototype option, gate script as hook and CI check (build column) | DG1, DG4, DG5; the CI job via 2538 (D3) |
