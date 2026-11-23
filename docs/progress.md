@@ -111,7 +111,7 @@ Next steps:
 
 ## Session 36, 2026-11-23, branch `claude/nifty-thompson-22d47f`
 
-ADO 2544, part 2: day-gate session DG5, the spec check script. On the laptop (desktop app), in its own worktree, started by Session 35 as a side session. The branch starts from Session 35's branch, which merged into `main` as pull request 47 during this session, so the two hold the same base.
+ADO 2544, part 2: day-gate session DG5, the spec check script. On the laptop (desktop app), in its own worktree, started by Session 35 as a side session. The branch starts from Session 35's branch tip `5fa167c`. Pull request 47 (Session 35, DG4) was merged by Boroon on 23 November 2026 (`7476871`) during this session, and `main`'s content equals `5fa167c`, so this branch's pull request, when asked for, targets `main` and shows only Session 36's commits.
 
 Done:
 - **`staging/factory-gates/spec/check_spec.py --spec <spec.md> --profile lcp|pcp [--repo <root>]`.** Standard library only, run with `python3 -I`, exit 0 or 1 (usage errors are 1 too). It reads the DG4 spec format and fails on, by rule name: `header` (the YAML header and its lane, profile, ambition and work size), `ado-id` (digits, and the folder `<ado_id>-<name>`), `design` (the design and prototype fields), `marker`, `checklist`, `nfr`, `assumption`, `criteria` (the `AC-<n>` IDs and the Acceptance Scenario Map), `lcp-field` (all 17 Low-Code Fields), `scenario` (with `--repo`, each map ID resolves to a file under `tests/`) and `spec` (no such file). It warns on `design-leak` (plan 6.6). Each line of output says `FAIL [rule] path:line: message`, with what to do.
@@ -146,6 +146,8 @@ Next steps:
 ## Session 35, 2026-11-23, branch `claude/session-35-2544-spec-kit`
 
 ADO 2544, part 1: day-gate session DG4, the Spec Kit pin and the two presets, on its start date. On the laptop (desktop app), in its own worktree, from `main` at pull request 46's merge (`0e2dab1`). Numbered 35 because Session 34 (2509) ran the same day. Session renamed "31. Stage 1 - Build - Pin Spec Kit and the presets", at Boroon's word.
+
+**Pull request 47 merged by Boroon on 23 November 2026 (`7476871`)**, at 08:37 UTC; `main` then equalled this branch's tip `5fa167c`. Recorded by Session 36.
 
 Done:
 - **Read the Spec Kit release notes 1.3.0 to 1.4.3.** 1.3.3 (9 November) is the last 1.3; 1.4.0 to 1.4.3 (10 to 19 November) marked nothing as breaking. 1.4.3 adds `replace-section` for presets (#5462); 1.4.2 stamps each generated skill with its source and version (#5456). PyPI's `specify-cli` versions match the tags, published from each tag by Spec Kit's own `publish-pypi.yml` (no provenance attestations).
