@@ -114,7 +114,7 @@ Next steps:
 ADO 2538, slice C: the scripts for `verify-in-test`'s results and the spec job. On the laptop (desktop app), three days before its Thu 26 Nov date. Planning branch in its own worktree (`.claude/worktrees/session-42-2538-c`, from `main` at `3bce4e9`); gate branch `verify-in-test` in a worktree of the gate clone inside it, first off `release` at `973a421`, then rebased onto `70ce7f4` once Boroon merged slice B1 (gate PR 23) during the session. Session renamed "36. Stage 1 - Build - Checker, verdicts and spec check", at Boroon's word, after "35. Stage 1 - Build - Merge Danger rules" (Session 41). Sessions 38, 40 and 41's entries are on their own unmerged branches, so this entry sits above Session 39's here; when they merge, the order is 42, 41, 40, 39, 38.
 
 Decisions (Boroon, 23 November 2026, each my recommendation):
-- **`run_workflow.py` waits for DG7**, which writes the scenario format (`scenario.schema.json`, Mon 30 Nov to Wed 2 Dec). It moves out of 2538 to its own story, **ADO 3027** (Proposed, not dated; successor of 2546 for DG9), written right after DG7 and before DG9 needs it on Mon 14 Dec. Its output (`scenarios.json`) is already fixed by `verdict_gate.py`.
+- **`run_workflow.py` waits for DG7**, which writes the scenario format (`scenario.schema.json`, Tue 24 to Wed 25 Nov under the plan to finish Stage 1 this week). It moves out of 2538 to its own story, **ADO 3027**, Stage 1, **Ready to build, Wed 25 to Thu 26 Nov** (Boroon, 24 November 2026: planned, not proposed), after 2538 and DG7 and before DG9 and the exit test, both Fri 27 Nov. Its output (`scenarios.json`) is already fixed by `verdict_gate.py`.
 - **`spec/check_spec.py` moves into `factory-gates` now**, byte for byte with its 98 tests and fixtures, ahead of the DG8 move, so the spec job can be tested end to end. `staging/factory-gates/` is deleted here; DG8 moves only `playwright/` (DG7). Until DG8 nothing checks that the extension's copy in `staging/factory-manifestos/` matches the gate's: change both together (staging README and DG8's step 3 say so).
 - **The solution checker run twice from the laptop**, under his existing `pac` sign-in (an internal dev environment's profile), Australia geo, nothing saved to the environment: once on the gate's `FactorySpike` test zip (no results), once on a scratch copy with one JavaScript web resource holding known bad calls. Both reports hold only public documentation links; both are now gate fixtures. Scratch copies stayed in the session scratchpad.
 
@@ -135,7 +135,7 @@ Found (gate README findings 15 to 17):
 
 Choices made without asking (gate README, slice C section; say if any is wrong): NO_VERDICT is the strictest verdict; the first line must be exactly the word (`**PASS**` is NO_VERDICT); a verifier's evidence paths are not yet checked to exist (where `lcp-verify` saves them is stage 2's); every evidence file is required, and a case that is neither pass nor fail is listed as failed; only specs the PR changes are checked, and a spec change in a repo with no `.specify/` fails.
 
-ADO: 2538 stays **Building**; its body holds this session's result and time. New story **3027** for `run_workflow.py` (parent 2536, related to 2538, predecessor of 2546), Proposed, not dated.
+ADO: 2538 stays **Building**; its body holds this session's result and time. New story **3027** for `run_workflow.py` (parent 2536; after 2538; before 2546 and 2539), **Ready to build, Wed 25 to Thu 26 Nov** (dates corrected the same session, at Boroon's word, from an older schedule).
 
 Time and tokens (in 2538's body; session `e5d1f0dc`, measured before the last commit; `--latest` finds no transcript from a worktree, so run with `--root` set to the main folder's project and `--session`): active time 1 h 02 min (gaps over 10 minutes not counted), from 23 Nov 22:48 to 24 Nov 00:11 (UTC+11). Tokens: 142,536 output; 40,340,535 processed in all, of which 39,793,937 were cache reads. From 1 local transcript.
 
@@ -144,8 +144,7 @@ Files changed: here, `staging/factory-gates/` (deleted), `staging/README.md`, `d
 Open items:
 - **Boroon: open slice C's gate PR?** Not opened (this repo's rule: no pull request unless asked). Before merging: `self-test` green on Python 3.11, and the manifest made again if `release` moves first.
 - **Plan edits for Boroon** (none made): Appendix A's checker step flags, the SARIF upload's `checkout_path`, `--plan` on `parse_verdict.py`, the verifier wait's `|| true` (finding 17), and the spec step in `locks`; 5.7's job table (`locks` now runs the spec check); a 14.4 row for the three decisions above.
-- **The Stage 1 exit test (2539, Fri 18 Dec) cannot run `verify-in-test` whole as written:** `run_holdout.py` waits for `factory-holdout` and `cs-runner/run.mjs` for spike 0.12 (January), and `verdict_gate.py` requires their files. Settle before 2539: make those steps conditional on the project having a held-out set and agents, or write empty summaries until then. Not decided.
-- **3027's dates**, at Boroon's word.
+- **The Stage 1 exit test (2539, now Fri 27 Nov) cannot run `verify-in-test` whole as written:** `run_holdout.py` waits for `factory-holdout` and `cs-runner/run.mjs` for spike 0.12 (January), and `verdict_gate.py` requires their files. Settle this week, before 2539 on Fri 27 Nov: make those steps conditional on the project having a held-out set and agents, or write empty summaries until then. Not decided.
 - `danger`'s review step has the same `wait "$pid"` (finding 17): slice B2.
 
 Next steps:
