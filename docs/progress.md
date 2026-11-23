@@ -148,7 +148,7 @@ Next steps:
 
 ## Session 38, 2026-11-23, branch `claude/session-38-2538-gate-scripts`
 
-ADO 2538, the remaining Stage 1 gate scripts: started on Mon 23 Nov, a day before its date. On the laptop (desktop app). Planning branch in its own worktree from `main` at `1f848be` (pull request 49). Gate branch `static-file-checks` in a separate worktree of the gate clone, off `release` at `65031e4`, so neither shared checkout was switched. Numbered 38 because Sessions 34 to 37 ran the same day on branches not yet merged here.
+ADO 2538, the remaining Stage 1 gate scripts: started on Mon 23 Nov, a day before its date. On the laptop (desktop app). Planning branch in its own worktree from `main` at `1f848be` (pull request 49). Gate branch `static-file-checks` in a separate worktree of the gate clone, off `release` at `65031e4`, so neither shared checkout was switched. Numbered 38 because Sessions 34 to 37 ran the same day on branches not yet merged here. Session renamed "33. Stage 1 - Build - Remaining gate scripts", at Boroon's word, after "32. Stage 1 - Add CODEOWNERS teams and second approvers in GHE" (Session 39).
 
 **Gate PR 21** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/21, commit `c295d22`), open, for Boroon to merge.
 
