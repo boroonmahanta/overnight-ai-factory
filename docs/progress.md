@@ -46,7 +46,7 @@ Next steps:
 - **The rest of Stage 1's day gate is planned** (Session 17, 7 November 2026, a cloud session): `docs/plans/stage-1-day-gate-plan.md`, nine build sessions DG1 to DG9 for 2545, 2544, 2546 and 2548 with spike 0.17, dated 12 November to 15 December. Boroon decided D1 to D6, and the plan is edited for them. The gate scripts (2538) wait on spike 0.18.
 - **DG1 is done** (Session 18, 7 November 2026, a cloud session, brought forward from 12 November): `staging/` with its README, and `staging/factory-manifestos/` with its README and the three project templates (`glossary.md`, `docs/adr/README.md`, the `coding-standards.md` header). 2545 stays open until DG3 (Friday 20 November).
 - **DG3 is run** (Session 23, 13 November 2026, a week early): `GetAI-IP/factory-manifestos` exists on `getai.ghe.com` (private, ruleset `main-protection`), and its pull request 1, merged by Boroon on 13 November 2026, holds the low-code coding standards: 50 with the vault's client-token ones kept, anonymised. 2545 is Done.
-- **2544 is built: DG4 and DG5 done** (Sessions 35 and 36, 23 November 2026). Spec Kit pinned at 1.4.3, the `getai` and `getai-lcp` presets, the `getai-spec-check` extension and bundle in `staging/factory-manifestos/spec-kit/`; the spec check `staging/factory-gates/spec/check_spec.py` with 98 passing tests, and its byte-identical copy in the extension. The stage 1 exit clause "a spec with an open marker or no scenarios cannot become Factory Eligible" is shown by two fixtures failing. 2544 waits on Boroon's word for Done.
+- **2544 is built: DG4 and DG5 done** (Sessions 35 and 36, 23 November 2026). Spec Kit pinned at 1.4.3, the `getai` and `getai-lcp` presets, the `getai-spec-check` extension and bundle in `staging/factory-manifestos/spec-kit/`; the spec check `staging/factory-gates/spec/check_spec.py` with 98 passing tests, and its byte-identical copy in the extension. The stage 1 exit clause "a spec with an open marker or no scenarios cannot become Factory Eligible" is shown by two fixtures failing. Pull requests 47 and 48 are merged, and **2544 is Done** in ADO (23 November 2026, at Boroon's word).
 - **The third-party skills policy (plan 8.3) is applied to every vendored skill** (Session 21, 11 November 2026, a cloud session, ADO 2549): `docs/analysis/skills-policy-check.md`. All 56 shelf skills match upstream at their pins, all are MIT, and all but `poteto-mode` (shelf only) are read in full. The register's rows now have a file, `docs/component-register.md`, and the shelf holds each source's licence text. All 44 live skills name their source commit in their first lines.
 - Boroon said more context will be added in later sessions.
 - Work is sized with T-shirt sizes (XS to XL), approved on 1 November 2026. See `CLAUDE.md`.
@@ -113,7 +113,7 @@ Next steps:
 
 ADO 2544, part 2: day-gate session DG5, the spec check script. On the laptop (desktop app), in its own worktree, started by Session 35 as a side session. The branch starts from Session 35's branch tip `5fa167c`. Pull request 47 (Session 35, DG4) was merged by Boroon on 23 November 2026 (`7476871`) during this session, and `main`'s content equals `5fa167c`, so this branch's pull request targets `main` and shows only Session 36's commits.
 
-**Pull request 48** (https://github.com/boroonmahanta/overnight-ai-factory/pull/48), opened at Boroon's word on 23 November 2026, into `main`; mergeable, no CI checks on this repo. Boroon merges.
+**Pull request 48** (https://github.com/boroonmahanta/overnight-ai-factory/pull/48), opened at Boroon's word on 23 November 2026, into `main`; mergeable, no CI checks on this repo. **Merged by Boroon on 23 November 2026 (`f612980`)**, at 09:16 UTC. At his word the same day, **ADO 2544 moved to Done**, and its Finish Date moved from Wed 25 Nov to today, Mon 23 Nov (in ADO and `docs/plans/schedule.md`). These record commits are in **pull request 49** (https://github.com/boroonmahanta/overnight-ai-factory/pull/49), opened at his word the same day. Boroon merges.
 
 Done:
 - **`staging/factory-gates/spec/check_spec.py --spec <spec.md> --profile lcp|pcp [--repo <root>]`.** Standard library only, run with `python3 -I`, exit 0 or 1 (usage errors are 1 too). It reads the DG4 spec format and fails on, by rule name: `header` (the YAML header and its lane, profile, ambition and work size), `ado-id` (digits, and the folder `<ado_id>-<name>`), `design` (the design and prototype fields), `marker`, `checklist`, `nfr`, `assumption`, `criteria` (the `AC-<n>` IDs and the Acceptance Scenario Map), `lcp-field` (all 17 Low-Code Fields), `scenario` (with `--repo`, each map ID resolves to a file under `tests/`) and `spec` (no such file). It warns on `design-leak` (plan 6.6). Each line of output says `FAIL [rule] path:line: message`, with what to do.
@@ -134,14 +134,14 @@ Made by this session without asking (say if any is wrong):
 Files changed: `staging/factory-gates/` (new: `spec/check_spec.py`, `tests/test_check_spec.py`, `tests/fixtures/specs/`, 17 files), `staging/factory-manifestos/spec-kit/extensions/getai-spec-check/scripts/check_spec.py` (new), `staging/factory-manifestos/spec-kit/README.md`, `staging/README.md`, `docs/plans/stage-1-day-gate-plan.md`, `docs/plans/schedule.md`, `CLAUDE.md`, `docs/progress.md`.
 
 Open items:
-- **ADO 2544 to Done, at Boroon's word.** Its body now holds DG5's result and this session's time and tokens; its state is unchanged.
+- **Done: ADO 2544 is Done** (Boroon, 23 November 2026, after pull request 48 merged). Its body holds DG5's result and this session's time and tokens.
 - **For DG8:** move `spec/`, `tests/test_check_spec.py` and `tests/fixtures/specs/` into `factory-gates`, regenerate `scripts.sha256` (delete `.DS_Store` first), and add a README row. After the move, the test class `StagedCopyTests` skips, because the extension and the template are in `factory-manifestos`; the gate's CI job (2538) then checks the vendored copy's hash. The extension's copy moves with `factory-manifestos`; keep it byte-identical by copying from `factory-gates` in the same pair of pull requests.
 - Not tested: the hook run by an agent inside `/speckit-implement` (the steps were run by hand), and the CI job (2538).
 
 Time and tokens (in 2544's body; session `4d3d63dd`, measured before the last commit): active time 0 h 30 min (gaps over 10 minutes not counted), from 23 Nov 19:39 to 23 Nov 20:09 (UTC+11). Tokens: 121,041 output; 11,203,298 processed in all, of which 10,769,001 were cache reads. From 1 local transcript.
 
 Next steps:
-1. Boroon: review and merge pull request 48; say whether 2544 is Done.
+1. Done: pull request 48 merged and 2544 Done (Boroon, 23 November 2026).
 2. Tue 24 Nov: 2538, the remaining gate scripts, with the `check_spec.py` job (item 8 above).
 3. Thu 26 Nov: 2548's first mining batch.
 
