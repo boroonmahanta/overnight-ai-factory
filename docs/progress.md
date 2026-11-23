@@ -125,7 +125,7 @@ Decisions (Boroon, 23 November 2026, asked in this session): **"Yes, edit the pl
 Files changed: `docs/analysis/ignite-2026-recheck.md` (new), `docs/sources/plan-v3.1.md` (at Boroon's word), `CLAUDE.md`, `docs/plans/schedule.md`, `docs/progress.md`.
 
 Open items:
-- **Boroon:** two actions outside the plan: set the tenant's routing rules and app creation spaces before anyone builds a Copilot Managed Runtime app (5.4); check that no team on `getai.ghe.com` sets default Copilot plugins (8.3 point 7). And merge pull request 45, https://github.com/boroonmahanta/overnight-ai-factory/pull/45 (both Session 33 commits).
+- **Boroon:** two actions outside the plan: set the tenant's routing rules and app creation spaces before anyone builds a Copilot Managed Runtime app (5.4); check that no team on `getai.ghe.com` sets default Copilot plugins (8.3 point 7). **Done:** pull request 45, https://github.com/boroonmahanta/overnight-ai-factory/pull/45, the re-check and the plan edits, **merged by Boroon on 23 November 2026** (`f11cb39`). This note came by a later pull request, because its first commit reached the branch after that merge.
 - **Not done today, though due:** A1's first pass and the first component register review (both on the Mon 23 Nov checkpoint).
 - For spike 0.15 (Universe, 7 December): GitHub Enterprise now "includes GitHub Copilot usage rights at no extra cost" (Partner Center, 4 November); confirm on GitHub's own changelog and re-cost 9.1 and 10 if so.
 - For 2509: Copilot CLI's latest stable is 1.0.114 (18 November); the docs now say `-p` exits non-zero on an empty final answer, with no changelog line, so test it on the pinned version.
@@ -134,7 +134,7 @@ Open items:
 Time and tokens (in 3024's body; session `d328a4d4` with its four research agents and the plan edits, measured before the last commit; the session that started this one is not included): active time 0 h 36 min (gaps over 10 minutes not counted), from 23 Nov 11:31 to 23 Nov 16:12 (UTC+11). Tokens: 244,167 output; 99,341,427 processed in all, of which 96,932,137 were cache reads. From 1 local transcript(s).
 
 Next steps:
-1. Boroon merges pull request 45, and does the two actions above.
+1. Boroon does the two actions above (pull request 45 is merged).
 2. 2509, pin the Copilot CLI install in `verify-in-test` (due Mon 23 Nov).
 3. A1's first pass and the component register review.
 4. 2544 (Spec Kit pin and presets), no longer waiting on the re-check.
