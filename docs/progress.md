@@ -94,7 +94,7 @@ Next steps:
 - **Sources are complete.** Boroon uploaded the whole research folder as a zip. Every file was checked by checksum against the repo, duplicates were skipped, and the rest were added. The other session ("Overnight AI software factory", id `session_019bVvHWrUECf7G5YiXU3fKW`) is no longer needed for sources and can be deleted.
 - **Not read in full.** The files added from the zip were saved but not read in this session: the reports V1 and V2, the runtime and costs note, the eight GitHub and Azure notes, the five Power Platform notes and the one-pager. The five workshop slide images were saved but not viewed. The plan condenses most of them. Read one only when a task needs its detail.
 - **Decisions still waiting on Boroon** (from `docs/analysis/tshirt-sizing.md`): approve the shortlist of skills to read in full before any are adopted (plan section 8.3); decide whether to write a GET AI router skill that routes by size. The sizes themselves are approved, and the ADO field `Custom.WorkSize` is decided (7 November 2026, Session 16).
-- **A second approver is needed by Friday 4 December 2026** (Session 16 schedule). 2520 (undo the stopgaps) and 2521 (apply the rulesets) need a second person and the three CODEOWNERS teams; without them the Stage 1 exit test (2539, Friday 18 December) cannot happen. The dated order is in `docs/plans/schedule.md`.
+- **A second approver is needed by Wednesday 25 November 2026** (was Friday 4 December; Session 37 schedule, to finish Stage 1 this week). 2520 (undo the stopgaps) and 2521 (apply the rulesets) need a second person and the three CODEOWNERS teams; without them the Stage 1 exit test (2539, now Friday 27 November) cannot happen. The dated order is in `docs/plans/schedule.md`.
 - **Spike 0.20, time and tokens per story on every engine, is not run** (Session 16). ADO story 2738 under Feature 2737 (Stage 1). It needs Claude Code's OpenTelemetry turned on through managed settings and somewhere to send it: Application Insights does not exist yet, so use a local collector first. The docs do not say whether the VS Code extension or the desktop app export it; this session runs in the desktop app, so test there first.
 - **Keep pinned kits current (A1, Boroon, 7 November 2026, Session 17).** Spec Kit moved three releases in five days. Proposed shape in `docs/plans/stage-1-day-gate-plan.md`: a pin register, Dependabot where the ecosystem allows, and a monthly manual pass at the component register review (plan 8.2), the first with the Ignite re-check on 23 November. Not built; an ADO story is to be created.
 - **Done: transcript retention is 365 days** (Session 19, 8 November 2026, Boroon's choice): `"cleanupPeriodDays": 365` in `~/.claude/settings.json` on the laptop. Found while checking: Claude Code keeps sessions started or last continued in the desktop app at any age unless `desktopSessionCleanupPeriodDays` or a managed `cleanupPeriodDays` is set, so the 30-day limit hit only terminal sessions (transcripts from 5 August were still on disk). `0` is refused with a validation error. Kept here one session for the record.
@@ -108,6 +108,28 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 37, 2026-11-23, branch `claude/session-37-stage-1-this-week`
+
+A laptop session that started as the daily progress-dashboard sync, in its own worktree. No pull request (not asked).
+
+Done:
+- The progress dashboard synced three times on 23 November 2026; the last showed 141 stories, 14 of 36 scheduled done (2509 and 2544 now Done in ADO), 64 sessions. Old snapshot files kept.
+- **`docs/plans/schedule.md` redrafted to finish Stage 1 by Fri 27 Nov** (Boroon, 23 November 2026: "I want to move faster than the plan"). Every story the exit test 2539 needs moves into Tue 24 to Fri 27 Nov, over up to three laptop sessions at once (A gate scripts and rulesets, B the tenant, C other getai.ghe.com work) and the documents track; Sat 28 and Sun 29 Nov are buffer. 2538 shrinks to three days, 2459 to one, 2548 to three batches (25 to 27 Nov). Stage 0 spikes 2539 does not need (2738, 2432, 2465, 2455) move to Mon 30 Nov to Thu 3 Dec; 2427 stays Mon 7 Dec. January (Stage 2) not moved.
+
+Decisions:
+- Boroon: aim to finish Stage 1 this week.
+
+Files changed: `docs/plans/schedule.md`, `docs/progress.md`.
+
+Open items:
+- **ADO dates are not moved.** Start and Finish Dates in `getai-overnight-ai-factory` still show the old schedule. Move them only at Boroon's word.
+- **The second approver and the three CODEOWNERS teams are now due Wed 25 Nov** (was Fri 4 Dec). Without them 2520, 2529, 2521 and 2539 cannot run this week.
+- **Engineers' session exports:** chase them Tue 24 Nov; the mining cut-off (D5) is now Thu 26 Nov.
+- **Session 34's branch (`claude/session-34-2509-copilot-pin`) is not merged into `main`** and may also edit `schedule.md` and `progress.md`; expect a merge conflict in both.
+- Stage 0 spikes running after the Stage 1 exit test is a change to the plan's order (11.1): only those 2539 does not need. Boroon to confirm.
+
+Next steps: Tue 24 Nov, start 2538 (laptop A), 2541 (laptop B), 2537 (laptop C) and the 2546 draft (documents).
 
 ## Session 36, 2026-11-23, branch `claude/nifty-thompson-22d47f`
 
