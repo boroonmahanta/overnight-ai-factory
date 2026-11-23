@@ -1667,6 +1667,7 @@ Board lens: these are reusable IP, Power Platform depth strengthens the Microsof
 | **The Ignite re-check** (ADO 3024) | Names, Copilot Studio evaluation APIs and Git integration to re-check after Ignite; a rename expected; open questions on Australia East models and Purview for sandboxes | No rename, so the naming rule stands. Nothing became GA for the night lane's tools; Git integration and evaluation from code stay preview; Copilot residency stays US and EU only. Edited in from GA items: personal environments from Copilot Managed Runtime routing expected in the tenant, with the routing rules and app creation spaces set first (5.4, risk 3); Microsoft Copilot SDK 2.0 pinned and run as a spawned process (4.1); no team default plugins (8.3); GPT-5.6 Sol as T3's frontier model and an APAC Data Zone variant of T2 (9.3, 9.4); the new Copilot models, no pin change (9.3); Container Apps Sandboxes in spike 0.8 (11.1); the three Copilot Studio harnesses (4.4, 5.6, 5.9, 6.3, risk 9); code apps GA (5.6). Corrected: the Vibe and App Builder dates (1.4); Purview covers production only (5.3, 15.1) (Boroon, 23 November 2026, "Yes, edit the plan"; `docs/analysis/ignite-2026-recheck.md`) | GA only, from primary sources, each re-read in the session. Preview items change nothing until they are GA |
 | **The Spec Kit pin** (ADO 2544, DG4) | The newest 1.3.x (D2, 7 November 2026) | Spec Kit 1.4.3, commit `980b3d0` (Boroon, 23 November 2026). 1.3.3 was the last 1.3; 1.4.0 to 1.4.3 marked nothing as breaking. 1.4.3 adds section replacement for presets and 1.4.2 stamps each generated skill with its source and version (`staging/factory-manifestos/spec-kit/README.md`) | Each override is one composition step over Spec Kit's own file, not a copy, so updates flow through. A1 still reads every update before the pin moves |
 | **The CODEOWNERS team names** (ADO 3026) | `platform-team`, `acceptance-owners` and `factory-reviewers` (5.7, 5.8, 5.10), none yet created | `ai-factory-platform-admins`, `ai-factory-acceptance-owners` and `ai-factory-merge-reviewers` (Boroon, 23 November 2026). One set per org, by role, shared by low-code and pro-code; a split by profile, if ever wanted, uses child teams under each. Renamed in `factory-gates` by gate PR 20 | The old names were vague and only one had a shared prefix. The prefix groups the three on the org's Teams page and marks them as the factory's. Still product-neutral (rule 18) |
+| **Merge Danger floors and the flow check's unsafe text** (ADO 2538 slice B, `factory-gates` finding 14) | B.2 had rows for eight kinds of finding; the first real exports showed more. The uploaded plan's "unsafe substrings" for `lint_logic_apps.py` were never defined; gate PR 22 chose seven kinds as a proposal | B.2 has a row for every finding the export-diff plan makes: relationship and global choice added at 2; any other finding at 3; connection references and environment variables removed or changed at 5; a narrower range, a removed global choice and a changed relationship at 6; column security turned on, and auditing turned on or off, at 7; column security turned off and a removed relationship at 8. The flow check fails on nine kinds of text in a flow: a signed URL, a bearer token, a JSON web token, a private key, a storage or Service Bus key, a literal value in a secret-named field, a Dataverse environment URL, a flow's trigger URL whether signed or not, and a secret inside a string (`client_secret=`, `password=` or `pwd=`, an Azure Functions `code=`, `subscription-key=`). It runs the same list over environment variable default values, and fails any current-value file in the export. GUIDs, mailbox addresses and other endpoint URLs stay with the review agent (B.4) and the gardening scan (7.4). Appendix A's `verify-in-test` checks the PR out with full history, as `static` and `danger` do, because the pre-floor diffs `BASE...HEAD`; `factory-gates` has the same line (gate PR 23) (Boroon, 23 November 2026; Appendix B.2, Appendix A) | Without a row, a dropped lookup or column security turned off would have floored at 3. At 3, every new table, which brings its system relationships, would have floored above B.2's additive 2. Section 5.3 turns auditing on everywhere, so turning it off is security-relevant. The two text additions and the defaults check come from the Get AI Engineer's standards `ALM-002` and `ALM-007`: a hard-coded child-flow URL, or a Dev value shipped as a default, makes Test call Dev while every run still passes. Whether a GUID, mailbox or endpoint differs by environment needs judgement, which a lint cannot make |
 
 ## 15. Open questions and evidence quality
 
@@ -2015,6 +2016,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           path: pr
+          fetch-depth: 0              # the pre-floor diffs BASE...HEAD
           persist-credentials: false
       - id: gate-token
         uses: actions/create-github-app-token@v2
@@ -2313,14 +2315,22 @@ These are the low-code path rules, remapped to the driver's exported folders for
 
 | Plan finding | Floor | Door |
 |---|---|---|
-| Additive table, column, view or form | 2 | Two-way |
-| Column type change, shorter maximum length, stricter required level | 6 | One-way for existing data |
-| Choice value removed | 6 | One-way for existing data |
+| Additive table, column, view or form; a relationship or global choice added | 2 | Two-way |
+| Any other finding: a form or view removed or changed, a choice value added, flow settings, any file the plan does not read | 3 | As B.1's "any other exported solution file" |
+| Connection reference or environment variable removed or changed | 5 | Two-way, but each environment's settings depend on it |
+| Column type change, shorter maximum length, stricter required level, narrower number range (a higher minimum, a lower maximum or less precision) | 6 | One-way for existing data |
+| Choice value removed; global choice removed | 6 | One-way for existing data |
+| Relationship changed (for example its cascade settings) | 6 | One-way for data once a cascade runs |
 | Privilege added to a role | 7 | Two-way, but security-relevant |
+| Column security turned on | 7 | Security-relevant |
+| Auditing turned on or off for a table or column | 7 | Security-relevant: the audit trail |
 | Privilege depth widened (for example user to organisation) | 8 | Security-relevant |
+| Column security turned off | 8 | Security-relevant: more people see the data |
 | Role removed | 8 | One-way for access |
-| Column dropped | 8 | One-way |
+| Column dropped; relationship removed (its lookup column or intersect table goes with it) | 8 | One-way |
 | Table dropped | 9 | One-way |
+
+`plan_from_export.py` names each finding by a rule, and `danger-rules.yml` maps each rule to a row here. New connection references and environment variables, flows, roles and field security profiles take their B.1 rows. A finding the plan cannot classify safely counts as the worse one (an unknown required level as stricter, an unknown privilege depth as widened). Auditing is a table or column setting, so the floor matches it whether it was turned on or off. The rows for a relationship or global choice added, connection references and environment variables removed or changed, a narrower range, a removed global choice or relationship, a changed relationship, column security and auditing were added on 23 November 2026, when the first real exports showed findings the table had no row for (Boroon; `factory-gates` README finding 14). Without them, those findings fell to 3, and a new table, which brings its system relationships, would have floored at 3 instead of 2.
 
 ### B.3 Gate result rules
 
