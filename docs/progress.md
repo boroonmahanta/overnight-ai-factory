@@ -111,7 +111,10 @@ Next steps:
 
 ## Session 41, 2026-11-23, branch `claude/session-41-2538-b-floors`
 
-ADO 2538, slice B: Boroon's two decisions, then slice B1 as **gate PR 23** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/23, branch `merge-danger-floor`, commit `8dac7a0`, open, for Boroon to merge; `self-test` green on Python 3.11, run 40571776; `lcp-gate` red at `map lane`, as on every gate PR).
+ADO 2538, slice B: Boroon's two decisions, then slice B1 as **gate PR 23** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/23, branch `merge-danger-floor`, commit `8dac7a0`; `self-test` green on Python 3.11, run 40571776; `lcp-gate` red at `map lane`, as on every gate PR). **Merged by Boroon on 23 November 2026**, so `release` is at `70ce7f4`, with the same tree as the tested commit.
+- Checked on `release`: 355 tests OK; `manifest.py verify`, the hash check and `make_rulesets.py check` are clean; 12 scripts left on `pending-scripts.txt`.
+- Slice B1 is done. Task 2517 is Closed.
+- The gate worktree and its local branch are removed. The remote branch was deleted on merge.
 - Where it ran: on the laptop (desktop app), a day before B's Wed 25 Nov date, in its own worktree (`.claude/worktrees/session-41-2538-b`, from `main` at `3bce4e9`), because other sessions share the folder.
 - The gate work: a worktree of the gate clone at `factory-gates/` inside it, off `release` at `973a421`. The shared gate clone was not switched.
 - Session renamed "35. Stage 1 - Build - Merge Danger rules", at Boroon's word, after "34. Stage 1 - Build - Export plan and lints" (Session 40).
@@ -167,10 +170,10 @@ Made by this session without asking (say if any is wrong; gate README, "The Merg
 - Each path and each finding takes only its highest row, so a change class (B2) reads the rows that set each part of the floor.
 
 ADO:
-- 2538 stays in **Building**. Its body holds the decisions, gate PR 23 and the time line.
-- Task 2517's body maps each plan rule to its B.2 floor. It stays New until gate PR 23 merges.
+- 2538 stays in **Building**. Its body holds the decisions, gate PR 23 and the time line. Comments record the Appendix A edit and the merge.
+- Task 2517 is **Closed** (23 November 2026, after the merge). Its body maps each plan rule to its B.2 floor.
 
-Time and tokens (session `166167c4`, measured before the last commit). `--latest` finds no transcript from a worktree, so run with `--root` set to the main folder's project and `--session`. Active time 0 h 56 min (gaps over 10 minutes not counted), from 23 Nov 22:33 to 23 Nov 23:49 (UTC+11). Tokens: 164,046 output; 31,232,974 processed in all, of which 30,693,068 were cache reads. From 1 local transcript.
+Time and tokens (session `166167c4`, measured before the last commit). `--latest` finds no transcript from a worktree, so run with `--root` set to the main folder's project and `--session`. Active time 1 h 07 min (gaps over 10 minutes not counted), from 23 Nov 22:33 to 24 Nov 00:00 (UTC+11). Tokens: 186,314 output; 42,615,920 processed in all, of which 41,983,360 were cache reads. From 1 local transcript.
 
 Files changed:
 - Here: `docs/sources/plan-v3.1.md` (B.2, a 14.4 row, Appendix A's `verify-in-test` checkout), `CLAUDE.md`, `docs/progress.md`.
@@ -181,7 +184,8 @@ Files changed:
   - `README.md`, `pending-scripts.txt`, `scripts.sha256`.
 
 Open items:
-- **Boroon: review and merge gate PR 23.** If `release` moves first, make `scripts.sha256` again before merging.
+- **Done: gate PR 23 merged by Boroon** (23 November 2026, `70ce7f4`). Kept here one session for the record.
+- **Slice C's gate worktree** (`.claude/worktrees/session-42-2538-c/factory-gates`, branch `verify-in-test`) is still on `973a421`. It must rebase on `70ce7f4` and make the manifest last, as agreed.
 - **Done: plan Appendix A's `verify-in-test` now checks the PR out with `fetch-depth: 0`**, as gate PR 23 has it (Boroon, "Yes, edit the plan", 23 November 2026); the Session 41 row in 14.4 says so. Kept here one session for the record.
 - **Not tested against a real export:** the two new kinds of unsafe text and an environment variable value file. No fixture holds one.
 - **A site map entry added comes out as `other_changed` (3),** not B.1's small-addition 2: the export-diff plan does not read site maps. Conservative; teach the plan site maps if a story class needs them at L2.
@@ -201,11 +205,11 @@ Open items:
     - `missing_focuses`.
   - Anything but `PASS` is not mergeable, and `NO_VERDICT` never auto-merges.
   - C's suite summaries (`scenarios.json`, `holdout-summary.json`, `conversations.json`, each `{schema_version, suite, total, passed, failed: [case ids]}`) are for `verdict_gate.py`, not the floor.
-- `CLAUDE.md`'s `factory-gates` row and `docs/plans/schedule.md` are not edited, because Sessions 34, 37, 38 and 40's unmerged branches touch them. Once gate PR 23 merges, `release` holds 355 tests and 12 pending scripts, and slice B1 is done.
+- `CLAUDE.md`'s `factory-gates` row and `docs/plans/schedule.md` are not edited, because Sessions 34, 37, 38 and 40's unmerged branches touch them. When they are edited: `release` is at `70ce7f4` with 355 tests and 12 pending scripts, and slices A and B1 are done.
 - Sessions 38 and 40's branches are not merged here. When they are, the log order is 41, 40, 39, 38.
 
 Next steps:
-1. Boroon merges gate PR 23.
+1. Done: Boroon merged gate PR 23.
 2. Slice B2 (`merge_danger_combine.py`, `merge_policy.py`), after one real Copilot review output.
 3. Slice C (Thu 26 Nov): `checker_gate.py` (writing `checker-summary.json`), `run_workflow.py`, `parse_verdict.py`, `verdict_gate.py`, and the `check_spec.py` job.
 
