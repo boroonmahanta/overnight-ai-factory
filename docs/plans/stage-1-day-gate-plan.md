@@ -219,7 +219,7 @@ Read: plan 5.8 (lines 665 to 698), 5.9 accessibility (line 735), Appendix A `ver
    - run tags on every seeded row, in a fixed place the nightly sweeper can find;
    - the selector rule: accessible name first, `data-control-name` second, never CSS paths;
    - serial runs for tests that share a record type;
-   - who writes them: a person who is not the worker, approved by `@acceptance-owners`. The `test-author` agent is not in stage 1;
+   - who writes them: a person who is not the worker, approved by `@ai-factory-acceptance-owners`. The `test-author` agent is not in stage 1;
    - the held-out set uses the same formats, in `factory-holdout`.
 2. `conventions/scenario.schema.json`: one JSON Schema for workflow and Web API scenarios (D4): seed, trigger (HTTP, row create or update, or none), expected rows and fields, flow run status, plug-in trace log checks, timeout, cleanup by run tag. The runner (`run_workflow.py`) and a schema lint are gate scripts, for 2538.
 3. `staging/factory-gates/playwright/`, the kit v0 (plan 13):

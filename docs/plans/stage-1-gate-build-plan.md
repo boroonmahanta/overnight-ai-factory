@@ -68,7 +68,7 @@ Done when: all tests pass, including the new ones. The test with `--no-renames` 
 Read: plan lines 641 to 650 (rulesets, section 5.7 part 3), 2108 to 2245 (Appendix B, for `trust.yml` and CODEOWNERS by floor, skim only). Line numbers as at the end of Build 1.
 
 1. Four JSON files in `factory-gates/rulesets/`, in GitHub's REST ruleset format: `main-gate.json`, `integration-gate.json`, `protected-paths.json`, `factory-required-workflows.json`. Settings as plan section 5.7.
-2. `factory-gates/templates/CODEOWNERS` for project repos. Protected paths go to `@acceptance-owners` or the platform team.
+2. `factory-gates/templates/CODEOWNERS` for project repos. Protected paths go to `@ai-factory-acceptance-owners` or `@ai-factory-platform-admins`.
 3. One source for protected paths. `protected-paths.json` is generated from the list in `check_protected_paths.py` by a small `gate/lcp/make_rulesets.py`. A test fails if the committed JSON is stale, the same way the manifest test works.
 4. `gate/lcp/audit_bypass.py`: reads a ruleset JSON and fails if a bypass list names an App, an integration, a machine account, the write role or Copilot (rule 6). `main-gate` must have an empty bypass list. This is the offline half of the plan's nightly bypass audit.
 5. Tests for both scripts. Regenerate `scripts.sha256`.
