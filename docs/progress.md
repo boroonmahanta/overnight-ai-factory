@@ -123,7 +123,7 @@ Decisions:
 Files changed: `docs/plans/schedule.md`, `docs/progress.md`.
 
 Open items:
-- **ADO dates are not moved.** Start and Finish Dates in `getai-overnight-ai-factory` still show the old schedule. Move them only at Boroon's word.
+- **Done: ADO dates moved** at Boroon's word ("Yes, update ADO", 23 November 2026): Start and Finish Dates of the 18 moved stories, read back and checked; the dashboard synced after. Predecessor links not changed. This session's time and tokens are not yet in any story body.
 - **The second approver and the three CODEOWNERS teams are now due Wed 25 Nov** (was Fri 4 Dec). Without them 2520, 2529, 2521 and 2539 cannot run this week.
 - **Engineers' session exports:** chase them Tue 24 Nov; the mining cut-off (D5) is now Thu 26 Nov.
 - **Session 34's branch (`claude/session-34-2509-copilot-pin`) is not merged into `main`** and may also edit `schedule.md` and `progress.md`; expect a merge conflict in both.
