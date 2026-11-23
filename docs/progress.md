@@ -142,13 +142,13 @@ Time and tokens (in 2538's body; session `e5d1f0dc`, measured before the last co
 Files changed: here, `staging/factory-gates/` (deleted), `staging/README.md`, `docs/plans/stage-1-day-gate-plan.md`, `CLAUDE.md`, `docs/progress.md`. In `GetAI-IP/factory-gates` (branch `verify-in-test`): `lcp/checker_gate.py`, `lcp/parse_verdict.py`, `lcp/verdict_gate.py`, `lcp/check_specs.py`, `spec/check_spec.py` (all new), five new test files and `test_check_spec.py`, `tests/fixtures/checker/`, `tests/fixtures/verifier/`, `tests/fixtures/specs/`, `.github/workflows/lcp-gate.yml`, `tests/test_workflow.py`, `tests/test_merge_danger_floor.py` (one test), `pending-scripts.txt`, `scripts.sha256`, `README.md`.
 
 Open items:
-- **Boroon: open slice C's gate PR?** Not opened (this repo's rule: no pull request unless asked). Before merging: `self-test` green on Python 3.11, and the manifest made again if `release` moves first.
+- **Slice C's gate PR is open, at Boroon's word** (24 November 2026): https://getai.ghe.com/GetAI-IP/factory-gates/pull/24, commit `68c9830` (`bdf1554` plus one README-only commit from the schedule session, the new dates for `run_workflow.py`), on `release` at `70ce7f4`, mergeable. For Boroon to merge once `self-test` is green on Python 3.11; if `release` moves first, rebase and make the manifest again. Recorded in a comment on ADO 2538.
 - **Plan edits for Boroon** (none made): Appendix A's checker step flags, the SARIF upload's `checkout_path`, `--plan` on `parse_verdict.py`, the verifier wait's `|| true` (finding 17), and the spec step in `locks`; 5.7's job table (`locks` now runs the spec check); a 14.4 row for the three decisions above.
 - **Done: optional suites (Boroon, 24 November 2026, option 1, over empty results).** Each project declares `holdout` and `agents` in `projects/<project>/gate.json` in the gate repo; `lcp/project_settings.py` gates the held-out and Copilot Studio steps; `verdict_gate.py --settings` requires a suite the project has and notes a skipped one. Gate commit `57c53ec`, 563 tests. **For 2539:** add Northwind's `gate.json` (both false) by a reviewed gate PR.
 - `danger`'s review step has the same `wait "$pid"` (finding 17): slice B2.
 
 Next steps:
-1. Boroon: say whether to open slice C's gate PR; review and merge it.
+1. Boroon: review and merge gate PR 24 once `self-test` is green.
 2. B2 (`merge_danger_combine.py`, `merge_policy.py`), after one real Copilot review output.
 3. Wed 25 Nov: spike 0.10 (2459), "export both".
 
