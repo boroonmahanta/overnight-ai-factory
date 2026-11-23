@@ -150,7 +150,7 @@ Next steps:
 
 ADO 2538, the remaining Stage 1 gate scripts: started on Mon 23 Nov, a day before its date. On the laptop (desktop app). Planning branch in its own worktree from `main` at `1f848be` (pull request 49). Gate branch `static-file-checks` in a separate worktree of the gate clone, off `release` at `65031e4`, so neither shared checkout was switched. Numbered 38 because Sessions 34 to 37 ran the same day on branches not yet merged here. Session renamed "33. Stage 1 - Build - Remaining gate scripts", at Boroon's word, after "32. Stage 1 - Add CODEOWNERS teams and second approvers in GHE" (Session 39).
 
-**Gate PR 21** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/21, commit `c295d22`), open, for Boroon to merge.
+**Gate PR 21** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/21, commit `9f46d30` after its rebase) **merged by Boroon on 23 November 2026 (`b25cb2f`)**. Slice A2 ran in its own session (Session 40, started from this one's card) as **gate PR 22**, **merged by Boroon the same evening (`973a421`)**. Checked here on `release` at `973a421`: 296 tests OK; `manifest.py verify`, the hash check and `make_rulesets.py check` clean; 14 scripts left on `pending-scripts.txt` (B's four, C's four, the six left out). Slice A is done; B and C remain. ADO 2538's body records both merges.
 
 Done:
 - **Split 2538 into three gate pull requests,** each merged before the next makes `scripts.sha256` again (Session 37's warning). **Agreed by Boroon on 23 November 2026** ("Agree the split"), with the list to wait:
