@@ -147,6 +147,8 @@ Open items:
 - **Done: optional suites (Boroon, 24 November 2026, option 1, over empty results).** Each project declares `holdout` and `agents` in `projects/<project>/gate.json` in the gate repo; `lcp/project_settings.py` gates the held-out and Copilot Studio steps; `verdict_gate.py --settings` requires a suite the project has and notes a skipped one. Gate commit `57c53ec`, 563 tests. **For 2539:** add Northwind's `gate.json` (both false) by a reviewed gate PR.
 - `danger`'s review step has the same `wait "$pid"` (finding 17): slice B2.
 
+Pull request: https://github.com/boroonmahanta/overnight-ai-factory/pull/54, this branch into `main`, opened at Boroon's word on 24 November 2026, after `main` (pull request 53, Session 41) was merged in with the log conflict resolved. For Boroon to merge.
+
 Next steps:
 1. Done: gate PR 24 merged (24 November 2026).
 2. B2 (`merge_danger_combine.py`, `merge_policy.py`), after one real Copilot review output.
