@@ -143,7 +143,7 @@ Time and tokens (session `c377ce18`, measured before the last commit): active ti
 Files changed: here, `docs/progress.md` only. In `GetAI-IP/factory-gates` (gate PR 22): five scripts in `lcp/` (new), five test files (new), `tests/fixtures/export-base/` (new, 23 files), `README.md`, `pending-scripts.txt`, `scripts.sha256`.
 
 Open items:
-- **Boroon: review and merge gate PR 22,** with `self-test` green first (it runs Python 3.11, which the laptop does not have). If `release` moves before the merge: regenerate the manifest first.
+- **Boroon: review and merge gate PR 22.** `self-test` passed on the runner (Python 3.11, which the laptop does not have; run 40559901); `lcp-gate` is red at `map lane`, as on every gate PR (README step 10). If `release` moves before the merge: regenerate the manifest first.
 - **Slice B (Wed 25 Nov):** `danger-rules.yml` maps the plan's rule names to floors (the README table); confirm the proposed floors and the unsafe-text list with Boroon. `merge_danger_floor.py` reads `export-plan.json` as written here (`schema_version` 1).
 - Not seen in a real export yet, so handled from Microsoft's format only: global choices, lookup or many-to-many relationships, field security profiles, an environment variable value file, classic workflows, Copilot Studio agent flows. Northwind's export (2541) is the first chance.
 - `CLAUDE.md`'s `factory-gates` row and `docs/plans/schedule.md` not edited (Sessions 34, 37 and 38's unmerged branches touch them): once PR 22 merges, `release` holds 296 tests and 14 pending scripts.
