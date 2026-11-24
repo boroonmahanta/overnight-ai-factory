@@ -115,6 +115,33 @@ Next steps:
 
 ## Log
 
+## Session 49, 2026-11-24, branch `claude/session-49-2541-test-user-vault`
+
+ADO 2541 again, on the laptop (desktop app), the evening of its Tue 24 Nov date, to see what could move after Session 46. Session renamed "43. Stage 1 - Add - factory-test test user and Key Vault", at Boroon's word ("name the session like the rest of the sessions, dont nest it"): top level in the sidebar group, no parent session. Planning branch in its own worktree (`.claude/worktrees/session-49-2541`, from `main` at `e9807b8`), because Session 48 (3059) has uncommitted edits to `docs/plans/factory-test/README.md` in its worktree.
+
+Found (reads only, as Boroon by `az`, about 22:00 UTC+11):
+- The test user `factory-test-nwt@getai.com.au`, the group `factory-cba-test-users` and the resource group `rg-getai-factory-aue` do not exist yet. So nothing of 2541's rest can be done today.
+- `getai-nwt-test` has no federated credential yet. The Northwind repo `AI-Business-Solutions/ai-factory-nwt` exists since 24 November 2026 (Session 48, 3059), with its OIDC subject template and the `lcp-test` environment. 3059's own body (item 5) makes this credential from the first gate run's subject, so it is not done here.
+
+Decisions (Boroon, 24 November 2026, asked in this session):
+- **The admins' message is sent**; waiting on them. Their names are still not in ADO 2541.
+- **Plan 5.3 is not edited now** (Session 46's two findings: the Connection reference table's audit, and the Test identity's App permissions).
+- **Northwind reaches `factory-test` only through the gate**, as a managed import (2459, or a gate run on a pull request to `ai-factory-nwt`), never by a hand-made unmanaged import. DG9's step 1 now says so.
+
+Files changed: `docs/plans/factory-test/README.md` (where it stands, the Northwind line confirmed, the message marked sent), `docs/plans/stage-1-day-gate-plan.md` (DG9 step 1), `docs/plans/schedule.md` (2541's status and a Changes line), `docs/progress.md`. No date moves. ADO 2541: body gains a Session 49 section (rev 8); still Building.
+
+Time and tokens (in 2541's body; session `634dba04`, measured before the last commit, `--root` the main folder's project transcripts): active time 0 h 08 min (gaps over 10 minutes not counted), from 24 Nov 21:59 to 24 Nov 22:07 (UTC+11). Tokens: 19,205 output; 2,579,656 processed in all, of which 2,374,624 were cache reads. From 1 local transcript.
+
+Open items:
+- **2541 did not finish on its Tue 24 Nov date.** It stays Building until the identity admins (the test user, its licence, the group, the test CA in the trust store, certificate sign-in) and the CSP subscription's owner (the resource group, Owner for Boroon) act. Then, back here: the vault and the certificate by CLI (README, section 2), the `certificateUserIds` value to the admins, Basic User in `factory-test`, and the CA key decision.
+- **2447 (spike 0.11, Thu 26 Nov) needs the test user and the vault**, so it slips if the admins are not done by Wednesday. Dates move only at Boroon's word.
+- The admins' names, for ADO 2541, when Boroon gives them.
+- Session 48's README edit (section 3, the Northwind repo) and this session's (sections at the top, "Not done on purpose" and the message) touch different lines; whichever pull request merges second takes the other's in a merge from `main`.
+
+Next steps:
+1. Wed 25 Nov: 2459 (spike 0.10) in `factory-test`, with `getai-nwt-test` (needs only those two).
+2. When the admins are done: finish 2541, then 2447.
+
 ## Session 47, 2026-11-24, branch `claude/awesome-newton-e32499`
 
 ADO 2531, the callers build, on the laptop (desktop app), track C, a day before its Wed 25 Nov start. Started from Session 46's session, then moved to top level and renamed "41. Stage 1 - Build - Reusable gate workflow and callers", at Boroon's word. Planning branch in its own worktree (`.claude/worktrees/awesome-newton-e32499`, from `main` at `3fd9565`). The gate branch is in a worktree of the gate clone inside it, `factory-gates/`; the shared gate clone was not switched.
