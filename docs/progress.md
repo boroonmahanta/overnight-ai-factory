@@ -138,6 +138,8 @@ Open items:
 - The admins' names, for ADO 2541, when Boroon gives them.
 - Session 48's README edit (section 3, the Northwind repo) and this session's (sections at the top, "Not done on purpose" and the message) touch different lines; whichever pull request merges second takes the other's in a merge from `main`.
 
+Planning PR: https://github.com/boroonmahanta/overnight-ai-factory/pull/63, opened at Boroon's word on 25 November 2026, for him to merge.
+
 Next steps:
 1. Wed 25 Nov: 2459 (spike 0.10) in `factory-test`, with `getai-nwt-test` (needs only those two).
 2. When the admins are done: finish 2541, then 2447.
