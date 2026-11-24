@@ -149,10 +149,17 @@ Open items:
 - **Done: two new stories, at Boroon's word** ("Yes, add both", 24 November 2026), both Proposed and not dated (dates at his word): **ADO 3059** "Northwind project repo for the Stage 1 exit test" (under Feature 2536; after 2541, before 2539) and **ADO 3060** "Azure resources for the gate: Key Vault and evidence storage" (under Feature 2540; before 2447 and 2539). 3060 also asks who writes evidence to Blob: plan 5.1 names an evidence-writer managed identity, but the gate uploads as the Test identity (README finding 8).
 - Feature 2540 is still "Not Started" in ADO; it could move to In Progress at Boroon's word.
 
-Planning PR: https://github.com/boroonmahanta/overnight-ai-factory/pull/58, opened at Boroon's word on 24 November 2026, for him to merge. `main` (pull request 57) was merged into the branch first; the only clash was the top of this log.
+Planning PR: https://github.com/boroonmahanta/overnight-ai-factory/pull/58, opened at Boroon's word on 24 November 2026, **merged by Boroon the same day** (`1d58bf8`). `main` (pull request 57) was merged into the branch first; the only clash was the top of this log.
+
+Later in the session (branch `claude/session-46-3059-nwt-source`, from `main` after pull request 58, in the same worktree):
+- **3059's open items settled by Boroon** (24 November 2026): the repo is **`ai-factory-nwt`**, and the solution comes from Microsoft's page "Install Northwind Traders database and apps" (https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/northwind-install). Then the org: **`AI-Business-Solutions`** (Boroon, the same day, added to pull request 59), so the repo is `AI-Business-Solutions/ai-factory-nwt`. Its first gate run is also the gate's first across orgs (spike 0.2 tested within one org only), so 2531, the callers build, may be needed first; noted in 3059 and the README.
+- The page's file is `NorthwindTraders_final.zip` on `download.microsoft.com`, 666,816 bytes, last modified 29 January 2025 (headers only; not downloaded, which needs Boroon's word). It holds the tables, choices and business processes, the Northwind Orders canvas and model-driven apps, a Sample Data canvas app that loads the rows after a consent prompt, and tutorial "Begin Part" canvas apps.
+- ADO 3059's body now carries the name, the file and two things to watch: the gate's manifest check fails closed on `CanvasApps/`, so a reviewed gate PR must add the kind from the real export (or the canvas apps stay out of the repo's solution) before 2539; and loading sample data is a day step for a person, or the locked scenarios seed their own rows. A fork of this session had already added a comment to 3059 saying the same; no branch of its own.
+- README: section 3 names the repo and adds `EVIDENCE_ACCOUNT`; a new section 4, "The Northwind solution".
+- Planning PR: https://github.com/boroonmahanta/overnight-ai-factory/pull/59, opened at Boroon's word on 24 November 2026, for him to merge.
 
 Next steps:
-1. Boroon sends the admins' message, and merges pull request 58.
+1. Boroon sends the admins' message. Done: pull request 58 merged.
 2. Wed 25 Nov: 2459 (spike 0.10) in `factory-test`, with `getai-nwt-test`.
 3. When the admins are done: finish 2541 (vault, certificate, role), then 2447.
 

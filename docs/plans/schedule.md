@@ -94,7 +94,7 @@ Start each one only when what it needs is done. Within a day, go top to bottom.
 Date them when Stage 4 ends.
 
 - 3019 and 2740 (A1) are dated since Session 37 (Tue 24 and Wed 25 Nov). A1's monthly pass after the first stays a checkpoint, with the component register review.
-- 3059 (the Northwind project repo; after 2541, before 2539) and 3060 (Key Vault and evidence storage; before 2447 and 2539), new in Session 46 at Boroon's word. Both are needed by Fri 27 Nov for the exit test. Date them at Boroon's word.
+- 3059 (the Northwind project repo `AI-Business-Solutions/ai-factory-nwt`; after 2541, before 2539) and 3060 (Key Vault and evidence storage; before 2447 and 2539), new in Session 46 at Boroon's word. Both are needed by Fri 27 Nov for the exit test. Date them at Boroon's word.
 
 ## Changes
 
