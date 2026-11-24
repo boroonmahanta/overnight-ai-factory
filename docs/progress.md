@@ -200,9 +200,12 @@ Open items:
 - Seen, not touched: another App, `get-ai-project-setup`, is installed on `GetAI-IP` with wide write permissions (administration, contents, repository creation, organisation administration). It is not the factory's.
 - Rotate the three keys quarterly; the first by about 24 February 2027.
 
+Planning PR: https://github.com/boroonmahanta/overnight-ai-factory/pull/60, opened at Boroon's word on 24 November 2026, for him to merge. It merges `main` up to `cb8c15e` (Session 46): both log entries and map rows kept, and this session's schedule change line moved into the Changes list, where it belongs.
+
 Next steps:
 1. Done: Boroon merged gate PR 27 and holdout PR 1; 2537 is Done.
-2. Wed 25 Nov, as scheduled: 2451 (spike 0.6), then 2531 on Laptop C.
+2. Boroon merges planning PR 60.
+3. Wed 25 Nov, as scheduled: 2451 (spike 0.6), then 2531 on Laptop C.
 
 
 ## Dashboard sync, 2026-11-24, branch `claude/schedule-sync-2026-11-24`
