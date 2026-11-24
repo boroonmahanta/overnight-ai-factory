@@ -43,7 +43,8 @@ Auditing: a Web API `PATCH` of `organizations(<id>)` with `isauditenabled: true`
 4. **The gate's Playwright step does not pass what Microsoft's toolkit reads.** `lcp-gate.yml` (`verify-in-test`, "Locked Playwright suite") sets `MS_AUTH_CREDENTIAL_TYPE`, `MS_AUTH_CREDENTIAL_PROVIDER` and `KEYVAULT_NAME`. Microsoft's authentication guide for Key Vault uses `MS_AUTH_EMAIL`, `AZURE_KEYVAULT_URL`, `AZURE_CERTIFICATE_NAME` and `AZURE_TENANT_ID`. The gate's `gate/playwright` config does not exist yet, so it may map them; settle it in 2546 (the kit) and 2447 (spike 0.11).
 5. **Boroon's account cannot do the rest alone.** It holds Power Platform Administrator and Cloud Application Administrator in Entra, and only Reader on the CSP Azure subscription. So the test user, its licence, certificate sign-in and the Key Vault need other admins (below). It cannot read the authentication methods policy or the Conditional Access policies, so whether certificate sign-in is already on in the tenant is unknown.
 6. **Licences:** the tenant has 25 Power Apps Premium (`POWERAPPS_PER_USER`) licences, 6 in use (read 24 November 2026). One goes to the test user (plan 5.14: Test is a Managed Environment).
-7. **No story makes the Northwind project repo, the Key Vault or the evidence Blob.** 2539 needs a project repo for its human PR, and `verify-in-test` needs the vault (test user certificate) and Blob (evidence, rule 16).
+7. **No story made the Northwind project repo, the Key Vault or the evidence Blob.** 2539 needs a project repo for its human PR, and `verify-in-test` needs the vault (test user certificate) and Blob (evidence, rule 16). **Now ADO 3059** (the Northwind project repo, under Feature 2536, before 2539) **and ADO 3060** (Key Vault and evidence storage, under Feature 2540, before 2447 and 2539), added at Boroon's word on 24 November 2026, Proposed and not dated.
+8. **Who writes evidence to Blob is not settled.** Plan 5.1's table names an "evidence-writer managed identity", but the gate's "Copy evidence to Blob" step runs `az storage blob upload-batch --auth-mode login` as the Test identity, into a container named by `PROJECT_ID`. ADO 3060 asks to pick one before the exit test.
 
 ## What waits, and on whom
 
@@ -62,7 +63,7 @@ Plan 5.3: `factory-test-<proj>@<tenant>`, an Entra user with certificate sign-in
    - **the strength is the admins' and Boroon's choice:** single-factor, plus a Conditional Access exclusion for the user if a policy requires MFA; or multifactor for this rule, so no exclusion is needed. Spike 0.11 (2447) tests whichever is chosen.
 7. **Role in `factory-test`** (Boroon, once the user is licensed): `pac admin assign-user --environment <id> --user factory-test-nwt@getai.com.au --role "Basic User"`. Northwind's own role, if it has one, comes with its import.
 
-### 2. The Key Vault (the Azure subscription's owner, then Boroon)
+### 2. The Key Vault (the Azure subscription's owner, then Boroon; ADO 3060)
 
 1. **The owner** of `AzureCSP_GetAI_CloudandDataPlatforms` (Boroon's choice of subscription, 24 November 2026) makes a resource group `rg-getai-factory-aue` in Australia East and gives Boroon **Owner** on that group only. Evidence Blob storage (rule 16) can live there later.
 2. **Boroon, by CLI** (the same way as above, asking before each create): a Key Vault `kv-getai-factory-aue` (Australia East, Azure RBAC, soft delete on); Boroon gets Key Vault Administrator on it; `getai-nwt-test` gets **Key Vault Certificate User** on the test user's certificate only (scoped to the certificate, not the vault).
@@ -72,7 +73,7 @@ Plan 5.3: `factory-test-<proj>@<tenant>`, an Entra user with certificate sign-in
 
 Plan 5.3: one credential per project repo, plus one for triage, because the subject names the repo where the run happens. Spike 0.2: take the subject from a real run first, then wait about five minutes.
 
-- **The Northwind project repo** (not made yet; no story makes it). Its OIDC subject template must include `repo`, `context` and `job_workflow_ref`, and it needs a GitHub environment `lcp-test` holding the variables `verify-in-test` reads: `TENANT_ID`, `LCP_TEST_APP_ID` (the app ID of `getai-nwt-test`), `LCP_TEST_ENV_URL` (`https://factory-test.crm6.dynamics.com`), `PROJECT_ID` (`nwt`) and `LCP_KEYVAULT`. Expected subject shape: `repo:<org>@<org id>/<repo>@<repo id>:environment:lcp-test:job_workflow_ref:GetAI-IP/factory-gates/.github/workflows/lcp-gate.yml@refs/heads/release`. Credential: Other issuer, `https://token.actions.getai.ghe.com`, audience `api://AzureADTokenExchange`.
+- **The Northwind project repo** (not made yet; ADO 3059). Its OIDC subject template must include `repo`, `context` and `job_workflow_ref`, and it needs a GitHub environment `lcp-test` holding the variables `verify-in-test` reads: `TENANT_ID`, `LCP_TEST_APP_ID` (the app ID of `getai-nwt-test`), `LCP_TEST_ENV_URL` (`https://factory-test.crm6.dynamics.com`), `PROJECT_ID` (`nwt`) and `LCP_KEYVAULT`. Expected subject shape: `repo:<org>@<org id>/<repo>@<repo id>:environment:lcp-test:job_workflow_ref:GetAI-IP/factory-gates/.github/workflows/lcp-gate.yml@refs/heads/release`. Credential: Other issuer, `https://token.actions.getai.ghe.com`, audience `api://AzureADTokenExchange`.
 - **Triage** (plan 4.5): when its workflow exists in `factory-gates`, Stage 2 or later.
 - **Spike 0.10 (2459, Wednesday 25 November)** needs to import into `factory-test`; if it runs from a scratch repo, that repo gets its own scratch credential on `getai-nwt-test`, deleted after the spike.
 

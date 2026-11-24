@@ -132,7 +132,7 @@ Found (README, Findings):
 3. Microsoft's Build Tools page now asks only for the application user with System Administrator, not the API permissions plan 5.3 cites. None added; add PowerApps-Advisor `Analysis.All` only if the checker fails as the Test identity.
 4. Right after the change, one admin API read still said `Basic`; with `$expand=properties.governanceConfiguration` it reads `Standard` and `block`. The preflight should read it that way.
 5. The gate's Playwright step passes `KEYVAULT_NAME`, but Microsoft's toolkit reads `MS_AUTH_EMAIL`, `AZURE_KEYVAULT_URL`, `AZURE_CERTIFICATE_NAME` and `AZURE_TENANT_ID`. For 2546 and 2447.
-6. No ADO story makes the Northwind project repo, the Key Vault or the evidence Blob.
+6. No ADO story made the Northwind project repo, the Key Vault or the evidence Blob (now 3059 and 3060, below).
 7. 19 spare Power Apps Premium licences.
 8. **Not imported: Northwind.** An unmanaged import into Test would sit under the gate's managed imports as an unmanaged layer, so Northwind reaches Test through the gate (2459 or 2539). DG9's step 1 ("if 2541 has not") needs Boroon's word.
 
@@ -146,7 +146,7 @@ Open items:
 - **Then, back here:** the vault and the certificate by CLI (README, step 2), the test user's `certificateUserIds` value to the admins, Basic User in `factory-test`, and the CA key decision (destroy, or keep in a separate vault).
 - **The federated credentials**: the Northwind project repo's, once a story makes that repo; triage's at Stage 2 or later; a scratch one if 2459 runs from a scratch repo.
 - **Possible plan edits** (Boroon to decide, none made): 5.3's audit sentence (Connection reference cannot be audited here) and its "App permissions" for the Test identity (Microsoft's page no longer asks for them).
-- **Possible new stories** (Boroon to decide): the Northwind project repo for 2539, and the Azure resources (Key Vault, evidence Blob).
+- **Done: two new stories, at Boroon's word** ("Yes, add both", 24 November 2026), both Proposed and not dated (dates at his word): **ADO 3059** "Northwind project repo for the Stage 1 exit test" (under Feature 2536; after 2541, before 2539) and **ADO 3060** "Azure resources for the gate: Key Vault and evidence storage" (under Feature 2540; before 2447 and 2539). 3060 also asks who writes evidence to Blob: plan 5.1 names an evidence-writer managed identity, but the gate uploads as the Test identity (README finding 8).
 - Feature 2540 is still "Not Started" in ADO; it could move to In Progress at Boroon's word.
 
 Next steps:
