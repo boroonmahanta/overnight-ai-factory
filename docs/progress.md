@@ -110,6 +110,20 @@ Next steps:
 
 ## Log
 
+## Dashboard sync, 2026-11-24, branch `claude/schedule-sync-2026-11-24`
+
+Done:
+- Reran `tools/progress_snapshot.py` and synced the "Factory build progress" dashboard three times (143 stories, 16 of 40 scheduled done, 71 sessions). Old snapshot files kept.
+- ADO: 2538's Finish Date moved from Thu 26 to Tue 24 Nov, the day it was done, at Boroon's word. A one-day shift of 2537, 2541, 3019, 2546 and 2459 was made on a misread clock and undone within minutes; their dates are as Session 37 set them.
+- `docs/plans/schedule.md` now carries Session 37's redraft (its branch `claude/session-37-stage-1-this-week` is not merged, and is behind `main`), merged with Sessions 36 and 39's rows: 2538 Done Tue 24 Nov, 3026 kept, 3027 added (Wed 25 to Thu 26 Nov, Laptop A), and the "This week" table's Laptop A column updated.
+Decisions:
+- Boroon, 24 November 2026: dashboard syncs need no pull request. This branch is pushed, with no pull request.
+Files changed: `docs/plans/schedule.md`, `docs/progress.md`.
+Open items:
+- When Session 37's branch merges, take this branch's `schedule.md`: it holds all of Session 37's rows plus the later ones.
+Next steps:
+- Today (Tue 24 Nov): 2537, 2541, 3019 and the 2546 draft, as in the schedule.
+
 ## Session 44, 2026-11-24, branch `claude/focused-pare-44ad71`
 
 Gate README finding 19 settled in code: **gate PR 26** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/26, branch `gate-merge-policy-token`, commit `0294a7c`, on `release` at `0db69f6` after gate PR 25). `self-test` is green on Python 3.11, 642 tests OK (run 40659146). `lcp-gate` is red at `map lane`, as on every gate PR (run 40659141). **Merged by Boroon on 24 November 2026** (10:46 UTC+11): `release` is at `7663cc9`, with the same tree as the tested `0294a7c`.
