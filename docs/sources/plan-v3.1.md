@@ -1729,7 +1729,7 @@ What it does, job by job:
 
 Three things to know before using it:
 
-- **The gate reader keys are secrets.** Five jobs hold a GitHub App key that can read `factory-gates`, and one also holds a key for `factory-holdout`. None of them runs PR code. The push ruleset on `.github/**` stops an agent adding a workflow that could read them. Rotate both keys quarterly.
+- **The gate reader keys are secrets.** Five jobs hold a GitHub App key that can read `factory-gates`, and one also holds a key for `factory-holdout`. None of them runs PR code. The push ruleset on `.github/**` stops an agent adding a workflow that could read them. Rotate both keys quarterly. Each token step names its App by `client-id` (`vars.GATE_READER_CLIENT_ID`, `vars.HOLDOUT_READER_CLIENT_ID`), as `app-id` is deprecated (ADO 2537, 24 November 2026).
 - **The lane lock is not here.** Concurrency groups are per repository, so the lane lock and the lane drift check live in the execution workflow in `factory-control`. That workflow posts `lane/drift` as a check run through the factory App, and `integration-gate` requires it.
 - **The Test lock is here.** `verify-in-test` holds `lcp-test-<repo>` for import, tests and the evaluator together, so another PR cannot import between this PR's tests and its evaluation.
 
@@ -1790,7 +1790,7 @@ jobs:
       - id: gate-token
         uses: actions/create-github-app-token@v2
         with:
-          app-id: ${{ vars.GATE_READER_APP_ID }}
+          client-id: ${{ vars.GATE_READER_CLIENT_ID }}
           private-key: ${{ secrets.GATE_READER_KEY }}
           owner: getai
           repositories: factory-gates
@@ -1845,7 +1845,7 @@ jobs:
       - id: gate-token
         uses: actions/create-github-app-token@v2
         with:
-          app-id: ${{ vars.GATE_READER_APP_ID }}
+          client-id: ${{ vars.GATE_READER_CLIENT_ID }}
           private-key: ${{ secrets.GATE_READER_KEY }}
           owner: getai
           repositories: factory-gates
@@ -1941,7 +1941,7 @@ jobs:
       - id: gate-token
         uses: actions/create-github-app-token@v2
         with:
-          app-id: ${{ vars.GATE_READER_APP_ID }}
+          client-id: ${{ vars.GATE_READER_CLIENT_ID }}
           private-key: ${{ secrets.GATE_READER_KEY }}
           owner: getai
           repositories: factory-gates
@@ -2032,7 +2032,7 @@ jobs:
       - id: gate-token
         uses: actions/create-github-app-token@v2
         with:
-          app-id: ${{ vars.GATE_READER_APP_ID }}
+          client-id: ${{ vars.GATE_READER_CLIENT_ID }}
           private-key: ${{ secrets.GATE_READER_KEY }}
           owner: getai
           repositories: factory-gates
@@ -2137,7 +2137,7 @@ jobs:
         if: steps.settings.outputs.holdout == 'true'
         uses: actions/create-github-app-token@v2
         with:
-          app-id: ${{ vars.HOLDOUT_READER_APP_ID }}
+          client-id: ${{ vars.HOLDOUT_READER_CLIENT_ID }}
           private-key: ${{ secrets.HOLDOUT_READER_KEY }}
           owner: getai
           repositories: factory-holdout
@@ -2245,7 +2245,7 @@ jobs:
       - id: gate-token
         uses: actions/create-github-app-token@v2
         with:
-          app-id: ${{ vars.GATE_READER_APP_ID }}
+          client-id: ${{ vars.GATE_READER_CLIENT_ID }}
           private-key: ${{ secrets.GATE_READER_KEY }}
           owner: getai
           repositories: factory-gates
