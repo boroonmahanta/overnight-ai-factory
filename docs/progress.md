@@ -36,6 +36,7 @@ Next steps:
   How to find what the lane identity made outside the solution turned out not to be `solutioncomponent.createdby`: the Default Solution's rows are by SYSTEM. The finder asks each component table for its maker, and finds tables and columns by state against a bootstrap list. The plan is edited for it (11 November 2026, at Boroon's word), with his rule that a table or column found outside the solution stops the lane for a person to check (ADO 2843). Record: `docs/plans/spike-0.19/README.md`. The scratch (0.18's plus one environment variable value) was kept for spike 0.14, and **deleted on 21 November 2026** at Boroon's word.
 - **Spike 0.14 has all four parts run** (Sessions 25 to 28, 18 to 21 November 2026, ADO 2461, **Done** on 21 November 2026 at Boroon's word; its dates not moved). Part 1 passes: a flow with no connector, made by the Web API as `getai-fl1-exec`, runs, exports and packs again offline. Part 2: the App Spec apply works as the lane identity for a new app (unattended, never `--allow-destructive`); FlowAgent reads and edits flows as the lane identity but cannot list, turn on, turn off or run them (HTTP 401). Part 3: a stdio shim in front of the Dataverse CLI's local proxy counts every MCP call, holds a cap and retries; a retried create whose answer was lost writes twice; every call that reaches Dataverse is billed, tool errors included. Part 4 (Session 28): Copilot CLI runs Microsoft's skills headless as the lane identity on `claude-sonnet-5.5`; the flow story passed; **the App Spec skill stops at the apply on an existing app**, which needs `--allow-destructive` even for one new column; MCP calls per session 0 and 1. Verdict: passed, with the fallback where it applies. **Part 4b (Session 29, 21 November 2026): option (b), an additive change to the existing app with no App Spec apply (the column by Dataverse MCP, the form and view by the Web API through a trusted helper), passed all 18 checks headless as the lane identity (run 40126806).** **Boroon agreed the approach on 21 November 2026:** (b) at night for additive changes to an existing app (a column on an existing table, shown on an existing form and view) through a trusted Web API helper the driver ships; the App Spec apply for a new app; (a), a PARK with the dry run as evidence, for any other change to an existing app until its route is tried. **Edited into the plan the same day, at Boroon's word** (5.6, 11.1, 14.4, 15.1, Appendix C, by Session 29), **with the rest of the spike's results** (Session 28, branch `claude/session-28-2461-plan-edits`: 5.2, 5.4, 5.6, 5.9, 5.11, 5.14, 11.1, risk 34, 14.4, 15.1, Appendices B.1 and D). Record: `docs/plans/spike-0.14/README.md`.
 - **Spike 0.17 passes for all four tools** (Session 31, 21 November 2026, ADO 2466, DG2; **Done** at Boroon's word). Each tool gave a readable export of a test session with no client data. Copilot CLI's `--share` writes the fullest (Markdown with tool calls, file edits and shell output), and it also exports Copilot app and VS Code chat sessions, because all three share `~/.copilot/session-state/`; it runs on a copy of the session, so the original never changes. Claude Code's `/export` writes plain text, in a live terminal session only. The how-to for engineers and the checklist for removing client data: `docs/plans/spike-0.17/README.md`. Exports go to `Factory session exports` in Boroon's OneDrive, through a "Request files" link he still has to make (Request files works there, Session 32). Their lasting home, a private channel in an internal Factory Team, is ADO 3019 (Building), waiting on the admins and on Boroon making the Team. The Microsoft 365 connector reads it from the laptop and from a cloud session, so mining batches (2548) can run in the cloud; list the folder by its item ID, not its path.
+- **`factory-test` exists** (Session 46, 24 November 2026, ADO 2541, Building): Sandbox, Managed, checker Block, Australia, `https://factory-test.crm6.dynamics.com/`, with the Test identity `getai-nwt-test` (project `nwt`, the Northwind pilot) as its System Administrator application user. The test user, the Key Vault and the federated credentials wait on the identity admins, the CSP subscription's owner and the Northwind project repo. Record: `docs/plans/factory-test/README.md`.
 - **The Ignite re-check is done** (Session 33, 23 November 2026, ADO 3024): `docs/analysis/ignite-2026-recheck.md`. No rename, nothing GA for the night lane's tools, Copilot residency still US and EU only; nine GA items touch the plan, **edited into the plan the same day at Boroon's word**.
 - **ADO is current** (Session 19): every update Sessions 17 and 18 left is made, and the schedule-order query matches `docs/plans/schedule.md`. Session 20 moved 2463 to Done.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
@@ -109,6 +110,49 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 46, 2026-11-24, branch `claude/session-46-2541-factory-test`
+
+ADO 2541: bootstrap `factory-test` with its Test identity and test user. On the laptop (desktop app), track B (the tenant), on its Tue 24 Nov date in Session 37's schedule. Planning branch in its own worktree (`.claude/worktrees/session-46-2541`, from `main` at `8249d1e`), because Session 45 (2537) works in the same folder. Session renamed "40. Stage 1 - Add - factory-test, test identity and test user", at Boroon's word, after "39. Stage 1 - Add - Gate token Apps".
+
+Done (by CLI as Boroon, each create at his word, each read back; record `docs/plans/factory-test/README.md`, IDs in ADO 2541):
+- **`factory-test`**: `https://factory-test.crm6.dynamics.com/`, Sandbox, Australia (`australiaeast`), AUD, no security group. Managed Environment on, solution checker **Block**. Dataverse auditing on for the organisation and the Workflows table.
+- **`getai-nwt-test`**: Entra app and service principal, single tenant, no secret, no certificate, no API permission, no federated credential yet. Application user in `factory-test` with System Administrator. `getai-fl1-exec` has no user there.
+- ADO 2541: **Building**, body rewritten with the result, the IDs and what waits.
+
+Decisions (Boroon, 24 November 2026, asked in this session):
+- The Northwind pilot's project code is **`nwt`**: `getai-nwt-test`, `factory-test-nwt@getai.com.au`, `projects/nwt/` in `factory-gates`.
+- Claude makes what Boroon's roles allow, by pac and az signed in as him, asking before each create.
+- The factory's Key Vault goes in the subscription `AzureCSP_GetAI_CloudandDataPlatforms`.
+- The test user and its certificate sign-in are asked of the identity admins (a draft message in the README).
+
+Found (README, Findings):
+1. Boroon's account has Power Platform Administrator and Cloud Application Administrator in Entra, and **only Reader** on the CSP subscription. So it cannot make the test user, give its licence, set up certificate sign-in, read the authentication methods or Conditional Access policies, or make the Key Vault.
+2. The Connection reference table's auditing cannot be turned on (`CanBeChanged` false); plan 5.3 asks for it.
+3. Microsoft's Build Tools page now asks only for the application user with System Administrator, not the API permissions plan 5.3 cites. None added; add PowerApps-Advisor `Analysis.All` only if the checker fails as the Test identity.
+4. Right after the change, one admin API read still said `Basic`; with `$expand=properties.governanceConfiguration` it reads `Standard` and `block`. The preflight should read it that way.
+5. The gate's Playwright step passes `KEYVAULT_NAME`, but Microsoft's toolkit reads `MS_AUTH_EMAIL`, `AZURE_KEYVAULT_URL`, `AZURE_CERTIFICATE_NAME` and `AZURE_TENANT_ID`. For 2546 and 2447.
+6. No ADO story makes the Northwind project repo, the Key Vault or the evidence Blob.
+7. 19 spare Power Apps Premium licences.
+8. **Not imported: Northwind.** An unmanaged import into Test would sit under the gate's managed imports as an unmanaged layer, so Northwind reaches Test through the gate (2459 or 2539). DG9's step 1 ("if 2541 has not") needs Boroon's word.
+
+Files changed: `docs/plans/factory-test/README.md` (new), `docs/progress.md`, `CLAUDE.md` (a row for the new folder). Not `docs/plans/schedule.md`: today's order is on Session 37's branch, not yet on `main`, and no date moves.
+
+Time and tokens (in 2541's body; session `93361b73`, measured before the last commit, `--root` the main folder's project transcripts): active time 0 h 23 min (gaps over 10 minutes not counted), from 24 Nov 11:01 to 24 Nov 12:53 (UTC+11). Tokens: 52,247 output; 13,712,079 processed in all, of which 12,927,829 were cache reads. From 1 local transcript.
+
+Open items:
+- **Boroon: send the admins' message** (README, "Draft message to the admins"; their names to go in ADO 2541). Two asks: the Entra identity admins (the test user, its licence, a group, the test CA in the trust store, certificate sign-in for that group only, binding rules for that CA, and whether Conditional Access asks it for MFA); the CSP subscription's owner (a resource group `rg-getai-factory-aue` in Australia East, with Boroon as Owner on it).
+- **2447 (spike 0.11, Thu 26 Nov) needs the test user and the vault,** so it slips if the admins are not done by then. Dates move only at Boroon's word.
+- **Then, back here:** the vault and the certificate by CLI (README, step 2), the test user's `certificateUserIds` value to the admins, Basic User in `factory-test`, and the CA key decision (destroy, or keep in a separate vault).
+- **The federated credentials**: the Northwind project repo's, once a story makes that repo; triage's at Stage 2 or later; a scratch one if 2459 runs from a scratch repo.
+- **Possible plan edits** (Boroon to decide, none made): 5.3's audit sentence (Connection reference cannot be audited here) and its "App permissions" for the Test identity (Microsoft's page no longer asks for them).
+- **Possible new stories** (Boroon to decide): the Northwind project repo for 2539, and the Azure resources (Key Vault, evidence Blob).
+- Feature 2540 is still "Not Started" in ADO; it could move to In Progress at Boroon's word.
+
+Next steps:
+1. Boroon sends the admins' message.
+2. Wed 25 Nov: 2459 (spike 0.10) in `factory-test`, with `getai-nwt-test`.
+3. When the admins are done: finish 2541 (vault, certificate, role), then 2447.
 
 ## Session 44, 2026-11-24, branch `claude/focused-pare-44ad71`
 
