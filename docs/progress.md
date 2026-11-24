@@ -156,6 +156,7 @@ Later in the session (branch `claude/session-46-3059-nwt-source`, from `main` af
 - The page's file is `NorthwindTraders_final.zip` on `download.microsoft.com`, 666,816 bytes, last modified 29 January 2025 (headers only; not downloaded, which needs Boroon's word). It holds the tables, choices and business processes, the Northwind Orders canvas and model-driven apps, a Sample Data canvas app that loads the rows after a consent prompt, and tutorial "Begin Part" canvas apps.
 - ADO 3059's body now carries the name, the file and two things to watch: the gate's manifest check fails closed on `CanvasApps/`, so a reviewed gate PR must add the kind from the real export (or the canvas apps stay out of the repo's solution) before 2539; and loading sample data is a day step for a person, or the locked scenarios seed their own rows. A fork of this session had already added a comment to 3059 saying the same; no branch of its own.
 - README: section 3 names the repo and adds `EVIDENCE_ACCOUNT`; a new section 4, "The Northwind solution".
+- Planning PR: https://github.com/boroonmahanta/overnight-ai-factory/pull/59, opened at Boroon's word on 24 November 2026, for him to merge.
 
 Next steps:
 1. Boroon sends the admins' message. Done: pull request 58 merged.
