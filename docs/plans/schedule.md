@@ -11,13 +11,14 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 ## Assumptions
 
 - One person (Boroon) with Claude, about one story per working day, Monday to Friday.
+- **From Tue 24 Nov (Boroon, 23 November 2026): finish Stage 1 by Fri 27 Nov**, with Sat 28 and Sun 29 Nov as buffer. That needs up to three laptop sessions at once, each in its own worktree: **A** gate scripts and rulesets, **B** the tenant (`factory-test`, one story at a time, since each needs the one before), **C** other getai.ghe.com work. Two sessions in `factory-gates` at once will clash in `scripts.sha256` and `pending-scripts.txt`; merge one pull request before the other rebuilds the manifest. Stage 0 spikes that 2539 does not need move to the week after, except 2738 (spike 0.20), which is in the Stage 1 epic and runs Fri 27 Nov.
 - Two tracks at once:
   - **Laptop:** work on `getai.ghe.com` and in the tenant. Cloud sessions cannot reach `getai.ghe.com`.
   - **Documents:** repo work only, which can run in a cloud session.
 - 21 December 2026 to 8 January 2027 is left as buffer and holidays. If you work then, pull the January stories forward.
 - Two things depend on other people:
-  - a second approver and the three CODEOWNERS teams, needed by 17 December;
-  - engineers sending their session exports, needed for 2548.
+  - a second approver and the three CODEOWNERS teams, needed by Wed 25 Nov (was 17 December);
+  - engineers sending their session exports, needed for 2548 from Wed 25 Nov.
 
 ## The order
 
@@ -34,31 +35,45 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 | Thu 19 Nov | Fri 20 Nov | 2511 | Bring `factory-gates` in line with the live-build plan (moved from Wed 18 to Thu 19 Nov) | Laptop | 2462 | **Done 21 Nov**, a day after its finish date (Session 30; gate PR 15 merged by Boroon; task 2517 moved to 2538) |
 | Fri 20 Nov | Fri 20 Nov | 2466 | Spike 0.17: session export for mining (DG2; the export how-to and the SharePoint folder; brought forward from Wed 18 to Mon 16 Nov on 13 Nov, missed, set to Fri 20 Nov on 18 Nov, at Boroon's word) | Laptop (apps only, no tenant) | | **Done 21 Nov**, a day after its date (Session 31; `docs/plans/spike-0.17/`: passes for all four tools; a cloud session can read the exports folder; Done in ADO at Boroon's word) |
 | Fri 20 Nov | Fri 20 Nov | 2545 | The standards (50, with the four `TOK`), anonymised, into a new private `GetAI-IP/factory-manifestos`; read the older vault's retro workflow and design template (DG3). 2545 finishes here, not on Tue 17 Nov | Laptop | 2545 templates (done 7 Nov) | **Done 13 Nov** (Session 23; `GetAI-IP/factory-manifestos` pull request 1, 50 standards, merged by Boroon) |
-| Mon 23 Nov | Mon 23 Nov | 2509 | Pin the Copilot CLI install in `verify-in-test` (moved from Fri 20 Nov) | Laptop | | |
-| Tue 24 Nov | Mon 30 Nov | 2538 | Write the remaining Stage 1 gate scripts (now also the `check_spec.py` job, D3) (moved from Mon 23 to Fri 27 Nov) | Laptop | 2511, 2543 | |
-| Tue 24 Nov | Wed 25 Nov | 3026 | Name and create the three CODEOWNERS teams on getai.ghe.com: settle the names, rename them in `factory-gates` (gate PR) and the plan if they change, then create them in the portal (new, Session 39) | Laptop (a gate PR and the portal), plus a plan edit | Boroon's word on the names | **Done 23 Nov**, a day before its start (Session 39): names decided (`ai-factory-platform-admins`, `ai-factory-acceptance-owners`, `ai-factory-merge-reviewers`); gate PR 20 and pull request 50 merged by Boroon; the teams created by Boroon. Done in ADO at his word |
+| Mon 23 Nov | Mon 23 Nov | 2509 | Pin the Copilot CLI install in `verify-in-test` (moved from Fri 20 Nov) | Laptop | | **Done 23 Nov** (Session 34; gate PR 16; Done in ADO) |
 | Mon 23 Nov | Mon 23 Nov (was Wed 25 Nov) | 2544 | Pin Spec Kit 1.4.3 (D2, Boroon, 23 Nov; was 1.3.x); GET AI and `getai-lcp` presets v0; the spec check script (D3) (DG4, DG5) | Documents | 2543, 2545, the Ignite re-check | DG4 **done 23 Nov** (Session 35; `staging/factory-manifestos/spec-kit/`). DG5 **done 23 Nov** (Session 36; `staging/factory-gates/spec/check_spec.py`, 98 tests passing). All built, two days early. **Done in ADO 23 Nov** at Boroon's word, after pull requests 47 and 48 merged |
-| Thu 26 Nov | Fri 11 Dec | 2548 | Mine at least 20 human-led sessions, in four batches: 26 Nov, 3 Dec, 8 Dec, 11 Dec (DG6) | Documents (a cloud session can read the exports, spike 0.17); Boroon's own sessions on the laptop | 2543, 2466, engineers' exports | |
-| Tue 1 Dec | Tue 1 Dec | 2537 | Create the gate reader and holdout reader token Apps (moved from Mon 30 Nov) | Laptop | | |
-| Mon 30 Nov | Tue 15 Dec | 2546 | Locked scenario conventions and the Playwright kit v0 (draft 30 Nov to 2 Dec, DG7; test against `factory-test` on Northwind 14 to 15 Dec, DG9) | Documents, then laptop | 2543, 2447, 2541, 2538 (the YAML runner) | |
-| Wed 2 Dec | Wed 2 Dec | 2451 | Spike 0.6: Copilot CLI on GHE.com (one day, not two: spike 0.14's run 39346986 already showed the CLI runs on a getai.ghe.com runner with the job's own token) | Laptop | | |
-| Thu 3 Dec | Thu 3 Dec | 2738 | Spike 0.20: time and tokens on each story, every engine | Laptop | 2451 | |
-| Fri 4 Dec | Fri 4 Dec | 2432 | Spike 0.7: nano AIU against billing | Laptop | 2451 (a day of runs) | |
-| Fri 4 Dec | Fri 4 Dec | 2739 | Move `staging/` to `GetAI-IP/factory-manifestos` and `factory-gates` (DG8, D1) | Laptop | 2544, 2546 draft | |
-| Mon 7 Dec | Mon 7 Dec | 2465 | Spike 0.15: redaction and Universe | Laptop | 2451 | |
-| Mon 7 Dec | Mon 7 Dec | 2427 | Spike 0.1: credit ruling, the invoice check | Boroon | The credited subscription connected to a cost centre | |
-| Tue 8 Dec | Tue 8 Dec | 2541 | Bootstrap `factory-test` with its test identity and test user | Laptop | | |
-| Wed 9 Dec | Thu 10 Dec | 2459 | Spike 0.10: Test environment behaviour | Laptop | 2541 | |
-| Fri 11 Dec | Fri 11 Dec | 2447 | Spike 0.11: test user sign-in | Laptop | 2541 | |
-| Mon 14 Dec | Mon 14 Dec | 2455 | Spike 0.16: parallel sessions in one gate job | Laptop | 2451, 2447 | |
-| Tue 15 Dec | Wed 16 Dec | 2531 | Callers build: reusable gate workflow, private caller repos | Laptop | 2511 | |
-| Thu 17 Dec | Thu 17 Dec | 2520 | Undo the second-approver stopgaps | Laptop | The second approver | |
-| Thu 17 Dec | Thu 17 Dec | 2529 | Make `self-test` a required status check | Laptop | The second approver | |
-| Thu 17 Dec | Thu 17 Dec | 2521 | Apply the four rulesets (move step 12), Evaluate mode | Laptop | 2520, 2531, 3026 (the three teams) | |
-| Fri 18 Dec | Fri 18 Dec | 2539 | Run the full gate on a human PR in Test, on the Northwind sample solution (D6): **Stage 1 exit test** | Laptop | 2521, 2537, 2538, 2451, 2459, 2544, 2546, 2548, the move | |
+| Tue 24 Nov | Tue 24 Nov (was Thu 26 Nov) | 2538 | Write the remaining Stage 1 gate scripts (now also the `check_spec.py` job, D3) (was Tue 24 to Mon 30 Nov; three days, not five, to finish Stage 1 this week) | Laptop A | 2511, 2543 | **Done Tue 24 Nov**, two days early (Sessions 38 and 40 to 43; gate PRs 21 to 25, merged by Boroon; `run_workflow.py` split out as 3027). Done in ADO |
+| Tue 24 Nov | Wed 25 Nov | 3026 | Name and create the three CODEOWNERS teams on getai.ghe.com: settle the names, rename them in `factory-gates` (gate PR) and the plan if they change, then create them in the portal (new, Session 39) | Laptop (a gate PR and the portal), plus a plan edit | Boroon's word on the names | **Done 23 Nov**, a day before its start (Session 39): names decided (`ai-factory-platform-admins`, `ai-factory-acceptance-owners`, `ai-factory-merge-reviewers`); gate PR 20 and pull request 50 merged by Boroon; the teams created by Boroon. Done in ADO at his word |
+| Wed 25 Nov | Thu 26 Nov | 3027 | Write `run_workflow.py`, the trusted runner for locked YAML scenarios (split out of 2538's slice C, Session 42; dated by Boroon, 24 Nov) | Laptop A | 2538, 2546 draft (DG7, the scenario format) | Ready to build |
+| Tue 24 Nov | Tue 24 Nov | 2537 | Create the gate reader and holdout reader token Apps (was Tue 1 Dec) | Laptop C | | |
+| Tue 24 Nov | Fri 27 Nov | 2546 | Locked scenario conventions and the Playwright kit v0 (draft Tue 24 to Wed 25 Nov, DG7; test against `factory-test` on Northwind Fri 27 Nov, DG9) (was 30 Nov to 15 Dec) | Documents, then laptop B | 2543, 2447, 2541, 2538 (the YAML runner) | |
+| Tue 24 Nov | Tue 24 Nov | 2541 | Bootstrap `factory-test` with its test identity and test user (was Tue 8 Dec) | Laptop B | | **Building since Tue 24 Nov** (Session 46; `docs/plans/factory-test/`): `factory-test` and `getai-nwt-test` made; the test user and the Key Vault wait on the identity admins and the CSP subscription's owner |
+| Tue 24 Nov | Tue 24 Nov | 3019 | A restricted Factory home for session exports: the folder in the private channel's Files and its "Request files" link, so the engineers' exports land there before 2548 starts (was not dated) | Laptop C (Microsoft 365) | The admins' part, if still needed | Building since 21 Nov |
+| Wed 25 Nov | Wed 25 Nov | 2740 | A1, keep pinned kits current: its first pass (missed on 23 Nov), each pinned kit checked for updates and added to `docs/component-register.md`, before 2739 moves the kits (was not dated) | Documents | 2544 | |
+| Wed 25 Nov | Fri 27 Nov | 2548 | Mine at least 20 human-led sessions, in three batches: 25, 26 and 27 Nov (DG6) (was four batches, 26 Nov to 11 Dec) | Documents (a cloud session can read the exports, spike 0.17); Boroon's own sessions on the laptop | 2543, 2466, engineers' exports | |
+| Wed 25 Nov | Wed 25 Nov | 2451 | Spike 0.6: Copilot CLI on GHE.com (one day, not two: spike 0.14's run 39346986 already showed the CLI runs on a getai.ghe.com runner with the job's own token) (was Wed 2 Dec) | Laptop C | | |
+| Wed 25 Nov | Wed 25 Nov | 2459 | Spike 0.10: Test environment behaviour (was Wed 9 to Thu 10 Dec; one day, not two) | Laptop B | 2541 | |
+| Wed 25 Nov | Thu 26 Nov | 2531 | Callers build: reusable gate workflow, private caller repos (was Tue 15 to Wed 16 Dec) | Laptop C | 2511 | |
+| Thu 26 Nov | Thu 26 Nov | 2739 | Move `staging/` to `GetAI-IP/factory-manifestos` and `factory-gates` (DG8, D1) (was Fri 4 Dec). First on Thu, merged before 2538's spec-check job | Laptop C | 2544, 2546 draft, 2740 | |
+| Thu 26 Nov | Thu 26 Nov | 2447 | Spike 0.11: test user sign-in (was Fri 11 Dec) | Laptop B | 2541 | |
+| Fri 27 Nov | Fri 27 Nov | 2520 | Undo the second-approver stopgaps (was Thu 17 Dec) | Laptop A | The second approver | |
+| Fri 27 Nov | Fri 27 Nov | 2529 | Make `self-test` a required status check (was Thu 17 Dec) | Laptop A | The second approver | |
+| Fri 27 Nov | Fri 27 Nov | 2521 | Apply the four rulesets (move step 12), Evaluate mode (was Thu 17 Dec) | Laptop A | 2520, 2531, the three teams | |
+| Fri 27 Nov | Fri 27 Nov | 2539 | Run the full gate on a human PR in Test, on the Northwind sample solution (D6): **Stage 1 exit test** (was Fri 18 Dec; Sat 28 and Sun 29 Nov are buffer) | Laptop A | 2521, 2537, 2538, 2451, 2459, 2544, 2546, 2548, the move | |
+| Fri 27 Nov | Fri 27 Nov | 2738 | Spike 0.20: time and tokens on each story, every engine (not needed by 2539, but it is in the Stage 1 epic, so Stage 1 closes with it; was Mon 30 Nov) | Laptop C | 2451 | |
+| Tue 1 Dec | Tue 1 Dec | 2432 | Spike 0.7: nano AIU against billing (was Fri 4 Dec; not needed by 2539) | Laptop | 2451 (a day of runs) | |
+| Wed 2 Dec | Wed 2 Dec | 2465 | Spike 0.15: redaction and Universe (was Mon 7 Dec; not needed by 2539) | Laptop | 2451 | |
+| Thu 3 Dec | Thu 3 Dec | 2455 | Spike 0.16: parallel sessions in one gate job (was Mon 14 Dec; not needed by 2539) | Laptop | 2451, 2447 | |
+| Mon 7 Dec | Mon 7 Dec | 2427 | Spike 0.1: credit ruling, the invoice check (not needed by 2539; date unchanged, it waits on the subscription) | Boroon | The credited subscription connected to a cost centre | |
 | Mon 11 Jan | Tue 12 Jan | 2448 | Spike 0.13: ADO and GHE.com (**Stage 2 starts**) | Laptop | 2539 | |
 | Wed 13 Jan | Thu 14 Jan | 2457 | Spike 0.4: `pac copilot` under federated login | Laptop | The Ignite re-check | |
 | Fri 15 Jan | Mon 18 Jan | 2460 | Spike 0.12: Copilot Studio evaluation from code | Laptop | The Ignite re-check | |
+
+### This week, in order (Stage 1's 14 open stories, plus the three Stage 0 spikes 2539 needs)
+
+Start each one only when what it needs is done. Within a day, go top to bottom.
+
+| Day | Laptop A (gate scripts, rulesets) | Laptop B (the tenant) | Laptop C (other getai.ghe.com, Microsoft 365) | Documents |
+|---|---|---|---|---|
+| Tue 24 | 2538 (**done**, all three slices) | 2541 | 3019, then 2537 | 2546 draft (DG7) day 1 |
+| Wed 25 | 3027 (`run_workflow.py`) day 1, after the DG7 scenario format | 2459 (spike 0.10) | 2451 (spike 0.6), then 2531 day 1 | 2546 draft day 2, 2740, 2548 batch 1 |
+| Thu 26 | 3027 day 2 (2538's spec-check job is already merged, in slice C) | 2447 (spike 0.11) | 2739 first, then 2531 day 2 | 2548 batch 2 |
+| Fri 27 | 2520, 2529, 2521, then **2539, the exit test, last** | 2546 test on `factory-test` (DG9), before 2539 | 2738 (spike 0.20) | 2548 batch 3, before 2539 |
 
 ## Checkpoints (not ADO stories)
 
@@ -67,8 +82,9 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 | Mon 9 Nov | Raise Claude Code's transcript retention on the laptop (`cleanupPeriodDays`, 30 days by default), so sessions from 4 November survive for mining and time records. **Done 8 Nov** (Session 19): 365 days, in `~/.claude/settings.json` | Boroon, in the laptop session |
 | Fri 20 Nov | Ask the engineers for their session exports, using what spike 0.17 shows | Boroon |
 | Mon 23 Nov | Ignite re-check, after 17 to 20 November: product names, Copilot Studio evaluation APIs, Git integration (`CLAUDE.md`, dates). Also the first pass of A1: check every pinned kit for updates | Boroon with Claude. **Re-check done 23 Nov** (Session 33; `docs/analysis/ignite-2026-recheck.md`; ADO 3024). A1's first pass and the register review not done |
-| Fri 4 Dec | A second approver named, and the three CODEOWNERS teams created (the teams are now ADO 3026, **done 23 Nov**; **second approvers named 23 Nov** by Boroon, one per org, each team with a second person; names in ADO 2520). Without them, 2520, 2521 and the Stage 1 exit test cannot happen | Boroon. **Done 23 Nov** |
-| Fri 4 Dec | Mining cut-off (D5): if fewer than 20 engineers' sessions have arrived, pick up to 10 of Boroon's own to top up | Boroon |
+| Wed 25 Nov | A second approver named, and the three CODEOWNERS teams created (was Fri 4 Dec). Without them, 2520, 2521 and the Stage 1 exit test cannot happen. The teams are ADO 3026, **done 23 Nov**; **second approvers named 23 Nov** by Boroon, one per org, each team with a second person (names in ADO 2520) | Boroon. **Done 23 Nov** |
+| Thu 26 Nov | Mining cut-off (D5): if fewer than 20 engineers' sessions have arrived, pick up to 10 of Boroon's own to top up (was Fri 4 Dec) | Boroon |
+| Tue 24 Nov | Chase the engineers' session exports, so 2548's first batch has some on Wed 25 Nov | Boroon |
 
 ## Not dated yet
 
@@ -77,8 +93,8 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 
 Date them when Stage 4 ends.
 
-- 3019, a restricted Factory home for session exports (Session 31, 21 November 2026; Building since Session 32): its first step, checking that "Request files" can work in the tenant, comes before the engineers are asked for exports. **Done for the OneDrive stopgap in Session 32** (21 November 2026), so the engineers can be asked now. The Factory Team and its private channel exist (21 November 2026). The rest waits on the admins (Boroon's message) and on Boroon making a folder in the channel's Files. Date it at Boroon's word.
-- A1, keep pinned kits current (Boroon, 7 November 2026; `docs/plans/stage-1-day-gate-plan.md`): a pin register, Dependabot where it can, and a monthly manual pass. Only its first pass is dated (23 November). ADO 2740, created 8 November 2026 (Session 19), Proposed, no dates.
+- 3019 and 2740 (A1) are dated since Session 37 (Tue 24 and Wed 25 Nov). A1's monthly pass after the first stays a checkpoint, with the component register review.
+- 3059 (the Northwind project repo; after 2541, before 2539) and 3060 (Key Vault and evidence storage; before 2447 and 2539), new in Session 46 at Boroon's word. Both are needed by Fri 27 Nov for the exit test. Date them at Boroon's word.
 
 ## Changes
 
@@ -101,4 +117,8 @@ Date them when Stage 4 ends.
 - **23 November 2026 (Session 33, laptop).** The Ignite re-check done on Mon 23 Nov, its checkpoint date, as ADO 3024 (new, under Feature 2711, Done). So 2544, 2457 (spike 0.4) and 2460 (spike 0.12), which list it as "needs first", are no longer waiting on it; nothing in it changes their scope. A1's first pass and the component register review, due the same day, were not done. Nothing moves.
 - **23 November 2026 (Session 35, laptop).** 2544's DG4 done on Mon 23 Nov, its start date, in one session rather than two, with Spec Kit pinned at 1.4.3 at Boroon's word. DG5 (the spec check script) is next, on Tue 24 or Wed 25 Nov; 2544 still finishes Wed 25 Nov. Nothing moves. ADO: 2544 Building.
 - **23 November 2026 (Session 36, laptop, started from Session 35).** DG5 done on Mon 23 Nov too, so all of 2544 is built two days before its Wed 25 Nov finish date. Tue 24 and Wed 25 Nov are free on the documents track; 2548's first batch stays Thu 26 Nov. Nothing else moves. ADO: DG5's result in 2544's body. Later the same day Boroon merged pull request 48, and 2544 moved to Done at his word. Then, at his word, its Finish Date moved from Wed 25 Nov to Mon 23 Nov, here and in ADO; its Start Date stays Mon 23 Nov.
+- **23 November 2026 (Session 37, laptop, at Boroon's word: finish Stage 1 this week).** Every story 2539 needs moves into Tue 24 to Fri 27 Nov, with Sat 28 and Sun 29 Nov as buffer, over up to three laptop sessions at once (A, B and C, see Assumptions) and the documents track. 2538 shrinks from five days to three, 2459 from two to one, and 2548 to three batches. The second approver and the three teams are now due Wed 25 Nov, and the mining cut-off Thu 26 Nov. Stage 0 spikes 2539 does not need (2738, 2432, 2465, 2455) move to Mon 30 Nov to Thu 3 Dec; 2427 stays Mon 7 Dec. 2509 and 2544 are Done in ADO. The January stories (Stage 2) are not moved; if 2539 passes on Fri 27 Nov, they can come forward at Boroon's word. ADO matches since the same evening, at Boroon's word ("Yes, update ADO"): the Start and Finish Dates of the 18 moved stories, read back and checked. Predecessor links not changed. Later the same evening, at Boroon's word, the plan (11.1, 14.4) says when Stage 0 spikes run: each before the first build that depends on it, not all in days 1 to 14. The dates above already follow it.
+- **23 November 2026 (Session 37, later, at Boroon's word: "reorder the stories … move all proposed stories to the right sequence").** All 14 open Stage 1 stories now sit in this week, with a day-by-day order ("This week, in order"). New dates: 3019 Tue 24 Nov (before 2548), 2740 (A1's first pass) Wed 25 Nov (before 2739 moves the kits), and 2738 (spike 0.20) Fri 27 Nov, from Mon 30 Nov, since it is in the Stage 1 epic. 2739 now also needs 2740, and goes first on Thu so 2538's spec-check job follows it. Nothing else moves. ADO: the Start and Finish Dates of 3019, 2740 and 2738, and predecessor links 3019 before 2548 and 2740 before 2739.
 - **23 November 2026 (Session 39, laptop).** New story 3026 at Boroon's word: name and create the three CODEOWNERS teams, Tue 24 to Wed 25 Nov, under Feature 2519, a predecessor of 2521. It was a checkpoint, not a story. It shares the laptop track with 2538 on those days, and both change `factory-gates`, so merge one gate PR before the other regenerates `scripts.sha256`. Session 37's redraft (not merged when this was written) already puts the teams on Wed 25 Nov, so 3026's dates fit it. Nothing else moves. ADO: 3026 made with these dates and links. Later the same day Boroon chose the names, and the session did the rename (gate PR 20 and the plan edit) a day before 3026's start; 3026 moved to Building. Then Boroon merged both, created the teams the same evening, and 3026 moved to Done at his word, on Mon 23 Nov. 2521 now waits only on 2520 and 2531. Later the same evening Boroon named the second approvers, a person in each org's teams (names and accounts in ADO 2520 and 2521, not here: public repo), so the Fri 4 Dec checkpoint is met early. 2520 and 2529 no longer wait on a person; 2520 first needs Write for the `GetAI-IP` platform admins on `factory-manifestos` (ADO 2520's comment). Nothing else moves; 3026's ADO dates are not changed.
+- **24 November 2026 (dashboard sync, laptop, at Boroon's word).** This file now carries Session 37's redraft (its branch is not merged), with the rows and checkpoint from Sessions 36 and 39 kept. 2538 done on Tue 24 Nov, two days before its Thu 26 Nov finish date: all of slices A, B and C merged (gate PRs 21 to 25). At Boroon's word its Finish Date moves to Tue 24 Nov, here and in ADO; its Start Date stays. 3027 (`run_workflow.py`, split out of 2538) is added, Wed 25 to Thu 26 Nov on Laptop A, as in ADO. Laptop A is free on Wed and Thu apart from 3027. Nothing else moves.
+- **24 November 2026 (Session 46, laptop).** 2541 started on its date, Tue 24 Nov: `factory-test` and the Test identity `getai-nwt-test` exist, but the test user and the Key Vault need roles Boroon does not hold, so it stays Building until the identity admins and the CSP subscription's owner act. 2447 (Thu 26 Nov) needs both, so it slips if they are not done by then; 2459 (Wed 25 Nov) needs only `factory-test` and the Test identity. New, not dated: 3059 (the Northwind project repo) and 3060 (Key Vault and evidence storage), both before 2539. No date moves. ADO: 2541 Building; 3059 and 3060 made with their links.

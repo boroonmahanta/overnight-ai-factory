@@ -136,7 +136,7 @@ Found (README, Findings):
 7. 19 spare Power Apps Premium licences.
 8. **Not imported: Northwind.** An unmanaged import into Test would sit under the gate's managed imports as an unmanaged layer, so Northwind reaches Test through the gate (2459 or 2539). DG9's step 1 ("if 2541 has not") needs Boroon's word.
 
-Files changed: `docs/plans/factory-test/README.md` (new), `docs/progress.md`, `CLAUDE.md` (a row for the new folder). Not `docs/plans/schedule.md`: today's order is on Session 37's branch, not yet on `main`, and no date moves.
+Files changed: `docs/plans/factory-test/README.md` (new), `docs/progress.md`, `CLAUDE.md` (a row for the new folder), `docs/plans/schedule.md` (2541's status, 3059 and 3060 under "Not dated yet", a Changes line; added after pull request 57, the dashboard sync, brought Session 37's redraft to `main` and was merged into this branch). No date moves.
 
 Time and tokens (in 2541's body; session `93361b73`, measured before the last commit, `--root` the main folder's project transcripts): active time 0 h 23 min (gaps over 10 minutes not counted), from 24 Nov 11:01 to 24 Nov 12:53 (UTC+11). Tokens: 52,247 output; 13,712,079 processed in all, of which 12,927,829 were cache reads. From 1 local transcript.
 
@@ -153,6 +153,20 @@ Next steps:
 1. Boroon sends the admins' message.
 2. Wed 25 Nov: 2459 (spike 0.10) in `factory-test`, with `getai-nwt-test`.
 3. When the admins are done: finish 2541 (vault, certificate, role), then 2447.
+
+## Dashboard sync, 2026-11-24, branch `claude/schedule-sync-2026-11-24`
+
+Done:
+- Reran `tools/progress_snapshot.py` and synced the "Factory build progress" dashboard three times (143 stories, 16 of 40 scheduled done, 71 sessions). Old snapshot files kept.
+- ADO: 2538's Finish Date moved from Thu 26 to Tue 24 Nov, the day it was done, at Boroon's word. A one-day shift of 2537, 2541, 3019, 2546 and 2459 was made on a misread clock and undone within minutes; their dates are as Session 37 set them.
+- `docs/plans/schedule.md` now carries Session 37's redraft (its branch `claude/session-37-stage-1-this-week` is not merged, and is behind `main`), merged with Sessions 36 and 39's rows: 2538 Done Tue 24 Nov, 3026 kept, 3027 added (Wed 25 to Thu 26 Nov, Laptop A), and the "This week" table's Laptop A column updated.
+Decisions:
+- Boroon, 24 November 2026: dashboard syncs need no pull request. This branch is pushed, with no pull request.
+Files changed: `docs/plans/schedule.md`, `docs/progress.md`.
+Open items:
+- When Session 37's branch merges, take this branch's `schedule.md`: it holds all of Session 37's rows plus the later ones.
+Next steps:
+- Today (Tue 24 Nov): 2537, 2541, 3019 and the 2546 draft, as in the schedule.
 
 ## Session 44, 2026-11-24, branch `claude/focused-pare-44ad71`
 
