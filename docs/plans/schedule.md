@@ -40,7 +40,7 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 | Tue 24 Nov | Tue 24 Nov (was Thu 26 Nov) | 2538 | Write the remaining Stage 1 gate scripts (now also the `check_spec.py` job, D3) (was Tue 24 to Mon 30 Nov; three days, not five, to finish Stage 1 this week) | Laptop A | 2511, 2543 | **Done Tue 24 Nov**, two days early (Sessions 38 and 40 to 43; gate PRs 21 to 25, merged by Boroon; `run_workflow.py` split out as 3027). Done in ADO |
 | Tue 24 Nov | Wed 25 Nov | 3026 | Name and create the three CODEOWNERS teams on getai.ghe.com: settle the names, rename them in `factory-gates` (gate PR) and the plan if they change, then create them in the portal (new, Session 39) | Laptop (a gate PR and the portal), plus a plan edit | Boroon's word on the names | **Done 23 Nov**, a day before its start (Session 39): names decided (`ai-factory-platform-admins`, `ai-factory-acceptance-owners`, `ai-factory-merge-reviewers`); gate PR 20 and pull request 50 merged by Boroon; the teams created by Boroon. Done in ADO at his word |
 | Wed 25 Nov | Thu 26 Nov | 3027 | Write `run_workflow.py`, the trusted runner for locked YAML scenarios (split out of 2538's slice C, Session 42; dated by Boroon, 24 Nov) | Laptop A | 2538, 2546 draft (DG7, the scenario format) | Ready to build |
-| Tue 24 Nov | Tue 24 Nov | 2537 | Create the gate reader and holdout reader token Apps (was Tue 1 Dec) | Laptop C | | |
+| Tue 24 Nov | Tue 24 Nov | 2537 | Create the gate reader and holdout reader token Apps (was Tue 1 Dec) | Laptop C | | **Built Tue 24 Nov** (Session 45; three Apps, now with a team reader, and `GetAI-IP/factory-holdout`; the gate reader's token proven in gate PR 27's run; Done when Boroon merges gate PR 27) |
 | Tue 24 Nov | Fri 27 Nov | 2546 | Locked scenario conventions and the Playwright kit v0 (draft Tue 24 to Wed 25 Nov, DG7; test against `factory-test` on Northwind Fri 27 Nov, DG9) (was 30 Nov to 15 Dec) | Documents, then laptop B | 2543, 2447, 2541, 2538 (the YAML runner) | |
 | Tue 24 Nov | Tue 24 Nov | 2541 | Bootstrap `factory-test` with its test identity and test user (was Tue 8 Dec) | Laptop B | | |
 | Tue 24 Nov | Tue 24 Nov | 3019 | A restricted Factory home for session exports: the folder in the private channel's Files and its "Request files" link, so the engineers' exports land there before 2548 starts (was not dated) | Laptop C (Microsoft 365) | The admins' part, if still needed | Building since 21 Nov |
@@ -63,6 +63,7 @@ Made 7 November 2026 (Session 16), at Boroon's word, starting Monday 9 November 
 | Mon 11 Jan | Tue 12 Jan | 2448 | Spike 0.13: ADO and GHE.com (**Stage 2 starts**) | Laptop | 2539 | |
 | Wed 13 Jan | Thu 14 Jan | 2457 | Spike 0.4: `pac copilot` under federated login | Laptop | The Ignite re-check | |
 | Fri 15 Jan | Mon 18 Jan | 2460 | Spike 0.12: Copilot Studio evaluation from code | Laptop | The Ignite re-check | |
+- **24 November 2026 (Session 45, laptop).** 2537 built on Tue 24 Nov, its date: the three token Apps exist (the gate reader, the holdout reader and, since Session 44, the team reader for `AI-Business-Solutions`), with `GetAI-IP/factory-holdout` made empty for the holdout reader. Their keys and client IDs are stored for selected repos. Gate PR 27 moves the gate to `client-id`, and its own run minted a real gate reader token. ADO 2537 is Building; it is Done when Boroon merges gate PR 27. Nothing else moves. The other two tokens and a token minted from another org are first used in 2539, which first needs its project repo added to the six org variables and secrets.
 
 ### This week, in order (Stage 1's 14 open stories, plus the three Stage 0 spikes 2539 needs)
 
@@ -70,7 +71,7 @@ Start each one only when what it needs is done. Within a day, go top to bottom.
 
 | Day | Laptop A (gate scripts, rulesets) | Laptop B (the tenant) | Laptop C (other getai.ghe.com, Microsoft 365) | Documents |
 |---|---|---|---|---|
-| Tue 24 | 2538 (**done**, all three slices) | 2541 | 3019, then 2537 | 2546 draft (DG7) day 1 |
+| Tue 24 | 2538 (**done**, all three slices) | 2541 | 3019, then 2537 (**built**, gate PR 27 to merge) | 2546 draft (DG7) day 1 |
 | Wed 25 | 3027 (`run_workflow.py`) day 1, after the DG7 scenario format | 2459 (spike 0.10) | 2451 (spike 0.6), then 2531 day 1 | 2546 draft day 2, 2740, 2548 batch 1 |
 | Thu 26 | 3027 day 2 (2538's spec-check job is already merged, in slice C) | 2447 (spike 0.11) | 2739 first, then 2531 day 2 | 2548 batch 2 |
 | Fri 27 | 2520, 2529, 2521, then **2539, the exit test, last** | 2546 test on `factory-test` (DG9), before 2539 | 2738 (spike 0.20) | 2548 batch 3, before 2539 |

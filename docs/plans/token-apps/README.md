@@ -13,6 +13,7 @@ Boroon's choices, 24 November 2026:
 - **`GetAI-IP/factory-holdout` made now, empty**, so the holdout App can be installed and tested. Private, a README only, ruleset `main-protection` like `factory-gates`'s `release-protection` (pull requests only, 0 approvals until a second approver exists, no force push, no deletion, no bypass). Its tests come at Stage 4. Note: `GetAI-IP`'s base permission is read, so all its members can read it.
 - **IDs and keys for selected repos only.** In `AI-Business-Solutions`, all six as organisation variables and secrets with access "selected repositories", none selected yet; each factory project repo is added when it is onboarded. The gate reader's pair also sits on `factory-gates` itself, so the gate's own pull requests test the token.
 - **`client-id`, not `app-id`**, in every token step, with the variables renamed to `..._CLIENT_ID`. A gate pull request, and plan Appendix A to match.
+- **The names start `ai-`**, like the org's teams (`ai-factory-merge-reviewers`): Boroon made them so, in place of the `factory-...` names first written here.
 
 The IDs themselves are in ADO 2537, not here (this repo is public).
 
@@ -87,4 +88,9 @@ In each case: delete the key on the App's page, then make and set a new one.
 
 ## What was checked
 
-To be filled in once the Apps exist.
+On 24 November 2026, after Boroon made the Apps and stored the keys:
+- **By API** (`gh api orgs/<org>/installations`): `ai-factory-gate-reader` and `ai-factory-holdout-reader` are installed on `GetAI-IP` with Contents read and Metadata read only, selected repositories, no events; `ai-factory-team-reader-abs` on `AI-Business-Solutions` with Members read only, no events. The laptop's `gh` sign-in cannot list which repositories an installation covers (it lacks the `read:user` scope); the side session that helped make the Apps checked that in the browser.
+- **Variables and secrets:** `GATE_READER_KEY` and `GATE_READER_CLIENT_ID` on `factory-gates`; all six in `AI-Business-Solutions`, each with access "selected repositories" and none selected.
+- **A real token** (gate PR 27, `lcp-gate` run 40782026): `map` and `locks` each minted a gate reader token by `client-id` for `factory-gates` alone, checked out `release` with it, passed the hash check, and revoked the token at the end. No `app-id` warning. The run stopped at `build`, which has no `src/` to pack in the gate repo: the right place for a gate pull request to stop. Before this, every gate pull request stopped at `map`'s token step.
+
+Not tested yet, all three waiting for the first project pull request (ADO 2539): a token minted from a repo in `AI-Business-Solutions` for `GetAI-IP`'s installation; the holdout reader's token (no project has a held-out set yet); the team reader's token (`danger` runs only after `verify-in-test`). Before 2539, give the project repo the six variables and secrets. Do it by the API, which adds a repo without touching a value (`gh secret set --repos` would need the key again): `PUT /orgs/AI-Business-Solutions/actions/secrets/<NAME>/repositories/<repo-id>`, and the same under `actions/variables/`.
