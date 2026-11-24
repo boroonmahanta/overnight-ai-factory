@@ -149,8 +149,10 @@ Open items:
 - **Done: two new stories, at Boroon's word** ("Yes, add both", 24 November 2026), both Proposed and not dated (dates at his word): **ADO 3059** "Northwind project repo for the Stage 1 exit test" (under Feature 2536; after 2541, before 2539) and **ADO 3060** "Azure resources for the gate: Key Vault and evidence storage" (under Feature 2540; before 2447 and 2539). 3060 also asks who writes evidence to Blob: plan 5.1 names an evidence-writer managed identity, but the gate uploads as the Test identity (README finding 8).
 - Feature 2540 is still "Not Started" in ADO; it could move to In Progress at Boroon's word.
 
+Planning PR: https://github.com/boroonmahanta/overnight-ai-factory/pull/58, opened at Boroon's word on 24 November 2026, for him to merge. `main` (pull request 57) was merged into the branch first; the only clash was the top of this log.
+
 Next steps:
-1. Boroon sends the admins' message.
+1. Boroon sends the admins' message, and merges pull request 58.
 2. Wed 25 Nov: 2459 (spike 0.10) in `factory-test`, with `getai-nwt-test`.
 3. When the admins are done: finish 2541 (vault, certificate, role), then 2447.
 
