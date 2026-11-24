@@ -156,8 +156,10 @@ Open items:
 - **Hardening to decide:** any workflow in a project repo can now call the gate, and the Test credential's subject (`repo`, `context`, `job_workflow_ref`) would accept it. It still runs only the gate's trusted jobs, and agents cannot add a workflow (`.github/**` is protected). Adding `workflow_ref` to the project repo's subject template (3059) would pin the caller too; take its value from the first real run.
 - The other three orgs' callers, and one `org.json` per org, when each has a project.
 
+Planning PR: https://github.com/boroonmahanta/overnight-ai-factory/pull/61, opened at Boroon's word on 24 November 2026, for him to merge.
+
 Next steps:
-1. Boroon merges gate PR 28 and this session's planning pull request (if he wants one).
+1. Boroon merges gate PR 28 and planning PR 61.
 2. Wed 25 Nov: 2531 can close once PR 28 is merged and checked on `release`. 3059 makes `ai-factory-nwt`; then 2521 applies the rulesets in Evaluate mode.
 
 ## Session 46, 2026-11-24, branch `claude/session-46-2541-factory-test`
