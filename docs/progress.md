@@ -157,6 +157,8 @@ Open items:
 - **Merging:** this branch and Session 50's (`claude/sad-mclaren-013be5`) both add to the top of this log and to the schedule's Changes; whichever merges second takes the other's lines.
 - **Session 52** (the kit) reports in its own session; it is top level, so no note comes here.
 
+Planning PR: https://github.com/boroonmahanta/overnight-ai-factory/pull/64, opened at Boroon's word on 25 November 2026, for him to merge.
+
 Next steps:
 1. 3027 (`run_workflow.py`) on Laptop A, from this format.
 2. Session 52: the Playwright kit, then DG9 on Fri 27 Nov.
