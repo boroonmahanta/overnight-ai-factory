@@ -2,7 +2,7 @@
 
 ADO 2541 (Feature 2540, Stage 1). Plan 5.3 (identities), 5.4 (the environment pool, bootstrap) and 11.2 (stage 1). Session 46, Tuesday 24 November 2026, on the laptop (desktop app). The first project is the Northwind pilot, project code **`nwt`** (Boroon, 24 November 2026).
 
-**Where it stands: the environment and the Test identity exist; the test user and the Key Vault wait on other people.** Since Session 48 (24 November 2026, ADO 3059) the Northwind project repo exists with its environment, variables and subject template, the Test identity has its federated credential for it, and the Northwind solution is in `factory-lane-1` and on the repo's `main` and `integration` (sections 3 and 4). The IDs (environment, organisation, app, service principal, tenant) are in ADO 2541, and the repo's and credential's in ADO 3059, not here, because this repo is public.
+**Where it stands: the environment and the Test identity exist; the test user and the Key Vault wait on other people.** Boroon has sent the admins the message below (he said so on 24 November 2026, Session 49). Checked that evening: the test user, the group `factory-cba-test-users` and the resource group `rg-getai-factory-aue` do not exist yet. Since Session 48 (24 November 2026, ADO 3059) the Northwind project repo exists with its environment, variables and subject template, the Test identity has its federated credential for it, and the Northwind solution is in `factory-lane-1` and on the repo's `main` and `integration` (sections 3 and 4). The IDs (environment, organisation, app, service principal, tenant) are in ADO 2541, and the repo's and credential's in ADO 3059, not here, because this repo is public.
 
 ## What exists now
 
@@ -18,7 +18,7 @@ ADO 2541 (Feature 2540, Stage 1). Plan 5.3 (identities), 5.4 (the environment po
 Not done in this environment, on purpose:
 
 - **No Dataverse MCP, no "Enable code apps", no connections.** Test runs the gate's trusted checks, not an agent; turn them on only when a story needs them.
-- **No Northwind import.** DG9's step 1 says to import Northwind into `factory-test` "if 2541 has not". 2541 has not, and should not as an unmanaged import: the gate imports each PR's managed solution into Test (`--stage-and-upgrade`), and an unmanaged copy underneath would leave an unmanaged layer (plan 7.4 lists unmanaged layers in `factory-test` as a gardening finding). Northwind reaches Test through the gate, as a managed solution, in 2459 or 2539. Boroon to confirm.
+- **No Northwind import.** DG9's step 1 says to import Northwind into `factory-test` "if 2541 has not". 2541 has not, and should not as an unmanaged import: the gate imports each PR's managed solution into Test (`--stage-and-upgrade`), and an unmanaged copy underneath would leave an unmanaged layer (plan 7.4 lists unmanaged layers in `factory-test` as a gardening finding). Northwind reaches Test through the gate, as a managed solution, in 2459 or 2539. **Confirmed by Boroon on 24 November 2026 (Session 49): gate only, never a hand-made unmanaged import.** DG9's step 1 in `docs/plans/stage-1-day-gate-plan.md` now says so.
 
 ## How it was made (reuse for the next project or lane)
 
@@ -111,7 +111,7 @@ Boroon, 24 November 2026: the solution comes from Microsoft's page "Install Nort
 
 ## Draft message to the admins
 
-Names are in ADO 2541. Send at Boroon's word.
+Names are in ADO 2541. Send at Boroon's word. **Sent by Boroon** (24 November 2026, Session 49); the admins' names are not yet in ADO 2541.
 
 > Hi both,
 >

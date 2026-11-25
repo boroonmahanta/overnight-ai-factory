@@ -12,7 +12,7 @@ The repo holds, per practice: a `coding-standards.md`, an `AGENTS.md` fragment, 
 | `templates/project/docs/adr/README.md` | The decision record (ADR) format and the three tests for writing one | DG1 (2545), done |
 | `templates/project/coding-standards.md` | The header only: who reads the file, "rule" and "judgement", how it changes | DG1 (2545), done |
 | `spec-kit/` | The `getai` and `getai-lcp` presets, the `getai-spec-check` extension and the `getai-lcp` bundle, on Spec Kit 1.4.3. Its README holds the pin, how to install and the findings | DG4 (2544), done 23 November 2026. The extension's script comes in DG5 |
-| `conventions/` | `locked-scenarios.md` and `scenario.schema.json` | DG7 (2546), not started |
+| `conventions/` | `locked-scenarios.md` (how locked tests are written, one section per type), `scenario.schema.json` (the format of workflow scenarios and Web API tests) and `examples/northwind/tests/` (one of each, on Microsoft's Northwind sample; they also go to `AI-Business-Solutions/ai-factory-nwt` by pull request, and serve as `run_workflow.py`'s first real inputs, ADO 3027) | DG7 (2546), part 1 done 25 November 2026 (Session 51); untested until DG9 |
 | `practices/lcp/coding-standards.md` | The low-code standards, 50 with their own IDs, anonymised. **On GHE only, never here** | DG3 (2545), done: pull request 1 in `GetAI-IP/factory-manifestos`, merged 13 November 2026 |
 
 The coding standards themselves are not here. The low-code standards went straight to the GHE repo (DG3, 2545, 13 November 2026), never to this public repo.
