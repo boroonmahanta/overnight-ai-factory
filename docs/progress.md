@@ -48,6 +48,7 @@ Next steps:
 - **DG1 is done** (Session 18, 7 November 2026, a cloud session, brought forward from 12 November): `staging/` with its README, and `staging/factory-manifestos/` with its README and the three project templates (`glossary.md`, `docs/adr/README.md`, the `coding-standards.md` header). 2545 stays open until DG3 (Friday 20 November).
 - **DG3 is run** (Session 23, 13 November 2026, a week early): `GetAI-IP/factory-manifestos` exists on `getai.ghe.com` (private, ruleset `main-protection`), and its pull request 1, merged by Boroon on 13 November 2026, holds the low-code coding standards: 50 with the vault's client-token ones kept, anonymised. 2545 is Done.
 - **2544 is built: DG4 and DG5 done** (Sessions 35 and 36, 23 November 2026). Spec Kit pinned at 1.4.3, the `getai` and `getai-lcp` presets, the `getai-spec-check` extension and bundle in `staging/factory-manifestos/spec-kit/`; the spec check `staging/factory-gates/spec/check_spec.py` with 98 passing tests, and its byte-identical copy in the extension. The stage 1 exit clause "a spec with an open marker or no scenarios cannot become Factory Eligible" is shown by two fixtures failing. Pull requests 47 and 48 are merged, and **2544 is Done** in ADO (23 November 2026, at Boroon's word).
+- **2546's scenario format is written: DG7 part 1** (Session 51, 25 November 2026, ADO 2546 Building). `staging/factory-manifestos/conventions/`: `locked-scenarios.md`, `scenario.schema.json` and two Northwind examples, so 3027 (`run_workflow.py`) can start. The Playwright kit (DG7 part 2) runs in its own session, Session 52.
 - **The third-party skills policy (plan 8.3) is applied to every vendored skill** (Session 21, 11 November 2026, a cloud session, ADO 2549): `docs/analysis/skills-policy-check.md`. All 56 shelf skills match upstream at their pins, all are MIT, and all but `poteto-mode` (shelf only) are read in full. The register's rows now have a file, `docs/component-register.md`, and the shelf holds each source's licence text. All 44 live skills name their source commit in their first lines.
 - Boroon said more context will be added in later sessions.
 - Work is sized with T-shirt sizes (XS to XL), approved on 1 November 2026. See `CLAUDE.md`.
@@ -114,6 +115,51 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 51, 2026-11-25, branch `claude/session-51-2546-scenarios`
+
+ADO 2546, DG7 part 1: the locked scenario format. On the laptop (desktop app), the documents track, a day after DG7's Tue 24 Nov start. Session renamed "44. Stage 1 - Build - Scenario conventions and Playwright kit", like the others. Planning branch in its own worktree (`.claude/worktrees/session-50-2546`, from `origin/main` at `dae3155`), because other sessions share the folder. First named Session 50; renamed to 51 when it was found that the session "Unblock the gate's static job for 2539" had already logged itself as Session 50 (gate PR 30).
+
+Read for it: DG7 in `docs/plans/stage-1-day-gate-plan.md`; plan 5.8, 5.9 and Appendix A's `verify-in-test`; ADO 2546 and 3027; Sessions 42, 46 and 48's entries; in the gate (`release` at `4ab02ca`) `lcp-gate.yml`'s scenario and Playwright steps, `simple_yaml.py`, `check_spec.py`'s ID rule, `protected-paths.json`, `templates/CODEOWNERS` and the DG5 fixture spec 90101 with its stand-in tests; in `AI-Business-Solutions/ai-factory-nwt` (`main`) the Orders and Customers tables, the order status choice and the classic workflow "Sample Data Load Order Option Sets".
+
+Decisions (Boroon, 25 November 2026, asked in this session):
+- **DG7 is split in two.** This session writes the scenario format, which 3027 waits on. The Playwright kit goes to its own session, because Microsoft's toolkit (`microsoft/power-platform-playwright-samples`, MIT, commit `3233f3e`, `packages/power-platform-playwright-toolkit/`, 49 files, 407 KB) must be read in full first (rule 19) and needs his OK to download.
+- **The kit session is top level, not nested** (his note on the card). It is "45. Stage 1 - Build - Playwright kit v0", Session 52, branch `claude/session-52-2546-playwright-kit`. Its brief did not come through with the card, so it went by message, then a second message corrected its number from 51 to 52.
+
+Done (`staging/factory-manifestos/conventions/`):
+- **`scenario.schema.json`**: one JSON Schema (2020-12), version 1, for workflow scenarios (`kind: workflow`, `tests/scenarios/`) and Web API tests (`kind: api`, `tests/acceptance/api/`), per D4: `seed`, one `trigger` (row create, update or delete, or a flow's HTTP trigger), `expect` (`rows` by `ref` or `filter`, `plugin_trace`, and `run` as a secondary signal only), timeout and polling. Written for the gate's own YAML reader.
+- **`locked-scenarios.md`**: rules for every type (who writes and approves, the locks, IDs and file names, criteria, run tags, clean-up, one at a time, no real data, the held-out set), then one section per type in plan 5.8, the format in short, what the schema cannot check (for the runner), and six open points.
+- **Two Northwind examples** in `examples/northwind/tests/`, testing what Northwind already does, so they pass on an unchanged import: `wf-order-status-shipped-01` (its classic workflow sets an order's status to 2, Shipped, when an order is created with the sample-data status "Shipped") and `api-order-number-01` (the autonumber order number, `{SEQNUM:4}`; Northwind has no plug-ins or business rules).
+- **Checked:** both examples parse the same with the gate's `simple_yaml.py` and PyYAML (the gate's test venv), and fit the schema; 9 good variants pass and 30 broken copies fail. The validator is a scratch one for the keywords the schema uses (no JSON Schema library is installed), so this is not a full-library check. The first run caught one real problem: the gate's reader refuses a key named `null`, so the check is `empty`.
+- `staging/factory-manifestos/README.md`, DG7 in the day-gate plan and the schedule's 2546 row and Changes say so.
+- ADO: **2546 Building**, body gains a Session 51 section (rev 8), keeping Session 50's note; a comment on **3027** with where the format is, the good and bad cases to keep as runner tests, and the open points.
+
+Choices made without asking (say if any is wrong):
+- IDs `wf-`, `api-`, `ui-`, `agent-`, `set-`, and `ho-` before any of them for the held-out set; a file is named after its ID, as `check_spec.py` and Session 50's `trace_criteria.py` already read it, so neither needs a change.
+- Run tag `lcp-run:<run ID>/<test ID>`, written by the runner into a `tag_column` the test names, a text column of at least 100 characters. Not the primary name: Northwind's is the order number, 8 characters. Northwind's tables all have `nwind_sampledataoriginalid` (100).
+- A run record never decides a case: not found is unknown, found with another status fails. Web API tests have none. Northwind's workflow deletes its succeeded jobs, so its example expects "unknown".
+- Serial runs are worked out by the runner from the tables a scenario names; no field for it.
+- Logical names only; the runner looks up Web API names and lookup links (Northwind's orders are `nwind_orderses`).
+- The Copilot Studio conversation format is left to the Direct Line runner's build; only its folder, ID and `criteria` are set. Built-in test sets are CSV under `tests/acceptance/agents/sets/`.
+
+Found:
+- Northwind as imported has no cloud flows, plug-ins or business rules: only four classic background workflows, each setting a choice from a sample-data text column on create. A real HTTP-triggered flow scenario needs a project change (2539's PR could add one).
+- Another session wrote 2546's body at the same time (Session 50, rev 7); the update with a revision check stopped and was redone on top of it.
+
+Files changed: `staging/factory-manifestos/conventions/` (new: `locked-scenarios.md`, `scenario.schema.json`, `examples/northwind/tests/scenarios/wf-order-status-shipped-01.yaml`, `examples/northwind/tests/acceptance/api/api-order-number-01.yaml`), `staging/factory-manifestos/README.md`, `docs/plans/stage-1-day-gate-plan.md`, `docs/plans/schedule.md`, `docs/progress.md`. No plan edit: plan 5.8 already says what the format holds.
+
+Time and tokens (in 2546's body; session `48ae32f0`, measured before the last commit, `--root` the main folder's project): active time 0 h 32 min (gaps over 10 minutes not counted), from 25 Nov 20:49 to 25 Nov 21:20 (UTC+11). Tokens: 79,096 output; 15,838,700 processed in all, of which 15,404,972 were cache reads. From 1 local transcript.
+
+Open items:
+- **3027 can start** from the format on this branch (or `main` once merged). It settles the open points it owns: the HTTP trigger's address, `flowrun` versus `asyncoperation`, and whether the gate keeps a hashed copy of the schema beside the runner.
+- **Plug-in trace logging** must be on in `factory-test` before any `plugin_trace` check can pass (2541 or 2459).
+- **The Northwind spec for 2539** must map real criteria to these two IDs (the examples use `AC-1` and `AC-2` as stand-ins), and the files move to `ai-factory-nwt` by pull request there.
+- **Merging:** this branch and Session 50's (`claude/sad-mclaren-013be5`) both add to the top of this log and to the schedule's Changes; whichever merges second takes the other's lines.
+- **Session 52** (the kit) reports in its own session; it is top level, so no note comes here.
+
+Next steps:
+1. 3027 (`run_workflow.py`) on Laptop A, from this format.
+2. Session 52: the Playwright kit, then DG9 on Fri 27 Nov.
 
 ## Session 49, 2026-11-24, branch `claude/session-49-2541-test-user-vault`
 
