@@ -2,7 +2,7 @@
 
 ADO 2541 (Feature 2540, Stage 1). Plan 5.3 (identities), 5.4 (the environment pool, bootstrap) and 11.2 (stage 1). Session 46, Tuesday 24 November 2026, on the laptop (desktop app). The first project is the Northwind pilot, project code **`nwt`** (Boroon, 24 November 2026).
 
-**Where it stands: the environment and the Test identity exist; the test user and the Key Vault wait on other people.** Since Session 48 (24 November 2026, ADO 3059) the Northwind project repo exists with its environment, variables and subject template, the Test identity has its federated credential for it, and the Northwind solution is in `factory-lane-1` and in a pull request (sections 3 and 4). The IDs (environment, organisation, app, service principal, tenant) are in ADO 2541, and the repo's and credential's in ADO 3059, not here, because this repo is public.
+**Where it stands: the environment and the Test identity exist; the test user and the Key Vault wait on other people.** Since Session 48 (24 November 2026, ADO 3059) the Northwind project repo exists with its environment, variables and subject template, the Test identity has its federated credential for it, and the Northwind solution is in `factory-lane-1` and on the repo's `main` and `integration` (sections 3 and 4). The IDs (environment, organisation, app, service principal, tenant) are in ADO 2541, and the repo's and credential's in ADO 3059, not here, because this repo is public.
 
 ## What exists now
 
@@ -81,7 +81,7 @@ Plan 5.3: `factory-test-<proj>@<tenant>`, an Entra user with certificate sign-in
 Plan 5.3: one credential per project repo, plus one for triage, because the subject names the repo where the run happens. Spike 0.2: take the subject from a real run first, then wait about five minutes.
 
 - **The Northwind project repo, `AI-Business-Solutions/ai-factory-nwt`** (ADO 3059; the name and the org are Boroon's, 24 November 2026). **Made on 24 November 2026 (Session 48), each part at Boroon's word and read back; IDs in ADO 3059:**
-  - private; `main` holds a README and `.github/CODEOWNERS` copied from `templates/CODEOWNERS` in `factory-gates` (GitHub reports no CODEOWNERS errors); `integration` is made from `main` once the Northwind source has merged;
+  - private; `main` holds a README and `.github/CODEOWNERS` copied from `templates/CODEOWNERS` in `factory-gates` (GitHub reports no CODEOWNERS errors), and since 25 November 2026 the Northwind source (pull request 1, merged by Boroon); `integration` was made from that `main` the same day, at Boroon's word, and both read back at the same commit;
   - Write for the three teams `ai-factory-platform-admins`, `ai-factory-acceptance-owners` and `ai-factory-merge-reviewers` (code owners need Write);
   - repository ruleset `main-protection`, copied from the caller repo's (pull requests only, no force push, no deletion, no bypass, 0 approvals until 2520), until 2521 applies the org rulesets;
   - the org custom property `factory` (made now with `apply_rulesets.py`'s own definition, so 2521's apply finds it unchanged; only org admins can set values) and `factory = enabled` on this repo; the caller repo has no value, so the required workflow does not run on itself;
@@ -103,8 +103,8 @@ Boroon, 24 November 2026: the solution comes from Microsoft's page "Install Nort
   1. imported the copy into **`factory-lane-1`** as Boroon, by pac, naming the lane's URL on every command (his active pac profile is another environment), with `--activate-plugins --publish-changes`: 4 min 24 s, then 46 s to publish. Read back: the solution unmanaged at 1.0.0.6, the four workflows on, the app there, no canvas app;
   2. exported it unmanaged and managed (25 s and 29 s), and unpacked both with `pac solution unpack --packagetype Both` (pac 2.15.1): 215 files;
   3. ran the gate's offline steps on it, from a worktree of `factory-gates` (findings 9 to 12);
-  4. opened the source as pull request 1 in `ai-factory-nwt`, into `main`, for Boroon to merge; `integration` is made from `main` after it merges;
-  5. gate PR 29 in `factory-gates`: `projects/nwt/gate.json`, `projects/nwt/test.settings.json` (from `pac solution create-settings`; all lists empty) and the manifest check's new kinds.
+  4. opened the source as pull request 1 in `ai-factory-nwt`, into `main`; **Boroon merged it on 25 November 2026**, and `integration` was made from `main` the same day;
+  5. gate PR 29 in `factory-gates`: `projects/nwt/gate.json`, `projects/nwt/test.settings.json` (from `pac solution create-settings`; all lists empty) and the manifest check's new kinds; **Boroon merged it on 24 November 2026** (`release` read back: 659 tests, checks clean).
 - **Not imported into `factory-test`:** Northwind reaches Test only through the gate, as a managed import.
 - **Triage** (plan 4.5): when its workflow exists in `factory-gates`, Stage 2 or later.
 - **Spike 0.10 (2459, Wednesday 25 November)** needs to import into `factory-test`; if it runs from a scratch repo, that repo gets its own scratch credential on `getai-nwt-test`, deleted after the spike.
