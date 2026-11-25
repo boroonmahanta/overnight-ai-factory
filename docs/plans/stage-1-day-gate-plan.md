@@ -211,6 +211,8 @@ Done when (stage 1 exit, 11.2): at least 20 sessions mined, with the mix recorde
 
 ### DG7. Scenario conventions and the Playwright kit draft (2546, part 1). Monday 30 November to Wednesday 2 December. Cloud
 
+**Split in two at Boroon's word (25 November 2026, Session 51), because 3027 waits on the format and the toolkit must be read in full first.** Steps 1 and 2 **done 25 November 2026** (Session 51, branch `claude/session-51-2546-scenarios`): `staging/factory-manifestos/conventions/locked-scenarios.md`, `scenario.schema.json`, and two Northwind examples in `conventions/examples/northwind/tests/` (a workflow scenario on Northwind's classic order workflow, a Web API test on its autonumber order number), read from `AI-Business-Solutions/ai-factory-nwt`. Both parse the same with the gate's `simple_yaml.py` and PyYAML, and fit the schema; 30 broken copies fail it. Steps 3 and 4, the Playwright kit, run in their own session, "45. Stage 1 - Build - Playwright kit v0".
+
 Read: plan 5.8 (lines 665 to 698), 5.9 accessibility (line 735), Appendix A `verify-in-test` (lines 1999 to 2015), 13 (line 1502); Microsoft's Playwright samples docs (overview, get started, configuration, sample tests, authentication guide).
 
 1. `conventions/locked-scenarios.md`, one section per type in the 5.8 table:
