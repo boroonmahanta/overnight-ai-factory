@@ -249,7 +249,7 @@ Done when: both GHE repos hold the files with tests passing, `staging/` is gone 
 
 Needs first: 2541 (`factory-test` bootstrapped), 2447 (spike 0.11, test user sign-in), 2538 (`run_workflow.py`, for the YAML scenarios).
 
-1. Import the Northwind Traders sample solution into `factory-test`, if 2541 has not.
+1. Check that the Northwind Traders sample solution is in `factory-test`. It gets there only through the gate, as a managed import (2459, or a gate run on a pull request to `AI-Business-Solutions/ai-factory-nwt`, ADO 3059), never by a hand-made unmanaged import, which would leave an unmanaged layer under the gate's imports (Boroon, 24 November 2026, ADO 2541, Session 49).
 2. Run the kit's Northwind specs as the certificate test user, headless.
 3. Run the example workflow and Web API scenarios through `run_workflow.py`.
 4. Record run times against plan 5.8's estimates, and any flaky step.
