@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../../../scenario.schema.json
+#
+# Example locked Web API test, on Microsoft's Northwind Traders sample solution
+# (decision D6). It tests behaviour Northwind already has, so it passes on an
+# unchanged import (DG9). AC-2 is a stand-in: the spec that maps this ID is
+# written with 2539.
+#
+# Northwind has no plug-ins or business rules, so this checks a column the
+# server fills in when a row is saved: the order number, an autonumber column
+# ({SEQNUM:4} in src/Entities/nwind_Orders/Entity.xml). A plug-in test takes the
+# same shape, with plugin_trace under expect (see locked-scenarios.md).
+#
+# Creating an order also starts Northwind's background workflow; with no
+# sample-data status it changes nothing. Both examples touch nwind_orders, so
+# the runner runs them one after the other.
+schema_version: 1
+id: api-order-number-01
+kind: api
+title: "A new order is given an order number of at least four digits when it is saved"
+criteria: [AC-2]
+timeout_seconds: 60
+trigger:
+  kind: row
+  action: create
+  alias: order
+  table: nwind_orders
+  tag_column: nwind_sampledataoriginalid
+  fields:
+    nwind_shipcity: "Scenario test city"
+expect:
+  rows:
+    - ref: order
+      fields:
+        nwind_ordernumber:
+          empty: false
+          matches: "^[0-9]{4,}$"
