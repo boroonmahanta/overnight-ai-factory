@@ -54,7 +54,7 @@ Next steps:
 
 ## Open items
 
-- **`static`'s last four checks are written, smallest versions that fail closed** (Session 50, 25 November 2026, for ADO 2539): gate PR 30, https://getai.ghe.com/GetAI-IP/factory-gates/pull/30, open for Boroon to merge, after `self-test` is green. **Regenerate the manifest first** if another gate PR that touches `scripts.sha256` (ADO 3027) merges before it. The choices for Boroon are in the gate README, "The four smallest-version checks (ADO 2539)". Plan Appendix A's "Lints and limits" step is not edited (new arguments and comments): an edit for Boroon's word.
+- **`static`'s last four checks are written, smallest versions that fail closed** (Session 50, 25 November 2026, for ADO 2539): gate PR 30, https://getai.ghe.com/GetAI-IP/factory-gates/pull/30, open for Boroon to merge; `self-test` is green (run 41120051). **Regenerate the manifest first** if another gate PR that touches `scripts.sha256` (ADO 3027) merges before it. The choices for Boroon are in the gate README, "The four smallest-version checks (ADO 2539)". Plan Appendix A's "Lints and limits" step matches it, with a 14.4 row (Boroon's word, 25 November 2026).
 - **Done: `factory-manifestos` pull request 1 merged** (Session 23): https://getai.ghe.com/GetAI-IP/factory-manifestos/pull/1, the 50 low-code standards, merged by Boroon on 13 November 2026 (`fd2e268`); 2545 is Done in ADO. The plan now says 50 (5.10, 5.12 and a 14.4 row, edited at Boroon's word, Session 23). Also still open from DG3: Boroon to ask the Get AI Engineer to review the standards (not blocking); `main-protection` there is a second-approver stopgap that 2520 must raise to 1 approval.
 - **Done: ADO updates for 2549, left by Session 21.** Seen in Session 22 (13 November 2026): another laptop session made them that day. 2549 is Done, dated Wed 11 Nov, with its result and Session 21's time-and-tokens line in its body. Kept here one session for the record.
 - **The Ignite re-check is edited into the plan** (Session 33, at Boroon's word): `docs/analysis/ignite-2026-recheck.md`. Two actions sit outside the plan, for Boroon: the tenant's routing rules and app creation spaces for Copilot Managed Runtime (plan 5.4), and a check that no team on `getai.ghe.com` sets default Copilot plugins (plan 8.3 point 7).
@@ -133,12 +133,14 @@ Done: **gate PR 30**, https://getai.ghe.com/GetAI-IP/factory-gates/pull/30 (bran
 
 Found: Northwind's forms label all 216 control cells. Dataverse-made forms (spike 0.19's reset commit) leave the name cell's label empty, so a check without the display-name fallback would fail real exports.
 
+Files changed: here `docs/progress.md`, `docs/plans/schedule.md`, `docs/sources/plan-v3.1.md` (Appendix A's step, a 14.4 row) and `CLAUDE.md`; in `GetAI-IP/factory-gates` (gate PR 30) `lcp/lint_canvas_yaml.py`, `lcp/lint_accessible_labels.py`, `lcp/trace_criteria.py`, `lcp/check_inventory.py` and their four test files (new), `.github/workflows/lcp-gate.yml`, `pending-scripts.txt`, `tests/test_workflow.py`, `scripts.sha256`, `README.md`. ADO: 2539 (Session 50 section), 2546 and 2588 (a note each).
+
 Time and tokens: see ADO 2539's body (Session 50 section).
 
 Open items:
 - **Boroon: merge gate PR 30** once `self-test` is green. Regenerate the manifest first if 3027's gate PR merges before it.
 - Choices for Boroon, in the gate README: new arguments for the trace and inventory checks; a label in any language counts; HTML web resources, PCF controls and code apps fail outright; the floor still lists scenario coverage and shared use as unchecked.
-- Plan Appendix A's step, and 5.7's trusted-script list if wanted: edits at Boroon's word, not made.
+- **Done, at Boroon's word (25 November 2026, "Yes, edit it"):** plan Appendix A's "Lints and limits" step now matches gate PR 30 byte for byte (the `map` lane and story, the four new calls and comments), with a 14.4 row, "`static`'s last four checks". 5.7's trusted-script list is not changed: it names the full checks these grow into. `CLAUDE.md`: the plan row, the 14.4 summary, the Appendix A row and the line map (sections 14 to E move by up to 8 lines).
 - After this, a real run still stops in `verify-in-test`: `run_workflow.py` (3027, which waits on DG7), the Playwright kit (DG7), Key Vault and storage (3060) and the test user (2541). When DG7 adds specs to `ai-factory-nwt`, each criterion's scenario must be in a locked folder, or the trace fails.
 - Finding 10 in `docs/plans/factory-test/README.md` (Session 48's branch) can say gate PR 30 settles it, once that branch lands.
 
