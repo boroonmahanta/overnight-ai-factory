@@ -118,6 +118,58 @@ Next steps:
 
 ## Log
 
+## Session 56, 2026-11-26, branch `claude/intelligent-wright-r9lpw9`
+
+ADO 2740, A1's first pass: keep pinned kits current. A cloud session started from the desktop app, a day late (due Wed 25 Nov), so that 2739 can move the kits at checked pins. Session renamed "49. Stage 1 - Upkeep - Pinned kits first pass (2740)", after "46. Stage 1 - Build - Scenario runner (3027)" (Session 53) and the two laptop sessions started with it. It ran alongside laptop Sessions 53 (3027), 54 (2459) and 55 (2451), and touched only `docs/component-register.md`, this entry and the schedule's 2740 row.
+
+Read for it: `CLAUDE.md`, the top of this file, `docs/component-register.md`, A1 in `docs/plans/stage-1-day-gate-plan.md`, plan 8.2 and 8.3, plan Appendix A's install and Copilot steps, the spike 0.3, 0.14, 0.18 and 0.19 records, the Playwright kit on `claude/session-52-2546-playwright-kit` (`package.json`, `package-lock.json`, the toolkit's `PROVENANCE.md`, the kit README and `docs/analysis/playwright-kit-reading-notes.md`), and Sessions 11, 24 and 33's entries.
+
+Done:
+- **`docs/component-register.md`**: a "Kits" table with one row per pinned kit, in the existing columns: Spec Kit (checked, and moved into the table: it sat after a blank line, so it did not render as part of the first one), pac, Copilot CLI, the Dataverse CLI, Microsoft's Playwright toolkit, Playwright, axe-core with `@axe-core/playwright`, `playwright-ms-auth`, the kit's other npm packages, `power-platform-skills`, `Dataverse-skills`, and the nine GitHub Actions in `factory-gates` (marked "to read back on the laptop"). Then "A1 first pass, 26 November 2026": how it was checked, a summary table, what changes for us for each update due, other findings, the proposed Dependabot coverage for `factory-gates` (a list, no config), what to read back on the laptop, and how to check a kit. The three skill rows' "Last checked" now say their sources have moved.
+- **Release notes read in full for every update due:** Spec Kit 1.4.4 and 1.4.5 (and the code diff for presets, extensions, bundles and the Copilot integration), pac 2.5 to 2.16.1, Copilot CLI 1.0.114 to 1.0.116, Playwright 1.65.0 and 1.65.1, axe-core and `@axe-core/playwright` 4.13.0 to 4.14.1, `create-github-app-token` 3.4.0, CodeQL Action 4.39.4 and 4.39.5. `playwright-ms-auth` 0.0.20 compared with 0.0.19 file by file. The Dataverse CLI publishes no notes.
+- **No pin moved anywhere.**
+- The schedule's 2740 row says the first pass is written; Done waits on Boroon's word.
+
+Found (detail in the register):
+- **Updates due:** pac 2.4.1 to 2.16.1 (12 releases; still .NET 10; the packager and the checker client move, so `checker_gate.py` needs a 2.16.1 sample, and 2459 decides when); Copilot CLI 1.0.113 to 1.0.116 (small; `-p` exits 1 on an empty last answer; read-only MCP tools now need an allow rule under `--no-ask-user`); Playwright 1.64.1 to 1.65.1 (inert elements, unrendered text left out of accessible names, Node 20 no longer tested); axe 4.12.1 to 4.14.1; two actions by Dependabot. Optional: Spec Kit 1.4.5 (fixes only, inside our `>=1.4.3,<1.5`). Not now: the Dataverse CLI 1.0.95. None: the toolkit, `playwright-ms-auth` (0.0.20 has the same code), the two skill plugin repos (our two folders unchanged) and the kit's other packages (newer majors only, outside Microsoft's ranges).
+- **axe-core 4.14.0 turns on `label-content-name-mismatch`** (`wcag21a`, impact "serious"; tagged `experimental` in 4.12.1), so a move changes what the kit fails. The baseline DG9 records belongs to one axe version.
+- **The npm name `power-platform-playwright-toolkit` is npm's security placeholder** (`0.0.1-security`, 27 May 2026; a `1.0.4` was taken down). Never install Microsoft's toolkit by name; the kit vendors it by commit.
+- **Copilot CLI 1.0.115 and 1.0.116 read more from the repo they run in:** `.claude/CLAUDE.md`, Claude Code hooks, trusted repository settings in `-p`, and `.mcp.json` and `.github/mcp.json`. The gate runs from its own checkout, so it is not affected; before Stage 3, check that these paths are protected in project repos.
+- **The three skill sources have moved** under the folders we copy (Addy 39 files, Pocock 1, pstack 97). Not read: that is the component register review's job, still open since 23 November.
+- **What this cloud session could reach:** npm, PyPI, NuGet, `git ls-remote` and raw GitHub files, yes; the GitHub API, docs.github.com and `getai.ghe.com`, no (GitHub's docs were read from the `github/docs` source instead); Azure DevOps answered with a sign-in redirect, so no ADO update was made. **`tools/session_usage.py --latest` worked here:** this cloud container keeps a local transcript, unlike what `CLAUDE.md`'s end step 3 says of cloud sessions. Not changed in `CLAUDE.md` (outside this session's three files).
+
+Choices made without asking (say if any is wrong):
+- The kits have their own table under the skill sources, with the same columns; "Copied to" says where each kit is pinned.
+- Rows the brief did not name but that are pinned: the Dataverse CLI, `playwright-ms-auth` and the kit's other npm packages.
+- The actions' versions are the last ones recorded (Sessions 11 and 24), not plan Appendix A's tags, which are older major tags only; both are given, and all nine are marked to read back on the laptop.
+
+Questions for Boroon (asked in one message at the end of the session):
+1. axe for DG9 and the exit test: keep 4.12.1 and record the baseline on it, re-baselining when axe moves (recommended); or move axe to 4.14.1 before DG9?
+2. Hold every pin through the exit test (Fri 27 Nov) and move them in one pin round the week after, unless 2459 shows that pac 2.4.1 cannot pack the `Both` layout (recommended)?
+3. An ADO story for that pin round (pac, Copilot CLI, Playwright with axe, Spec Kit 1.4.5, and the Dependabot coverage as a gate PR)?
+
+Files changed: `docs/component-register.md`, `docs/plans/schedule.md` (2740's status only), `docs/progress.md` (this entry).
+
+ADO updates for 2740, for the next laptop session (Session 57, 2739, per its brief):
+- **State:** Building. Not Done: Done only at Boroon's word.
+- **Body:** add a section "Session 56 (26 November 2026, cloud)": the first pass is in `docs/component-register.md` ("Kits" and "A1 first pass") on branch `claude/intelligent-wright-r9lpw9`, no pin moved; updates due: pac 2.16.1, Copilot CLI 1.0.116, Playwright 1.65.1, axe 4.14.1 (changes results), two actions by Dependabot; optional Spec Kit 1.4.5; not now the Dataverse CLI; the three questions above; the four read-backs; the time and tokens line below.
+- **Time and tokens:** the line below, from this cloud container's own transcript. The two fetch agents' runs may not be in it.
+- Dates: none moved.
+
+Time and tokens (for 2740's body; session `6e28fcbf`, measured before the closing commit): active time 0 h 17 min (gaps over 10 minutes not counted), from 26 Nov 12:17 to 26 Nov 12:34 (UTC+11). Tokens: 97,865 output; 28,802,111 processed in all, of which 28,229,241 were cache reads. From 1 local transcript(s).
+
+Open items:
+- **To read back on the laptop:** the nine action pins in `factory-gates` and whether Dependabot's pull requests for `create-github-app-token` 3.4.0 and `codeql-action` 4.39.5 are open; the Copilot CLI version in `tools/copilot/package-lock.json`; `PAC_VERSION` (expected 2.4.1); the packages in `requirements-test.txt` (then a register row).
+- Boroon's three answers. The axe answer is needed before DG9 records the baseline (Fri 27 Nov).
+- Before Stage 3: the protected paths for Copilot's repository files in project repos (above).
+- The component register review (since 23 November): read the three skill sources' diffs.
+- `CLAUDE.md`'s end step 3 and this file's A1 bullet in "Open items" (it still says an ADO story is to be created; it is 2740) can be corrected by a later session.
+
+Next steps:
+1. Boroon answers the three questions.
+2. Session 57 (2739) makes the ADO updates above, reads back the four items, and moves every kit at the pin in the register.
+3. After the exit test: the pin round by pull requests, each with the checks the register names, and the Dependabot coverage as a gate PR.
+
 ## Session 51, 2026-11-25, branch `claude/session-51-2546-scenarios`
 
 ADO 2546, DG7 part 1: the locked scenario format. On the laptop (desktop app), the documents track, a day after DG7's Tue 24 Nov start. Session renamed "44. Stage 1 - Build - Scenario conventions and Playwright kit", like the others. Planning branch in its own worktree (`.claude/worktrees/session-50-2546`, from `origin/main` at `dae3155`), because other sessions share the folder. First named Session 50; renamed to 51 when it was found that the session "Unblock the gate's static job for 2539" had already logged itself as Session 50 (gate PR 30).
