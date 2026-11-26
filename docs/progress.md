@@ -120,6 +120,29 @@ Next steps:
 
 ## Log
 
+## Session 58, 2026-11-26, branch `claude/session-58-2541-test-ca`
+
+On the laptop (desktop app), in its own worktree (`.claude/worktrees/session-58-2541-test-ca`, from `origin/main` at `38ae0aa`). Started as a second session for ADO 2739, then moved to 2541 at Boroon's word.
+
+Done:
+- **Stood down on 2739.** Session 57 was already running on it, with `factory-manifestos` PR 2 and gate PR 32 open. Boroon: "Yes, stand down". Nothing was made for 2739 here: no ADO update, pull request, branch or commit.
+- **2541: the test CA is made** (Boroon, "Yes, make it now"). The identity admins asked for the `.cer` for the trust store (step 3 of the message Boroon sent on 24 November). The plan made the CA only when signing the test user's certificate, after the Key Vault, which waits on the resource group. The CA does not need the vault, so it was made now:
+  - `docs/plans/factory-test/test-ca.cnf` (new; no secret): the CA's subject and extensions, and the test user's certificate extensions for the later signing, with the commands in its header. Checked first with a throwaway key and a dummy signing request in the scratchpad (deleted after).
+  - The real run, in Boroon's Terminal panel: an RSA 3072 key encrypted with AES-256 under a passphrase he typed and keeps in his password manager, then the self-signed root. `O=GET AI, CN=GET AI factory test CA`, valid to 25 November 2028, no CRL point. Read back: the key file is encrypted, the `.cer` holds the public certificate only, the PEM and `.cer` match. The serial, the SHA-1 thumbprint and the SHA-256 fingerprint are in the README (section 2, step 3).
+  - The files are only on Boroon's laptop, in `~/factory-test-ca` (mode 700). The `.cer` is the file to send.
+- **ADO 2541 (rev 9):** a Session 58 section in its body (the CA, its serial and fingerprints, where it lives, what is next) and this session's time and tokens. It stays Building; no date moved.
+
+Files changed: `docs/plans/factory-test/test-ca.cnf` (new), `docs/plans/factory-test/README.md` (where it stands; section 1 step 4; section 2 step 3), `docs/plans/schedule.md` (2541's status only; no date moves), `docs/progress.md` (this entry).
+
+Open items:
+- **Boroon: send the admins `~/factory-test-ca/factory-test-ca.cer`.** They upload it to the PKI `factory-test-ca` as a root CA, with no CRL URL, and can check the SHA-1 thumbprint in the README. Steps 1, 2, 4 and 6 of his message never needed it.
+- When the vault exists (3060, after the resource group): sign its request with `user_cert`, merge it back, send the `certificateUserIds` value, then Boroon's choice: destroy the CA key, or keep it in a separate vault.
+- If the laptop is lost before the signing, make a new CA; the admins upload it again.
+
+Next steps:
+1. The admins upload the `.cer` and do the rest of the Entra steps; the CSP owner makes the resource group.
+2. Then the vault, the certificate and its signing (2541 and 3060), before 2447 and 2539.
+
 ## Session 57, 2026-11-26, branch `claude/session-57-2739-move-staging`
 
 ADO 2739 (DG8, D1), and Session 56's open items for 2740. On the laptop (desktop app), Laptop C, in its own worktree (`.claude/worktrees/session-57-2739`, from `origin/main` at `3b05634`, with Session 56's branch `claude/intelligent-wright-r9lpw9` merged in; both log entries kept, and the register keeps Session 56's kit rows, which already held pull request 68's). Session named "50. Stage 1 - Build - Move staging to GetAI-IP (2739)", top level, as Boroon asked. An earlier session started with an older brief for 2739 ("Move day-gate files to GetAI-IP") was interrupted at once, then stood down and changed nothing (its last message; the GHE repos hold only this session's branches).

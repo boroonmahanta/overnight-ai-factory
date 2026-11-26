@@ -1,0 +1,41 @@
+# OpenSSL config for the GET AI factory test CA (ADO 2541; README, "What waits", 2.3).
+# Holds no secret. Made 26 November 2026 (Session 58), at Boroon's word.
+#
+# Make the CA (once; the key is encrypted with a passphrase Boroon types):
+#   openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -aes-256-cbc -out factory-test-ca.key
+#   openssl req -x509 -new -config test-ca.cnf -key factory-test-ca.key -sha256 -days 730 -out factory-test-ca.pem
+#   openssl x509 -in factory-test-ca.pem -outform DER -out factory-test-ca.cer
+#
+# Sign the test user's certificate later, from the Key Vault's signing request:
+#   openssl x509 -req -in factory-test-nwt.csr -CA factory-test-ca.pem -CAkey factory-test-ca.key \
+#     -extfile test-ca.cnf -extensions user_cert -sha256 -days 365 -out factory-test-nwt.pem
+#
+# No CRL distribution point on either certificate: it is a test CA, uploaded with no CRL
+# (to revoke, delete the CA from the trust store or disable the user).
+
+[req]
+prompt             = no
+distinguished_name = ca_dn
+x509_extensions    = v3_ca
+string_mask        = utf8only
+
+[ca_dn]
+O  = GET AI
+CN = GET AI factory test CA
+
+# The root CA. Entra matches its Subject Key Identifier to the user certificate's
+# Authority Key Identifier, so both are set.
+[v3_ca]
+basicConstraints       = critical, CA:TRUE, pathlen:0
+keyUsage               = critical, keyCertSign, cRLSign
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always
+
+# The test user's certificate (client authentication only; the UPN in the SAN).
+[user_cert]
+basicConstraints       = critical, CA:FALSE
+keyUsage               = critical, digitalSignature, keyEncipherment
+extendedKeyUsage       = clientAuth
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always
+subjectAltName         = otherName:msUPN;UTF8:factory-test-nwt@getai.com.au
