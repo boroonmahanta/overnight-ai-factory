@@ -251,7 +251,7 @@ The 45 days build the factory. They move no project up a trust rung. Do not star
 
 | Stage | Days | What |
 |---|---|---|
-| 0 | 1 to 14 | 20 spikes and the money question (credit ruling, OIDC with pac on GHE.com, MCP, `pac copilot`, cloud agent limits, billing, environment audit, headless YAML export (0.18), reset fidelity (0.19), time and tokens per story on every engine (0.20, run in stage 1) and more) |
+| 0 | Alongside the stages that need them (Boroon, 23 November 2026; plan 11.1) | 20 spikes and the money question (credit ruling, OIDC with pac on GHE.com, MCP, `pac copilot`, cloud agent limits, billing, environment audit, headless YAML export (0.18), reset fidelity (0.19), time and tokens per story on every engine (0.20, run in stage 1) and more) |
 | 1 | 1 to 14 | Safety net: gate repo as required workflow, rulesets, Test environment, Spec Kit presets, humans keep using the AI by day |
 | 2 | 15 to 21 | ADO automation, `lcp-verify` v0, ledger v0 |
 | 3 | 22 to 30 | Night shift, one lane, rung L1 |
