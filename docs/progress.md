@@ -1008,6 +1008,49 @@ Next steps:
 1. Done: Boroon merged gate PR 23.
 2. Slice B2 (`merge_danger_combine.py`, `merge_policy.py`), after one real Copilot review output.
 3. Slice C (Thu 26 Nov): `checker_gate.py` (writing `checker-summary.json`), `run_workflow.py`, `parse_verdict.py`, `verdict_gate.py`, and the `check_spec.py` job.
+## Session 40, 2026-11-23, branch `claude/session-40-2538-a2`
+
+ADO 2538, slice A2 (the export-diff plan and four static lints), on the laptop (desktop app), a day before its Tue 24 Nov date. Started from Session 38 as a side session. Planning branch in its own worktree from `main` at `3bce4e9`. Gate branch `export-plan-and-lints` off `release` at `b25cb2f` (gate PR 21 merged), in its own worktree of the gate clone at `factory-gates/` inside this session's worktree (the edit hook allows writes only there); the shared gate clone was not switched. Numbered 40 because Session 39's three branches are the newest.
+
+**Gate PR 22** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/22, commit `6123c13`): **merged by Boroon on 23 November 2026**; `release` is at `973a421`, with the same tree as the tested commit, so the manifest holds. Slice A of 2538 is done.
+
+Done:
+- **`lcp/plan_from_export.py`, the export-diff plan** (plan 5.7, B.1, B.2). Reads `src/` on disk and `src/` in the base commit with `git ls-tree` and `git cat-file --batch` (no checkout, no filters), and writes `export-plan.json`. One finding per change, each with a rule name for slice B's floor: tables, columns (type, shorter length, stricter required level, narrower range, column security), choice values, forms and views (fields or columns only added, or anything else), roles and privileges (added, removed, widened, narrowed), relationships, flows (logic or settings), connection references, environment variables, the solution and its missing dependencies, and every other file by path. `additive_only` for B.1's small-addition row. Never writes a value. Ignores Microsoft's version stamp, the solution version and empty placeholder elements.
+- **Four lints,** each `--root pr`: `check_root_components.py` (a custom component whose publisher prefix is not the solution's has leaked in; one solution under `src/`), `lint_no_prototype.py` (any solution in the PR, unpacked or zipped, with the prefix `proto`), `lint_static_results.py` (flow mocks, on or off), `lint_logic_apps.py` (expressions over 8,192 characters, Power Automate's limit checked on Microsoft Learn; secrets or a Dataverse environment URL in a flow; never prints what it found).
+- All five follow `check_manifest.py`'s rules: standard library only, symbolic links and DOCTYPEs refused, `FAIL [kind] path: message`.
+- **Tests: 90 new, 296 in all, passing** (Python 3.15 locally; `self-test` runs 3.11). On two real exports of the scratch solution `FactorySpike`: the existing fixture (spike 0.14 part 4, cut down) and a new one, `tests/fixtures/export-base/` (spike 0.19's reset commit, whole, from an old scratchpad; no client data). The real pair shows exactly what changed between them, and nothing for the moved version stamp or the new empty placeholders. Spike 0.14 part 4b's small addition (a column on a form and in a view) comes out additive only. The four lints also pass on spike 0.14 part 4's full export.
+- **Proved by breaking a copy 56 ways** (26 in the plan, 30 in the lints). Two survived the first run (a removed or changed form cell beside an added one), so three tests were added; then all 56 failed a test.
+- `pending-scripts.txt` is down to 14 lines; `scripts.sha256` made last, adding only the five scripts against `release`; `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check` clean. Gate README: a section "The export-diff plan and four lints" with the rule table, choices and tests, and findings 13 and 14.
+
+Found:
+- **Gate finding 13:** between spike 0.19's export and spike 0.14 part 4's, `Other/Customizations.xml` gained three empty elements (`<WebResources />`, `<AppModuleSiteMaps />`, `<AppModules />`) when the solution first held those kinds. A plan comparing the file would report a change in every such PR; the plan ignores empty placeholders.
+- **Gate finding 14:** Appendix B.2 has no row for much of what an export shows (narrower range, column security, a relationship removed or its cascade changed, a global choice removed, a connection reference or environment variable changed or removed, a form or view removed). The README proposes a floor for each; settle in slice B with `danger-rules.yml` (task 2517), and edit B.2 at Boroon's word.
+
+Made by this session without asking (say if any is wrong; gate README, "The export-diff plan and four lints"):
+- The rule names and the proposed floors for rules with no plan row.
+- **"Unsafe substrings" in `lint_logic_apps.py`:** the uploaded plan never says what they are. Chosen: a signed URL (`sig=`), a bearer token, a JSON web token, a private key, a storage or Service Bus key, a literal value in a secret-named field, and a Dataverse environment URL.
+- A move from `none` to `recommended` counts as a stricter required level (conservative).
+- What counts as only adding to a form or view: cells (and fetch attributes) gained, nothing removed, changed, moved or reordered, and the rest the same.
+- `check_root_components.py` reads "the wrong root solution" as a publisher-prefix leak; it fails closed on another publisher's table or column, Microsoft's included (an allowed list later, by PR), and cannot check the spec's target solution until projects have settings.
+- A static result turned off still fails.
+- An unknown required level or privilege depth counts as the worse finding, with `"unknown": true`.
+
+ADO: 2538 stays in **Building** (B and C follow); its body holds this session's result and time line.
+
+Time and tokens (session `c377ce18`, measured before the last commit): active time 0 h 44 min (gaps over 10 minutes not counted), from 23 Nov 21:44 to 23 Nov 22:28 (UTC+11). Tokens: 165,426 output; 22,785,416 processed in all, of which 22,252,762 were cache reads. From 1 local transcript.
+
+Files changed: here, `docs/progress.md` only. In `GetAI-IP/factory-gates` (gate PR 22): five scripts in `lcp/` (new), five test files (new), `tests/fixtures/export-base/` (new, 23 files), `README.md`, `pending-scripts.txt`, `scripts.sha256`.
+
+Open items:
+- **Done: gate PR 22 merged by Boroon on 23 November 2026** (`release` at `973a421`). `self-test` had passed on the runner (Python 3.11, which the laptop does not have; run 40559901); `lcp-gate` was red at `map lane`, as on every gate PR (README step 10).
+- **Slice B (Wed 25 Nov):** `danger-rules.yml` maps the plan's rule names to floors (the README table); confirm the proposed floors and the unsafe-text list with Boroon. `merge_danger_floor.py` reads `export-plan.json` as written here (`schema_version` 1).
+- Not seen in a real export yet, so handled from Microsoft's format only: global choices, lookup or many-to-many relationships, field security profiles, an environment variable value file, classic workflows, Copilot Studio agent flows. Northwind's export (2541) is the first chance.
+- `CLAUDE.md`'s `factory-gates` row and `docs/plans/schedule.md` not edited (Sessions 34, 37 and 38's unmerged branches touch them): `release` now holds 296 tests and 14 pending scripts, and slice A of 2538 (gate PRs 21 and 22) is done.
+- Done: the gate worktree at `factory-gates/` inside this session's worktree removed after the merge, with its local branch.
+
+Next steps:
+1. Slice B of 2538 (Wed 25 Nov), from `release` at `973a421` or newer, manifest made last; settle the proposed floors and the unsafe-text list with Boroon there.
+2. Then C (Thu 26 Nov).
 
 ## Session 39, 2026-11-23, branch `claude/session-39-3026-teams-story`
 
@@ -1044,31 +1087,6 @@ Next steps:
 1. Done: both merged, the teams made, 3026 Done (23 November 2026).
 2. **Done the same evening: second approvers named** (Boroon, 23 November 2026). Each of the four teams now has a second person besides Boroon, all User accounts: in `AI-Business-Solutions` one person in the platform admins and acceptance owners, and a different person in the merge reviewers, so the scenario writer is not the reviewer; in `GetAI-IP` a third person in the platform admins. Names and accounts are in ADO 2520 and 2521 only (public repo). For 2520, all of whose stopgaps are in `GetAI-IP`: give `ai-factory-platform-admins` there Write on `factory-manifestos` first (no team is on it, and an approval without Write does not count); the `GetAI-IP` approver uses an admin account for now, and a normal one is better (least privilege); the `AI-Business-Solutions` approver is not in `GetAI-IP`, so cannot approve gate PRs unless added. **Later the same evening:** Boroon added that approver to `GetAI-IP` and its platform admins, so that team has two people besides him; and the team got Write on `factory-manifestos` (his portal change did not save, so the session added it with `gh api`, PUT on the team's repo access, `permission=push`, at his word). Checked: both second people have Write on `factory-gates` and `factory-manifestos`. ADO 2520's comments hold the names. This record is **pull request 52** (https://github.com/boroonmahanta/overnight-ai-factory/pull/52), branch `claude/session-39-approver-access`, opened at Boroon's word the same day. Boroon merges.
 3. 2538's gate PR (`static-file-checks`) must make `scripts.sha256` again on top of `3c23ca5` before it merges.
-## Session 37, 2026-11-23, branch `claude/session-37-stage-1-this-week`
-
-A laptop session that started as the daily progress-dashboard sync, in its own worktree. No pull request (not asked).
-
-Done:
-- The progress dashboard synced three times on 23 November 2026; the last showed 141 stories, 14 of 36 scheduled done (2509 and 2544 now Done in ADO), 64 sessions. Old snapshot files kept.
-- **`docs/plans/schedule.md` redrafted to finish Stage 1 by Fri 27 Nov** (Boroon, 23 November 2026: "I want to move faster than the plan"). Every story the exit test 2539 needs moves into Tue 24 to Fri 27 Nov, over up to three laptop sessions at once (A gate scripts and rulesets, B the tenant, C other getai.ghe.com work) and the documents track; Sat 28 and Sun 29 Nov are buffer. 2538 shrinks to three days, 2459 to one, 2548 to three batches (25 to 27 Nov). Stage 0 spikes 2539 does not need (2738, 2432, 2465, 2455) move to Mon 30 Nov to Thu 3 Dec; 2427 stays Mon 7 Dec. January (Stage 2) not moved.
-
-Decisions:
-- Boroon: aim to finish Stage 1 this week.
-- Boroon: Stage 0 spikes run before the first build that needs each one, not all in days 1 to 14 (plan 11.1, 14.4).
-
-Files changed: `docs/plans/schedule.md`, `docs/progress.md`, `docs/sources/plan-v3.1.md` (11.1, 14.4), `CLAUDE.md`.
-
-Open items:
-- **Done: ADO dates moved** at Boroon's word ("Yes, update ADO", 23 November 2026): Start and Finish Dates of the 18 moved stories, read back and checked; the dashboard synced after. Predecessor links not changed. This session's time and tokens are not yet in any story body.
-- **The second approver and the three CODEOWNERS teams are now due Wed 25 Nov** (was Fri 4 Dec). Without them 2520, 2529, 2521 and 2539 cannot run this week.
-- **Engineers' session exports:** chase them Tue 24 Nov; the mining cut-off (D5) is now Thu 26 Nov.
-- **Session 34's branch (`claude/session-34-2509-copilot-pin`) is not merged into `main`** and may also edit `schedule.md` and `progress.md`; expect a merge conflict in both.
-- **Done: the plan now says when Stage 0 spikes run** (Boroon, 23 November 2026, "yes, do it"). Plan 11.1: Stage 0 is not one block in days 1 to 14; each spike passes before the first build that depends on it, listed by stage (Stage 1's exit test: 0.6, 0.10, 0.11 still to run; Stage 2: 0.13, 0.15, 0.20, and 0.12 before `lcp-verify agent`; Stage 3: 0.1, 0.4, 0.7, 0.16; Stage 5: 0.5; Stage 6: 0.8). Spike 0.20 now runs before stage 2, not in stage 1. A 14.4 row; `CLAUDE.md`'s line map and Stage 0 row updated.
-
-- **Done: all 14 open Stage 1 stories put in order this week** (Boroon, 23 November 2026, "reorder the stories … move all proposed stories to the right sequence"). New in `schedule.md`: a day-by-day table, "This week, in order", per session A, B, C and documents. 3019 dated Tue 24 Nov (before 2548), 2740 (A1's first pass) Wed 25 Nov (before 2739), 2738 (spike 0.20) Fri 27 Nov (from Mon 30 Nov, as it is in the Stage 1 epic). On Thu, 2739 goes first so 2538's spec-check job follows it. ADO: those three stories' dates, and predecessor links 3019 before 2548 and 2740 before 2739, read back from the write's reply.
-
-Next steps: Tue 24 Nov, in this order: 2538 day 1 (laptop A); 2541 (laptop B); 3019, then 2537 (laptop C); the 2546 draft (documents). The full week is in `docs/plans/schedule.md`, "This week, in order".
-
 ## Session 38, 2026-11-23, branch `claude/session-38-2538-gate-scripts`
 
 ADO 2538, the remaining Stage 1 gate scripts: started on Mon 23 Nov, a day before its date. On the laptop (desktop app). Planning branch in its own worktree from `main` at `1f848be` (pull request 49). Gate branch `static-file-checks` in a separate worktree of the gate clone, off `release` at `65031e4`, so neither shared checkout was switched. Numbered 38 because Sessions 34 to 37 ran the same day on branches not yet merged here. Session renamed "33. Stage 1 - Build - Remaining gate scripts", at Boroon's word, after "32. Stage 1 - Add CODEOWNERS teams and second approvers in GHE" (Session 39).
@@ -1132,6 +1150,31 @@ What Sessions 37 and 39, which finished during this session, change for 2538 (ch
 Next steps:
 1. Boroon: review gate PR 21; decide finding 11's route (the split is agreed).
 2. Tue 24 Nov (laptop A): A2, `plan_from_export.py` and the four small lints. Notes for it, from the real export: columns are `attribute` elements in `Entities/<table>/Entity.xml` with `Type`, `RequiredLevel` (`none`, `recommended`, `required`, `systemrequired`), `MaxLength` and `MinValue`/`MaxValue`; choice values are `option`, `state` and `status` elements under each column's `optionset`; role privileges are `RolePrivilege name level` with depths `Basic` < `Local` < `Deep` < `Global`; connection references sit in `Other/Customizations.xml`. The plan's JSON is the floor's input (B.2), so write it with B's rule names in mind.
+
+## Session 37, 2026-11-23, branch `claude/session-37-stage-1-this-week`
+
+A laptop session that started as the daily progress-dashboard sync, in its own worktree. No pull request (not asked).
+
+Done:
+- The progress dashboard synced three times on 23 November 2026; the last showed 141 stories, 14 of 36 scheduled done (2509 and 2544 now Done in ADO), 64 sessions. Old snapshot files kept.
+- **`docs/plans/schedule.md` redrafted to finish Stage 1 by Fri 27 Nov** (Boroon, 23 November 2026: "I want to move faster than the plan"). Every story the exit test 2539 needs moves into Tue 24 to Fri 27 Nov, over up to three laptop sessions at once (A gate scripts and rulesets, B the tenant, C other getai.ghe.com work) and the documents track; Sat 28 and Sun 29 Nov are buffer. 2538 shrinks to three days, 2459 to one, 2548 to three batches (25 to 27 Nov). Stage 0 spikes 2539 does not need (2738, 2432, 2465, 2455) move to Mon 30 Nov to Thu 3 Dec; 2427 stays Mon 7 Dec. January (Stage 2) not moved.
+
+Decisions:
+- Boroon: aim to finish Stage 1 this week.
+- Boroon: Stage 0 spikes run before the first build that needs each one, not all in days 1 to 14 (plan 11.1, 14.4).
+
+Files changed: `docs/plans/schedule.md`, `docs/progress.md`, `docs/sources/plan-v3.1.md` (11.1, 14.4), `CLAUDE.md`.
+
+Open items:
+- **Done: ADO dates moved** at Boroon's word ("Yes, update ADO", 23 November 2026): Start and Finish Dates of the 18 moved stories, read back and checked; the dashboard synced after. Predecessor links not changed. This session's time and tokens are not yet in any story body.
+- **The second approver and the three CODEOWNERS teams are now due Wed 25 Nov** (was Fri 4 Dec). Without them 2520, 2529, 2521 and 2539 cannot run this week.
+- **Engineers' session exports:** chase them Tue 24 Nov; the mining cut-off (D5) is now Thu 26 Nov.
+- **Session 34's branch (`claude/session-34-2509-copilot-pin`) is not merged into `main`** and may also edit `schedule.md` and `progress.md`; expect a merge conflict in both.
+- **Done: the plan now says when Stage 0 spikes run** (Boroon, 23 November 2026, "yes, do it"). Plan 11.1: Stage 0 is not one block in days 1 to 14; each spike passes before the first build that depends on it, listed by stage (Stage 1's exit test: 0.6, 0.10, 0.11 still to run; Stage 2: 0.13, 0.15, 0.20, and 0.12 before `lcp-verify agent`; Stage 3: 0.1, 0.4, 0.7, 0.16; Stage 5: 0.5; Stage 6: 0.8). Spike 0.20 now runs before stage 2, not in stage 1. A 14.4 row; `CLAUDE.md`'s line map and Stage 0 row updated.
+
+- **Done: all 14 open Stage 1 stories put in order this week** (Boroon, 23 November 2026, "reorder the stories … move all proposed stories to the right sequence"). New in `schedule.md`: a day-by-day table, "This week, in order", per session A, B, C and documents. 3019 dated Tue 24 Nov (before 2548), 2740 (A1's first pass) Wed 25 Nov (before 2739), 2738 (spike 0.20) Fri 27 Nov (from Mon 30 Nov, as it is in the Stage 1 epic). On Thu, 2739 goes first so 2538's spec-check job follows it. ADO: those three stories' dates, and predecessor links 3019 before 2548 and 2740 before 2739, read back from the write's reply.
+
+Next steps: Tue 24 Nov, in this order: 2538 day 1 (laptop A); 2541 (laptop B); 3019, then 2537 (laptop C); the 2546 draft (documents). The full week is in `docs/plans/schedule.md`, "This week, in order".
 
 ## Session 36, 2026-11-23, branch `claude/nifty-thompson-22d47f`
 
