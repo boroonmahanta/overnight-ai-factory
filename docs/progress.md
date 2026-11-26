@@ -157,6 +157,17 @@ Next steps:
 1. Boroon reads the result and says whether 2459 is Done.
 2. The two gate changes (Session 53 or Boroon), then 2539.
 
+Summary at the end of the session (added 26 November 2026, 15:53 Sydney):
+- **Work completed:** spike 0.10 run and passed by "export both" (nine runs, five versions of a scratch solution); two blockers for 2539 found and recorded (`--stage-and-upgrade` fails on a first install; pac 2.4.1's checker writes no report); 2541 checked (the test user and group now exist, the resource group and Key Vault do not); all scratch deleted and read back gone; the record in `docs/plans/spike-0.10/` with the probe's copies and ten plan edit proposals; `schedule.md` (2459's status), `CLAUDE.md` (the spike folder's row) and this entry; ADO 2459 Building with its Session 54 section. Then, at Boroon's word, the two gate changes went to Session 53 by message. Commits `f9a1a05` and `f27d4e6` on `claude/session-54-2459-test-env`, pushed; no planning pull request (the brief said none).
+- **Time and tokens, whole session so far** (session `b98652da`, `--root` the main folder's project transcripts): active time 1 h 31 min (gaps over 10 minutes not counted), from 26 Nov 12:15 to 26 Nov 15:53 (UTC+11). Tokens: 144,299 output; 39,851,611 processed in all, of which 38,917,724 were cache reads. ADO 2459's body still holds the earlier figure (1 h 23 min), measured before the last commit; not changed here.
+
+New next steps (not listed above):
+3. Before Boroon merges Session 53's gate PR for the two changes: check it covers both (an import without `--stage-and-upgrade` when the solution is not in Test, and a pac pin whose checker writes its report), that `self-test` is green, and that `scripts.sha256` was regenerated after the last hashed change.
+4. In 2539's first real gate run, check the two fixes work: Northwind installs into `factory-test` on the first-install path, and `checker_gate.py` finds the checker's report.
+5. Boroon says which of the ten plan edit proposals in `docs/plans/spike-0.10/README.md` to edit into the plan, and in which session.
+6. Boroon says whether this branch gets a planning pull request. When it merges, this branch and Sessions 52 and 53's branches all add to the top of this log, and this branch also adds a row to `CLAUDE.md`; whichever merges second keeps the other's lines.
+7. Update ADO 2459's time and tokens line at the session's real end, if Boroon wants the later figure there.
+
 ## Session 51, 2026-11-25, branch `claude/session-51-2546-scenarios`
 
 ADO 2546, DG7 part 1: the locked scenario format. On the laptop (desktop app), the documents track, a day after DG7's Tue 24 Nov start. Session renamed "44. Stage 1 - Build - Scenario conventions and Playwright kit", like the others. Planning branch in its own worktree (`.claude/worktrees/session-50-2546`, from `origin/main` at `dae3155`), because other sessions share the folder. First named Session 50; renamed to 51 when it was found that the session "Unblock the gate's static job for 2539" had already logged itself as Session 50 (gate PR 30).
