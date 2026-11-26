@@ -215,6 +215,14 @@ Next steps:
 1. Boroon: the billing pick is in; the plan edits for 0.6 and 0.20 at his word.
 2. 2539 on Fri 27 Nov: the gate's verifier and review sessions can use the job token as they are; the telemetry exporter and the evaluator's `tools:` are worth fixing first.
 
+Later in the session (26 November 2026, after the commit above):
+- **What happened:** the side session "51. Stage 1 - Spike - Desktop telemetry check (2738)" (`b0282934`) took a second turn at about 04:55 UTC, on a wrap-up prompt like this one. It added its own entry, "Spike 0.20 telemetry check (side session)", to `docs/progress.md` **in the main checkout, on `main`, uncommitted** (17 lines at the top of the log there). It changed nothing in this worktree.
+- **Its one next step is done here:** check the collector for its data, record the result in this log and ADO 2738, and confirm the test settings are off. Its data is in the spike 0.20 record: equal to the transcript, 113,051 tokens. The settings are restored, and its time and tokens are in this entry's line.
+- **Not touched:** the main checkout's edit, which is another session's.
+
+New next step:
+3. Boroon: decide what to do with the side session's uncommitted entry in the main checkout's `docs/progress.md` (on `main`, which must never be pushed): discard it (`git checkout -- docs/progress.md` there), or move it to a branch. This entry already covers what it records.
+
 ## Session 51, 2026-11-25, branch `claude/session-51-2546-scenarios`
 
 ADO 2546, DG7 part 1: the locked scenario format. On the laptop (desktop app), the documents track, a day after DG7's Tue 24 Nov start. Session renamed "44. Stage 1 - Build - Scenario conventions and Playwright kit", like the others. Planning branch in its own worktree (`.claude/worktrees/session-50-2546`, from `origin/main` at `dae3155`), because other sessions share the folder. First named Session 50; renamed to 51 when it was found that the session "Unblock the gate's static job for 2539" had already logged itself as Session 50 (gate PR 30).
