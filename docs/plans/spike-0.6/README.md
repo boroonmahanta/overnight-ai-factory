@@ -4,7 +4,7 @@ Plan section 11.1, row 0.6 (ADO 2451). Session 55, Thursday 26 November 2026, la
 
 **Result: the exit test passes, measured in a collector in the job. Application Insights waits on Azure access**, as ADO 3060 does: Boroon has no role on the CSP subscription that can make the resource (checked 26 November 2026). One executor run, with a custom agent and the night's flags, was measured by OpenTelemetry under its `project`, `story_id`, `run_id` and `role`, and billed to the organisation `GetAI-IP`, repository `copilot-probe`, model Claude Sonnet 5.5. The bill, the CLI's usage file and the OpenTelemetry spans agree to six decimal places.
 
-**The billing identity: proposed, for Boroon to pick** (below). The job's own token is proposed; a machine account is not tried.
+**The billing identity: the job's own token, Boroon's pick on 26 November 2026** (below). A machine account is not tried.
 
 ## Exit test (plan 11.1)
 
@@ -25,7 +25,7 @@ Plan section 11.1, row 0.6 (ADO 2451). Session 55, Thursday 26 November 2026, la
 | OpenTelemetry export | Works to a file and to OTLP/HTTP JSON. **Setting only `COPILOT_OTEL_ENABLED=true`, as `lcp-gate.yml` does today, sends to `http://localhost:4318`; with nothing listening the run still exits 0 and every span is lost**, with one warning in the process log only (finding 9) |
 | Custom agents from the gate repo | With the gate's layout (the repo checked out at `gate/`, `working-directory: gate`), `--agent <name>` finds `gate/.github/agents/<name>.agent.md` with no trust flag. The agent's `tools:` list limits the tools: an agent without `shell` cannot run any command, whatever `--allow-tool` says (findings 4 to 8) |
 | `--max-ai-credits` | Minimum 30. A soft cap: warnings at 50%, 75% and 90%; at 90% the tools are turned off; the session ends with `session.error` `ai_credit_soft_cap_exhausted` and exit 1, slightly over the cap (30.40 of 30). The agent cannot write a handoff after 90% (finding 11) |
-| Billing identity | Proposed: the job's own token (option 1 in plan 5.2), for Boroon to pick (below) |
+| Billing identity | The job's own token (option 1 in plan 5.2), Boroon's pick on 26 November 2026 (below) |
 
 ## Method
 
@@ -92,16 +92,16 @@ The bill was read with Boroon's own `gh` sign-in on `getai.ghe.com` (read only):
 15. **`actions/setup-node` with `node-version: lts/*` failed on a GHE.com runner** (run 41331761): it reads Node's version list from github.com without signing in, and the runner's shared address was over github.com's rate limit ("API rate limit exceeded for" the runner's address). `22.x` comes from the runner's own cache with no lookup. `lcp-gate.yml` uses `lts/*` in `verify-in-test` and `danger`, so a gate run can fail the same way.
 16. **No token-shaped string** in any job log, artifact or `--share` transcript (the scrubber found none in 9 runs). With `--secret-env-vars GITHUB_TOKEN` the executor still worked: the CLI keeps its own copy.
 
-## The billing identity: proposed, for Boroon to pick
+## The billing identity: the job's own token (Boroon, 26 November 2026)
 
-**Proposed: option 1 of plan 5.2, the job's own `GITHUB_TOKEN` with `permissions: copilot-requests: write`**, billed to the organisation that owns the repository the job runs in.
+**Proposed, and picked by Boroon: option 1 of plan 5.2, the job's own `GITHUB_TOKEN` with `permissions: copilot-requests: write`**, billed to the organisation that owns the repository the job runs in.
 
 - **Why:** it works (spikes 0.14 and 0.6); it needs no seat, no secret and no personal token, so no Conditional Access problem; the bill names the organisation, repository and model each day and matches the CLI's own count to six decimal places; user budgets do not apply (GitHub's docs).
 - **Option 2, a seated machine account per project, is not tried.** It needs a seat and a personal token per project, and GitHub's docs say a personal token on EMU with Conditional Access "will likely be blocked".
 - **What follows for Mode A and Mode B (plan 9.2)** [inference, from GitHub's docs, untested here]: a cost centre can hold repositories (and users, organisations and enterprise teams), can be tied to its own Azure subscription, and can carry a budget that stops usage ("Stop usage when budget limit is reached", off by default). So each client's cost centre holds that client's repositories, tied to the cash subscription. **This only splits by client if every Copilot session for a client runs in a repository in that client's cost centre.** The gate's sessions do: the required workflow runs in the project repository (to be confirmed by 2539's first real run). The night execution job, planned in one `factory-control`, does not: all its usage would land on `factory-control`. So the execution workflow should run in, or be called from, a repository inside each client's cost centre (for example a reusable execution workflow called from the project repository, as the gate is).
 - **Not tried:** a budget that stops an organisation's or cost centre's Copilot usage (creating one changes billing settings, Boroon's call); whether `AI-Business-Solutions`' 3 seats' included credits absorb gate usage there.
 
-**Boroon's pick:** not yet given.
+**Boroon's pick (26 November 2026, asked in Session 55): the job token**, option 1 above, with client splits by cost centres made of repositories. Not yet in the plan: the edits below wait on his word.
 
 ## Proposed plan edits (not made; for Boroon)
 
@@ -140,7 +140,7 @@ Started with `GH_HOST=getai.ghe.com gh workflow run probe.yml -R GetAI-IP/copilo
 
 ## Left to do
 
-1. **Boroon:** pick the billing identity (above), then the plan edits.
+1. ~~**Boroon:** pick the billing identity~~: the job token (26 November 2026). **Boroon:** the plan edits.
 2. **Application Insights**, when the CSP subscription's owner gives access (with 3060): one executor run with an OTLP endpoint and its auth header, or the file exporter's spans loaded by a trusted step. Until then the exit test stands on the collector in the job.
 3. Not tried, could follow: a budget that stops Copilot usage at the organisation or a cost centre; a subagent's spans (does the parent's `nano_aiu` include them? spike 0.7); `customAgents.defaultLocalOnly`; whether included seat credits absorb usage in `AI-Business-Solutions`.
 
