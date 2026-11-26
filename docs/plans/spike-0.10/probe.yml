@@ -1,0 +1,326 @@
+# Spike 0.10 (plan 11.1, ADO 2459): Test environment behaviour, by "export both".
+# Published as .github/workflows/probe.yml in GetAI-IP/import-probe (private, scratch),
+# next to probe/import_probe.py and probe/pack_offline.py (the gate's own script,
+# copied unchanged from GetAI-IP/factory-gates at release 5ba13be; its SHA-256 matches
+# the gate's scripts.sha256).
+#
+# Modes:
+#   check     each identity prints its OIDC claims, signs in and lists the scratch. Read-only
+#   cycle     export (lane identity, environment fl1-exec): set the lane to `state`, then
+#               export unmanaged and managed twice and unpack each pair with Both
+#             pack (no credentials, no network; pac 2.4.1 and 2.15.1): the gate's pack_offline.py
+#             import (Test identity, environment lcp-test, pac 2.4.1 as the gate pins):
+#               import the 2.4.1 managed zip with the gate's flags, then read Test
+#   teardown  delete every scratch part: Test first (uninstall), then the lane
+#
+# Hand start only (workflow_dispatch), and only from main: no pull request code runs
+# (rule 5). Credentials never share a job with another identity's, and the pack job
+# holds none. No secrets: the tenant ID, app IDs and URLs are repository variables of
+# this scratch repo, so they stay out of the public planning repo.
+name: import-probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: check, cycle, observe or teardown
+        type: choice
+        options: [check, cycle, observe, teardown]
+        default: check
+      state:
+        description: the lane state for cycle (1 to 5; see import_probe.py)
+        type: choice
+        options: ["1", "2", "3", "4", "5"]
+        default: "1"
+      settings:
+        description: the import's settings file (fresh from the zip, stale with the old variable, or none)
+        type: choice
+        options: [fresh, stale, none]
+        default: fresh
+      checker:
+        description: run the solution checker as the Test identity before the import
+        type: boolean
+        default: false
+      seed:
+        description: after the import, add one row to each scratch table in Test
+        type: boolean
+        default: false
+      import_mode:
+        description: gate (the gate's flags, --stage-and-upgrade) or plain (no --stage-and-upgrade, for a first install)
+        type: choice
+        options: [gate, plain]
+        default: gate
+
+permissions: {}
+
+concurrency:
+  group: import-probe
+  cancel-in-progress: false
+
+env:
+  TENANT_ID: ${{ vars.TENANT_ID }}
+  LANE_APP_ID: ${{ vars.LANE_APP_ID }}
+  LANE_URL: ${{ vars.LANE_URL }}
+  TEST_APP_ID: ${{ vars.TEST_APP_ID }}
+  TEST_URL: ${{ vars.TEST_URL }}
+  STATE: ${{ inputs.state }}
+  SETTINGS: ${{ inputs.settings }}
+  CHECKER: ${{ inputs.checker }}
+  SEED: ${{ inputs.seed }}
+  IMPORT_MODE: ${{ inputs.import_mode }}
+  DOTNET_NOLOGO: "1"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+
+jobs:
+  check:
+    if: inputs.mode == 'check'
+    runs-on: ubuntu-latest
+    environment: ${{ matrix.environment }}
+    timeout-minutes: 10
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include:
+          - target: lane
+            environment: fl1-exec
+          - target: test
+            environment: lcp-test
+    env:
+      TARGET: ${{ matrix.target }}
+    steps:
+      - name: Refuse any ref but main
+        run: '[ "$GITHUB_REF" = "refs/heads/main" ] || { echo "::error::run this from main only"; exit 1; }'
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check the variables
+        run: bash probe/check_vars.sh
+      - name: Claims, sign-in and the scratch listing (read-only)
+        run: python3 -I probe/import_probe.py check
+
+  export:
+    if: inputs.mode == 'cycle'
+    runs-on: ubuntu-latest
+    # Plan 5.3: the execute identity runs in environment fl<n>-exec, and never reaches Test.
+    environment: fl1-exec
+    timeout-minutes: 40
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      PAC_VERSION: "2.15.1"
+    steps:
+      - name: Refuse any ref but main
+        run: '[ "$GITHUB_REF" = "refs/heads/main" ] || { echo "::error::run this from main only"; exit 1; }'
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check the variables
+        run: bash probe/check_vars.sh
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          dotnet-version: 10.0.x
+      - name: Install pinned pac
+        run: |
+          set -euo pipefail
+          dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version "$PAC_VERSION"
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+      - name: Set the lane to the state (Web API, as the lane identity)
+        run: python3 -I probe/import_probe.py lane
+      - name: Sign in with a federated pac profile (no secret)
+        run: |
+          set -euo pipefail
+          pac telemetry disable || true
+          pac auth create --name lane --githubFederated --tenant "$TENANT_ID" --applicationId "$LANE_APP_ID" --environment "$LANE_URL"
+          pac org who
+      - name: Export unmanaged and managed twice, unpack each pair with Both
+        run: python3 -I probe/import_probe.py export
+      - name: Clear the sign-in profiles
+        if: always()
+        run: pac auth clear || true
+      # Scratch output only: the scratch solution's files, zips, logs and results. No credentials.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: export
+          path: |
+            ${{ runner.temp }}/import-probe/export/
+            ${{ runner.temp }}/import-probe/lane/
+            ${{ runner.temp }}/import-probe/logs/
+          retention-days: 3
+          if-no-files-found: warn
+
+  pack:
+    if: inputs.mode == 'cycle'
+    needs: export
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read        # no id-token: this job can sign in to nothing
+    strategy:
+      fail-fast: false
+      matrix:
+        pac: ["2.4.1", "2.15.1"]
+    env:
+      PAC_VERSION: ${{ matrix.pac }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: export
+          path: ${{ runner.temp }}/import-probe/
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          dotnet-version: 10.0.x
+      - name: Install pinned pac
+        run: |
+          set -euo pipefail
+          dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version "$PAC_VERSION"
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+      - name: Turn pac telemetry off
+        run: pac telemetry disable || true
+      - name: Pack with the gate's own script, with no network, then inspect
+        run: python3 -I probe/import_probe.py pack
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: packed-pac-${{ matrix.pac }}
+          path: ${{ runner.temp }}/import-probe/pack-${{ matrix.pac }}/
+          retention-days: 3
+          if-no-files-found: warn
+
+  import:
+    if: ${{ !cancelled() && inputs.mode == 'cycle' }}
+    needs: pack
+    runs-on: ubuntu-latest
+    # The Test identity in its own job and environment, as the gate's verify-in-test.
+    environment: lcp-test
+    timeout-minutes: 45
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      PAC_VERSION: "2.4.1"   # the gate's pin, which verify-in-test imports with
+    steps:
+      - name: Refuse any ref but main
+        run: '[ "$GITHUB_REF" = "refs/heads/main" ] || { echo "::error::run this from main only"; exit 1; }'
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check the variables
+        run: bash probe/check_vars.sh
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: packed-pac-2.4.1
+          path: ${{ runner.temp }}/import-probe/pack-2.4.1/
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          dotnet-version: 10.0.x
+      - name: Install pinned pac
+        run: |
+          set -euo pipefail
+          dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version "$PAC_VERSION"
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+      - name: Install pac 2.15.1 beside it, for the checker comparison
+        if: inputs.checker
+        run: |
+          set -euo pipefail
+          dotnet tool install Microsoft.PowerApps.CLI.Tool --version 2.15.1 --tool-path "$RUNNER_TEMP/pac-2.15.1"
+          echo "PAC_ALT=$RUNNER_TEMP/pac-2.15.1/pac" >> "$GITHUB_ENV"
+      - name: Sign in as the Test identity (OIDC, no secret)
+        run: |
+          set -euo pipefail
+          pac telemetry disable || true
+          pac auth create --name test --githubFederated --tenant "$TENANT_ID" --applicationId "$TEST_APP_ID" --environment "$TEST_URL"
+          pac org who
+      - name: Import the managed zip with the gate's flags, then read Test
+        run: python3 -I probe/import_probe.py import
+      - name: Clear the sign-in profiles
+        if: always()
+        run: pac auth clear || true
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: import
+          path: |
+            ${{ runner.temp }}/import-probe/import/
+            ${{ runner.temp }}/import-probe/logs/
+          retention-days: 3
+          if-no-files-found: warn
+
+  observe:
+    if: inputs.mode == 'observe'
+    runs-on: ubuntu-latest
+    environment: lcp-test
+    timeout-minutes: 15
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      TARGET: test
+    steps:
+      - name: Refuse any ref but main
+        run: '[ "$GITHUB_REF" = "refs/heads/main" ] || { echo "::error::run this from main only"; exit 1; }'
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check the variables
+        run: bash probe/check_vars.sh
+      - name: Read the scratch solution in Test, with its history (read-only)
+        run: python3 -I probe/import_probe.py observe
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: observe
+          path: ${{ runner.temp }}/import-probe/observe/
+          retention-days: 3
+          if-no-files-found: warn
+
+  teardown-test:
+    if: inputs.mode == 'teardown'
+    runs-on: ubuntu-latest
+    environment: lcp-test
+    timeout-minutes: 40
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      TARGET: test
+    steps:
+      - name: Refuse any ref but main
+        run: '[ "$GITHUB_REF" = "refs/heads/main" ] || { echo "::error::run this from main only"; exit 1; }'
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check the variables
+        run: bash probe/check_vars.sh
+      - name: Uninstall the scratch solution from Test, then list what is left
+        run: python3 -I probe/import_probe.py teardown
+
+  teardown-lane:
+    if: ${{ !cancelled() && inputs.mode == 'teardown' }}
+    needs: teardown-test
+    runs-on: ubuntu-latest
+    environment: fl1-exec
+    timeout-minutes: 40
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      TARGET: lane
+    steps:
+      - name: Refuse any ref but main
+        run: '[ "$GITHUB_REF" = "refs/heads/main" ] || { echo "::error::run this from main only"; exit 1; }'
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check the variables
+        run: bash probe/check_vars.sh
+      - name: Delete the scratch parts from the lane, then list what is left
+        run: python3 -I probe/import_probe.py teardown
