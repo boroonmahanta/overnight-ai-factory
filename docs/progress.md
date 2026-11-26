@@ -166,6 +166,7 @@ Next steps:
 - **`release` read back** from a fresh clone, Finder's files deleted first. The merge's tree is the same as gate PR 33's head (`2a194ed`), which `self-test` passed (run 41366501). `PAC_VERSION` is 2.15.1, and both `setup-dotnet` steps are `10.0.x` with the 2.15.1 comment. 778 tests pass (4 skipped by design). `manifest.py verify`, `sha256sum --check --strict` (116 files) and `make_rulesets.py check` are clean, and `pending-scripts.txt` holds 2 (`cs-runner/run.mjs`, `run_holdout.py`). No gate PR is open.
 - **The plan on `main` matches `release`**: Appendix A's `PAC_VERSION` line and two .NET comments are the same, byte for byte.
 - The records that said "open for Boroon" now say merged: `CLAUDE.md`'s gate row and plan row, the register's pac row, the schedule's 2539 note and Changes entry, and the Session 58 sections of ADO 2539 and 3106. No date moves, no state moves.
+- Planning pull request 75, https://github.com/boroonmahanta/overnight-ai-factory/pull/75, opened at Boroon's word, for him to merge.
 - Time and tokens, the whole session including this read-back (in 2539's body, replacing the earlier line; session `48f1543d`, measured before the closing commit): active time 0 h 42 min (gaps over 10 minutes not counted), from 26 Nov 16:00 to 26 Nov 16:43 (UTC+11). Tokens: 68,774 output; 17,485,312 processed in all, of which 17,113,889 were cache reads. From 1 local transcript.
 
 ## Session 57, 2026-11-26, branch `claude/session-57-2739-move-staging`
