@@ -1,0 +1,7 @@
+node_modules/
+# Signed-in browser state and sign-in screenshots: live session cookies. Never commit or upload.
+.auth/
+.playwright-ms-auth/
+test-results/
+playwright-report/
+.env

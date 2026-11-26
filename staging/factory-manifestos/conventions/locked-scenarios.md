@@ -136,8 +136,9 @@ For the runner (3027), and for a lint if one is written:
 
 ## UI tests (Playwright)
 
-`tests/acceptance/ui/<id>.spec.ts`, IDs `ui-<slug>-<nn>`. Playwright in TypeScript on Microsoft's toolkit (model-driven: `ModelDrivenAppPage`, `GridComponent`, `FormComponent`; canvas: `CanvasAppPage`), signed in as the certificate test user. The kit is built in its own session (ADO 2546, "45. Stage 1 - Build - Playwright kit v0") in `staging/factory-gates/playwright/`; the gate runs it with the project's specs.
+`tests/acceptance/ui/<id>.spec.ts`, IDs `ui-<slug>-<nn>`. Playwright in TypeScript on Microsoft's toolkit (model-driven: `ModelDrivenAppPage`, `GridComponent`, `FormComponent`; canvas: `CanvasAppRuntimePage`, for a published app; `CanvasAppPage` drives Power Apps Studio, for authoring only), signed in as the certificate test user. The kit is built in its own session (ADO 2546, "45. Stage 1 - Build - Playwright kit v0") in `staging/factory-gates/playwright/`; the gate runs it with the project's specs.
 - One file is one ID. It may hold several tests; each is tagged with the criteria it covers, `test('...', { tag: ['@AC-3'] }, ...)`, so `--grep @AC-3` runs one criterion.
+- A canvas test also carries the tag `@canvas`, which puts it in the kit's canvas project. Every other UI test runs in the model-driven project.
 - **Selectors** (plan 5.8): accessible name first (`getByRole`, `getByLabel`); `data-control-name` second, for a canvas control with no accessible name; never CSS paths or positions. The names come from the spec's Testability contract. A renamed control then breaks the test, as it should.
 - Data the test makes carries the run tag, through the kit's helper, and is deleted at the end.
 - Tests that change the same table run in one serial group.
