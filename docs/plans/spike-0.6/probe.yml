@@ -1,0 +1,227 @@
+# Spike 0.6 (ADO 2451): Copilot CLI on GHE.com. Also the night leg of spike 0.20 (ADO 2738).
+# Published as .github/workflows/probe.yml in GetAI-IP/copilot-probe (private, scratch).
+#
+# Every case is one tiny `copilot -p` call with the job's own GITHUB_TOKEN
+# (copilot-requests: write), billed to the organisation. No tenant, no OIDC, no secrets.
+# Copilot CLI is the gate's pin (factory-gates tools/copilot, 1.0.114), installed the way
+# the gate installs it: npm ci --ignore-scripts from the lockfile.
+#
+# Modes:
+#   model     which model answers with no --model, a bad name, auto, an extra model;
+#             --max-ai-credits below its minimum
+#   otel      OpenTelemetry: the file exporter, OTLP/HTTP to a sink in the job with only
+#             COPILOT_OTEL_ENABLED=true (the gate's setting), and the same with nothing listening
+#   agents    custom agents laid out as the gate does (repo checked out at gate/,
+#             working-directory gate): found or not, model and tools from the agent file,
+#             and which copy wins against a PR's copy (--add-dir) and a COPILOT_HOME copy
+#   credits   --max-ai-credits 30 on a task that needs more
+#   executor  the exit test: one run with the night's flags and an executor agent,
+#             measured by OTLP into the sink, with project and story_id attributes
+name: probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: model, otel, agents, credits or executor
+        required: true
+        type: choice
+        options: [model, otel, agents, credits, executor]
+      story_id:
+        description: story_id for the telemetry attributes
+        required: false
+        default: "2451"
+      agent_model:
+        description: model written into probe-evaluator's frontmatter (agents mode)
+        required: false
+        default: ""
+      extra_model:
+        description: one more --model to try (model mode)
+        required: false
+        default: ""
+
+permissions: {}
+
+concurrency:
+  group: copilot-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      copilot-requests: write
+    env:
+      MODE: ${{ inputs.mode }}
+      STORY_ID: ${{ inputs.story_id }}
+      AGENT_MODEL: ${{ inputs.agent_model }}
+      EXTRA_MODEL: ${{ inputs.extra_model }}
+      GH_HOST: getai.ghe.com
+      COPILOT_AUTO_UPDATE: "false"
+      OUT: ${{ github.workspace }}/out
+    steps:
+      - name: Refuse any ref but main
+        run: |
+          [ "$GITHUB_REF" = "refs/heads/main" ] || { echo "::error::run this from main only"; exit 1; }
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gate
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22.x   # lts/* reads the manifest from github.com unauthenticated and hit its rate limit (run 41331761)
+          package-manager-cache: false
+
+      - name: Install pinned Copilot CLI (the gate's lockfile)
+        run: |
+          set -euo pipefail
+          npm ci --prefix gate/tools/copilot --ignore-scripts --no-audit --no-fund --no-update-notifier
+          echo "COPILOT_BIN=$GITHUB_WORKSPACE/gate/tools/copilot/node_modules/.bin/copilot" >> "$GITHUB_ENV"
+          gate/tools/copilot/node_modules/.bin/copilot --version
+          mkdir -p "$OUT" work
+          echo "RUN_ID=probe-$(date -u +%Y%m%d)-${STORY_ID}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_ENV"
+
+      - name: Mode model
+        if: env.MODE == 'model'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          C="python3 -I gate/probe/case.py --out $OUT --cwd work"
+          P="Reply with the single word: ready"
+          $C --name m1-default -- -p "$P" --no-ask-user
+          $C --name m2-bad-model -- -p "$P" --no-ask-user --model no-such-model-0-6
+          $C --name m3-auto -- -p "$P" --no-ask-user --model auto
+          [ -n "$EXTRA_MODEL" ] && $C --name m4-extra -- -p "$P" --no-ask-user --model "$EXTRA_MODEL"
+          $C --name m5-credits-29 -- -p "$P" --no-ask-user --max-ai-credits 29
+          true
+
+      - name: Mode otel
+        if: env.MODE == 'otel'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          C="python3 -I gate/probe/case.py --out $OUT --cwd work"
+          P="Run ls once in this folder, then reply with the single word: done"
+          A="project=probe,run_id=${RUN_ID},story_id=${STORY_ID},lane=B,profile=lcp,role=executor"
+          echo hello > work/a.txt
+          # 1. File exporter
+          $C --name o1-file --otel-file --env "OTEL_RESOURCE_ATTRIBUTES=$A" \
+            -- -p "$P" --no-ask-user --allow-tool 'shell(ls:*)'
+          # 2. Only COPILOT_OTEL_ENABLED=true, as lcp-gate.yml sets it: where does it send?
+          python3 -I gate/probe/otlp_sink.py --port 4318 --out "$OUT/sink.jsonl" &
+          sink=$!
+          sleep 2; curl -fsS http://127.0.0.1:4318/ >/dev/null && echo "sink up"
+          $C --name o2-enabled-only --sink "$OUT/sink.jsonl" \
+            --env COPILOT_OTEL_ENABLED=true --env "OTEL_RESOURCE_ATTRIBUTES=$A" \
+            -- -p "$P" --no-ask-user --allow-tool 'shell(ls:*)'
+          # 3. Explicit endpoint, http/json, content capture off (the default)
+          $C --name o3-endpoint --sink "$OUT/sink.jsonl" \
+            --env OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4318 \
+            --env OTEL_EXPORTER_OTLP_PROTOCOL=http/json \
+            --env "OTEL_RESOURCE_ATTRIBUTES=$A" --env OTEL_SERVICE_NAME=copilot-probe \
+            -- -p "$P" --no-ask-user --allow-tool 'shell(ls:*)'
+          kill "$sink"; wait "$sink" 2>/dev/null || true
+          # 4. The gate's setting with nothing listening: lost without a word?
+          $C --name o4-nothing-listening --env COPILOT_OTEL_ENABLED=true \
+            --env "OTEL_RESOURCE_ATTRIBUTES=$A" -- -p "$P" --no-ask-user --allow-tool 'shell(ls:*)'
+          grep -rih 'otel\|otlp\|export' "$OUT/o4-nothing-listening/logs" | head -20 || true
+          true
+
+      - name: Mode agents
+        if: env.MODE == 'agents'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          # The agent model: given, or the probe's default (a model other than the session's)
+          m="${AGENT_MODEL:-claude-haiku-5.5}"
+          sed -i "s/__AGENT_MODEL__/$m/" gate/.github/agents/probe-evaluator.agent.md
+          head -5 gate/.github/agents/probe-evaluator.agent.md
+          # A PR's copy of the same agent, as a project repo checked out at pr/ would hold it
+          mkdir -p pr/.github/agents
+          sed 's/GATE-EVAL-7Q/PR-EVAL-3X/' gate/.github/agents/probe-evaluator.agent.md > pr/.github/agents/probe-evaluator.agent.md
+          # A COPILOT_HOME copy, as a driver could install trusted agents there
+          sed 's/GATE-EVAL-7Q/HOME-EVAL-9K/' gate/.github/agents/probe-evaluator.agent.md > "$RUNNER_TEMP/probe-evaluator.agent.md"
+          C="python3 -I gate/probe/case.py --out $OUT --cwd gate"
+          P='Run the shell command: echo shell-ran . Then reply in two lines: first your marker line exactly as your instructions give it, then "shell: yes" if the command ran or "shell: no" if you could not run it.'
+          T=(--no-ask-user --allow-tool 'shell(echo:*)')
+          $C --name a0-unknown-agent -- -p "$P" "${T[@]}" --agent no-such-agent
+          $C --name a1-gate-agent -- -p "$P" "${T[@]}" --agent probe-evaluator
+          $C --name a2-gate-shell-agent -- -p "$P" "${T[@]}" --agent probe-shell
+          $C --name a3-pr-copy-add-dir -- -p "$P" "${T[@]}" --agent probe-evaluator --add-dir ../pr
+          $C --name a4-home-copy --home-agent "$RUNNER_TEMP/probe-evaluator.agent.md" -- -p "$P" "${T[@]}" --agent probe-evaluator
+          $C --name a5-trust-folder -- -p "$P" "${T[@]}" --agent probe-evaluator --trust-folder
+          # Both name a model: the agent file says $m, the command line says claude-sonnet-5.5
+          $C --name a6-model-flag-and-agent -- -p "$P" "${T[@]}" --agent probe-evaluator --model claude-sonnet-5.5
+          true
+
+      - name: Mode credits
+        if: env.MODE == 'credits'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          C="python3 -I gate/probe/case.py --out $OUT --cwd work"
+          # Run 41304926: twelve files took 25 calls and 15.0 credits (warm prompt cache), under the cap.
+          # Forty files should need about 80 calls, so the cap of 30 is reached part way.
+          P="In this folder, create forty text files named f01.txt to f40.txt. Create them one at a time, one tool call per file, each holding its own name. After each file, run ls. When all forty exist, reply with the single word: done"
+          $C --name c1-cap-30 -- -p "$P" --no-ask-user --autopilot --max-autopilot-continues 10 \
+            --max-ai-credits 30 --allow-tool write --allow-tool 'shell(ls:*)'
+          ls work | sort | tr '\n' ' '; echo
+          true
+
+      - name: Mode executor (the exit test)
+        if: env.MODE == 'executor'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          python3 -I gate/probe/otlp_sink.py --port 4318 --out "$OUT/sink.jsonl" &
+          sink=$!
+          sleep 2; curl -fsS http://127.0.0.1:4318/ >/dev/null && echo "sink up"
+          A="project=probe,run_id=${RUN_ID},story_id=${STORY_ID},lane=B,profile=lcp,role=executor"
+          # The driver makes the handoff folder: in run 41332621 the agent's mkdir was denied
+          # (no rule allowed it) and the create tool does not make parent folders.
+          mkdir -p "gate/handoff/${STORY_ID}"
+          P="Story ${STORY_ID} (a probe). Write the file handoff/${STORY_ID}/state.md with three lines: 'story: ${STORY_ID}', one line saying what you did, and 'status: done'. Do nothing else."
+          python3 -I gate/probe/case.py --out "$OUT" --cwd gate --name x1-executor --sink "$OUT/sink.jsonl" \
+            --env OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4318 \
+            --env OTEL_EXPORTER_OTLP_PROTOCOL=http/json \
+            --env "OTEL_RESOURCE_ATTRIBUTES=$A" \
+            -- -p "$P" --agent probe-executor --autopilot --max-autopilot-continues 5 \
+               --max-ai-credits 60 --no-ask-user --disable-builtin-mcps \
+               --allow-tool write --allow-tool 'shell(ls:*)' --allow-tool 'shell(cat:*)' \
+               --deny-tool 'shell(git push)' --deny-tool 'shell(curl:*)' \
+               --secret-env-vars GITHUB_TOKEN --share "$OUT/x1-share.md"
+          kill "$sink"; wait "$sink" 2>/dev/null || true
+          echo "--- handoff"; cat "gate/handoff/${STORY_ID}/state.md" 2>&1 || true
+          mkdir -p "$OUT/x1-executor/handoff"; cp -r gate/handoff/. "$OUT/x1-executor/handoff/" 2>/dev/null || true
+          true
+
+      - name: Remove token-shaped strings, then summarise
+        if: always()
+        run: |
+          set -uo pipefail
+          python3 -I gate/probe/scrub.py "$OUT" | tee "$OUT/scrub.txt"
+          {
+            echo "### Spike 0.6 probe, mode $MODE, CLI $("$COPILOT_BIN" --version | head -1)"
+            echo
+            for f in "$OUT"/*/case.json; do
+              python3 -I -c 'import json,sys; c=json.load(open(sys.argv[1])); e=c.get("events",{}); u=c.get("usage") if isinstance(c.get("usage"),dict) else {}; print("- **%s**: exit %s, %ss, selected %s, seen %s, nano %s" % (c["name"], c["exit"], c["seconds"], e.get("selected_model"), e.get("models_seen"), u.get("totalNanoAiu")))' "$f"
+            done
+            echo; echo '```'; tail -1 "$OUT/scrub.txt"; echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: probe-${{ inputs.mode }}
+          path: out/
+          retention-days: 3
+          include-hidden-files: true
