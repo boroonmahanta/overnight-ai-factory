@@ -156,7 +156,7 @@ Open items:
 - **Session 53's gate PR** for the other two 2539 fixes (the first-install import check, the retry on 0x80060888) starts from the new `release` if it opens after gate PR 33 merges. Gate PR 33 touches no hashed file, so they do not clash; the second to merge rebases.
 - **3106** may still move pac from 2.15.1 to the newest after the exit test, by its own gate PR.
 
-Planning pull request: PR_LINK, for Boroon to merge.
+Planning pull request: https://github.com/boroonmahanta/overnight-ai-factory/pull/74, for Boroon to merge.
 
 Next steps:
 1. Boroon merges gate PR 33 and this planning pull request.
