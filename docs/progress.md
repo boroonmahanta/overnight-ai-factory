@@ -144,7 +144,7 @@ Files changed: `docs/plans/factory-test/test-ca.cnf` (new), `docs/plans/factory-
 
 Open items:
 - **Boroon: send the admins the `certificateUserIds` value** above, for the test user (step 5 of his message). If they want to check it, `~/factory-test-ca/factory-test-nwt.cer` is the user's public certificate.
-- **Boroon to choose:** destroy the CA key now (a renewal before November 2027 then needs a new CA, uploaded again), or keep it in a separate vault only he can read.
+- **The CA key is kept for now** (Boroon, 26 November 2026), in `~/factory-test-ca`, until 2447 signs in as the test user; then destroy it at his word (delete `~/factory-test-ca/factory-test-ca.key`, then its passphrase from his password manager; the key is encrypted, so a plain delete is enough) and note it in the README and ADO 2541.
 - 3060's storage account: how long evidence is kept (Boroon); then the account, its `nwt` container and Storage Blob Data Contributor for `getai-nwt-test` on that container. And `LCP_KEYVAULT` (`kv-getai-factory-aue`) and `EVIDENCE_ACCOUNT` in `ai-factory-nwt`'s `lcp-test` environment (3059).
 - Plan 5.3 and 3060 still say Certificate User on the certificate; a plan edit, at Boroon's word, if 2447 confirms the secret-scoped role.
 
