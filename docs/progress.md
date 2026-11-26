@@ -148,7 +148,7 @@ Found (reading notes):
 
 Files changed: `staging/factory-gates/playwright/` (new: config, package files, `tsconfig.json`, `.gitignore`, `a11y-baseline.json`, `README.md`, `lib/` 7 files, `kit-tests/kit.check.ts`, 3 example specs, `vendor/` 53 files), `docs/analysis/playwright-kit-reading-notes.md` (new), `docs/component-register.md` (3 rows), `staging/README.md` (the `factory-gates/` row and a rule for the kit), `docs/progress.md`; on 26 November, at Boroon's word above, `staging/factory-manifestos/conventions/locked-scenarios.md` (the canvas class and the `@canvas` bullet) and `docs/sources/plan-v3.1.md` (5.8's UI row), then `CLAUDE.md` (the plan row lists that edit). Not changed: `docs/plans/schedule.md` (2546 is not finished; DG9 is left).
 
-Time and tokens (in 2546's body; session `59f19359`, its four reader agents included, measured before the commit, `--root` the main folder's project transcripts): active time 0 h 34 min (gaps over 10 minutes not counted), from 25 Nov 21:02 to 25 Nov 21:50 (UTC+11). Tokens: 173,352 output; 24,710,335 processed in all, of which 23,657,386 were cache reads. From 1 local transcript.
+Time and tokens (in 2546's body, rev 10; session `59f19359`, the whole session to 26 November, its four reader agents included, measured before the last commit, `--root` the main folder's project transcripts; it replaces the line measured on 25 November before the first commit): active time 1 h 10 min (gaps over 10 minutes not counted), from 25 Nov 21:02 to 26 Nov 12:25 (UTC+11). Tokens: 214,199 output; 43,280,931 processed in all, of which 41,960,946 were cache reads. From 1 local transcript.
 
 Open items:
 - **For the scenario session (Session 51) and Boroon:** nothing in its draft conventions differs from the kit. Two additions for that file: canvas UI tests carry `@canvas` (the kit's project split), and the UI examples use `@AC-3` to `@AC-5`. Hand-over note in the shared notes folder. **Done 26 November:** `@canvas` and the canvas class are in the conventions, at Boroon's word; the `@AC-3` to `@AC-5` stand-ins need no change (the scenario session).
@@ -159,10 +159,10 @@ Open items:
 - `playwright-ms-auth` 0.0.20, Playwright 1.65.1 and axe 4.14.1 exist; not taken (A1).
 - `CLAUDE.md`'s `staging/` row still lists only DG1's files; whoever next edits it adds the spec-kit and `playwright/` folders.
 
-Pull request 67 (https://github.com/boroonmahanta/overnight-ai-factory/pull/67), opened 26 November 2026 at Boroon's word, after main (pull requests 65 and 66) was merged into the branch. Boroon merges it.
+Pull request 67 (https://github.com/boroonmahanta/overnight-ai-factory/pull/67), opened 26 November 2026 at Boroon's word, after main (pull requests 65 and 66) was merged into the branch. **Merged by Boroon on 26 November 2026** (`e89db34`). 2546 stays Building, not closed: DG9 (the run in `factory-test`, Fri 27 Nov) is part of it and not done.
 
 Next steps:
-1. Boroon reads the kit's README, merges pull request 67, and decides the gate step change.
+1. Boroon decides the gate step change (kit README), for a gate pull request.
 2. 2739 moves `playwright/` to `factory-gates` with the rest of `staging/`.
 3. DG9 runs the examples in `factory-test` once 2541 and 2447 are done.
 
