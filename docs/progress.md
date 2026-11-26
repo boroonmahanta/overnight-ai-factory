@@ -38,6 +38,13 @@ Next steps:
 - **Spike 0.17 passes for all four tools** (Session 31, 21 November 2026, ADO 2466, DG2; **Done** at Boroon's word). Each tool gave a readable export of a test session with no client data. Copilot CLI's `--share` writes the fullest (Markdown with tool calls, file edits and shell output), and it also exports Copilot app and VS Code chat sessions, because all three share `~/.copilot/session-state/`; it runs on a copy of the session, so the original never changes. Claude Code's `/export` writes plain text, in a live terminal session only. The how-to for engineers and the checklist for removing client data: `docs/plans/spike-0.17/README.md`. Exports go to `Factory session exports` in Boroon's OneDrive, through a "Request files" link he still has to make (Request files works there, Session 32). Their lasting home, a private channel in an internal Factory Team, is ADO 3019 (Building), waiting on the admins and on Boroon making the Team. The Microsoft 365 connector reads it from the laptop and from a cloud session, so mining batches (2548) can run in the cloud; list the folder by its item ID, not its path.
 - **`factory-test` exists** (Session 46, 24 November 2026, ADO 2541, Building): Sandbox, Managed, checker Block, Australia, `https://factory-test.crm6.dynamics.com/`, with the Test identity `getai-nwt-test` (project `nwt`, the Northwind pilot) as its System Administrator application user. The test user and the Key Vault wait on the identity admins and the CSP subscription's owner. Record: `docs/plans/factory-test/README.md`.
 - **The Northwind project repo `AI-Business-Solutions/ai-factory-nwt` exists** (Session 48, 24 November 2026, ADO 3059, Building): private, ruleset `main-protection`, `factory = enabled`, environment `lcp-test`, the three-key subject template, the six token secrets and variables, and the federated credential `ai-factory-nwt-lcp-test` on `getai-nwt-test`. The Northwind solution (canvas apps left out) is in `factory-lane-1` and on the repo's `main` and `integration` (pull request 1, merged by Boroon on 25 November 2026). Gate PR 29, merged by Boroon on 24 November 2026 (`release` at `4ab02ca`, 659 tests), adds `projects/nwt/` and teaches the manifest check global choices and the `_managed.xml` halves.
+- **Spike 0.6 passed, measured in a collector in the job** (Session 55, 26 November 2026, ADO 2451, Building until Boroon says Done; record `docs/plans/spike-0.6/README.md`):
+  - Copilot CLI with the job's own token is billed to the organisation that owns the repository, by day, repository and model, and the bill equals the CLI's usage files to six decimal places;
+  - an agent's `tools:` list limits its tools, and `--model` beats its `model:`;
+  - `COPILOT_OTEL_ENABLED=true` alone loses all telemetry;
+  - `--max-ai-credits` turns tools off at 90% and ends with exit 1.
+
+  **Billing identity: the job token** (Boroon, 26 November 2026). Application Insights waits on Azure access (as 3060). Nine proposed plan edits wait on him.
 - **The Ignite re-check is done** (Session 33, 23 November 2026, ADO 3024): `docs/analysis/ignite-2026-recheck.md`. No rename, nothing GA for the night lane's tools, Copilot residency still US and EU only; nine GA items touch the plan, **edited into the plan the same day at Boroon's word**.
 - **ADO is current** (Session 19): every update Sessions 17 and 18 left is made, and the schedule-order query matches `docs/plans/schedule.md`. Session 20 moved 2463 to Done.
 - PR 9 (Session 4) and PR 10 (Session 5) are merged.
@@ -104,7 +111,14 @@ Next steps:
 - **Not read in full.** The files added from the zip were saved but not read in this session: the reports V1 and V2, the runtime and costs note, the eight GitHub and Azure notes, the five Power Platform notes and the one-pager. The five workshop slide images were saved but not viewed. The plan condenses most of them. Read one only when a task needs its detail.
 - **Decisions still waiting on Boroon** (from `docs/analysis/tshirt-sizing.md`): approve the shortlist of skills to read in full before any are adopted (plan section 8.3); decide whether to write a GET AI router skill that routes by size. The sizes themselves are approved, and the ADO field `Custom.WorkSize` is decided (7 November 2026, Session 16).
 - **A second approver is needed by Friday 4 December 2026** (Session 16 schedule). 2520 (undo the stopgaps) and 2521 (apply the rulesets) need a second person and the three CODEOWNERS teams; without them the Stage 1 exit test (2539, Friday 18 December) cannot happen. The dated order is in `docs/plans/schedule.md`.
-- **Spike 0.20, time and tokens per story on every engine, is not run** (Session 16). ADO story 2738 under Feature 2737 (Stage 1). It needs Claude Code's OpenTelemetry turned on through managed settings and somewhere to send it: Application Insights does not exist yet, so use a local collector first. The docs do not say whether the VS Code extension or the desktop app export it; this session runs in the desktop app, so test there first.
+- **Spike 0.20 is run** (Session 55, 26 November 2026, ADO 2738, Building; record `docs/plans/spike-0.20/README.md`). Every engine tried landed in one local collector, merged with the night runner's file, and `story_report.py` totals them per story. The desktop app drops `OTEL_RESOURCE_ATTRIBUTES`, so Claude Code's story comes from joining `session.id` to the transcript's branch. Telemetry reads 0.9% to 7.9% above `tools/session_usage.py` because it also counts side calls, so the tool is a floor. VS Code Copilot Chat's token spans were not seen. Left: Application Insights (Azure access, as 3060), managed settings always on (Boroon's admin rights), seven proposed plan edits for Boroon.
+- **The gate's Copilot steps, from spike 0.6** (Session 55; for whoever next changes `lcp-gate.yml`, as 2539 or 3027 do; `factory-gates` not changed here):
+  - `verify-in-test` and `danger` set only `COPILOT_OTEL_ENABLED=true`, which sends to `localhost:4318` and loses every span with exit 0;
+  - plan C.2's `lcp-evaluator` has no `shell` in `tools:`, so it could not run `lcp-verify`;
+  - neither step passes `--disable-builtin-mcps` or `--model`;
+  - `setup-node` with `lts/*` failed on a GHE.com runner on github.com's rate limit, and `22.x` did not.
+
+  Details in `docs/plans/spike-0.6/README.md`, "For the gate".
 - **Keep pinned kits current (A1, Boroon, 7 November 2026, Session 17).** Spec Kit moved three releases in five days. Proposed shape in `docs/plans/stage-1-day-gate-plan.md`: a pin register, Dependabot where the ecosystem allows, and a monthly manual pass at the component register review (plan 8.2), the first with the Ignite re-check on 23 November. Not built; an ADO story is to be created.
 - **Done: transcript retention is 365 days** (Session 19, 8 November 2026, Boroon's choice): `"cleanupPeriodDays": 365` in `~/.claude/settings.json` on the laptop. Found while checking: Claude Code keeps sessions started or last continued in the desktop app at any age unless `desktopSessionCleanupPeriodDays` or a managed `cleanupPeriodDays` is set, so the 30-day limit hit only terminal sessions (transcripts from 5 August were still on disk). `0` is refused with a validation error. Kept here one session for the record.
 - **Done: the scratch of spikes 0.14, 0.18 and 0.19 is deleted** (21 November 2026, at Boroon's word, Session 28). In `factory-lane-1`, as the lane identity by the Web API (`tools.yml` modes `scratch-list` and `scratch-delete`): both cloud flows, the role, the environment variable and its value, the connection reference, the App Spec app with its site map, settings and icon, both `fspk_` tables, the solution `FactorySpike` and the publisher `factoryspike`. The icon's delete timed out twice (HTTP 503, SQL timeout) and went through on a third try under Boroon's own sign-in. A last read-only listing found nothing left. Then the repo `GetAI-IP/export-probe` and the federated credential `export-probe-fl1-exec` were deleted. **Kept for Stage 3:** `getai-fl1-exec` (no credentials now), its application user, `factory-lane-1` and the allowed MCP client `new_getaifl1exec`. Every probe and workflow has a copy in `docs/plans/spike-0.14/`, `spike-0.18/` and `spike-0.19/`. Details: the spike 0.14 README, "Scratch".
@@ -117,6 +131,89 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 55, 2026-11-26, branches `claude/session-55-2451-copilot-cli` and `claude/session-55-2738-time-tokens`
+
+ADO 2451 (spike 0.6, Copilot CLI on GHE.com, due Wed 25 Nov) and then ADO 2738 (spike 0.20, time and tokens on each story, every engine, due Fri 27 Nov), on the laptop (desktop app), track C, a day after 2451's date and a day before 2738's. Session renamed "48. Stage 0 - Spike - Copilot CLI on GHE.com, time and tokens (2451, 2738)", top level, like the others.
+- **Worktree:** its own, `.claude/worktrees/session-55-2451`, from `origin/main` at `2c11ae9` (local `main` was stale).
+- **Branches:**
+  - 2451's work is on `claude/session-55-2451-copilot-cli`;
+  - 2738's branch, `claude/session-55-2738-time-tokens`, carries its ADO ID as the spike needs and was cut from 2451's branch;
+  - **the 2738 branch holds all of Session 55's work.**
+- **Other sessions at the same time,** each in its own worktree: 53 (3027, the only one changing `factory-gates`), 54 (2459), 56 (2740, cloud) and 57 (2739). `factory-gates` was only read, in a separate clone in the scratchpad.
+
+Read for it: `CLAUDE.md`, the top of this file (Sessions 48 to 51; 52 and 53 are not on `main` yet), `docs/plans/schedule.md`, ADO 2451 and 2738, plan 5.2, 9.1 to 9.3, 10.1 to 10.3, 11.1 and Appendices C and D, `docs/plans/spike-0.14/README.md`, `tools/session_usage.py`; in `factory-gates` (`release` `5ba13be`) `lcp-gate.yml`'s `verify-in-test` and `danger`, `tools/copilot/`, `lcp/manifest.py` and the README; Copilot CLI's own help pages (read locally, no model call); GitHub's, Claude Code's and VS Code's docs on billing, custom agents, cost centres and OpenTelemetry (by fetch agents).
+
+Decisions (Boroon, 26 November 2026, asked in this session in one message, then on a question card):
+- **The billing identity for Copilot CLI: the job token** (`GITHUB_TOKEN` with `copilot-requests: write`), with client splits by cost centres of repositories. Not in the plan yet.
+- For 2738:
+  - Claude Code's telemetry by an `env` block in his user settings, for the test only;
+  - Copilot CLI on the laptop under his sign-in on two tiny prompts, and VS Code Copilot Chat by his hand;
+  - this session to start one tiny desktop session.
+
+Done, 2451 (`docs/plans/spike-0.6/`):
+- **The scratch repo** `GetAI-IP/copilot-probe`, private, made at the start and deleted at the end.
+  - **The probe:** `probe.yml` with five modes, `case.py`, `otlp_sink.py`, `scrub.py` and three agent files (copies here).
+  - **Copilot CLI:** the gate's own pin (1.0.114 from `factory-gates`' lockfile).
+  - **Runs:** 10 runs and 26 cases for 2451, plus the 2738 night leg.
+  - **Cost:** 86.05 AI credits in all (about USD 0.86), all on `GetAI-IP`.
+- **Exit test passed, in a collector in the job** (run 41333481): one executor run with a custom agent and the night's flags, measured by OTLP with `project`, `story_id`, `run_id` and `role`, and billed to `GetAI-IP`, repository `copilot-probe`, model Claude Sonnet 5.5, within a minute. Application Insights waits on Azure access: Boroon has no role on the CSP subscription that can make one.
+- **Billing:** the bill (`.../billing/usage`, `.../billing/ai_credit/usage`) names organisation, repository and model by day. Spike 0.14's two days and today's 26 cases equal their usage files to six decimal places.
+- **Model:** with no `--model`, the runner's default is Claude Sonnet 5.5; `auto` chose GPT-6 Luna, billed as "Fusion (Standard)" with no discount line; `--model` beats an agent's `model:`.
+- **Custom agents:**
+  - the gate's layout finds `gate/.github/agents/` with no trust flag;
+  - an agent's `tools:` list limits the tools whatever `--allow-tool` says;
+  - a `COPILOT_HOME/agents` copy beats the repo's, and the repo's beats an `--add-dir` copy.
+- **OpenTelemetry:**
+  - file and OTLP/HTTP both work, with every resource attribute;
+  - `COPILOT_OTEL_ENABLED=true` alone sends to `localhost:4318` and loses everything with exit 0;
+  - the root span's `nano_aiu` is the sum of its `chat` spans'.
+- **`--max-ai-credits`:** minimum 30; warnings at 50%, 75% and 90%; tools off at 90%; it ends with `ai_credit_soft_cap_exhausted`, exit 1.
+- **ADO 2451:** Building; its body has a Session 55 section; a comment records the pick.
+
+Done, 2738 (`docs/plans/spike-0.20/`):
+- **One place:** a collector on the laptop (`127.0.0.1:4318`, 04:06 to 04:46 UTC), merged with the night runner's file. `story_report.py` totals per story, engine and session, with the story from `story_id` or from the session's branch in its transcript.
+- **What landed:**
+  - Claude Code: the CLI, the desktop app and the VS Code extension;
+  - Copilot CLI by day, and the night leg (run 41342356);
+  - VS Code Copilot Chat: metrics only.
+- **Labels:**
+  - the desktop app drops `OTEL_RESOURCE_ATTRIBUTES`; the CLI and the VS Code extension keep them;
+  - the branch join put every session under its right story, including two other sessions that resumed in the window (2739 and 3027).
+- **Tokens:** Claude Code's main-loop calls equal `tools/session_usage.py` exactly. Telemetry also counts side calls (Haiku calls, prompt suggestions, side questions), so it reads 0.9% to 7.9% higher. The tool is a floor.
+- **Restored afterwards:**
+  - Boroon's `~/.claude/settings.json` (byte for byte, SHA-256 checked);
+  - the collector is stopped;
+  - Boroon was asked to take the two VS Code lines out.
+- **ADO 2738:** Building; its body has a Session 55 section.
+
+Found along the way:
+- The laptop's Copilot CLI default is Auto, which chose `mai-code-2-flash` (on neither residency list), and it updated itself between two prompts.
+- The desktop app started the test session in the main folder on `main`, not in this worktree.
+- VS Code's Copilot Chat exporter sends chunked bodies: the collector first saved ten of its posts as empty, then was fixed.
+- `setup-node` `lts/*` hit github.com's rate limit on a GHE.com runner.
+- Claude Code's telemetry carries the user's email and account IDs on every point, so the collected files stay in the scratchpad.
+
+Files changed:
+- New: `docs/plans/spike-0.6/` (`README.md`, `probe.yml`, `probe/case.py`, `probe/otlp_sink.py`, `probe/scrub.py`, `agents/*.agent.md`) and `docs/plans/spike-0.20/` (`README.md`, `story_report.py`).
+- Changed: `docs/progress.md`, `docs/plans/schedule.md` (marks only, no date moves), `CLAUDE.md` (two repo-map rows, the open question).
+- No plan edit: 16 proposed edits are in the two READMEs (9 for 0.6, 7 for 0.20).
+
+Time and tokens (in 2451's and 2738's bodies; sessions `afa29cde`, the side session `b0282934` and the `claude -p` run `0bb86652`, measured before the last commit): active time 2 h 03 min (gaps over 10 minutes not counted), from 26 Nov 12:16 to 26 Nov 15:56 (UTC+11). Tokens: 218,857 output; 68,971,645 processed in all, of which 67,623,850 were cache reads. From 3 local transcripts.
+
+Open items:
+- **Boroon:**
+  - Done for 2451 and 2738, both at his word;
+  - the plan edits;
+  - archive the side session "51. Stage 1 - Spike - Desktop telemetry check (2738)" (it was started for the test).
+- **Boroon:** take the two `github.copilot.chat.otel` lines out of VS Code's user settings, if not already done.
+- **Application Insights** for both spikes, with 3060, when the CSP subscription's owner gives access.
+- **For the gate:** the four Copilot-step findings under Open items above.
+- **Merging:** this branch and the other open session branches all add to the top of this log and to the schedule's Changes; whichever merges second takes the other's lines.
+
+Next steps:
+1. Boroon: the billing pick is in; the plan edits for 0.6 and 0.20 at his word.
+2. 2539 on Fri 27 Nov: the gate's verifier and review sessions can use the job token as they are; the telemetry exporter and the evaluator's `tools:` are worth fixing first.
 
 ## Session 51, 2026-11-25, branch `claude/session-51-2546-scenarios`
 

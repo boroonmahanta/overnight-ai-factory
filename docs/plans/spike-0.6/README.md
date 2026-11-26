@@ -32,7 +32,7 @@ Plan section 11.1, row 0.6 (ADO 2451). Session 55, Thursday 26 November 2026, la
 A private scratch repo, `GetAI-IP/copilot-probe`, made for this session and deleted at its end. One workflow, `probe.yml` (copy here), started by hand with a `mode` input. Every case is one tiny `copilot -p` call with the job's own `GITHUB_TOKEN` (`copilot-requests: write`): no tenant, no OIDC, no secrets. Copilot CLI is **the gate's pin**: `tools/copilot/package.json` and `package-lock.json` copied from `GetAI-IP/factory-gates` at `release` `5ba13be` (1.0.114, ten packages with their integrity values), installed the gate's way, `npm ci --ignore-scripts`. `factory-gates` was read in a separate clone and not changed.
 
 - `probe/case.py` runs one case with a fresh `COPILOT_HOME` (no saved trust, agents or sessions from another case), its own `--usage-output-file` and `--log-dir`, and JSON output, and writes a summary (`case.json`) of the events, the usage file and any telemetry.
-- `probe/otlp_sink.py` is the collector in the job: a standard-library OTLP/HTTP receiver on `127.0.0.1` that writes each POST to a JSON line.
+- `probe/otlp_sink.py` is the collector in the job: a standard-library OTLP/HTTP receiver on `127.0.0.1` that writes each POST to a JSON line. The copy here also reads chunked and gzipped bodies, added for spike 0.20 on the laptop (VS Code's Copilot Chat exporter sends chunked bodies); the runs in this spike used the first version, which Copilot CLI's exporter did not need.
 - `probe/scrub.py` removes token-shaped strings from every file before upload. It found none in any run.
 - `agents/` holds the three agent files: `probe-evaluator` (`tools: ["read"]`, `model:` set by the run), `probe-shell` (`tools: ["read", "shell"]`, no model) and `probe-executor` (`model: claude-sonnet-5.5`, `tools: ["read", "edit", "search", "shell"]`).
 
@@ -148,6 +148,6 @@ Started with `GH_HOST=getai.ghe.com gh workflow run probe.yml -R GetAI-IP/copilo
 
 | Thing | Where | State |
 |---|---|---|
-| The repo `GetAI-IP/copilot-probe` (private), with `probe.yml`, the scripts, the agents, the copied lockfile, its runs and their artifacts (3-day retention) | `getai.ghe.com` | Made 26 November 2026, deleted at the end of Session 55 (see below) |
+| The repo `GetAI-IP/copilot-probe` (private), with `probe.yml`, the scripts, the agents, the copied lockfile, its runs and their artifacts (3-day retention) | `getai.ghe.com` | Made 26 November 2026; **deleted at the end of Session 55, 26 November 2026, about 04:50 UTC**, as Boroon allowed in the session's brief, after every file was checked against its copy here (all identical; the collector here is the later, fixed one). Read back: `gh repo view` cannot resolve it and `GET /repos/GetAI-IP/copilot-probe` answers 404 |
 
 Nothing was made in any tenant, no credential, no secret, and nothing in `factory-gates`. The copies here are the only record of the probe; the lockfile is `factory-gates`' `tools/copilot/` at `release` `5ba13be`.
