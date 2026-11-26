@@ -159,8 +159,10 @@ Open items:
 - `playwright-ms-auth` 0.0.20, Playwright 1.65.1 and axe 4.14.1 exist; not taken (A1).
 - `CLAUDE.md`'s `staging/` row still lists only DG1's files; whoever next edits it adds the spec-kit and `playwright/` folders.
 
+Pull request 67 (https://github.com/boroonmahanta/overnight-ai-factory/pull/67), opened 26 November 2026 at Boroon's word, after main (pull requests 65 and 66) was merged into the branch. Boroon merges it.
+
 Next steps:
-1. Boroon reads the kit's README and decides the gate step change.
+1. Boroon reads the kit's README, merges pull request 67, and decides the gate step change.
 2. 2739 moves `playwright/` to `factory-gates` with the rest of `staging/`.
 3. DG9 runs the examples in `factory-test` once 2541 and 2447 are done.
 
