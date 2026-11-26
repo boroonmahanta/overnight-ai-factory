@@ -28,6 +28,7 @@ End:
 - Plain, short language. No jargon. The `/bro` skill restates the last message simply.
 - Australian English. No em-dashes in prose.
 - Work is spread over many short sessions on purpose. Never rely on chat memory. Write it down here.
+- **"Regenerate the manifest first" (Boroon, 23 November 2026).** Until the second reviewer is in place (ADO 2520 and 2529), whenever a pull request to `GetAI-IP/factory-gates` changes a hashed file (one listed in `scripts.sha256`, such as a Dependabot pull request for Copilot CLI in `tools/copilot/`), prompt him with those words before he merges it, unless `scripts.sha256` changed with it and `self-test` is green. Gate PR 18 was merged red and broke `release` until gate PR 19.
 
 ## What is in the repo
 
