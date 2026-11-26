@@ -56,6 +56,7 @@ Next steps:
 
 ## Open items
 
+- **`run_workflow.py` is written, smallest version that fails closed** (Session 53, 26 November 2026, ADO 3027 Building): gate PR 31, https://getai.ghe.com/GetAI-IP/factory-gates/pull/31, from `release` at `5ba13be`, **open for Boroon to merge**. Head `309901b`; `self-test` green (run 41298691). Locally: 778 tests pass (57 new, 4 skipped by design), `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check` clean, `pending-scripts.txt` down to 2 (`cs-runner/run.mjs`, `run_holdout.py`). `scripts.sha256` was rebuilt last, so no regeneration is needed unless something more is pushed to the branch. Not yet run against Dataverse: the first real run is DG9 or 2539, in `factory-test`, through the gate only. The choices for Boroon are in the gate README, "The locked scenario runner (ADO 3027)".
 - **`static`'s last four checks are written, smallest versions that fail closed** (Session 50, 25 November 2026, for ADO 2539): gate PR 30, https://getai.ghe.com/GetAI-IP/factory-gates/pull/30, **merged by Boroon on 25 November 2026** (`release` at `5ba13be`, the tree `self-test` passed in run 41120051). Read back the same day: 721 tests pass (4 skipped by design), `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check` are clean, and `pending-scripts.txt` holds 3 scripts, all `verify-in-test`'s (`run_workflow.py`, `cs-runner/run.mjs`, `run_holdout.py`). 3027's gate PR now starts from `5ba13be`. The choices for Boroon are in the gate README, "The four smallest-version checks (ADO 2539)". Plan Appendix A's "Lints and limits" step matches it, with a 14.4 row (Boroon's word, 25 November 2026).
 - **Done: `factory-manifestos` pull request 1 merged** (Session 23): https://getai.ghe.com/GetAI-IP/factory-manifestos/pull/1, the 50 low-code standards, merged by Boroon on 13 November 2026 (`fd2e268`); 2545 is Done in ADO. The plan now says 50 (5.10, 5.12 and a 14.4 row, edited at Boroon's word, Session 23). Also still open from DG3: Boroon to ask the Get AI Engineer to review the standards (not blocking); `main-protection` there is a second-approver stopgap that 2520 must raise to 1 approval.
 - **Done: ADO updates for 2549, left by Session 21.** Seen in Session 22 (13 November 2026): another laptop session made them that day. 2549 is Done, dated Wed 11 Nov, with its result and Session 21's time-and-tokens line in its body. Kept here one session for the record.
@@ -117,6 +118,48 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 53, 2026-11-26, branch `claude/session-53-3027-run-workflow-26844f`
+
+ADO 3027: `lcp/run_workflow.py`, the trusted runner for locked YAML scenarios. On the laptop (desktop app), laptop track A, one of Boroon's four catch-up sessions started on Thu 26 Nov (with 54, 55 and 56) to keep the Stage 1 exit test on Fri 27 Nov. Started by another session; at Boroon's word it was moved to top level, not nested. Planning branch in its own worktree from `main` at `2c11ae9`. Gate branch `gate-3027-run-workflow` in a worktree of the gate clone inside it (`factory-gates/`, from `release` at `5ba13be`); the shared gate clone was not switched. The only session allowed to change `factory-gates` this round.
+
+Read for it: Sessions 48 to 51 here, the schedule, ADO 3027 and its two comments, Session 51's `staging/factory-manifestos/conventions/` (schema, rules, two Northwind examples), plan 5.8 and 5.9, `verify-in-test` in the gate, `simple_yaml.py`, `verdict_gate.py`, `manifest.py`, `test_workflow.py`, the token code in spikes 0.14 and 0.19, and Microsoft's `flowrun` and `asyncoperation` table references.
+
+Done:
+- **Gate PR 31**, https://getai.ghe.com/GetAI-IP/factory-gates/pull/31, open for Boroon to merge (commit `309901b`, `self-test` green, run 41298691):
+  - `lcp/run_workflow.py`, standard library only, called by `verify-in-test` exactly as Appendix A has it. It checks each file against the schema and the rules the schema cannot express. It looks every table and column up in Test before writing anything. It seeds tagged rows (`lcp-run:<run ID>/<case ID>`), each with its own row ID, then does the row trigger. It polls until every row and plug-in trace expectation holds at once, or times out. It reads the run record as a secondary signal only: a classic workflow's system job by the trigger's row, or a cloud flow's `flowrun` by flow and start time. It cleans up, pass or fail, and writes `scenarios.json` in `verdict_gate.py`'s shape plus a `cases` list. It exits 0 once the file is written. With Test unreachable or no token, every case fails with the reason and the file is still written. `--check` checks the files offline.
+  - `lcp/scenario.schema.json`: a byte-identical, hashed copy of DG7's schema (settles open point 5).
+  - 57 new tests: 56 in `tests/test_run_workflow.py`, against a fake Web API that copies Northwind's behaviour in Test, and 1 in `test_workflow.py` that holds the step's call and flags. They cover Session 51's 10 good and 31 bad variants, the rules, discovery, every step, each retry case, the token exchange and the urllib transport against a local server. `tests/fixtures/scenarios/` holds the two Northwind examples, unchanged.
+  - `pending-scripts.txt` down to 2. `verdict_gate.py`'s docstring no longer says no writer is written. README rows and a section, "The locked scenario runner (ADO 3027)". `scripts.sha256` rebuilt last.
+- **Read back locally** (venv `~/.venvs/factory-gates`, Python 3.15, Finder's files deleted first): 778 tests pass, 4 skipped by design; `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check` clean; both Northwind examples pass `--check`. I broke a copy 10 ways (true read as 1, clean-up's `createdon` dropped, job not matched by row, update retried on no answer, `count: 0` alone passing at once, `&` unencoded, lost-create check removed, no new token on 401, plug-in exception not failing, tag sweep removed): each failed a test. I also checked one real urllib round trip against a local server (a 429 with `Retry-After`, then the `Date` header).
+- `staging/factory-manifestos/conventions/locked-scenarios.md`: open points 1, 2 and 5 say what the runner settled, and step 4 says how `count: 0` is read.
+- The schedule's 3027 row and Changes, and 2539's row. No date moved.
+- ADO: **3027 Building** (from Ready to build). Its body gains a Session 53 section with the time and tokens.
+
+Choices made without asking (in the gate README for Boroon; say if any is wrong):
+- **The HTTP trigger is not built.** A `kind: http` case fails, with the reason. How the Test identity gets a trigger address is untried, and Northwind has no HTTP flow.
+- **A lookup is set only with `ref:`.**
+- **`count: 0` holds at every read after the trigger**, and alone it waits the whole timeout. Otherwise "no task row is made" would pass before the flow ran. This is stricter than Session 51's step 4 wording, which is now updated to match.
+- **A filter's clean-up deletes only rows created since the case began**, because the Test identity is System Administrator and a loose filter could match imported data.
+- **A cloud flow's run is matched by flow and start time only**; a false fail is possible if an earlier case's run fails late. A classic workflow's job is matched by its row.
+- **`run` with no `status` expects `succeeded`.** A missing folder means no cases. The suite has one hour.
+- **The token comes from the job's OIDC token exchanged at Entra as the Test identity**, not `az`: the import before this step can take 30 minutes, and `az`'s federated sign-in cannot get a new token after 5 (spike 0.14 finding 9). Redirects are refused.
+
+Files changed: `docs/progress.md`, `docs/plans/schedule.md`, `staging/factory-manifestos/conventions/locked-scenarios.md`. In `factory-gates` (gate PR 31): `lcp/run_workflow.py`, `lcp/scenario.schema.json`, `lcp/verdict_gate.py`, `pending-scripts.txt`, `scripts.sha256`, `README.md`, `tests/test_run_workflow.py`, `tests/test_workflow.py`, `tests/fixtures/scenarios/`. No plan edit: plan 5.8 and Appendix A already say what the runner does and how it is called.
+
+Time and tokens (in 3027's body; session `f634c578`, measured before the last commit): active time 0 h 40 min (gaps over 10 minutes not counted), from 26 Nov 12:11 to 26 Nov 13:21 (UTC+11). Tokens: 136,624 output; 15,097,631 processed in all, of which 14,570,952 were cache reads. From 1 local transcript.
+
+Open items:
+- **Boroon merges gate PR 31.** The manifest is current on its branch; if anything more is pushed there, regenerate the manifest first.
+- **Not tested against Dataverse.** The Web API names for `flowrun` (`_workflow_value`, `starttime`, the `status` strings), `asyncoperation` (`_regardingobjectid_value`, `_workflowactivationid_value`) and `plugintracelog` come from Microsoft's table reference; no spike has read them. A wrong one only makes the run signal "unknown", except `plugintracelog`, where a `plugin_trace` check would fail.
+- **Plug-in trace logging** must be on in `factory-test` before any `plugin_trace` check can pass (2541 or 2459). Northwind's examples have none.
+- **The two copies of the schema** (`staging/.../scenario.schema.json` and the gate's `lcp/scenario.schema.json`) must change together until DG8 moves the conventions.
+- **3027 to Done** only at Boroon's word, once gate PR 31 is merged and read back.
+- **Merging:** this branch and the other catch-up sessions' branches all add to the top of this log and to the schedule's Changes; whoever merges second takes the other's lines.
+
+Next steps:
+1. Boroon merges gate PR 31; read `release` back (tests, manifest, hashes, `pending-scripts.txt` at 2).
+2. DG9 or 2539 runs the Northwind examples through the gate in `factory-test`, once the Playwright kit, 3060 and the test user are in place.
 
 ## Session 51, 2026-11-25, branch `claude/session-51-2546-scenarios`
 
