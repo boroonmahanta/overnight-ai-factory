@@ -152,15 +152,21 @@ Files changed: `CLAUDE.md`, `docs/progress.md`, `docs/component-register.md`, `d
 Time and tokens (in 2539's body; session `48f1543d`, measured before the last commit): active time 0 h 36 min (gaps over 10 minutes not counted), from 26 Nov 16:00 to 26 Nov 16:36 (UTC+11), the plan edit included. Tokens: 55,408 output; 13,344,354 processed in all, of which 13,014,786 were cache reads. From 1 local transcript.
 
 Open items:
-- **For Boroon:** merge gate PR 33 (no manifest to regenerate) and pull request 74 (the record and the plan edit).
-- **Session 53's gate PR** for the other two 2539 fixes (the first-install import check, the retry on 0x80060888) starts from the new `release` if it opens after gate PR 33 merges. Gate PR 33 touches no hashed file, so they do not clash; the second to merge rebases.
-- **3106** may still move pac from 2.15.1 to the newest after the exit test, by its own gate PR.
+- **Done: Boroon merged gate PR 33 and pull request 74** (26 November 2026; below).
+- **Session 53's gate PR** for the other two 2539 fixes (the first-install import check, the retry on 0x80060888) starts from `release` at `2080a82`. Gate PR 33 touched no hashed file, so there is no manifest clash; expect a small text merge in the gate README if it adds a section there.
+- **3106** may still move pac from 2.15.1 to the newest after the exit test, by its own gate PR, and edit the plan's lines again at Boroon's word.
 
-Planning pull request: https://github.com/boroonmahanta/overnight-ai-factory/pull/74, for Boroon to merge.
+Planning pull request: https://github.com/boroonmahanta/overnight-ai-factory/pull/74, **merged by Boroon on 26 November 2026**.
 
 Next steps:
-1. Boroon merges gate PR 33 and this planning pull request.
-2. 2539's run is the first time the gate runs pac 2.15.1 on a runner.
+1. Done: gate PR 33 and pull request 74 merged, and `release` read back.
+2. 2539's run is the first time the gate runs pac 2.15.1 on a runner, including the import into Test and the Test identity's sign-in.
+
+**Later the same day (26 November 2026).** Boroon merged gate PR 33 (05:36 UTC, `release` at `2080a82`) and planning pull request 74 (05:39 UTC, `main` at `93ad637`, with the plan edit). Then, at his word ("read release back, update progress.md"), on branch `claude/session-58-pac-readback` from `main` at `93ad637`:
+- **`release` read back** from a fresh clone, Finder's files deleted first. The merge's tree is the same as gate PR 33's head (`2a194ed`), which `self-test` passed (run 41366501). `PAC_VERSION` is 2.15.1, and both `setup-dotnet` steps are `10.0.x` with the 2.15.1 comment. 778 tests pass (4 skipped by design). `manifest.py verify`, `sha256sum --check --strict` (116 files) and `make_rulesets.py check` are clean, and `pending-scripts.txt` holds 2 (`cs-runner/run.mjs`, `run_holdout.py`). No gate PR is open.
+- **The plan on `main` matches `release`**: Appendix A's `PAC_VERSION` line and two .NET comments are the same, byte for byte.
+- The records that said "open for Boroon" now say merged: `CLAUDE.md`'s gate row and plan row, the register's pac row, the schedule's 2539 note and Changes entry, and the Session 58 sections of ADO 2539 and 3106. No date moves, no state moves.
+- Time and tokens, the whole session including this read-back (in 2539's body, replacing the earlier line; session `48f1543d`, measured before the closing commit): active time 0 h 42 min (gaps over 10 minutes not counted), from 26 Nov 16:00 to 26 Nov 16:43 (UTC+11). Tokens: 68,774 output; 17,485,312 processed in all, of which 17,113,889 were cache reads. From 1 local transcript.
 
 ## Session 57, 2026-11-26, branch `claude/session-57-2739-move-staging`
 
