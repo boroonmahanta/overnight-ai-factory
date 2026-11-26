@@ -120,6 +120,48 @@ Next steps:
 
 ## Log
 
+## Session 58, 2026-11-26, branch `claude/session-58-pac-2-15-1-0cecec`
+
+ADO 2539 (the Stage 1 exit test, Fri 27 Nov): the gate's pac pin from 2.4.1 to 2.15.1. On the laptop (desktop app), started by another session; named "51. Stage 1 - Build - Gate pac pin to 2.15.1 (2539)". Planning branch in its own worktree from `main` at `38ae0aa`. Gate branch `gate-2539-pac-2-15-1` in a fresh clone in the scratchpad, from `release` at `2709f49`. No gate PR was open when it started (Session 53 had none yet), so this one went first.
+
+Read for it: `CLAUDE.md`; the top of this file with Session 57's entry; the register's pac row and A1's pac part; plan Appendix A's `PAC_VERSION` and .NET lines; spike 0.10's README on Session 54's branch `claude/session-54-2459-test-env` (finding 11 and what its probe ran on each version); in `factory-gates`, every line that names 2.4.1.
+
+Decision (Boroon, 26 November 2026, given to the session that started this one): **"Yes, move to 2.15.1"**, before the exit test. An exception to his rule that every pin holds through the exit test (his only earlier exception was the `Both` pack case).
+
+Done:
+- **NuGet checked** (26 November 2026): pac 2.15.1 is listed, not deprecated, and every tool file is under `tools/net10.0`, so `setup-dotnet` `10.0.x` stays. The newest is 2.16.1.
+- **Gate PR 33**, https://getai.ghe.com/GetAI-IP/factory-gates/pull/33 (commit `2a194ed`, `self-test` green, run 41366501), for Boroon to merge:
+  - `lcp-gate.yml`: `PAC_VERSION: "2.15.1"`, its comment now says why (the old one, "matches Microsoft's OIDC sample", was true only of 2.4.1); the two `setup-dotnet` comments name 2.15.1.
+  - `tests/test_workflow.py`: the checked pac and .NET pair is 2.15.1 and `10.0.x`.
+  - `README.md`: a section, "The pac pin (ADO 2539)", finding 21, the status line, and five lines that named 2.4.1 as the pin. History is left as history, and so is `lcp/pack_offline.py`'s docstring (it names what the spikes ran, and it is hashed).
+  - **Nothing hashed changed**, so `scripts.sha256` is as on `release`: no "regenerate the manifest first".
+- **Checks** (venv `~/.venvs/factory-gates`, Python 3.15, Finder's files deleted first): 778 tests pass (4 skipped by design); `manifest.py verify`, `sha256sum --check --strict` (116 files) and `make_rulesets.py check` clean. A copy broken two ways (`PAC_VERSION` 2.16.1; one `setup-dotnet` on `8.0.x`) failed the pin test both times.
+- `docs/component-register.md`: the pac row (the gate's pin 2.15.1 by gate PR 33, at Boroon's word, and why; its "Last checked"), the "Decided" paragraph (a second exception), the A1 summary's pac line, and a "What happened" line under pac's notes. No other pin moved.
+- ADO: a Session 58 section in 2539's body (with this session's time and tokens) and in 3106's body (pac's part done early; the round may still move pac to the newest). No new story, no date moved.
+- `docs/plans/schedule.md`: 2539's and 3106's notes (and 2539's stale "gate PR 30, open" now says merged), and a Changes entry. No date moved.
+- `CLAUDE.md`: the `factory-gates` row names gate PR 33.
+
+Found:
+- Spike 0.10 ran 2.15.1 for the lane identity's federated sign-in, the export, the `Both` unpack, the offline pack and the checker; it imported into Test and signed in as the Test identity on 2.4.1 only. So 2.15.1's `pac solution import` and the Test identity's sign-in on 2.15.1 are first tried in 2539's run. Said in gate PR 33 and the gate README.
+- The gate README's `tests/` row still says 721 tests (778 since gate PR 31), as Session 57 found. Not changed here (outside the pin).
+
+- **Plan edited at Boroon's word** ("Yes, edit the plan", 26 November 2026, after pull request 74 opened): Appendix A's `PAC_VERSION` line (1775) and two .NET comments (1908, 2066) now match gate PR 33 byte for byte; 5.3 (line 491) says the gate pins 2.15.1 and why; a 14.4 row, "The gate's pac pin". `CLAUDE.md`'s plan row lists the edit, and its line map moves sections 15 and the appendices down one line.
+
+Files changed: `CLAUDE.md`, `docs/progress.md`, `docs/component-register.md`, `docs/plans/schedule.md`, `docs/sources/plan-v3.1.md`. In `factory-gates` (gate PR 33): `.github/workflows/lcp-gate.yml`, `tests/test_workflow.py`, `README.md`.
+
+Time and tokens (in 2539's body; session `48f1543d`, measured before the last commit): active time 0 h 36 min (gaps over 10 minutes not counted), from 26 Nov 16:00 to 26 Nov 16:36 (UTC+11), the plan edit included. Tokens: 55,408 output; 13,344,354 processed in all, of which 13,014,786 were cache reads. From 1 local transcript.
+
+Open items:
+- **For Boroon:** merge gate PR 33 (no manifest to regenerate) and pull request 74 (the record and the plan edit).
+- **Session 53's gate PR** for the other two 2539 fixes (the first-install import check, the retry on 0x80060888) starts from the new `release` if it opens after gate PR 33 merges. Gate PR 33 touches no hashed file, so they do not clash; the second to merge rebases.
+- **3106** may still move pac from 2.15.1 to the newest after the exit test, by its own gate PR.
+
+Planning pull request: https://github.com/boroonmahanta/overnight-ai-factory/pull/74, for Boroon to merge.
+
+Next steps:
+1. Boroon merges gate PR 33 and this planning pull request.
+2. 2539's run is the first time the gate runs pac 2.15.1 on a runner.
+
 ## Session 57, 2026-11-26, branch `claude/session-57-2739-move-staging`
 
 ADO 2739 (DG8, D1), and Session 56's open items for 2740. On the laptop (desktop app), Laptop C, in its own worktree (`.claude/worktrees/session-57-2739`, from `origin/main` at `3b05634`, with Session 56's branch `claude/intelligent-wright-r9lpw9` merged in; both log entries kept, and the register keeps Session 56's kit rows, which already held pull request 68's). Session named "50. Stage 1 - Build - Move staging to GetAI-IP (2739)", top level, as Boroon asked. An earlier session started with an older brief for 2739 ("Move day-gate files to GetAI-IP") was interrupted at once, then stood down and changed nothing (its last message; the GHE repos hold only this session's branches).
