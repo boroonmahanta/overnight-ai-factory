@@ -145,14 +145,14 @@ Found:
 - Spike 0.10 ran 2.15.1 for the lane identity's federated sign-in, the export, the `Both` unpack, the offline pack and the checker; it imported into Test and signed in as the Test identity on 2.4.1 only. So 2.15.1's `pac solution import` and the Test identity's sign-in on 2.15.1 are first tried in 2539's run. Said in gate PR 33 and the gate README.
 - The gate README's `tests/` row still says 721 tests (778 since gate PR 31), as Session 57 found. Not changed here (outside the pin).
 
-Not done (needs Boroon's word): **plan edits.** Appendix A line 1775 (`PAC_VERSION`) and lines 1908 and 2066 (the .NET comments), 5.3's pin sentence (line 491), and a 14.4 row. The exact lines are proposed to him at the end of this session.
+- **Plan edited at Boroon's word** ("Yes, edit the plan", 26 November 2026, after pull request 74 opened): Appendix A's `PAC_VERSION` line (1775) and two .NET comments (1908, 2066) now match gate PR 33 byte for byte; 5.3 (line 491) says the gate pins 2.15.1 and why; a 14.4 row, "The gate's pac pin". `CLAUDE.md`'s plan row lists the edit, and its line map moves sections 15 and the appendices down one line.
 
-Files changed: `CLAUDE.md`, `docs/progress.md`, `docs/component-register.md`, `docs/plans/schedule.md`. In `factory-gates` (gate PR 33): `.github/workflows/lcp-gate.yml`, `tests/test_workflow.py`, `README.md`.
+Files changed: `CLAUDE.md`, `docs/progress.md`, `docs/component-register.md`, `docs/plans/schedule.md`, `docs/sources/plan-v3.1.md`. In `factory-gates` (gate PR 33): `.github/workflows/lcp-gate.yml`, `tests/test_workflow.py`, `README.md`.
 
-Time and tokens (in 2539's body; session `48f1543d`, measured before the last commit): active time 0 h 33 min (gaps over 10 minutes not counted), from 26 Nov 16:00 to 26 Nov 16:33 (UTC+11). Tokens: 40,743 output; 9,084,443 processed in all, of which 8,795,802 were cache reads. From 1 local transcript.
+Time and tokens (in 2539's body; session `48f1543d`, measured before the last commit): active time 0 h 36 min (gaps over 10 minutes not counted), from 26 Nov 16:00 to 26 Nov 16:36 (UTC+11), the plan edit included. Tokens: 55,408 output; 13,344,354 processed in all, of which 13,014,786 were cache reads. From 1 local transcript.
 
 Open items:
-- **For Boroon:** merge gate PR 33 (no manifest to regenerate). Then say whether to edit the plan as proposed.
+- **For Boroon:** merge gate PR 33 (no manifest to regenerate) and pull request 74 (the record and the plan edit).
 - **Session 53's gate PR** for the other two 2539 fixes (the first-install import check, the retry on 0x80060888) starts from the new `release` if it opens after gate PR 33 merges. Gate PR 33 touches no hashed file, so they do not clash; the second to merge rebases.
 - **3106** may still move pac from 2.15.1 to the newest after the exit test, by its own gate PR.
 
