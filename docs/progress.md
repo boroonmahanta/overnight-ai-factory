@@ -157,6 +157,8 @@ Open items:
 - **Done: 3027 moved to Done** at Boroon's word (26 November 2026). DG9 owns the first live run.
 - **Merging:** this branch and the other catch-up sessions' branches all add to the top of this log and to the schedule's Changes; whoever merges second takes the other's lines.
 
+Planning PR: https://github.com/boroonmahanta/overnight-ai-factory/pull/69, opened at Boroon's word on 26 November 2026, after `main` (pull requests 67 and 68, Session 52) was merged into the branch with both log entries kept. For him to merge.
+
 Next steps:
 1. Done: gate PR 31 merged and `release` read back.
 2. DG9 or 2539 runs the Northwind examples through the gate in `factory-test`, once the Playwright kit, 3060 and the test user are in place.
