@@ -156,6 +156,8 @@ Open items:
 - **codeql-action 4.39.5** by Dependabot's run on Monday 30 November, by the usual routine.
 - Until `staging/` is deleted, its files are stale copies: change the GHE copies.
 
+Planning pull request: https://github.com/boroonmahanta/overnight-ai-factory/pull/70, for Boroon to merge.
+
 Next steps:
 1. Boroon merges the two GHE pull requests and this planning pull request.
 2. DG9 (Fri 27 Nov) runs the kit from `factory-gates` once the test user exists, on axe 4.12.1.
