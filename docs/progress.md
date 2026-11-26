@@ -143,32 +143,49 @@ Choices made without asking (say if any is wrong):
 - Rows the brief did not name but that are pinned: the Dataverse CLI, `playwright-ms-auth` and the kit's other npm packages.
 - The actions' versions are the last ones recorded (Sessions 11 and 24), not plan Appendix A's tags, which are older major tags only; both are given, and all nine are marked to read back on the laptop.
 
-Questions for Boroon (asked in one message at the end of the session):
-1. axe for DG9 and the exit test: keep 4.12.1 and record the baseline on it, re-baselining when axe moves (recommended); or move axe to 4.14.1 before DG9?
-2. Hold every pin through the exit test (Fri 27 Nov) and move them in one pin round the week after, unless 2459 shows that pac 2.4.1 cannot pack the `Both` layout (recommended)?
-3. An ADO story for that pin round (pac, Copilot CLI, Playwright with axe, Spec Kit 1.4.5, and the Dependabot coverage as a gate PR)?
+Decisions (Boroon, 26 November 2026, asked in this session: "1 keep 4.12.1, 2 yes hold, 3 yes make the story"):
+1. **axe stays at 4.12.1 for DG9 and the exit test.** DG9's accessibility baseline is recorded on 4.12.1; the move to 4.14 brings a new baseline by PR.
+2. **Every pin holds through the exit test (2539, Fri 27 Nov).** The updates move in one pin round the week after. The one exception: pac moves before the exit test if 2459 finds that 2.4.1 cannot pack what 2.15.1 unpacked with `--packagetype Both`.
+3. **A new ADO story for the pin round.** It could not be made from this cloud session (no Azure DevOps access), so it is written out below for the next laptop session to create.
+
+All three are in `docs/component-register.md` ("A1 first pass").
 
 Files changed: `docs/component-register.md`, `docs/plans/schedule.md` (2740's status only), `docs/progress.md` (this entry).
 
 ADO updates for 2740, for the next laptop session (Session 57, 2739, per its brief):
 - **State:** Building. Not Done: Done only at Boroon's word.
-- **Body:** add a section "Session 56 (26 November 2026, cloud)": the first pass is in `docs/component-register.md` ("Kits" and "A1 first pass") on branch `claude/intelligent-wright-r9lpw9`, no pin moved; updates due: pac 2.16.1, Copilot CLI 1.0.116, Playwright 1.65.1, axe 4.14.1 (changes results), two actions by Dependabot; optional Spec Kit 1.4.5; not now the Dataverse CLI; the three questions above; the four read-backs; the time and tokens line below.
+- **Body:** add a section "Session 56 (26 November 2026, cloud)": the first pass is in `docs/component-register.md` ("Kits" and "A1 first pass") on branch `claude/intelligent-wright-r9lpw9`, no pin moved; updates due: pac 2.16.1, Copilot CLI 1.0.116, Playwright 1.65.1, axe 4.14.1 (changes results), two actions by Dependabot; optional Spec Kit 1.4.5; not now the Dataverse CLI; Boroon's three decisions above; the four read-backs; the new pin-round story's ID once made; the time and tokens line below.
 - **Time and tokens:** the line below, from this cloud container's own transcript. The two fetch agents' runs may not be in it.
 - Dates: none moved.
 
-Time and tokens (for 2740's body; session `6e28fcbf`, measured before the closing commit): active time 0 h 17 min (gaps over 10 minutes not counted), from 26 Nov 12:17 to 26 Nov 12:34 (UTC+11). Tokens: 97,865 output; 28,802,111 processed in all, of which 28,229,241 were cache reads. From 1 local transcript(s).
+**New ADO story to create (Boroon, 26 November 2026), in `getai-overnight-ai-factory`:**
+- **Type:** User Story. **State:** Proposed. **Tags:** `factory-build`. **Parent:** the same as 2740's. **Work Size:** M, proposed (it changes what the gate runs and fails).
+- **Title:** "A1 pin round 1: move the kits checked in 2740's first pass, and add Dependabot coverage".
+- **Predecessors:** 2539 (the exit test), 2739 (the move to `GetAI-IP`), 2740.
+- **Dates:** the week after the exit test, from Mon 30 Nov; the day at Boroon's word.
+- **Body:**
+  - Each move is a reviewed pull request that Boroon merges, and updates its rows in `docs/component-register.md` in the same round. Before each, check for any release newer than the 26 November pass and read its notes in full.
+  - pac 2.4.1 to the newest (2.16.1 on 26 November), the version chosen with 2459's results, by one gate PR: `PAC_VERSION`, the tests that name it, `checker_gate.py`'s tests with a sample from the new version, and plan Appendix A's two .NET comments (a plan edit, at Boroon's word). If 2459 finds that 2.4.1 cannot pack the `Both` layout, this part moves before the exit test instead.
+  - Copilot CLI 1.0.113 to the newest (1.0.116 on 26 November), in the gate's `tools/copilot/` lockfile, with 2451's results, by one gate PR that runs `parse_verdict.py` and the review parser on a log from the new version.
+  - Playwright 1.64.1 to 1.65.x and axe-core with `@axe-core/playwright` 4.12.1 to 4.14.x, together, by one kit PR in `factory-gates`: the kit's Node floor to 22, `typecheck`, `--list`, one Northwind run, and a new `a11y-baseline.json` for `label-content-name-mismatch`.
+  - Spec Kit 1.4.3 to 1.4.5 or newer, in `GetAI-IP/factory-manifestos`: re-run DG4's install check (`specify extension add --dev` and the hook's script path) and DG5's spec check fixtures.
+  - Dependabot coverage for `factory-gates` as a gate PR: the register's list, points 2 to 5 (npm for `tools/copilot` and `playwright`, pip for `requirements-test.txt`, and NuGet for pac only if the gate moves to a .NET tool manifest).
+  - Not in this round: the Dataverse CLI (Stage 3), Microsoft's toolkit and two skill plugin repos (at their pins), `playwright-ms-auth` (no code change).
+  - Done when every move above is merged and the register rows match.
+
+Time and tokens (for 2740's body; session `6e28fcbf`, measured before the closing commit): active time 0 h 19 min (gaps over 10 minutes not counted), from 26 Nov 12:17 to 26 Nov 12:58 (UTC+11). Tokens: 106,980 output; 32,346,402 processed in all, of which 31,748,823 were cache reads. From 1 local transcript(s).
 
 Open items:
 - **To read back on the laptop:** the nine action pins in `factory-gates` and whether Dependabot's pull requests for `create-github-app-token` 3.4.0 and `codeql-action` 4.39.5 are open; the Copilot CLI version in `tools/copilot/package-lock.json`; `PAC_VERSION` (expected 2.4.1); the packages in `requirements-test.txt` (then a register row).
-- Boroon's three answers. The axe answer is needed before DG9 records the baseline (Fri 27 Nov).
+- **The pin-round story is not in ADO yet:** the next laptop session makes it from the spec above and puts its ID in 2740's body and here.
 - Before Stage 3: the protected paths for Copilot's repository files in project repos (above).
 - The component register review (since 23 November): read the three skill sources' diffs.
 - `CLAUDE.md`'s end step 3 and this file's A1 bullet in "Open items" (it still says an ADO story is to be created; it is 2740) can be corrected by a later session.
 
 Next steps:
-1. Boroon answers the three questions.
-2. Session 57 (2739) makes the ADO updates above, reads back the four items, and moves every kit at the pin in the register.
-3. After the exit test: the pin round by pull requests, each with the checks the register names, and the Dependabot coverage as a gate PR.
+1. Session 57 (2739) makes the ADO updates above (2740's body and the new pin-round story), reads back the four items, and moves every kit at the pin in the register, axe at 4.12.1.
+2. DG9 records the accessibility baseline on axe 4.12.1.
+3. The week after the exit test: the pin round under the new story.
 
 ## Session 51, 2026-11-25, branch `claude/session-51-2546-scenarios`
 

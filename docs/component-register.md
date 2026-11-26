@@ -37,19 +37,21 @@ Made 11 November 2026 (Session 21, ADO 2549), at Boroon's word. Plan 8.3 point 4
 
 Session 56, a cloud session, for ADO 2740. Due Monday 23 November with the Ignite re-check, then dated Wednesday 25 November. **No pin was moved.**
 
+**Decided (Boroon, 26 November 2026):** every pin holds through the Stage 1 exit test (2539, Friday 27 November). The updates below move in one pin round the week after, by reviewed pull requests, under a new ADO story. The one exception: pac moves before the exit test if 2459 finds that 2.4.1 cannot pack what 2.15.1 unpacked with `--packagetype Both`. axe stays at 4.12.1 for DG9 and the exit test, so DG9's baseline is recorded on 4.12.1, and a new baseline comes with the axe move.
+
 How it was checked: the cloud session cannot reach `getai.ghe.com`, the GitHub API or docs.github.com. Versions came from the npm registry, PyPI and NuGet; Git heads and tags from `git ls-remote`; changelogs from each repo's own file at the tag (Spec Kit, Copilot CLI, Playwright, axe-core, `@axe-core/playwright`, CodeQL Action) or NuGet's release notes (pac). The GitHub release pages for Playwright 1.65.0 and 1.65.1, `create-github-app-token` 3.4.0 and `playwright-ms-auth` came through a fetch agent, which paraphrased each bullet. Dependabot's behaviour came from the source of GitHub's docs (`github/docs`) and of Dependabot itself (`dependabot/dependabot-core`). The `factory-gates` pins come from this repo's records, not from `factory-gates`.
 
 ### Summary
 
 | Kit | Pin | Newest | Update due | Proposal |
 |---|---|---|---|---|
-| Spec Kit | 1.4.3 | 1.4.5 (25 November) | Optional: fixes only | Hold through 2739 and the exit test; then 1.4.5 by PR |
-| pac | 2.4.1 | 2.16.1 (20 November) | Yes | Choose the version with 2459's results (spike 0.10, running today); one gate PR |
-| Copilot CLI | 1.0.113 | 1.0.116 (25 November) | Yes, small | After the exit test, with 2451's results (spike 0.6, running today); one gate PR |
+| Spec Kit | 1.4.3 | 1.4.5 (25 November) | Optional: fixes only | Hold through 2739 and the exit test; then 1.4.5 by PR in the pin round |
+| pac | 2.4.1 | 2.16.1 (20 November) | Yes | Choose the version with 2459's results (spike 0.10, running today); one gate PR in the pin round, or before the exit test if 2459 needs it |
+| Copilot CLI | 1.0.113 | 1.0.116 (25 November) | Yes, small | In the pin round, with 2451's results (spike 0.6, running today); one gate PR |
 | Dataverse CLI | 1.0.88 | 1.0.95 (20 November) | Not now | At Stage 3, after re-running spike 0.3's probe and the shim's checks |
 | Microsoft's Playwright toolkit | `3233f3e` | `3233f3e` | No | |
-| Playwright | 1.64.1 | 1.65.1 (13 November) | Yes | After DG9 and the exit test, with axe, in one kit PR |
-| axe-core, `@axe-core/playwright` | 4.12.1 | 4.14.1 | Yes, and it changes results | Boroon to choose when (question in Session 56's entry) |
+| Playwright | 1.64.1 | 1.65.1 (13 November) | Yes | In the pin round, after DG9 and the exit test, with axe, in one kit PR |
+| axe-core, `@axe-core/playwright` | 4.12.1 | 4.14.1 | Yes, and it changes results | Held at 4.12.1 for DG9 and the exit test (Boroon); moves in the pin round with a new baseline |
 | `playwright-ms-auth` | 0.0.19 | 0.0.20 | No: same code | |
 | The kit's other packages | Microsoft's lockfile | Newer majors | No | Move with the toolkit's lockfile |
 | `power-platform-skills` | `05b634d` | `a5a0ee4` | No: our two folders are unchanged | |
@@ -101,7 +103,7 @@ How it was checked: the cloud session cannot reach `getai.ghe.com`, the GitHub A
 - **4.14.0 turns on `label-content-name-mismatch` by default.** In 4.12.1 the rule carried the tag `experimental`; in 4.14.1 it does not. It is tagged `wcag21a` with impact "serious", so the kit's `WCAG_TAGS` pick it up, and any control whose visible text is not part of its accessible name fails the test unless `a11y-baseline.json` lists it.
 - Many fixes that remove false findings (colour contrast, `aria-required-children`, `scrollable-region-focusable`, `target-size` and others). 4.13.0 turns on support for ARIA element internals by default and marks deprecated ARIA attributes for review.
 - `@axe-core/playwright` 4.14.1 skips frames that cannot run scripts instead of hanging, and honours `iframes: false`. The kit runs axe inside the canvas host frame, so the hang fix may matter.
-- So the axe version decides what the gate fails. The baseline DG9 records belongs to one axe version: a later move needs a new baseline, by PR.
+- So the axe version decides what the gate fails. The baseline DG9 records belongs to one axe version: a later move needs a new baseline, by PR. **Decided (Boroon, 26 November 2026):** keep 4.12.1 for DG9 and the exit test; the new baseline comes with the move in the pin round.
 
 **The two actions** (release notes read in full):
 - `create-github-app-token` 3.4.0: only its own dependency bumps (`setup-node` 7 in its CI, `actions/stale`, `git-auto-commit-action`, `undici`). Its inputs and outputs do not change.
