@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["ES2022", "DOM"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "lcp-kit": ["lib/index.ts"],
+      "power-platform-playwright-toolkit": ["vendor/power-platform-playwright-toolkit/src/index.ts"],
+      "@playwright/test": ["node_modules/@playwright/test"]
+    }
+  },
+  "include": ["playwright.lcp.config.ts", "lib/**/*.ts", "kit-tests/**/*.ts", "examples/**/*.ts"]
+}

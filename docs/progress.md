@@ -118,6 +118,54 @@ Next steps:
 
 ## Log
 
+## Session 52, 2026-11-25, branch `claude/session-52-2546-playwright-kit`
+
+ADO 2546, DG7 part 2: the Playwright kit v0. A side session started by "44. Stage 1 - Build - Scenario conventions and Playwright kit" (Session 51, branch `claude/session-51-2546-scenarios`, which writes the conventions, the schema and the YAML examples), when Boroon split 2546 in two on 25 November 2026. On the laptop (desktop app), in its own worktree (`.claude/worktrees/session-51-2546`, from `origin/main` at `dae3155`; the folder keeps the number it was briefed with, before the parent renumbered).
+
+Decisions (Boroon, 25 November 2026, each asked in this session):
+- Download 71 files of `microsoft/power-platform-playwright-samples` at `3233f3e` into the scratchpad (the toolkit's 50, the licence, notice, package files and lockfile, and 17 sample files). Yes, all three sets.
+- Download the 58 npm packages the kit needs, at Microsoft's lockfile versions, checked by sha512, including `playwright-ms-auth` 0.0.19 from one person's npm account. Yes, all 58.
+
+Decision (Boroon, 26 November 2026, asked by the scenario session and passed here by message): **"Yes, on its branch"**, to three edits on this branch, so one pull request carries them with the kit:
+- `staging/factory-manifestos/conventions/locked-scenarios.md`, "UI tests (Playwright)": the canvas class is `CanvasAppRuntimePage`, for a published app, not `CanvasAppPage`, which drives Power Apps Studio for authoring only.
+- The same section gains a bullet: a canvas test also carries the tag `@canvas`, which puts it in the kit's canvas project; every other UI test runs in the model-driven project.
+- **A plan edit:** `docs/sources/plan-v3.1.md`, 5.8's table, the UI row (line 717): `CanvasAppPage` becomes `CanvasAppRuntimePage`.
+
+Done:
+- **The toolkit read in full**, all 50 files, by four reader agents of this session (a quarter each), plus `playwright-ms-auth`'s code by this session: `docs/analysis/playwright-kit-reading-notes.md` (18 findings). The agents' full reports are in the session's shared notes folder on the laptop.
+- **Vendored unchanged** in `staging/factory-gates/playwright/vendor/power-platform-playwright-toolkit/` with the repo's `LICENSE` and `NOTICE.md` (52 files matching GitHub's blob hashes) and our `PROVENANCE.md`. Three rows in `docs/component-register.md`: the toolkit, `playwright-ms-auth`, and the other npm packages.
+- **The kit:** `playwright.lcp.config.ts` (specs from `TEST_SPECS_DIR`, `*.spec.ts` and `*.test.ts`; one worker, no full parallel, one retry in CI, trace on first retry; HTML and JUnit; projects `sign-in`, `model-driven` and `canvas` with storage states `.auth/mda.json` and `.auth/canvas.json`); a lockfile built from Microsoft's with the same sha512 values; helpers in `lib/` (accessible-name selector with no CSS route, run tag and tagged rows deleted after each test, axe-core against `a11y-baseline.json`, keyboard-only journey, sign-in); three Northwind model-driven examples (`ui-order-grid-01`, `ui-order-form-01`, `ui-order-a11y-01`, criteria `@AC-3` to `@AC-5` as stand-ins); nine self-checks with no browser. README in the folder.
+- **Checks with no sign-in, all pass** (scratch copy): `npm ci --ignore-scripts` (58 packages), the type check (vendored toolkit included), `--list` (6 tests in 4 files, also from a folder outside the kit), the self-checks with the gate's own `--reporter=html,junit` (9 passed; JUnit and HTML land in the evidence folder). Two deliberate breaks (no criteria tag, a CSS selector) each failed.
+- **The sign-in variables are settled from the code** (Session 46 finding 5 was not right): `playwright-ms-auth` reads `MS_AUTH_EMAIL`, `MS_AUTH_CREDENTIAL_TYPE`, `MS_AUTH_CREDENTIAL_PROVIDER`, `MS_AUTH_KEYVAULT_ENDPOINT` (a URL) and `MS_AUTH_KEYVAULT_SECRET_NAME`; nothing reads `KEYVAULT_NAME`, `AZURE_KEYVAULT_URL` or `AZURE_CERTIFICATE_NAME`. **The gate step's change is written down** in the kit's README ("The change to the gate step"), for a gate pull request later at Boroon's word; the gate repo is not touched.
+
+Found (reading notes):
+- `playwright-ms-auth` signs in with **Microsoft Edge** (`msedge` channel). GitHub's hosted Ubuntu 24.04 image has Edge 157; a self-hosted runner needs it. It reads the certificate as a Key Vault secret and takes it as a certificate only if the content type is `application/x-pkcs12`. It signs in to Azure through the Azure CLI first, so the job's existing `azure/login` serves.
+- It is one person's package (5 stars), at 0.0.x, though its licence names Microsoft. It runs in the job that holds the Test identity's session. Recorded as a risk; pinned by sha512, no install scripts.
+- With `--reporter=html,junit` on the command line, Playwright drops the config's reporter paths and JUnit would go to standard output. The config now sets `PLAYWRIGHT_JUNIT_OUTPUT_FILE` and `PLAYWRIGHT_HTML_OUTPUT_DIR`, which Playwright reads first.
+- The gate step never installs Playwright's browsers; `npm ci` does not.
+- The toolkit's `saveRecord()` asks for a button named "Save", which also matches "Save & Close", and its model-driven launch waits a fixed 30 seconds each time. `GenUxPage` can delete every app whose name starts with a prefix; specs must never use it.
+- The run tag column `nwind_sampledataoriginalid` is not on Northwind's Orders form, so the kit writes the tag with `Xrm.WebApi` in the signed-in app, as the test user.
+
+Files changed: `staging/factory-gates/playwright/` (new: config, package files, `tsconfig.json`, `.gitignore`, `a11y-baseline.json`, `README.md`, `lib/` 7 files, `kit-tests/kit.check.ts`, 3 example specs, `vendor/` 53 files), `docs/analysis/playwright-kit-reading-notes.md` (new), `docs/component-register.md` (3 rows), `staging/README.md` (the `factory-gates/` row and a rule for the kit), `docs/progress.md`; on 26 November, at Boroon's word above, `staging/factory-manifestos/conventions/locked-scenarios.md` (the canvas class and the `@canvas` bullet) and `docs/sources/plan-v3.1.md` (5.8's UI row), then `CLAUDE.md` (the plan row lists that edit). Not changed: `docs/plans/schedule.md` (2546 is not finished; DG9 is left).
+
+Time and tokens (in 2546's body; session `59f19359`, its four reader agents included, measured before the commit, `--root` the main folder's project transcripts): active time 0 h 34 min (gaps over 10 minutes not counted), from 25 Nov 21:02 to 25 Nov 21:50 (UTC+11). Tokens: 173,352 output; 24,710,335 processed in all, of which 23,657,386 were cache reads. From 1 local transcript.
+
+Open items:
+- **For the scenario session (Session 51) and Boroon:** nothing in its draft conventions differs from the kit. Two additions for that file: canvas UI tests carry `@canvas` (the kit's project split), and the UI examples use `@AC-3` to `@AC-5`. Hand-over note in the shared notes folder. **Done 26 November:** `@canvas` and the canvas class are in the conventions, at Boroon's word; the `@AC-3` to `@AC-5` stand-ins need no change (the scenario session).
+- **`CLAUDE.md`'s plan row** now lists this session's plan edit (5.8's UI row, the canvas class), added at Boroon's own word in this session on 26 November 2026.
+- **The gate step change** (kit README): the five variables, `LCP_EVIDENCE_DIR`, `--ignore-scripts`, the browser install, and (proposed) the test user, certificate name, app ID and a `ui` switch from the project's `gate.json` through `project_settings.py`, with that step moved above the Playwright step. A gate pull request at Boroon's word; plan Appendix A's step to match, also at his word.
+- **For 2541 and 3060:** the test user's certificate as a Key Vault certificate in PKCS#12; "Key Vault Secrets User" for the Test identity on that vault or secret; a security role for the test user that can create, read and delete `nwind_orders` rows.
+- **For DG9 (2546 part 2):** sign-in straight at the model-driven app's URL is untested (Microsoft's script goes through the maker portal first); the Save command's accessible name; Ctrl+S in headless Chromium; the axe baseline's first entries; run times against plan 5.8.
+- `playwright-ms-auth` 0.0.20, Playwright 1.65.1 and axe 4.14.1 exist; not taken (A1).
+- `CLAUDE.md`'s `staging/` row still lists only DG1's files; whoever next edits it adds the spec-kit and `playwright/` folders.
+
+Pull request 67 (https://github.com/boroonmahanta/overnight-ai-factory/pull/67), opened 26 November 2026 at Boroon's word, after main (pull requests 65 and 66) was merged into the branch. Boroon merges it.
+
+Next steps:
+1. Boroon reads the kit's README, merges pull request 67, and decides the gate step change.
+2. 2739 moves `playwright/` to `factory-gates` with the rest of `staging/`.
+3. DG9 runs the examples in `factory-test` once 2541 and 2447 are done.
+
 ## Session 51, 2026-11-25, branch `claude/session-51-2546-scenarios`
 
 ADO 2546, DG7 part 1: the locked scenario format. On the laptop (desktop app), the documents track, a day after DG7's Tue 24 Nov start. Session renamed "44. Stage 1 - Build - Scenario conventions and Playwright kit", like the others. Planning branch in its own worktree (`.claude/worktrees/session-50-2546`, from `origin/main` at `dae3155`), because other sessions share the folder. First named Session 50; renamed to 51 when it was found that the session "Unblock the gate's static job for 2539" had already logged itself as Session 50 (gate PR 30).
