@@ -50,6 +50,7 @@ Next steps:
 - **DG3 is run** (Session 23, 13 November 2026, a week early): `GetAI-IP/factory-manifestos` exists on `getai.ghe.com` (private, ruleset `main-protection`), and its pull request 1, merged by Boroon on 13 November 2026, holds the low-code coding standards: 50 with the vault's client-token ones kept, anonymised. 2545 is Done.
 - **2544 is built: DG4 and DG5 done** (Sessions 35 and 36, 23 November 2026). Spec Kit pinned at 1.4.3, the `getai` and `getai-lcp` presets, the `getai-spec-check` extension and bundle in `staging/factory-manifestos/spec-kit/`; the spec check `staging/factory-gates/spec/check_spec.py` with 98 passing tests, and its byte-identical copy in the extension. The stage 1 exit clause "a spec with an open marker or no scenarios cannot become Factory Eligible" is shown by two fixtures failing. Pull requests 47 and 48 are merged, and **2544 is Done** in ADO (23 November 2026, at Boroon's word).
 - **2546's scenario format is written: DG7 part 1** (Session 51, 25 November 2026, ADO 2546 Building). `staging/factory-manifestos/conventions/`: `locked-scenarios.md`, `scenario.schema.json` and two Northwind examples, so 3027 (`run_workflow.py`) can start. The Playwright kit (DG7 part 2) runs in its own session, Session 52.
+- **2739 is Building: the staged day-gate files are moved, for Boroon to merge** (Session 57, 26 November 2026, DG8). `GetAI-IP/factory-manifestos` pull request 2 holds the templates, the Spec Kit presets, extension and bundle (1.4.3) and the scenario conventions, with their history; gate PR 32 holds the Playwright kit v0 in `playwright/` (axe 4.12.1, the toolkit vendored at `3233f3e`), `self-test` green. `staging/` stays here until Boroon says to delete it. A1's first pass (2740) is Done, and its pin round is ADO 3106 (Wed 2 to Thu 3 Dec).
 - **The third-party skills policy (plan 8.3) is applied to every vendored skill** (Session 21, 11 November 2026, a cloud session, ADO 2549): `docs/analysis/skills-policy-check.md`. All 56 shelf skills match upstream at their pins, all are MIT, and all but `poteto-mode` (shelf only) are read in full. The register's rows now have a file, `docs/component-register.md`, and the shelf holds each source's licence text. All 44 live skills name their source commit in their first lines.
 - Boroon said more context will be added in later sessions.
 - Work is sized with T-shirt sizes (XS to XL), approved on 1 November 2026. See `CLAUDE.md`.
@@ -106,7 +107,7 @@ Next steps:
 - **Decisions still waiting on Boroon** (from `docs/analysis/tshirt-sizing.md`): approve the shortlist of skills to read in full before any are adopted (plan section 8.3); decide whether to write a GET AI router skill that routes by size. The sizes themselves are approved, and the ADO field `Custom.WorkSize` is decided (7 November 2026, Session 16).
 - **A second approver is needed by Friday 4 December 2026** (Session 16 schedule). 2520 (undo the stopgaps) and 2521 (apply the rulesets) need a second person and the three CODEOWNERS teams; without them the Stage 1 exit test (2539, Friday 18 December) cannot happen. The dated order is in `docs/plans/schedule.md`.
 - **Spike 0.20, time and tokens per story on every engine, is not run** (Session 16). ADO story 2738 under Feature 2737 (Stage 1). It needs Claude Code's OpenTelemetry turned on through managed settings and somewhere to send it: Application Insights does not exist yet, so use a local collector first. The docs do not say whether the VS Code extension or the desktop app export it; this session runs in the desktop app, so test there first.
-- **Keep pinned kits current (A1, Boroon, 7 November 2026, Session 17).** Spec Kit moved three releases in five days. Proposed shape in `docs/plans/stage-1-day-gate-plan.md`: a pin register, Dependabot where the ecosystem allows, and a monthly manual pass at the component register review (plan 8.2), the first with the Ignite re-check on 23 November. Not built; an ADO story is to be created.
+- **Keep pinned kits current (A1, Boroon, 7 November 2026, Session 17).** Spec Kit moved three releases in five days. Proposed shape in `docs/plans/stage-1-day-gate-plan.md`: a pin register, Dependabot where the ecosystem allows, and a monthly manual pass at the component register review (plan 8.2). **The first pass is ADO 2740, Done** (Session 56, 26 November 2026; read back on the laptop by Session 57): every kit's row in `docs/component-register.md`, no pin moved. **The pin round is ADO 3106** (Wed 2 to Thu 3 Dec, at Boroon's word), after the exit test. The monthly pass stays a checkpoint with the register review.
 - **Done: transcript retention is 365 days** (Session 19, 8 November 2026, Boroon's choice): `"cleanupPeriodDays": 365` in `~/.claude/settings.json` on the laptop. Found while checking: Claude Code keeps sessions started or last continued in the desktop app at any age unless `desktopSessionCleanupPeriodDays` or a managed `cleanupPeriodDays` is set, so the 30-day limit hit only terminal sessions (transcripts from 5 August were still on disk). `0` is refused with a validation error. Kept here one session for the record.
 - **Done: the scratch of spikes 0.14, 0.18 and 0.19 is deleted** (21 November 2026, at Boroon's word, Session 28). In `factory-lane-1`, as the lane identity by the Web API (`tools.yml` modes `scratch-list` and `scratch-delete`): both cloud flows, the role, the environment variable and its value, the connection reference, the App Spec app with its site map, settings and icon, both `fspk_` tables, the solution `FactorySpike` and the publisher `factoryspike`. The icon's delete timed out twice (HTTP 503, SQL timeout) and went through on a third try under Boroon's own sign-in. A last read-only listing found nothing left. Then the repo `GetAI-IP/export-probe` and the federated credential `export-probe-fl1-exec` were deleted. **Kept for Stage 3:** `getai-fl1-exec` (no credentials now), its application user, `factory-lane-1` and the allowed MCP client `new_getaifl1exec`. Every probe and workflow has a copy in `docs/plans/spike-0.14/`, `spike-0.18/` and `spike-0.19/`. Details: the spike 0.14 README, "Scratch".
 - **A table or column outside the lane solution stops the lane** (Boroon, 10 November 2026; plan 5.4 step 4). Metadata keeps no maker, so the reset never deletes one that the bootstrap list does not hold: the lane goes Offline, an ADO bug names it, and a person checks by day. **ADO 2843** builds that check (the bug, a runbook, one trial in `factory-lane-1`). It sits under 2575 "Execution workflow and driver" (Stage 3), after 2577 (`reset_environment.py`); not dated, like the rest of Stage 3.
@@ -118,6 +119,49 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 57, 2026-11-26, branch `claude/session-57-2739-move-staging`
+
+ADO 2739 (DG8, D1), and Session 56's open items for 2740. On the laptop (desktop app), Laptop C, in its own worktree (`.claude/worktrees/session-57-2739`, from `origin/main` at `3b05634`, with Session 56's branch `claude/intelligent-wright-r9lpw9` merged in; both log entries kept, and the register keeps Session 56's kit rows, which already held pull request 68's). Session named "50. Stage 1 - Build - Move staging to GetAI-IP (2739)", top level, as Boroon asked. An earlier session started with an older brief for 2739 ("Move day-gate files to GetAI-IP") was interrupted at once, then stood down and changed nothing (its last message; the GHE repos hold only this session's branches).
+
+Read for it: `CLAUDE.md`, the top of this file with Session 56's entry, `docs/component-register.md` ("Kits", "A1 first pass"), `staging/README.md`, D1 and DG8 in `docs/plans/stage-1-day-gate-plan.md`, `docs/plans/schedule.md`; in `factory-gates` (`release` at `f8bbda9`, after gate PR 31): both workflows, `dependabot.yml`, `tools/copilot/`, `requirements-test.txt`, `lcp/manifest.py`, `pending-scripts.txt`, the README, `tests/test_manifest.py` and `test_check_spec.py`'s skip; in `factory-manifestos` (`main` at `fd2e268`): the README and the ruleset.
+
+Decisions (Boroon, 26 November 2026, asked in this session):
+1. **The pin-round story's dates: Wed 2 to Thu 3 Dec.**
+2. **The kit moves as a pure move.** The gate's "Locked Playwright suite" step is not changed in gate PR 32; its fix (the kit README) comes by its own gate PR once the test user exists and the values' source is chosen.
+3. **The private Spec Kit catalog (DG8 step 5) comes after the Stage 1 exit test,** not in the move.
+4. **Copies across two repos stay the same by two linked pull requests,** one in each repo, each linking the other, merged the same day (DG8 step 6). Applied to the glossary and ADR formats, and, by this session, to the two gate copies (`check_spec.py` and the scenario schema). Written in the `factory-manifestos` README and `CLAUDE.md`.
+
+Done:
+- **ADO:** 2740 moved to Done (Boroon's word, 26 November), Finish Date not moved, with a "Session 56" section in its body (the first pass, the updates due, his decisions, the read-back, and Session 56's time and tokens line). **New story 3106**, "A1 pin round 1: move the kits checked in 2740's first pass, and add Dependabot coverage": User Story, Proposed, tags `factory-build`, `stage-1`, `session-57`, parent 2542, Wed 2 to Thu 3 Dec, predecessors 2539, 2739 and 2740; the spec from Session 56's entry, corrected for the read-back (Copilot CLI from 1.0.114; Dependabot already watches `/tools/copilot`). **This process has no Work Size field**, so "M, proposed" is in its body. 2739 moved to Building.
+- **Read back from `factory-gates`** (fresh clone, `release` at `f8bbda9`; read only, no pin moved): all nine action pins match their tags (`git ls-remote`), each comment the version alone; **create-github-app-token is already 3.4.0** (Dependabot's gate PR 17, merged 23 November); no Dependabot pull request is open (codeql-action 4.39.5 came out after the Monday 23 November run). **Copilot CLI is 1.0.114** (gate PR 18), and Dependabot already watches its lockfile weekly. `PAC_VERSION` is 2.4.1. `requirements-test.txt`: PyYAML 6.0.3 alone, 48 hashes (6.0.4 exists, 21 November, not read). The register is corrected: the actions and Copilot CLI rows, a PyYAML row, the summary, the Dependabot proposal (point 2 is in place), "Read back on the laptop", and the item gone from "Not in the register yet".
+- **`GetAI-IP/factory-manifestos` pull request 2** (https://getai.ghe.com/GetAI-IP/factory-manifestos/pull/2): a subtree split of `staging/factory-manifestos/` (10 commits, Sessions 18 to 52) merged beside the standards, then one commit adapting five files for the new home (the README, written for the repo; `spec-kit/README.md`, the bundle README and a `bundle.yml` comment, since the catalog comes later; `locked-scenarios.md`, the kit's new place), and a README line for the schema copy. **While it ran, `main` took Session 53's planning pull request 69**, which changed `conventions/locked-scenarios.md` (open points 1, 2 and 5, step 4); this branch took `main` (both log entries and both schedule notes kept), the folder was split again, and that update merged into pull request 2's branch too, so the move carries the newest staged files. Every other file is byte for byte as staged; `check_spec.py` matches the gate's, and `scenario.schema.json` the gate's `lcp/scenario.schema.json`. **Merge it with "Create a merge commit"** to keep the history. Spec Kit stays 1.4.3.
+- **Gate PR 32** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/32), from `release` at `f8bbda9`, after Boroon merged gate PR 31 (3027): `playwright/`, 72 files byte for byte from `main` (pull request 68); the README (a row, the hashed list, a section on the kit, the schema row's note); `scripts.sha256` made again last (release's 44 lines unchanged, plus 72). Checks: 778 tests pass with none skipped (the four `factory-manifestos` cross-checks ran, since the clones sat side by side, and passed against pull request 2's branch); `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check` clean; the kit, in a copy outside the clone, offline from a copy of Session 52's npm cache (no download): `npm ci --ignore-scripts` (58 packages), type check, `--list` (6 tests in 4 files), 9 self-checks passed; the 52 vendored files match Microsoft's blobs at `3233f3e`. **`self-test` passed on the pull request** (run 41335511). **Nothing hashed changed after the manifest was made**, so no "regenerate the manifest first".
+- `CLAUDE.md`: end step 3 says to run `tools/session_usage.py` in cloud sessions too (Session 56's finding); the day-gate sentence and the `staging/` row say where the files went and the rule for copies across two repos. `staging/README.md`, DG8 in the day-gate plan and two register rows say the same. This file's A1 open item points at 2740 and 3106.
+
+Found:
+- The shared npm cache on the laptop lacks some of the kit's packages; Session 52's own cache (in its scratchpad) has all 58. A copy of it served an offline install.
+- `manifest.py make` hashes whatever is in the tree, `.gitignore` or not: a `node_modules/` or a temp file inside the clone gets listed (it happened once with a temp file here, and was redone). Run `npm ci` in a copy. Written into the gate README.
+- The gate README's `tests/` row still says 721 tests; 778 since gate PR 31. Not changed (outside this move); said in gate PR 32.
+- Session 54 (2459) had not reported on the `Both` layout by the end of this session, so nothing was done about pac.
+
+Files changed: `CLAUDE.md`, `docs/progress.md`, `docs/component-register.md`, `docs/plans/schedule.md` (2739's status, 2740's note, a 3106 row and a Changes entry; no date moved), `docs/plans/stage-1-day-gate-plan.md` (DG8's note), `staging/README.md`; with Session 56's commits merged in. In GHE: `factory-manifestos` branch `2739-move-staging`, `factory-gates` branch `gate-2739-playwright-kit`.
+
+Time and tokens (in 2739's body; session `a84c1108`, measured before the closing commit): active time 0 h 36 min (gaps over 10 minutes not counted), from 26 Nov 13:19 to 26 Nov 14:58 (UTC+11). Tokens: 77,954 output; 28,225,749 processed in all, of which 27,417,881 were cache reads. From 1 local transcript(s).
+
+Open items:
+- **For Boroon:** merge `factory-manifestos` pull request 2 (with a merge commit) and gate PR 32. Then say whether to delete `staging/` here, with a pointer in `CLAUDE.md` (DG8 step 4); 2739 is Done only at his word after that.
+- **The gate's Playwright step** still needs its fix (kit README) before the kit can sign in in a gate run: for DG9 or 2539, by its own gate PR, once the test user exists (2541) and Boroon chooses `gate.json` or caller variables for its values. Plan Appendix A's step changes with it, at his word.
+- **The private Spec Kit catalog** (DG8 step 5), after the exit test, not dated.
+- **codeql-action 4.39.5** by Dependabot's run on Monday 30 November, by the usual routine.
+- Until `staging/` is deleted, its files are stale copies: change the GHE copies.
+
+Planning pull request: https://github.com/boroonmahanta/overnight-ai-factory/pull/70, for Boroon to merge.
+
+Next steps:
+1. Boroon merges the two GHE pull requests and this planning pull request.
+2. DG9 (Fri 27 Nov) runs the kit from `factory-gates` once the test user exists, on axe 4.12.1.
+3. 3106 on Wed 2 to Thu 3 Dec.
 
 ## Session 53, 2026-11-26, branch `claude/session-53-3027-run-workflow-26844f`
 
@@ -162,6 +206,78 @@ Planning PR: https://github.com/boroonmahanta/overnight-ai-factory/pull/69, open
 Next steps:
 1. Done: gate PR 31 merged and `release` read back.
 2. DG9 or 2539 runs the Northwind examples through the gate in `factory-test`, once the Playwright kit, 3060 and the test user are in place.
+
+## Session 56, 2026-11-26, branch `claude/intelligent-wright-r9lpw9`
+
+ADO 2740, A1's first pass: keep pinned kits current. A cloud session started from the desktop app, a day late (due Wed 25 Nov), so that 2739 can move the kits at checked pins. Session renamed "49. Stage 1 - Upkeep - Pinned kits first pass (2740)", after "46. Stage 1 - Build - Scenario runner (3027)" (Session 53) and the two laptop sessions started with it. It ran alongside laptop Sessions 53 (3027), 54 (2459) and 55 (2451), and touched only `docs/component-register.md`, this entry and the schedule's 2740 row.
+
+Read for it: `CLAUDE.md`, the top of this file, `docs/component-register.md`, A1 in `docs/plans/stage-1-day-gate-plan.md`, plan 8.2 and 8.3, plan Appendix A's install and Copilot steps, the spike 0.3, 0.14, 0.18 and 0.19 records, the Playwright kit on `claude/session-52-2546-playwright-kit` (`package.json`, `package-lock.json`, the toolkit's `PROVENANCE.md`, the kit README and `docs/analysis/playwright-kit-reading-notes.md`), and Sessions 11, 24 and 33's entries.
+
+Done:
+- **`docs/component-register.md`**: a "Kits" table with one row per pinned kit, in the existing columns: Spec Kit (checked, and moved into the table: it sat after a blank line, so it did not render as part of the first one), pac, Copilot CLI, the Dataverse CLI, Microsoft's Playwright toolkit, Playwright, axe-core with `@axe-core/playwright`, `playwright-ms-auth`, the kit's other npm packages, `power-platform-skills`, `Dataverse-skills`, and the nine GitHub Actions in `factory-gates` (marked "to read back on the laptop"). Then "A1 first pass, 26 November 2026": how it was checked, a summary table, what changes for us for each update due, other findings, the proposed Dependabot coverage for `factory-gates` (a list, no config), what to read back on the laptop, and how to check a kit. The three skill rows' "Last checked" now say their sources have moved.
+- **Release notes read in full for every update due:** Spec Kit 1.4.4 and 1.4.5 (and the code diff for presets, extensions, bundles and the Copilot integration), pac 2.5 to 2.16.1, Copilot CLI 1.0.114 to 1.0.116, Playwright 1.65.0 and 1.65.1, axe-core and `@axe-core/playwright` 4.13.0 to 4.14.1, `create-github-app-token` 3.4.0, CodeQL Action 4.39.4 and 4.39.5. `playwright-ms-auth` 0.0.20 compared with 0.0.19 file by file. The Dataverse CLI publishes no notes.
+- **No pin moved anywhere.**
+- The schedule's 2740 row says Done (Thu 26 Nov, at Boroon's word).
+- The register's toolkit and Playwright rows now say the kit is on `main` (pull request 68, merged while this session ran; the kit's files are the same as on the branch read).
+
+Found (detail in the register):
+- **Updates due:** pac 2.4.1 to 2.16.1 (12 releases; still .NET 10; the packager and the checker client move, so `checker_gate.py` needs a 2.16.1 sample, and 2459 decides when); Copilot CLI 1.0.113 to 1.0.116 (small; `-p` exits 1 on an empty last answer; read-only MCP tools now need an allow rule under `--no-ask-user`); Playwright 1.64.1 to 1.65.1 (inert elements, unrendered text left out of accessible names, Node 20 no longer tested); axe 4.12.1 to 4.14.1; two actions by Dependabot. Optional: Spec Kit 1.4.5 (fixes only, inside our `>=1.4.3,<1.5`). Not now: the Dataverse CLI 1.0.95. None: the toolkit, `playwright-ms-auth` (0.0.20 has the same code), the two skill plugin repos (our two folders unchanged) and the kit's other packages (newer majors only, outside Microsoft's ranges).
+- **axe-core 4.14.0 turns on `label-content-name-mismatch`** (`wcag21a`, impact "serious"; tagged `experimental` in 4.12.1), so a move changes what the kit fails. The baseline DG9 records belongs to one axe version.
+- **The npm name `power-platform-playwright-toolkit` is npm's security placeholder** (`0.0.1-security`, 27 May 2026; a `1.0.4` was taken down). Never install Microsoft's toolkit by name; the kit vendors it by commit.
+- **Copilot CLI 1.0.115 and 1.0.116 read more from the repo they run in:** `.claude/CLAUDE.md`, Claude Code hooks, trusted repository settings in `-p`, and `.mcp.json` and `.github/mcp.json`. The gate runs from its own checkout, so it is not affected; before Stage 3, check that these paths are protected in project repos.
+- **The three skill sources have moved** under the folders we copy (Addy 39 files, Pocock 1, pstack 97). Not read: that is the component register review's job, still open since 23 November.
+- **What this cloud session could reach:** npm, PyPI, NuGet, `git ls-remote` and raw GitHub files, yes; the GitHub API, docs.github.com and `getai.ghe.com`, no (GitHub's docs were read from the `github/docs` source instead); Azure DevOps answered with a sign-in redirect, so no ADO update was made. **`tools/session_usage.py --latest` worked here:** this cloud container keeps a local transcript, unlike what `CLAUDE.md`'s end step 3 says of cloud sessions. Not changed in `CLAUDE.md` (outside this session's three files).
+
+Choices made without asking (say if any is wrong):
+- The kits have their own table under the skill sources, with the same columns; "Copied to" says where each kit is pinned.
+- Rows the brief did not name but that are pinned: the Dataverse CLI, `playwright-ms-auth` and the kit's other npm packages.
+- The actions' versions are the last ones recorded (Sessions 11 and 24), not plan Appendix A's tags, which are older major tags only; both are given, and all nine are marked to read back on the laptop.
+
+Decisions (Boroon, 26 November 2026, asked in this session: "1 keep 4.12.1, 2 yes hold, 3 yes make the story"):
+1. **axe stays at 4.12.1 for DG9 and the exit test.** DG9's accessibility baseline is recorded on 4.12.1; the move to 4.14 brings a new baseline by PR.
+2. **Every pin holds through the exit test (2539, Fri 27 Nov).** The updates move in one pin round the week after. The one exception: pac moves before the exit test if 2459 finds that 2.4.1 cannot pack what 2.15.1 unpacked with `--packagetype Both`.
+3. **A new ADO story for the pin round.** It could not be made from this cloud session (no Azure DevOps access), so it is written out below for the next laptop session to create.
+
+All three are in `docs/component-register.md` ("A1 first pass").
+
+4. **2740 is Done** (Boroon, 26 November 2026, after being told what was still open: the ADO updates, the four read-backs and getting the branch onto `main`). Those three go to Session 57.
+
+Files changed: `docs/component-register.md`, `docs/plans/schedule.md` (2740's status only), `docs/progress.md` (this entry).
+
+ADO updates for 2740, for the next laptop session (Session 57, 2739, per its brief):
+- **State:** Done (Boroon, 26 November 2026). Finish Date not moved.
+- **Body:** add a section "Session 56 (26 November 2026, cloud)": the first pass is in `docs/component-register.md` ("Kits" and "A1 first pass") on branch `claude/intelligent-wright-r9lpw9`, no pin moved; updates due: pac 2.16.1, Copilot CLI 1.0.116, Playwright 1.65.1, axe 4.14.1 (changes results), two actions by Dependabot; optional Spec Kit 1.4.5; not now the Dataverse CLI; Boroon's three decisions above; the four read-backs; the new pin-round story's ID once made; the time and tokens line below.
+- **Time and tokens:** the line below, from this cloud container's own transcript. The two fetch agents' runs may not be in it.
+- Dates: none moved.
+
+**New ADO story to create (Boroon, 26 November 2026), in `getai-overnight-ai-factory`:**
+- **Type:** User Story. **State:** Proposed. **Tags:** `factory-build`. **Parent:** the same as 2740's. **Work Size:** M, proposed (it changes what the gate runs and fails).
+- **Title:** "A1 pin round 1: move the kits checked in 2740's first pass, and add Dependabot coverage".
+- **Predecessors:** 2539 (the exit test), 2739 (the move to `GetAI-IP`), 2740.
+- **Dates:** the week after the exit test, from Mon 30 Nov; the day at Boroon's word.
+- **Body:**
+  - Each move is a reviewed pull request that Boroon merges, and updates its rows in `docs/component-register.md` in the same round. Before each, check for any release newer than the 26 November pass and read its notes in full.
+  - pac 2.4.1 to the newest (2.16.1 on 26 November), the version chosen with 2459's results, by one gate PR: `PAC_VERSION`, the tests that name it, `checker_gate.py`'s tests with a sample from the new version, and plan Appendix A's two .NET comments (a plan edit, at Boroon's word). If 2459 finds that 2.4.1 cannot pack the `Both` layout, this part moves before the exit test instead.
+  - Copilot CLI 1.0.113 to the newest (1.0.116 on 26 November), in the gate's `tools/copilot/` lockfile, with 2451's results, by one gate PR that runs `parse_verdict.py` and the review parser on a log from the new version.
+  - Playwright 1.64.1 to 1.65.x and axe-core with `@axe-core/playwright` 4.12.1 to 4.14.x, together, by one kit PR in `factory-gates`: the kit's Node floor to 22, `typecheck`, `--list`, one Northwind run, and a new `a11y-baseline.json` for `label-content-name-mismatch`.
+  - Spec Kit 1.4.3 to 1.4.5 or newer, in `GetAI-IP/factory-manifestos`: re-run DG4's install check (`specify extension add --dev` and the hook's script path) and DG5's spec check fixtures.
+  - Dependabot coverage for `factory-gates` as a gate PR: the register's list, points 2 to 5 (npm for `tools/copilot` and `playwright`, pip for `requirements-test.txt`, and NuGet for pac only if the gate moves to a .NET tool manifest).
+  - Not in this round: the Dataverse CLI (Stage 3), Microsoft's toolkit and two skill plugin repos (at their pins), `playwright-ms-auth` (no code change).
+  - Done when every move above is merged and the register rows match.
+
+Time and tokens (for 2740's body; session `6e28fcbf`, measured before the closing commit): active time 0 h 22 min (gaps over 10 minutes not counted), from 26 Nov 12:17 to 26 Nov 13:15 (UTC+11). Tokens: 115,629 output; 36,508,760 processed in all, of which 35,887,769 were cache reads. From 1 local transcript(s).
+
+Open items:
+- **To read back on the laptop:** the nine action pins in `factory-gates` and whether Dependabot's pull requests for `create-github-app-token` 3.4.0 and `codeql-action` 4.39.5 are open; the Copilot CLI version in `tools/copilot/package-lock.json`; `PAC_VERSION` (expected 2.4.1); the packages in `requirements-test.txt` (then a register row).
+- **The pin-round story is not in ADO yet:** the next laptop session makes it from the spec above and puts its ID in 2740's body and here.
+- Before Stage 3: the protected paths for Copilot's repository files in project repos (above).
+- The component register review (since 23 November): read the three skill sources' diffs.
+- `CLAUDE.md`'s end step 3 and this file's A1 bullet in "Open items" (it still says an ADO story is to be created; it is 2740) can be corrected by a later session.
+
+Next steps:
+1. Session 57 (2739) makes the ADO updates above (2740's body and the new pin-round story), reads back the four items, and moves every kit at the pin in the register, axe at 4.12.1.
+2. DG9 records the accessibility baseline on axe 4.12.1.
+3. The week after the exit test: the pin round under the new story.
 
 ## Session 52, 2026-11-25, branch `claude/session-52-2546-playwright-kit`
 

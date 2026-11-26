@@ -235,6 +235,8 @@ Done when: the conventions, the schema, the example scenarios and the kit's exam
 
 ### DG8. Move the staged files to GHE (D1). Friday 4 December. Laptop
 
+**Run 26 November 2026** (Session 57, ADO 2739, brought forward to Thu 26 Nov): step 2 is `GetAI-IP/factory-manifestos` pull request 2 and step 3 is gate PR 32, both open for Boroon. Step 4 (deleting `staging/`) waits on his word. Step 5 (the private Spec Kit catalog) moves to after the Stage 1 exit test (Boroon, 26 November 2026), cut once on the pin the pin round (ADO 3106) chooses. Step 6 is settled (Boroon, 26 November 2026): two linked pull requests, one in each repo, merged the same day, for the glossary and ADR formats, and the same for the spec check and the scenario schema; written in the `factory-manifestos` README and `CLAUDE.md`. The gate's Playwright step is not changed in the move (Boroon: a pure move); its fix is in the kit's README, for its own gate PR.
+
 Read: Session 9's entry in `docs/progress.md` (how `factory-gates` moved).
 
 1. In the clone, delete Finder's `.DS_Store` files first.
