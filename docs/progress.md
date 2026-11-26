@@ -185,6 +185,38 @@ Next steps:
 - The records that said "open for Boroon" now say merged: `CLAUDE.md`'s gate row and plan row, the register's pac row, the schedule's 2539 note and Changes entry, and the Session 58 sections of ADO 2539 and 3106. No date moves, no state moves.
 - Planning pull request 75, https://github.com/boroonmahanta/overnight-ai-factory/pull/75, opened at Boroon's word, for him to merge.
 - Time and tokens, the whole session including this read-back (in 2539's body, replacing the earlier line; session `48f1543d`, measured before the closing commit): active time 0 h 42 min (gaps over 10 minutes not counted), from 26 Nov 16:00 to 26 Nov 16:43 (UTC+11). Tokens: 68,774 output; 17,485,312 processed in all, of which 17,113,889 were cache reads. From 1 local transcript.
+## Session 58, 2026-11-26, branch `claude/session-58-2541-test-ca`
+
+On the laptop (desktop app), in its own worktree (`.claude/worktrees/session-58-2541-test-ca`, from `origin/main` at `38ae0aa`). Started as a second session for ADO 2739, then moved to 2541 at Boroon's word.
+
+Done:
+- **Stood down on 2739.** Session 57 was already running on it, with `factory-manifestos` PR 2 and gate PR 32 open. Boroon: "Yes, stand down". Nothing was made for 2739 here: no ADO update, pull request, branch or commit.
+- **2541: the test CA is made** (Boroon, "Yes, make it now"). The identity admins asked for the `.cer` for the trust store (step 3 of the message Boroon sent on 24 November). The plan made the CA only when signing the test user's certificate, after the Key Vault, which waits on the resource group. The CA does not need the vault, so it was made now:
+  - `docs/plans/factory-test/test-ca.cnf` (new; no secret): the CA's subject and extensions, and the test user's certificate extensions for the later signing, with the commands in its header. Checked first with a throwaway key and a dummy signing request in the scratchpad (deleted after).
+  - The real run, in Boroon's Terminal panel: an RSA 3072 key encrypted with AES-256 under a passphrase he typed and keeps in his password manager, then the self-signed root. `O=GET AI, CN=GET AI factory test CA`, valid to 25 November 2028, no CRL point. Read back: the key file is encrypted, the `.cer` holds the public certificate only, the PEM and `.cer` match. The serial, the SHA-1 thumbprint and the SHA-256 fingerprint are in the README (section 2, step 3).
+  - The files are only on Boroon's laptop, in `~/factory-test-ca` (mode 700). The `.cer` is the file to send.
+- **The resource group exists, in another subscription** (3060 step 1). The admin made `rg-getai-factory-aue` in `GET AI - Operations - SPD Benefit`, not `AzureCSP_GetAI_CloudandDataPlatforms` (found by a side session of Boroon's; read back here by `az`): `australiaeast`, Succeeded, Boroon Owner on the group only; the Key Vault provider registered, `kv-getai-factory-aue` free. README section 2 and a comment on ADO 3060 (with the subscription ID) say so. Searching for it made `az` install its `resource-graph` extension (Microsoft's; `az extension remove --name resource-graph` takes it off).
+- **Boroon sent the admins the `.cer`** (26 November 2026); they will upload it after lunch.
+- **The Key Vault and the test user's certificate exist** (3060 step 2, 2541; Boroon, "Yes, create them", each read back by `az`):
+  - `kv-getai-factory-aue` in `rg-getai-factory-aue`, Australia East, Azure RBAC, soft delete 90 days; Boroon is Key Vault Administrator on it.
+  - The certificate `factory-test-nwt`: the vault made the key (RSA 3072, exportable) and the request; Boroon signed it with the test CA in his Terminal panel; it was merged back. Issued by the test CA, to 26 November 2027, secret content type `application/x-pkcs12` (what the Playwright kit needs). Chain checked with `openssl verify`; the public key matches the request.
+  - `getai-nwt-test` has **Key Vault Secrets User on the secret `factory-test-nwt` only**, not Certificate User on the certificate as the README and 3060 had it: the kit reads the certificate as a secret. Told to Boroon before he agreed. 2447 proves the read.
+  - The `certificateUserIds` value for the admins (Microsoft's format, serial bytes reversed): `X509:<I>O=GET AI,CN=GET AI factory test CA<SR>1f6ff3f2628c7c9ab4adf2c3640ba4d8428e8504`. In the README with how they can check it.
+  - The evidence storage account (3060 step 3) is not made: it needs Boroon's choice of how long evidence is kept.
+- **ADO 2541 (rev 10):** a Session 58 section in its body and this session's time and tokens. It stays Building; no date moved. **ADO 3060:** two comments (the subscription; the vault and certificate). It stays Proposed.
+
+Files changed: `docs/plans/factory-test/test-ca.cnf` (new), `docs/plans/factory-test/README.md` (where it stands; the "What exists now" table; section 1 step 4; section 2 steps 1 and 3), `docs/plans/schedule.md` (2541's status only; no date moves), `docs/progress.md` (this entry).
+
+Open items:
+- **Boroon: send the admins the `certificateUserIds` value** above, for the test user (step 5 of his message). If they want to check it, `~/factory-test-ca/factory-test-nwt.cer` is the user's public certificate.
+- **The CA key is kept for now** (Boroon, 26 November 2026), in `~/factory-test-ca`, until 2447 signs in as the test user; then destroy it at his word (delete `~/factory-test-ca/factory-test-ca.key`, then its passphrase from his password manager; the key is encrypted, so a plain delete is enough) and note it in the README and ADO 2541.
+- 3060's storage account: how long evidence is kept (Boroon); then the account, its `nwt` container and Storage Blob Data Contributor for `getai-nwt-test` on that container. And `LCP_KEYVAULT` (`kv-getai-factory-aue`) and `EVIDENCE_ACCOUNT` in `ai-factory-nwt`'s `lcp-test` environment (3059).
+- Plan 5.3 and 3060 still say Certificate User on the certificate; a plan edit, at Boroon's word, if 2447 confirms the secret-scoped role.
+
+Next steps:
+1. The admins upload the `.cer`, make the test user and its group, turn on certificate sign-in for the group, add the binding rules and set `certificateUserIds`.
+2. Boroon gives the test user Basic User in `factory-test` (README section 1, step 7).
+3. 2447 (spike 0.11) signs in as the test user from the vault's certificate.
 
 ## Session 57, 2026-11-26, branch `claude/session-57-2739-move-staging`
 
