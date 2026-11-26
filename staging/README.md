@@ -2,9 +2,11 @@
 
 Drafts of the Stage 1 day-gate files (D1, Boroon, 7 November 2026). They are built here so cloud sessions can build them: cloud sessions cannot reach `getai.ghe.com`. Plan: `docs/plans/stage-1-day-gate-plan.md`.
 
+**Moved on 26 November 2026** (Session 57, ADO 2739, DG8), for Boroon to merge: `factory-manifestos/` by https://getai.ghe.com/GetAI-IP/factory-manifestos/pull/2 (with its history, by a subtree split), and `factory-gates/playwright/` by https://getai.ghe.com/GetAI-IP/factory-gates/pull/32, both byte for byte apart from five files adapted for `factory-manifestos` (its PR says which). Once they merge, change the GHE copies, not these. This folder is deleted only at Boroon's word.
+
 ## Where each part moves
 
-On Friday 4 December 2026, one laptop session (DG8) moves everything here to `GetAI-IP` on `getai.ghe.com`. A pull request here then deletes `staging/` and leaves a pointer in `CLAUDE.md`.
+DG8 moves everything here to `GetAI-IP` on `getai.ghe.com` (brought forward from Friday 4 December to Thursday 26 November 2026). A pull request here then deletes `staging/` and leaves a pointer in `CLAUDE.md`.
 
 | Folder | Moves to | How |
 |---|---|---|
@@ -18,4 +20,4 @@ On Friday 4 December 2026, one laptop session (DG8) moves everything here to `Ge
 - Machine-read names stay product-neutral (rule 18).
 - Python is standard library only, run with `python3 -I`, tested with `unittest`, as in `factory-gates`.
 - The Playwright kit is TypeScript, run by Playwright. Its npm packages come only from its lockfile, installed with `npm ci --ignore-scripts`; vendored code stays byte for byte as its source, with a `PROVENANCE.md`.
-- The `glossary.md` and ADR templates are copies of the formats in `.claude/skills/getai-domain-modeling/`. When one changes, change both in the same pull request. After the move they sit in two repos, so DG8 settles how they stay the same.
+- The `glossary.md` and ADR templates are copies of the formats in `.claude/skills/getai-domain-modeling/`. Since the move they sit in two repos. **Settled (Boroon, 26 November 2026):** a change to either comes as a pair of pull requests, one in each repo, each linking the other, merged the same day. The same holds for the spec check and the scenario schema, copied between `factory-manifestos` and `factory-gates`.
