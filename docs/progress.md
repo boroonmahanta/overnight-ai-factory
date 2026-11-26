@@ -128,7 +128,8 @@ Done:
 - **`docs/component-register.md`**: a "Kits" table with one row per pinned kit, in the existing columns: Spec Kit (checked, and moved into the table: it sat after a blank line, so it did not render as part of the first one), pac, Copilot CLI, the Dataverse CLI, Microsoft's Playwright toolkit, Playwright, axe-core with `@axe-core/playwright`, `playwright-ms-auth`, the kit's other npm packages, `power-platform-skills`, `Dataverse-skills`, and the nine GitHub Actions in `factory-gates` (marked "to read back on the laptop"). Then "A1 first pass, 26 November 2026": how it was checked, a summary table, what changes for us for each update due, other findings, the proposed Dependabot coverage for `factory-gates` (a list, no config), what to read back on the laptop, and how to check a kit. The three skill rows' "Last checked" now say their sources have moved.
 - **Release notes read in full for every update due:** Spec Kit 1.4.4 and 1.4.5 (and the code diff for presets, extensions, bundles and the Copilot integration), pac 2.5 to 2.16.1, Copilot CLI 1.0.114 to 1.0.116, Playwright 1.65.0 and 1.65.1, axe-core and `@axe-core/playwright` 4.13.0 to 4.14.1, `create-github-app-token` 3.4.0, CodeQL Action 4.39.4 and 4.39.5. `playwright-ms-auth` 0.0.20 compared with 0.0.19 file by file. The Dataverse CLI publishes no notes.
 - **No pin moved anywhere.**
-- The schedule's 2740 row says the first pass is written; Done waits on Boroon's word.
+- The schedule's 2740 row says Done (Thu 26 Nov, at Boroon's word).
+- The register's toolkit and Playwright rows now say the kit is on `main` (pull request 68, merged while this session ran; the kit's files are the same as on the branch read).
 
 Found (detail in the register):
 - **Updates due:** pac 2.4.1 to 2.16.1 (12 releases; still .NET 10; the packager and the checker client move, so `checker_gate.py` needs a 2.16.1 sample, and 2459 decides when); Copilot CLI 1.0.113 to 1.0.116 (small; `-p` exits 1 on an empty last answer; read-only MCP tools now need an allow rule under `--no-ask-user`); Playwright 1.64.1 to 1.65.1 (inert elements, unrendered text left out of accessible names, Node 20 no longer tested); axe 4.12.1 to 4.14.1; two actions by Dependabot. Optional: Spec Kit 1.4.5 (fixes only, inside our `>=1.4.3,<1.5`). Not now: the Dataverse CLI 1.0.95. None: the toolkit, `playwright-ms-auth` (0.0.20 has the same code), the two skill plugin repos (our two folders unchanged) and the kit's other packages (newer majors only, outside Microsoft's ranges).
@@ -150,10 +151,12 @@ Decisions (Boroon, 26 November 2026, asked in this session: "1 keep 4.12.1, 2 ye
 
 All three are in `docs/component-register.md` ("A1 first pass").
 
+4. **2740 is Done** (Boroon, 26 November 2026, after being told what was still open: the ADO updates, the four read-backs and getting the branch onto `main`). Those three go to Session 57.
+
 Files changed: `docs/component-register.md`, `docs/plans/schedule.md` (2740's status only), `docs/progress.md` (this entry).
 
 ADO updates for 2740, for the next laptop session (Session 57, 2739, per its brief):
-- **State:** Building. Not Done: Done only at Boroon's word.
+- **State:** Done (Boroon, 26 November 2026). Finish Date not moved.
 - **Body:** add a section "Session 56 (26 November 2026, cloud)": the first pass is in `docs/component-register.md` ("Kits" and "A1 first pass") on branch `claude/intelligent-wright-r9lpw9`, no pin moved; updates due: pac 2.16.1, Copilot CLI 1.0.116, Playwright 1.65.1, axe 4.14.1 (changes results), two actions by Dependabot; optional Spec Kit 1.4.5; not now the Dataverse CLI; Boroon's three decisions above; the four read-backs; the new pin-round story's ID once made; the time and tokens line below.
 - **Time and tokens:** the line below, from this cloud container's own transcript. The two fetch agents' runs may not be in it.
 - Dates: none moved.
@@ -173,7 +176,7 @@ ADO updates for 2740, for the next laptop session (Session 57, 2739, per its bri
   - Not in this round: the Dataverse CLI (Stage 3), Microsoft's toolkit and two skill plugin repos (at their pins), `playwright-ms-auth` (no code change).
   - Done when every move above is merged and the register rows match.
 
-Time and tokens (for 2740's body; session `6e28fcbf`, measured before the closing commit): active time 0 h 19 min (gaps over 10 minutes not counted), from 26 Nov 12:17 to 26 Nov 12:58 (UTC+11). Tokens: 106,980 output; 32,346,402 processed in all, of which 31,748,823 were cache reads. From 1 local transcript(s).
+Time and tokens (for 2740's body; session `6e28fcbf`, measured before the closing commit): active time 0 h 22 min (gaps over 10 minutes not counted), from 26 Nov 12:17 to 26 Nov 13:15 (UTC+11). Tokens: 115,629 output; 36,508,760 processed in all, of which 35,887,769 were cache reads. From 1 local transcript(s).
 
 Open items:
 - **To read back on the laptop:** the nine action pins in `factory-gates` and whether Dependabot's pull requests for `create-github-app-token` 3.4.0 and `codeql-action` 4.39.5 are open; the Copilot CLI version in `tools/copilot/package-lock.json`; `PAC_VERSION` (expected 2.4.1); the packages in `requirements-test.txt` (then a register row).
