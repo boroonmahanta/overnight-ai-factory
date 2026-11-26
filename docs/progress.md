@@ -131,18 +131,27 @@ Done:
   - The real run, in Boroon's Terminal panel: an RSA 3072 key encrypted with AES-256 under a passphrase he typed and keeps in his password manager, then the self-signed root. `O=GET AI, CN=GET AI factory test CA`, valid to 25 November 2028, no CRL point. Read back: the key file is encrypted, the `.cer` holds the public certificate only, the PEM and `.cer` match. The serial, the SHA-1 thumbprint and the SHA-256 fingerprint are in the README (section 2, step 3).
   - The files are only on Boroon's laptop, in `~/factory-test-ca` (mode 700). The `.cer` is the file to send.
 - **The resource group exists, in another subscription** (3060 step 1). The admin made `rg-getai-factory-aue` in `GET AI - Operations - SPD Benefit`, not `AzureCSP_GetAI_CloudandDataPlatforms` (found by a side session of Boroon's; read back here by `az`): `australiaeast`, Succeeded, Boroon Owner on the group only; the Key Vault provider registered, `kv-getai-factory-aue` free. README section 2 and a comment on ADO 3060 (with the subscription ID) say so. Searching for it made `az` install its `resource-graph` extension (Microsoft's; `az extension remove --name resource-graph` takes it off).
-- **ADO 2541 (rev 9):** a Session 58 section in its body (the CA, its serial and fingerprints, where it lives, what is next) and this session's time and tokens. It stays Building; no date moved.
+- **Boroon sent the admins the `.cer`** (26 November 2026); they will upload it after lunch.
+- **The Key Vault and the test user's certificate exist** (3060 step 2, 2541; Boroon, "Yes, create them", each read back by `az`):
+  - `kv-getai-factory-aue` in `rg-getai-factory-aue`, Australia East, Azure RBAC, soft delete 90 days; Boroon is Key Vault Administrator on it.
+  - The certificate `factory-test-nwt`: the vault made the key (RSA 3072, exportable) and the request; Boroon signed it with the test CA in his Terminal panel; it was merged back. Issued by the test CA, to 26 November 2027, secret content type `application/x-pkcs12` (what the Playwright kit needs). Chain checked with `openssl verify`; the public key matches the request.
+  - `getai-nwt-test` has **Key Vault Secrets User on the secret `factory-test-nwt` only**, not Certificate User on the certificate as the README and 3060 had it: the kit reads the certificate as a secret. Told to Boroon before he agreed. 2447 proves the read.
+  - The `certificateUserIds` value for the admins (Microsoft's format, serial bytes reversed): `X509:<I>O=GET AI,CN=GET AI factory test CA<SR>1f6ff3f2628c7c9ab4adf2c3640ba4d8428e8504`. In the README with how they can check it.
+  - The evidence storage account (3060 step 3) is not made: it needs Boroon's choice of how long evidence is kept.
+- **ADO 2541 (rev 10):** a Session 58 section in its body and this session's time and tokens. It stays Building; no date moved. **ADO 3060:** two comments (the subscription; the vault and certificate). It stays Proposed.
 
-Files changed: `docs/plans/factory-test/test-ca.cnf` (new), `docs/plans/factory-test/README.md` (where it stands; section 1 step 4; section 2 step 3), `docs/plans/schedule.md` (2541's status only; no date moves), `docs/progress.md` (this entry).
+Files changed: `docs/plans/factory-test/test-ca.cnf` (new), `docs/plans/factory-test/README.md` (where it stands; the "What exists now" table; section 1 step 4; section 2 steps 1 and 3), `docs/plans/schedule.md` (2541's status only; no date moves), `docs/progress.md` (this entry).
 
 Open items:
-- **Boroon: send the admins `~/factory-test-ca/factory-test-ca.cer`.** They upload it to the PKI `factory-test-ca` as a root CA, with no CRL URL, and can check the SHA-1 thumbprint in the README. Steps 1, 2, 4 and 6 of his message never needed it.
-- When the vault exists (3060, after the resource group): sign its request with `user_cert`, merge it back, send the `certificateUserIds` value, then Boroon's choice: destroy the CA key, or keep it in a separate vault.
-- If the laptop is lost before the signing, make a new CA; the admins upload it again.
+- **Boroon: send the admins the `certificateUserIds` value** above, for the test user (step 5 of his message). If they want to check it, `~/factory-test-ca/factory-test-nwt.cer` is the user's public certificate.
+- **Boroon to choose:** destroy the CA key now (a renewal before November 2027 then needs a new CA, uploaded again), or keep it in a separate vault only he can read.
+- 3060's storage account: how long evidence is kept (Boroon); then the account, its `nwt` container and Storage Blob Data Contributor for `getai-nwt-test` on that container. And `LCP_KEYVAULT` (`kv-getai-factory-aue`) and `EVIDENCE_ACCOUNT` in `ai-factory-nwt`'s `lcp-test` environment (3059).
+- Plan 5.3 and 3060 still say Certificate User on the certificate; a plan edit, at Boroon's word, if 2447 confirms the secret-scoped role.
 
 Next steps:
-1. The admins upload the `.cer` and do the rest of the Entra steps; the CSP owner makes the resource group.
-2. Then the vault, the certificate and its signing (2541 and 3060), before 2447 and 2539.
+1. The admins upload the `.cer`, make the test user and its group, turn on certificate sign-in for the group, add the binding rules and set `certificateUserIds`.
+2. Boroon gives the test user Basic User in `factory-test` (README section 1, step 7).
+3. 2447 (spike 0.11) signs in as the test user from the vault's certificate.
 
 ## Session 57, 2026-11-26, branch `claude/session-57-2739-move-staging`
 
