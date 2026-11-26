@@ -185,6 +185,7 @@ Next steps:
 - The records that said "open for Boroon" now say merged: `CLAUDE.md`'s gate row and plan row, the register's pac row, the schedule's 2539 note and Changes entry, and the Session 58 sections of ADO 2539 and 3106. No date moves, no state moves.
 - Planning pull request 75, https://github.com/boroonmahanta/overnight-ai-factory/pull/75, opened at Boroon's word, for him to merge.
 - Time and tokens, the whole session including this read-back (in 2539's body, replacing the earlier line; session `48f1543d`, measured before the closing commit): active time 0 h 42 min (gaps over 10 minutes not counted), from 26 Nov 16:00 to 26 Nov 16:43 (UTC+11). Tokens: 68,774 output; 17,485,312 processed in all, of which 17,113,889 were cache reads. From 1 local transcript.
+
 ## Session 58, 2026-11-26, branch `claude/session-58-2541-test-ca`
 
 On the laptop (desktop app), in its own worktree (`.claude/worktrees/session-58-2541-test-ca`, from `origin/main` at `38ae0aa`). Started as a second session for ADO 2739, then moved to 2541 at Boroon's word.
@@ -270,62 +271,6 @@ Next steps:
 - **DG8's "done when" is met**: both GHE repos hold the files with tests passing, `staging/` is gone from `main`, and the rule for copies across two repos is written down. Step 5, the Spec Kit catalog, moved to after the exit test at Boroon's word. **2739 moved to Done in ADO at Boroon's word** ("move 2739 to done if nothing else is needed here", after pull request 72 merged; checked first: `staging/` gone from `main`, no stale plan lines, no open gate PR, `release` still `2709f49`). Dates not moved.
 - **Seen, for Boroon (a message from the gate session he pasted here):** spike 0.10 (2459) found two blockers for 2539 in the gate as it stands, and the gate session asks to fix both in one gate PR: the import into Test fails on a first install with `--stage-and-upgrade` ("Cannot create a holding solution for missing base"), so a small trusted step would add the flag only when the solution is already in Test; and **pac 2.4.1's checker writes no report**, so `checker_gate.py` fails every PR, and the pin would move to 2.15.1. A third, optional: `run_workflow.py` retries its first reads briefly on error 0x80060888 after an import. **The pac move is not inside Boroon's exception** (every pin holds through the exit test, except pac if 2.4.1 cannot pack the `Both` layout), so it needs his own word. If it moves, the register's pac row, the A1 summary and 3106's pac part change in the same round. Session 57 is finished with `factory-gates` (gate PR 32 merged), so there is no clash: that PR starts from `release` at `2709f49`.
 - Time and tokens, the whole session including the plan edit (in 2739's body, replacing the earlier lines; session `a84c1108`, measured before the closing commit): active time 0 h 57 min (gaps over 10 minutes not counted), from 26 Nov 13:19 to 26 Nov 15:18 (UTC+11). Tokens: 116,248 output; 45,853,182 processed in all, of which 44,943,628 were cache reads. From 1 local transcript(s).
-
-## Session 53, 2026-11-26, branch `claude/session-53-3027-run-workflow-26844f`
-
-ADO 3027: `lcp/run_workflow.py`, the trusted runner for locked YAML scenarios. On the laptop (desktop app), laptop track A, one of Boroon's four catch-up sessions started on Thu 26 Nov (with 54, 55 and 56) to keep the Stage 1 exit test on Fri 27 Nov. Started by another session; at Boroon's word it was moved to top level, not nested. Planning branch in its own worktree from `main` at `2c11ae9`. Gate branch `gate-3027-run-workflow` in a worktree of the gate clone inside it (`factory-gates/`, from `release` at `5ba13be`); the shared gate clone was not switched. The only session allowed to change `factory-gates` this round.
-
-Read for it: Sessions 48 to 51 here, the schedule, ADO 3027 and its two comments, Session 51's `staging/factory-manifestos/conventions/` (schema, rules, two Northwind examples), plan 5.8 and 5.9, `verify-in-test` in the gate, `simple_yaml.py`, `verdict_gate.py`, `manifest.py`, `test_workflow.py`, the token code in spikes 0.14 and 0.19, and Microsoft's `flowrun` and `asyncoperation` table references.
-
-Done:
-- **Gate PR 31**, https://getai.ghe.com/GetAI-IP/factory-gates/pull/31 (commit `309901b`, `self-test` green, run 41298691), **merged by Boroon on 26 November 2026**, `release` at `f8bbda9`, read back the same day: 778 tests (4 skipped by design), manifest, hash and rulesets checks clean, `pending-scripts.txt` 2, the merge's tree the same as the PR's head:
-  - `lcp/run_workflow.py`, standard library only, called by `verify-in-test` exactly as Appendix A has it. It checks each file against the schema and the rules the schema cannot express. It looks every table and column up in Test before writing anything. It seeds tagged rows (`lcp-run:<run ID>/<case ID>`), each with its own row ID, then does the row trigger. It polls until every row and plug-in trace expectation holds at once, or times out. It reads the run record as a secondary signal only: a classic workflow's system job by the trigger's row, or a cloud flow's `flowrun` by flow and start time. It cleans up, pass or fail, and writes `scenarios.json` in `verdict_gate.py`'s shape plus a `cases` list. It exits 0 once the file is written. With Test unreachable or no token, every case fails with the reason and the file is still written. `--check` checks the files offline.
-  - `lcp/scenario.schema.json`: a byte-identical, hashed copy of DG7's schema (settles open point 5).
-  - 57 new tests: 56 in `tests/test_run_workflow.py`, against a fake Web API that copies Northwind's behaviour in Test, and 1 in `test_workflow.py` that holds the step's call and flags. They cover Session 51's 10 good and 31 bad variants, the rules, discovery, every step, each retry case, the token exchange and the urllib transport against a local server. `tests/fixtures/scenarios/` holds the two Northwind examples, unchanged.
-  - `pending-scripts.txt` down to 2. `verdict_gate.py`'s docstring no longer says no writer is written. README rows and a section, "The locked scenario runner (ADO 3027)". `scripts.sha256` rebuilt last.
-- **Read back locally** (venv `~/.venvs/factory-gates`, Python 3.15, Finder's files deleted first): 778 tests pass, 4 skipped by design; `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check` clean; both Northwind examples pass `--check`. I broke a copy 10 ways (true read as 1, clean-up's `createdon` dropped, job not matched by row, update retried on no answer, `count: 0` alone passing at once, `&` unencoded, lost-create check removed, no new token on 401, plug-in exception not failing, tag sweep removed): each failed a test. I also checked one real urllib round trip against a local server (a 429 with `Retry-After`, then the `Date` header).
-- `staging/factory-manifestos/conventions/locked-scenarios.md`: open points 1, 2 and 5 say what the runner settled, and step 4 says how `count: 0` is read.
-- The schedule's 3027 row and Changes, and 2539's row. No date moved.
-- ADO: **3027 Done**, at Boroon's word after the merge and read-back (Thu 26 Nov; dates not changed). **DG9 owns the first live run** (Boroon), in place of the story's own "once in `factory-test` before DG9"; DG9 step 3 in `docs/plans/stage-1-day-gate-plan.md` and a comment on 2546 say so. 3027's body has a Session 53 section with the time and tokens.
-
-Choices made without asking (in the gate README for Boroon; say if any is wrong):
-- **The HTTP trigger is not built.** A `kind: http` case fails, with the reason. How the Test identity gets a trigger address is untried, and Northwind has no HTTP flow.
-- **A lookup is set only with `ref:`.**
-- **`count: 0` holds at every read after the trigger**, and alone it waits the whole timeout. Otherwise "no task row is made" would pass before the flow ran. This is stricter than Session 51's step 4 wording, which is now updated to match.
-- **A filter's clean-up deletes only rows created since the case began**, because the Test identity is System Administrator and a loose filter could match imported data.
-- **A cloud flow's run is matched by flow and start time only**; a false fail is possible if an earlier case's run fails late. A classic workflow's job is matched by its row.
-- **`run` with no `status` expects `succeeded`.** A missing folder means no cases. The suite has one hour.
-- **The token comes from the job's OIDC token exchanged at Entra as the Test identity**, not `az`: the import before this step can take 30 minutes, and `az`'s federated sign-in cannot get a new token after 5 (spike 0.14 finding 9). Redirects are refused.
-
-Files changed: `docs/progress.md`, `docs/plans/schedule.md`, `staging/factory-manifestos/conventions/locked-scenarios.md`, `CLAUDE.md` (the gate and Test environment rows, after the merge), `docs/plans/stage-1-day-gate-plan.md` (DG9 owns the live run). In `factory-gates` (gate PR 31): `lcp/run_workflow.py`, `lcp/scenario.schema.json`, `lcp/verdict_gate.py`, `pending-scripts.txt`, `scripts.sha256`, `README.md`, `tests/test_run_workflow.py`, `tests/test_workflow.py`, `tests/fixtures/scenarios/`. No plan edit: plan 5.8 and Appendix A already say what the runner does and how it is called.
-
-Time and tokens (in 3027's body; session `f634c578`, measured before the last commit): active time 0 h 40 min (gaps over 10 minutes not counted), from 26 Nov 12:11 to 26 Nov 13:21 (UTC+11). Tokens: 136,624 output; 15,097,631 processed in all, of which 14,570,952 were cache reads. From 1 local transcript.
-
-Open items:
-- **Done: Boroon merged gate PR 31** (26 November 2026, `release` at `f8bbda9`), read back clean. `CLAUDE.md`'s gate and Test environment rows say so.
-- **Not tested against Dataverse.** The Web API names for `flowrun` (`_workflow_value`, `starttime`, the `status` strings), `asyncoperation` (`_regardingobjectid_value`, `_workflowactivationid_value`) and `plugintracelog` come from Microsoft's table reference; no spike has read them. A wrong one only makes the run signal "unknown", except `plugintracelog`, where a `plugin_trace` check would fail.
-- **Plug-in trace logging** must be on in `factory-test` before any `plugin_trace` check can pass (2541 or 2459). Northwind's examples have none.
-- **The two copies of the schema** (`conventions/scenario.schema.json` in `GetAI-IP/factory-manifestos` since Session 57, and the gate's `lcp/scenario.schema.json`) stay byte for byte the same, by two linked pull requests merged the same day (Session 57's rule).
-- **Done: 3027 moved to Done** at Boroon's word (26 November 2026). DG9 owns the first live run.
-- **Merging:** this branch and the other catch-up sessions' branches all add to the top of this log and to the schedule's Changes; whoever merges second takes the other's lines.
-
-Planning PR: https://github.com/boroonmahanta/overnight-ai-factory/pull/69, opened at Boroon's word on 26 November 2026, after `main` (pull requests 67 and 68, Session 52) was merged into the branch with both log entries kept. **Merged by Boroon on 26 November 2026.**
-
-**Later the same day (26 November 2026).** Session 54 (spike 0.10, ADO 2459) sent this session a message: Boroon had said "Yes, send them". It asked for two gate changes that 2539 needs before Friday, because only this session was allowed to change `factory-gates`. The record is `docs/plans/spike-0.10/README.md` (findings 5 and 11, proposals 3 and 4) on Session 54's branch `claude/session-54-2459-test-env` (commit `f9a1a05`). **Nothing was changed.** I passed it to Boroon and asked whether to make the gate PR; he has not said yet. Session 57's entry also notes it, and says why the pac move needs his own word. The three items:
-1. **The import into Test fails on a first install.** `verify-in-test` imports with `--stage-and-upgrade`, and on a solution not yet in Test pac 2.4.1 fails: "Cannot create a holding solution for missing base" (Session 54's run 41298256). Northwind is not in `factory-test`, so 2539's first run stops there. Session 54's fix: a trusted step reads the solution's unique name from the zip's `solution.xml` and asks Test (`solutions?$filter=uniquename eq '<name>'`) as the Test identity. It adds `--stage-and-upgrade` only when the solution is already there.
-2. **pac 2.4.1's solution checker writes no report.** It exits 0, but the output folder stays empty (runs 41298256 and 41301746), so `checker_gate.py` fails every PR with "no SARIF report". pac 2.15.1 writes it. The fix: move `PAC_VERSION` from 2.4.1 to 2.15.1, after reading the release notes (A1). The other way out is a second pac install for the checker step alone.
-3. **Optional, for `run_workflow.py`:** once, seconds after an upgrade (run 41304331), a read of a column the upgrade had just added failed with 0x80060888 ("Could not find a property named ..."). The runner could retry its first reads on that error for a short while after the import.
-
-The gate PR would start from `release` at `2709f49` (after Session 57's gate PR 32), with `scripts.sha256` made again last. Plan Appendix A's import step and pac pin would follow at Boroon's word.
-
-Left on the laptop: this session's gate worktree, `.claude/worktrees/session-53-3027-run-workflow-26844f/factory-gates`, detached at `f8bbda9`. Its branch `gate-3027-run-workflow` is merged. A new session should make its own worktree from `release`, not reuse this one. It can be removed with `git -C "<main folder>/factory-gates" worktree remove <that path>`.
-
-Time and tokens, whole session (measured at the end; ADO 3027's body still holds the 40-minute measure above, not updated because Boroon asked for nothing else): active time 0 h 55 min (gaps over 10 minutes not counted), from 26 Nov 12:11 to 26 Nov 15:48 (UTC+11). Tokens: 160,836 output; 27,897,442 processed in all, of which 26,867,794 were cache reads. From 1 local transcript.
-
-Next steps:
-1. Done: gate PR 31 merged and `release` read back; 3027 Done; planning PR 69 merged.
-2. **Boroon decides** whether a gate PR fixes Session 54's two blockers (and whether it carries the optional retry), and gives his own word on the pac move. If yes, a fresh laptop session writes it from `release` at `2709f49`: the import step, pac 2.15.1, tests, the README and the manifest made again last. Then the plan's Appendix A at his word.
-3. DG9 or 2539 runs the Northwind examples through the gate in `factory-test`, once that PR, 3060 and the test user (2541) are in place. Watch the run's first reads, the run-record names, `scenarios.json` and clean-up.
 
 ## Session 56, 2026-11-26, branch `claude/intelligent-wright-r9lpw9`
 
@@ -413,101 +358,7 @@ New next steps, not listed above:
 2. Session 57 opens one planning pull request into `main` that carries this branch's commits too. Until then, Session 56's work is only on `claude/intelligent-wright-r9lpw9`.
 3. Whoever runs DG9 for 2546 (Fri 27 Nov) is told that axe stays at 4.12.1 (the register's "A1 first pass" says so), before the baseline is recorded.
 4. For 2740's body, use this closing time line in place of the one above: active time 0 h 23 min (gaps over 10 minutes not counted), from 26 Nov 12:17 to 26 Nov 15:56 (UTC+11). Tokens: 122,809 output; 38,916,753 processed in all, of which 37,784,717 were cache reads. From 1 local transcript(s). Measured before this summary's commit.
-## Session 52, 2026-11-25, branch `claude/session-52-2546-playwright-kit`
 
-ADO 2546, DG7 part 2: the Playwright kit v0. A side session started by "44. Stage 1 - Build - Scenario conventions and Playwright kit" (Session 51, branch `claude/session-51-2546-scenarios`, which writes the conventions, the schema and the YAML examples), when Boroon split 2546 in two on 25 November 2026. On the laptop (desktop app), in its own worktree (`.claude/worktrees/session-51-2546`, from `origin/main` at `dae3155`; the folder keeps the number it was briefed with, before the parent renumbered).
-
-Decisions (Boroon, 25 November 2026, each asked in this session):
-- Download 71 files of `microsoft/power-platform-playwright-samples` at `3233f3e` into the scratchpad (the toolkit's 50, the licence, notice, package files and lockfile, and 17 sample files). Yes, all three sets.
-- Download the 58 npm packages the kit needs, at Microsoft's lockfile versions, checked by sha512, including `playwright-ms-auth` 0.0.19 from one person's npm account. Yes, all 58.
-
-Decision (Boroon, 26 November 2026, asked by the scenario session and passed here by message): **"Yes, on its branch"**, to three edits on this branch, so one pull request carries them with the kit:
-- `staging/factory-manifestos/conventions/locked-scenarios.md`, "UI tests (Playwright)": the canvas class is `CanvasAppRuntimePage`, for a published app, not `CanvasAppPage`, which drives Power Apps Studio for authoring only.
-- The same section gains a bullet: a canvas test also carries the tag `@canvas`, which puts it in the kit's canvas project; every other UI test runs in the model-driven project.
-- **A plan edit:** `docs/sources/plan-v3.1.md`, 5.8's table, the UI row (line 717): `CanvasAppPage` becomes `CanvasAppRuntimePage`.
-
-Done:
-- **The toolkit read in full**, all 50 files, by four reader agents of this session (a quarter each), plus `playwright-ms-auth`'s code by this session: `docs/analysis/playwright-kit-reading-notes.md` (18 findings). The agents' full reports are in the session's shared notes folder on the laptop.
-- **Vendored unchanged** in `staging/factory-gates/playwright/vendor/power-platform-playwright-toolkit/` with the repo's `LICENSE` and `NOTICE.md` (52 files matching GitHub's blob hashes) and our `PROVENANCE.md`. Three rows in `docs/component-register.md`: the toolkit, `playwright-ms-auth`, and the other npm packages.
-- **The kit:** `playwright.lcp.config.ts` (specs from `TEST_SPECS_DIR`, `*.spec.ts` and `*.test.ts`; one worker, no full parallel, one retry in CI, trace on first retry; HTML and JUnit; projects `sign-in`, `model-driven` and `canvas` with storage states `.auth/mda.json` and `.auth/canvas.json`); a lockfile built from Microsoft's with the same sha512 values; helpers in `lib/` (accessible-name selector with no CSS route, run tag and tagged rows deleted after each test, axe-core against `a11y-baseline.json`, keyboard-only journey, sign-in); three Northwind model-driven examples (`ui-order-grid-01`, `ui-order-form-01`, `ui-order-a11y-01`, criteria `@AC-3` to `@AC-5` as stand-ins); nine self-checks with no browser. README in the folder.
-- **Checks with no sign-in, all pass** (scratch copy): `npm ci --ignore-scripts` (58 packages), the type check (vendored toolkit included), `--list` (6 tests in 4 files, also from a folder outside the kit), the self-checks with the gate's own `--reporter=html,junit` (9 passed; JUnit and HTML land in the evidence folder). Two deliberate breaks (no criteria tag, a CSS selector) each failed.
-- **The sign-in variables are settled from the code** (Session 46 finding 5 was not right): `playwright-ms-auth` reads `MS_AUTH_EMAIL`, `MS_AUTH_CREDENTIAL_TYPE`, `MS_AUTH_CREDENTIAL_PROVIDER`, `MS_AUTH_KEYVAULT_ENDPOINT` (a URL) and `MS_AUTH_KEYVAULT_SECRET_NAME`; nothing reads `KEYVAULT_NAME`, `AZURE_KEYVAULT_URL` or `AZURE_CERTIFICATE_NAME`. **The gate step's change is written down** in the kit's README ("The change to the gate step"), for a gate pull request later at Boroon's word; the gate repo is not touched.
-
-Found (reading notes):
-- `playwright-ms-auth` signs in with **Microsoft Edge** (`msedge` channel). GitHub's hosted Ubuntu 24.04 image has Edge 157; a self-hosted runner needs it. It reads the certificate as a Key Vault secret and takes it as a certificate only if the content type is `application/x-pkcs12`. It signs in to Azure through the Azure CLI first, so the job's existing `azure/login` serves.
-- It is one person's package (5 stars), at 0.0.x, though its licence names Microsoft. It runs in the job that holds the Test identity's session. Recorded as a risk; pinned by sha512, no install scripts.
-- With `--reporter=html,junit` on the command line, Playwright drops the config's reporter paths and JUnit would go to standard output. The config now sets `PLAYWRIGHT_JUNIT_OUTPUT_FILE` and `PLAYWRIGHT_HTML_OUTPUT_DIR`, which Playwright reads first.
-- The gate step never installs Playwright's browsers; `npm ci` does not.
-- The toolkit's `saveRecord()` asks for a button named "Save", which also matches "Save & Close", and its model-driven launch waits a fixed 30 seconds each time. `GenUxPage` can delete every app whose name starts with a prefix; specs must never use it.
-- The run tag column `nwind_sampledataoriginalid` is not on Northwind's Orders form, so the kit writes the tag with `Xrm.WebApi` in the signed-in app, as the test user.
-
-Files changed: `staging/factory-gates/playwright/` (new: config, package files, `tsconfig.json`, `.gitignore`, `a11y-baseline.json`, `README.md`, `lib/` 7 files, `kit-tests/kit.check.ts`, 3 example specs, `vendor/` 53 files), `docs/analysis/playwright-kit-reading-notes.md` (new), `docs/component-register.md` (3 rows), `staging/README.md` (the `factory-gates/` row and a rule for the kit), `docs/progress.md`; on 26 November, at Boroon's word above, `staging/factory-manifestos/conventions/locked-scenarios.md` (the canvas class and the `@canvas` bullet) and `docs/sources/plan-v3.1.md` (5.8's UI row), then `CLAUDE.md` (the plan row lists that edit). Not changed: `docs/plans/schedule.md` (2546 is not finished; DG9 is left).
-
-Time and tokens (in 2546's body, rev 10; session `59f19359`, the whole session to 26 November, its four reader agents included, measured before the last commit, `--root` the main folder's project transcripts; it replaces the line measured on 25 November before the first commit): active time 1 h 10 min (gaps over 10 minutes not counted), from 25 Nov 21:02 to 26 Nov 12:25 (UTC+11). Tokens: 214,199 output; 43,280,931 processed in all, of which 41,960,946 were cache reads. From 1 local transcript.
-
-Open items:
-- **For the scenario session (Session 51) and Boroon:** nothing in its draft conventions differs from the kit. Two additions for that file: canvas UI tests carry `@canvas` (the kit's project split), and the UI examples use `@AC-3` to `@AC-5`. Hand-over note in the shared notes folder. **Done 26 November:** `@canvas` and the canvas class are in the conventions, at Boroon's word; the `@AC-3` to `@AC-5` stand-ins need no change (the scenario session).
-- **`CLAUDE.md`'s plan row** now lists this session's plan edit (5.8's UI row, the canvas class), added at Boroon's own word in this session on 26 November 2026.
-- **The gate step change** (kit README): the five variables, `LCP_EVIDENCE_DIR`, `--ignore-scripts`, the browser install, and (proposed) the test user, certificate name, app ID and a `ui` switch from the project's `gate.json` through `project_settings.py`, with that step moved above the Playwright step. A gate pull request at Boroon's word; plan Appendix A's step to match, also at his word.
-- **For 2541 and 3060:** the test user's certificate as a Key Vault certificate in PKCS#12; "Key Vault Secrets User" for the Test identity on that vault or secret; a security role for the test user that can create, read and delete `nwind_orders` rows.
-- **For DG9 (2546 part 2):** sign-in straight at the model-driven app's URL is untested (Microsoft's script goes through the maker portal first); the Save command's accessible name; Ctrl+S in headless Chromium; the axe baseline's first entries; run times against plan 5.8.
-- `playwright-ms-auth` 0.0.20, Playwright 1.65.1 and axe 4.14.1 exist; not taken (A1).
-- `CLAUDE.md`'s `staging/` row still lists only DG1's files; whoever next edits it adds the spec-kit and `playwright/` folders.
-
-Pull request 67 (https://github.com/boroonmahanta/overnight-ai-factory/pull/67), opened 26 November 2026 at Boroon's word, after main (pull requests 65 and 66) was merged into the branch. **Merged by Boroon on 26 November 2026** (`e89db34`). 2546 stays Building, not closed: DG9 (the run in `factory-test`, Fri 27 Nov) is part of it and not done.
-
-Next steps:
-1. Boroon decides the gate step change (kit README), for a gate pull request.
-2. 2739 moves `playwright/` to `factory-gates` with the rest of `staging/`.
-3. DG9 runs the examples in `factory-test` once 2541 and 2447 are done.
-## Session 54, 2026-11-26, branch `claude/session-54-2459-test-env`
-
-ADO 2459, spike 0.10: Test environment behaviour, by the "export both" route Boroon chose on 23 November 2026. On the laptop (desktop app), laptop track B, a day after its Wed 25 Nov date, kept to what 2539 (Fri 27 Nov) needs. Session renamed "47. Stage 1 - Spike - Test environment behaviour", top level in the sidebar group, at Boroon's word. Planning branch in its own worktree (`.claude/worktrees/session-54-2459`, from `origin/main` at `2c11ae9`; local `main` was stale). `factory-gates` not changed (Session 53 alone may): its files were only read from `release` `5ba13be`. Sessions 52 and 53 have entries on their own branches, not yet on `main`; whichever merges second takes the other's lines here.
-
-Read for it: `CLAUDE.md`; Sessions 48 to 52 (52 from its branch); `docs/plans/schedule.md`; ADO 2459's body; plan 11.1's row 0.10, 5.6, 5.7, 5.8's run-time table and Appendix A's `build` and `verify-in-test`; `docs/plans/factory-test/README.md`; spikes 0.18 and 0.19's probes; in the gate, `lcp-gate.yml`, `pack_offline.py`, `checker_gate.py`, and the `_managed.xml` handling in `check_manifest.py`, `plan_from_export.py` and `lint_accessible_labels.py`.
-
-Done (record: `docs/plans/spike-0.10/README.md`, with copies of the probe):
-- Scratch, each part allowed by the brief: repo `GetAI-IP/import-probe` (private); credentials `import-probe-fl1-exec` on `getai-fl1-exec` and `import-probe-lcp-test` on `getai-nwt-test` (by `az`); solution `FactoryImportSpike` (prefix `fspk`) in `factory-lane-1`, imported managed into `factory-test`. Each identity in its own job and GitHub environment; the pack job had no credentials.
-- Nine runs (41297271 to 41338391), five versions of the solution. **The exit test passes and the route works:**
-  - export both (unmanaged, then `--managed`) and `unpack --packagetype Both` work headless as the lane identity; a second export is byte-identical, within each run and across runs; the managed export adds about 8 to 10 s;
-  - the gate's own `pack_offline.py` packs both kinds from the `Both` tree in a no-network sandbox, on pac 2.4.1 and 2.15.1 (identical members); the managed zip says `Managed` 1 and round-trips byte for byte;
-  - Test, as `getai-nwt-test` with the gate's flags, applied an additive upgrade (59.5 s) and then **removed a dropped column, table, environment variable and flow, with data in them** (132.2 s); kept data stayed. Every upgrade was an InlineUpgrade, with no `_Upgrade` holding solution left. Upgrades at the **same version** also applied and removed (39.2 s and 34.9 s). A stale settings file caused no error.
-  - `Both` adds a `_managed.xml` beside each form (with empty cell labels) and `<Managed>2</Managed>` in `Other/Solution.xml`.
-- **Two blockers found for 2539, not fixed (gate changes):**
-  1. `--stage-and-upgrade` **fails on a first install** ("Cannot create a holding solution for missing base"). Northwind is not in `factory-test`, so the gate's import step fails on its first run there. A plain managed import installed it (145.5 s).
-  2. **pac 2.4.1's checker writes no report file** (two runs); 2.15.1 writes it. The gate pins 2.4.1 and `checker_gate.py` fails with no report, so `verify-in-test` stops at the checker on every PR. The checker works as the Test identity with no API permission (about 34 s).
-- Also found: seconds after an upgrade the Web API refused a new column once (0x80060888), for 3027 and the Playwright kit to retry on; settings-file values land as unmanaged rows.
-- **Scratch deleted and read back gone** (04:09 UTC): the solution uninstalled from Test (131.7 s) and deleted from the lane, both listings empty (by the probe, and again as Boroon by the Web API); both credentials deleted (`getai-nwt-test` keeps only `ai-factory-nwt-lcp-test`); the repo deleted (HTTP 404). The checker's two reports sit in Microsoft's storage until their 24-hour links expire.
-- ADO 2459 **Building**; its body gains a Session 54 section (rev 8) with the result and the time line. Not Done: at Boroon's word only.
-
-**2541 checked (read-only, as Boroon), for the brief:** at 02:13 UTC nothing existed. At 04:14 UTC (15:14 Sydney): the test user `factory-test-nwt@getai.com.au` **exists** (made 03:52 UTC; enabled, member, usage location AU, one Power Apps Premium licence, no `certificateUserIds` yet), and so does the security group `factory-cba-test-users` (made 03:52 UTC; the user its only member). **Not yet:** the resource group `rg-getai-factory-aue` (not in `AzureCSP_GetAI_CloudandDataPlatforms`), so no Key Vault `kv-getai-factory-aue`, and Boroon has no Azure role assignment. Whether the trust store, certificate sign-in and the binding rules are done cannot be read with Boroon's roles. So 2541 still waits on the subscription's owner, and 2447 is not started.
-
-Decisions: none asked. Choices made without asking (say if any is wrong): the first install went in without `--stage-and-upgrade` to carry on; two extra cycles at the same version (states 4 and 5) and a stale settings file, because the driver owns the version and the gate's settings file is static; the checker run on both pac versions once 2.4.1 wrote nothing.
-
-Files changed: `docs/plans/spike-0.10/` (new: `README.md`, `probe.yml`, `import_probe.py`, `check_vars.sh`), `docs/plans/schedule.md` (2459's status only, no date moves), `docs/progress.md`, `CLAUDE.md` (a row for the spike folder). No plan edit: ten proposals in the README.
-
-Time and tokens (in 2459's body; session `b98652da`, measured before the last commit, `--root` the main folder's project transcripts): active time 1 h 23 min (gaps over 10 minutes not counted), from 26 Nov 12:15 to 26 Nov 15:15 (UTC+11). Tokens: 126,749 output; 30,915,974 processed in all, of which 30,050,133 were cache reads. From 1 local transcript.
-
-Open items:
-- **For Boroon before 2539 (Fri 27 Nov):** the two gate changes, which only Session 53 may make today: (1) install when the solution is absent from Test, upgrade when present (README proposal 3); (2) the pac pin to 2.15.1 (or 2.16.1 after A1), at least for the checker (proposal 4). **Sent to Session 53** ("46. Stage 1 - Build - Scenario runner (3027)") at Boroon's word ("Yes, send them", 26 November 2026), with the evidence, the proposed fixes, the Web API lag note for 3027, and a warning that the 2739 session may also touch `scripts.sha256`. Delivered; its turn started on it. Session 53 owns the gate PR; Boroon merges it.
-- **Ten plan edit proposals** in the README (5.3, 5.6, 5.7, 5.8, 7.4, 11.1, 12, 14.4, Appendix A), none made.
-- For the gate later: `plan_from_export.py` and a form's two `_managed.xml` halves; the checker's signed report link in the job log.
-- **2541:** the resource group and Owner for Boroon (the subscription's owner), then the vault and certificate (README section 2), the `certificateUserIds` value to the admins, and Basic User in `factory-test`. Then 2447.
-
-Next steps:
-1. Boroon reads the result and says whether 2459 is Done.
-2. The two gate changes (Session 53 or Boroon), then 2539.
-
-Summary at the end of the session (added 26 November 2026, 15:53 Sydney):
-- **Work completed:** spike 0.10 run and passed by "export both" (nine runs, five versions of a scratch solution); two blockers for 2539 found and recorded (`--stage-and-upgrade` fails on a first install; pac 2.4.1's checker writes no report); 2541 checked (the test user and group now exist, the resource group and Key Vault do not); all scratch deleted and read back gone; the record in `docs/plans/spike-0.10/` with the probe's copies and ten plan edit proposals; `schedule.md` (2459's status), `CLAUDE.md` (the spike folder's row) and this entry; ADO 2459 Building with its Session 54 section. Then, at Boroon's word, the two gate changes went to Session 53 by message. Commits `f9a1a05` and `f27d4e6` on `claude/session-54-2459-test-env`, pushed; no planning pull request (the brief said none).
-- **Time and tokens, whole session so far** (session `b98652da`, `--root` the main folder's project transcripts): active time 1 h 31 min (gaps over 10 minutes not counted), from 26 Nov 12:15 to 26 Nov 15:53 (UTC+11). Tokens: 144,299 output; 39,851,611 processed in all, of which 38,917,724 were cache reads. ADO 2459's body still holds the earlier figure (1 h 23 min), measured before the last commit; not changed here.
-
-New next steps (not listed above):
-3. Before Boroon merges Session 53's gate PR for the two changes: check it covers both (an import without `--stage-and-upgrade` when the solution is not in Test, and a pac pin whose checker writes its report), that `self-test` is green, and that `scripts.sha256` was regenerated after the last hashed change.
-4. In 2539's first real gate run, check the two fixes work: Northwind installs into `factory-test` on the first-install path, and `checker_gate.py` finds the checker's report.
-5. Boroon says which of the ten plan edit proposals in `docs/plans/spike-0.10/README.md` to edit into the plan, and in which session.
-6. Boroon says whether this branch gets a planning pull request. When it merges, this branch and Sessions 52 and 53's branches all add to the top of this log, and this branch also adds a row to `CLAUDE.md`; whichever merges second keeps the other's lines.
-7. Update ADO 2459's time and tokens line at the session's real end, if Boroon wants the later figure there.
 ## Session 55, 2026-11-26, branches `claude/session-55-2451-copilot-cli` and `claude/session-55-2738-time-tokens`
 
 ADO 2451 (spike 0.6, Copilot CLI on GHE.com, due Wed 25 Nov) and then ADO 2738 (spike 0.20, time and tokens on each story, every engine, due Fri 27 Nov), on the laptop (desktop app), track C, a day after 2451's date and a day before 2738's. Session renamed "48. Stage 0 - Spike - Copilot CLI on GHE.com, time and tokens (2451, 2738)", top level, like the others.
@@ -599,6 +450,159 @@ Later in the session (26 November 2026, after the commit above):
 New next step:
 3. ~~Boroon: decide what to do with the side session's uncommitted entry in the main checkout's `docs/progress.md` (on `main`, which must never be pushed): discard it (`git checkout -- docs/progress.md` there), or move it to a branch. This entry already covers what it records.~~ **Done:** discarded at Boroon's word ("Yes, discard it", 26 November 2026), after checking the diff was still only its 17 lines; the untracked `docs/plans/spike-0.17/engineer-how-to.md` there was left alone.
 4. **Done:** 2451 and 2738 moved to Done in ADO at Boroon's word (26 November 2026, 05:09 UTC); the schedule's rows say so.
+
+## Session 54, 2026-11-26, branch `claude/session-54-2459-test-env`
+
+ADO 2459, spike 0.10: Test environment behaviour, by the "export both" route Boroon chose on 23 November 2026. On the laptop (desktop app), laptop track B, a day after its Wed 25 Nov date, kept to what 2539 (Fri 27 Nov) needs. Session renamed "47. Stage 1 - Spike - Test environment behaviour", top level in the sidebar group, at Boroon's word. Planning branch in its own worktree (`.claude/worktrees/session-54-2459`, from `origin/main` at `2c11ae9`; local `main` was stale). `factory-gates` not changed (Session 53 alone may): its files were only read from `release` `5ba13be`. Sessions 52 and 53 have entries on their own branches, not yet on `main`; whichever merges second takes the other's lines here.
+
+Read for it: `CLAUDE.md`; Sessions 48 to 52 (52 from its branch); `docs/plans/schedule.md`; ADO 2459's body; plan 11.1's row 0.10, 5.6, 5.7, 5.8's run-time table and Appendix A's `build` and `verify-in-test`; `docs/plans/factory-test/README.md`; spikes 0.18 and 0.19's probes; in the gate, `lcp-gate.yml`, `pack_offline.py`, `checker_gate.py`, and the `_managed.xml` handling in `check_manifest.py`, `plan_from_export.py` and `lint_accessible_labels.py`.
+
+Done (record: `docs/plans/spike-0.10/README.md`, with copies of the probe):
+- Scratch, each part allowed by the brief: repo `GetAI-IP/import-probe` (private); credentials `import-probe-fl1-exec` on `getai-fl1-exec` and `import-probe-lcp-test` on `getai-nwt-test` (by `az`); solution `FactoryImportSpike` (prefix `fspk`) in `factory-lane-1`, imported managed into `factory-test`. Each identity in its own job and GitHub environment; the pack job had no credentials.
+- Nine runs (41297271 to 41338391), five versions of the solution. **The exit test passes and the route works:**
+  - export both (unmanaged, then `--managed`) and `unpack --packagetype Both` work headless as the lane identity; a second export is byte-identical, within each run and across runs; the managed export adds about 8 to 10 s;
+  - the gate's own `pack_offline.py` packs both kinds from the `Both` tree in a no-network sandbox, on pac 2.4.1 and 2.15.1 (identical members); the managed zip says `Managed` 1 and round-trips byte for byte;
+  - Test, as `getai-nwt-test` with the gate's flags, applied an additive upgrade (59.5 s) and then **removed a dropped column, table, environment variable and flow, with data in them** (132.2 s); kept data stayed. Every upgrade was an InlineUpgrade, with no `_Upgrade` holding solution left. Upgrades at the **same version** also applied and removed (39.2 s and 34.9 s). A stale settings file caused no error.
+  - `Both` adds a `_managed.xml` beside each form (with empty cell labels) and `<Managed>2</Managed>` in `Other/Solution.xml`.
+- **Two blockers found for 2539, not fixed (gate changes):**
+  1. `--stage-and-upgrade` **fails on a first install** ("Cannot create a holding solution for missing base"). Northwind is not in `factory-test`, so the gate's import step fails on its first run there. A plain managed import installed it (145.5 s).
+  2. **pac 2.4.1's checker writes no report file** (two runs); 2.15.1 writes it. The gate pins 2.4.1 and `checker_gate.py` fails with no report, so `verify-in-test` stops at the checker on every PR. The checker works as the Test identity with no API permission (about 34 s).
+- Also found: seconds after an upgrade the Web API refused a new column once (0x80060888), for 3027 and the Playwright kit to retry on; settings-file values land as unmanaged rows.
+- **Scratch deleted and read back gone** (04:09 UTC): the solution uninstalled from Test (131.7 s) and deleted from the lane, both listings empty (by the probe, and again as Boroon by the Web API); both credentials deleted (`getai-nwt-test` keeps only `ai-factory-nwt-lcp-test`); the repo deleted (HTTP 404). The checker's two reports sit in Microsoft's storage until their 24-hour links expire.
+- ADO 2459 **Building**; its body gains a Session 54 section (rev 8) with the result and the time line. Not Done: at Boroon's word only.
+
+**2541 checked (read-only, as Boroon), for the brief:** at 02:13 UTC nothing existed. At 04:14 UTC (15:14 Sydney): the test user `factory-test-nwt@getai.com.au` **exists** (made 03:52 UTC; enabled, member, usage location AU, one Power Apps Premium licence, no `certificateUserIds` yet), and so does the security group `factory-cba-test-users` (made 03:52 UTC; the user its only member). **Not yet:** the resource group `rg-getai-factory-aue` (not in `AzureCSP_GetAI_CloudandDataPlatforms`), so no Key Vault `kv-getai-factory-aue`, and Boroon has no Azure role assignment. Whether the trust store, certificate sign-in and the binding rules are done cannot be read with Boroon's roles. So 2541 still waits on the subscription's owner, and 2447 is not started.
+
+Decisions: none asked. Choices made without asking (say if any is wrong): the first install went in without `--stage-and-upgrade` to carry on; two extra cycles at the same version (states 4 and 5) and a stale settings file, because the driver owns the version and the gate's settings file is static; the checker run on both pac versions once 2.4.1 wrote nothing.
+
+Files changed: `docs/plans/spike-0.10/` (new: `README.md`, `probe.yml`, `import_probe.py`, `check_vars.sh`), `docs/plans/schedule.md` (2459's status only, no date moves), `docs/progress.md`, `CLAUDE.md` (a row for the spike folder). No plan edit: ten proposals in the README.
+
+Time and tokens (in 2459's body; session `b98652da`, measured before the last commit, `--root` the main folder's project transcripts): active time 1 h 23 min (gaps over 10 minutes not counted), from 26 Nov 12:15 to 26 Nov 15:15 (UTC+11). Tokens: 126,749 output; 30,915,974 processed in all, of which 30,050,133 were cache reads. From 1 local transcript.
+
+Open items:
+- **For Boroon before 2539 (Fri 27 Nov):** the two gate changes, which only Session 53 may make today: (1) install when the solution is absent from Test, upgrade when present (README proposal 3); (2) the pac pin to 2.15.1 (or 2.16.1 after A1), at least for the checker (proposal 4). **Sent to Session 53** ("46. Stage 1 - Build - Scenario runner (3027)") at Boroon's word ("Yes, send them", 26 November 2026), with the evidence, the proposed fixes, the Web API lag note for 3027, and a warning that the 2739 session may also touch `scripts.sha256`. Delivered; its turn started on it. Session 53 owns the gate PR; Boroon merges it.
+- **Ten plan edit proposals** in the README (5.3, 5.6, 5.7, 5.8, 7.4, 11.1, 12, 14.4, Appendix A), none made.
+- For the gate later: `plan_from_export.py` and a form's two `_managed.xml` halves; the checker's signed report link in the job log.
+- **2541:** the resource group and Owner for Boroon (the subscription's owner), then the vault and certificate (README section 2), the `certificateUserIds` value to the admins, and Basic User in `factory-test`. Then 2447.
+
+Next steps:
+1. Boroon reads the result and says whether 2459 is Done.
+2. The two gate changes (Session 53 or Boroon), then 2539.
+
+Summary at the end of the session (added 26 November 2026, 15:53 Sydney):
+- **Work completed:** spike 0.10 run and passed by "export both" (nine runs, five versions of a scratch solution); two blockers for 2539 found and recorded (`--stage-and-upgrade` fails on a first install; pac 2.4.1's checker writes no report); 2541 checked (the test user and group now exist, the resource group and Key Vault do not); all scratch deleted and read back gone; the record in `docs/plans/spike-0.10/` with the probe's copies and ten plan edit proposals; `schedule.md` (2459's status), `CLAUDE.md` (the spike folder's row) and this entry; ADO 2459 Building with its Session 54 section. Then, at Boroon's word, the two gate changes went to Session 53 by message. Commits `f9a1a05` and `f27d4e6` on `claude/session-54-2459-test-env`, pushed; no planning pull request (the brief said none).
+- **Time and tokens, whole session so far** (session `b98652da`, `--root` the main folder's project transcripts): active time 1 h 31 min (gaps over 10 minutes not counted), from 26 Nov 12:15 to 26 Nov 15:53 (UTC+11). Tokens: 144,299 output; 39,851,611 processed in all, of which 38,917,724 were cache reads. ADO 2459's body still holds the earlier figure (1 h 23 min), measured before the last commit; not changed here.
+
+New next steps (not listed above):
+3. Before Boroon merges Session 53's gate PR for the two changes: check it covers both (an import without `--stage-and-upgrade` when the solution is not in Test, and a pac pin whose checker writes its report), that `self-test` is green, and that `scripts.sha256` was regenerated after the last hashed change.
+4. In 2539's first real gate run, check the two fixes work: Northwind installs into `factory-test` on the first-install path, and `checker_gate.py` finds the checker's report.
+5. Boroon says which of the ten plan edit proposals in `docs/plans/spike-0.10/README.md` to edit into the plan, and in which session.
+6. Boroon says whether this branch gets a planning pull request. When it merges, this branch and Sessions 52 and 53's branches all add to the top of this log, and this branch also adds a row to `CLAUDE.md`; whichever merges second keeps the other's lines.
+7. Update ADO 2459's time and tokens line at the session's real end, if Boroon wants the later figure there.
+
+## Session 53, 2026-11-26, branch `claude/session-53-3027-run-workflow-26844f`
+
+ADO 3027: `lcp/run_workflow.py`, the trusted runner for locked YAML scenarios. On the laptop (desktop app), laptop track A, one of Boroon's four catch-up sessions started on Thu 26 Nov (with 54, 55 and 56) to keep the Stage 1 exit test on Fri 27 Nov. Started by another session; at Boroon's word it was moved to top level, not nested. Planning branch in its own worktree from `main` at `2c11ae9`. Gate branch `gate-3027-run-workflow` in a worktree of the gate clone inside it (`factory-gates/`, from `release` at `5ba13be`); the shared gate clone was not switched. The only session allowed to change `factory-gates` this round.
+
+Read for it: Sessions 48 to 51 here, the schedule, ADO 3027 and its two comments, Session 51's `staging/factory-manifestos/conventions/` (schema, rules, two Northwind examples), plan 5.8 and 5.9, `verify-in-test` in the gate, `simple_yaml.py`, `verdict_gate.py`, `manifest.py`, `test_workflow.py`, the token code in spikes 0.14 and 0.19, and Microsoft's `flowrun` and `asyncoperation` table references.
+
+Done:
+- **Gate PR 31**, https://getai.ghe.com/GetAI-IP/factory-gates/pull/31 (commit `309901b`, `self-test` green, run 41298691), **merged by Boroon on 26 November 2026**, `release` at `f8bbda9`, read back the same day: 778 tests (4 skipped by design), manifest, hash and rulesets checks clean, `pending-scripts.txt` 2, the merge's tree the same as the PR's head:
+  - `lcp/run_workflow.py`, standard library only, called by `verify-in-test` exactly as Appendix A has it. It checks each file against the schema and the rules the schema cannot express. It looks every table and column up in Test before writing anything. It seeds tagged rows (`lcp-run:<run ID>/<case ID>`), each with its own row ID, then does the row trigger. It polls until every row and plug-in trace expectation holds at once, or times out. It reads the run record as a secondary signal only: a classic workflow's system job by the trigger's row, or a cloud flow's `flowrun` by flow and start time. It cleans up, pass or fail, and writes `scenarios.json` in `verdict_gate.py`'s shape plus a `cases` list. It exits 0 once the file is written. With Test unreachable or no token, every case fails with the reason and the file is still written. `--check` checks the files offline.
+  - `lcp/scenario.schema.json`: a byte-identical, hashed copy of DG7's schema (settles open point 5).
+  - 57 new tests: 56 in `tests/test_run_workflow.py`, against a fake Web API that copies Northwind's behaviour in Test, and 1 in `test_workflow.py` that holds the step's call and flags. They cover Session 51's 10 good and 31 bad variants, the rules, discovery, every step, each retry case, the token exchange and the urllib transport against a local server. `tests/fixtures/scenarios/` holds the two Northwind examples, unchanged.
+  - `pending-scripts.txt` down to 2. `verdict_gate.py`'s docstring no longer says no writer is written. README rows and a section, "The locked scenario runner (ADO 3027)". `scripts.sha256` rebuilt last.
+- **Read back locally** (venv `~/.venvs/factory-gates`, Python 3.15, Finder's files deleted first): 778 tests pass, 4 skipped by design; `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check` clean; both Northwind examples pass `--check`. I broke a copy 10 ways (true read as 1, clean-up's `createdon` dropped, job not matched by row, update retried on no answer, `count: 0` alone passing at once, `&` unencoded, lost-create check removed, no new token on 401, plug-in exception not failing, tag sweep removed): each failed a test. I also checked one real urllib round trip against a local server (a 429 with `Retry-After`, then the `Date` header).
+- `staging/factory-manifestos/conventions/locked-scenarios.md`: open points 1, 2 and 5 say what the runner settled, and step 4 says how `count: 0` is read.
+- The schedule's 3027 row and Changes, and 2539's row. No date moved.
+- ADO: **3027 Done**, at Boroon's word after the merge and read-back (Thu 26 Nov; dates not changed). **DG9 owns the first live run** (Boroon), in place of the story's own "once in `factory-test` before DG9"; DG9 step 3 in `docs/plans/stage-1-day-gate-plan.md` and a comment on 2546 say so. 3027's body has a Session 53 section with the time and tokens.
+
+Choices made without asking (in the gate README for Boroon; say if any is wrong):
+- **The HTTP trigger is not built.** A `kind: http` case fails, with the reason. How the Test identity gets a trigger address is untried, and Northwind has no HTTP flow.
+- **A lookup is set only with `ref:`.**
+- **`count: 0` holds at every read after the trigger**, and alone it waits the whole timeout. Otherwise "no task row is made" would pass before the flow ran. This is stricter than Session 51's step 4 wording, which is now updated to match.
+- **A filter's clean-up deletes only rows created since the case began**, because the Test identity is System Administrator and a loose filter could match imported data.
+- **A cloud flow's run is matched by flow and start time only**; a false fail is possible if an earlier case's run fails late. A classic workflow's job is matched by its row.
+- **`run` with no `status` expects `succeeded`.** A missing folder means no cases. The suite has one hour.
+- **The token comes from the job's OIDC token exchanged at Entra as the Test identity**, not `az`: the import before this step can take 30 minutes, and `az`'s federated sign-in cannot get a new token after 5 (spike 0.14 finding 9). Redirects are refused.
+
+Files changed: `docs/progress.md`, `docs/plans/schedule.md`, `staging/factory-manifestos/conventions/locked-scenarios.md`, `CLAUDE.md` (the gate and Test environment rows, after the merge), `docs/plans/stage-1-day-gate-plan.md` (DG9 owns the live run). In `factory-gates` (gate PR 31): `lcp/run_workflow.py`, `lcp/scenario.schema.json`, `lcp/verdict_gate.py`, `pending-scripts.txt`, `scripts.sha256`, `README.md`, `tests/test_run_workflow.py`, `tests/test_workflow.py`, `tests/fixtures/scenarios/`. No plan edit: plan 5.8 and Appendix A already say what the runner does and how it is called.
+
+Time and tokens (in 3027's body; session `f634c578`, measured before the last commit): active time 0 h 40 min (gaps over 10 minutes not counted), from 26 Nov 12:11 to 26 Nov 13:21 (UTC+11). Tokens: 136,624 output; 15,097,631 processed in all, of which 14,570,952 were cache reads. From 1 local transcript.
+
+Open items:
+- **Done: Boroon merged gate PR 31** (26 November 2026, `release` at `f8bbda9`), read back clean. `CLAUDE.md`'s gate and Test environment rows say so.
+- **Not tested against Dataverse.** The Web API names for `flowrun` (`_workflow_value`, `starttime`, the `status` strings), `asyncoperation` (`_regardingobjectid_value`, `_workflowactivationid_value`) and `plugintracelog` come from Microsoft's table reference; no spike has read them. A wrong one only makes the run signal "unknown", except `plugintracelog`, where a `plugin_trace` check would fail.
+- **Plug-in trace logging** must be on in `factory-test` before any `plugin_trace` check can pass (2541 or 2459). Northwind's examples have none.
+- **The two copies of the schema** (`conventions/scenario.schema.json` in `GetAI-IP/factory-manifestos` since Session 57, and the gate's `lcp/scenario.schema.json`) stay byte for byte the same, by two linked pull requests merged the same day (Session 57's rule).
+- **Done: 3027 moved to Done** at Boroon's word (26 November 2026). DG9 owns the first live run.
+- **Merging:** this branch and the other catch-up sessions' branches all add to the top of this log and to the schedule's Changes; whoever merges second takes the other's lines.
+
+Planning PR: https://github.com/boroonmahanta/overnight-ai-factory/pull/69, opened at Boroon's word on 26 November 2026, after `main` (pull requests 67 and 68, Session 52) was merged into the branch with both log entries kept. **Merged by Boroon on 26 November 2026.**
+
+**Later the same day (26 November 2026).** Session 54 (spike 0.10, ADO 2459) sent this session a message: Boroon had said "Yes, send them". It asked for two gate changes that 2539 needs before Friday, because only this session was allowed to change `factory-gates`. The record is `docs/plans/spike-0.10/README.md` (findings 5 and 11, proposals 3 and 4) on Session 54's branch `claude/session-54-2459-test-env` (commit `f9a1a05`). **Nothing was changed.** I passed it to Boroon and asked whether to make the gate PR; he has not said yet. Session 57's entry also notes it, and says why the pac move needs his own word. The three items:
+1. **The import into Test fails on a first install.** `verify-in-test` imports with `--stage-and-upgrade`, and on a solution not yet in Test pac 2.4.1 fails: "Cannot create a holding solution for missing base" (Session 54's run 41298256). Northwind is not in `factory-test`, so 2539's first run stops there. Session 54's fix: a trusted step reads the solution's unique name from the zip's `solution.xml` and asks Test (`solutions?$filter=uniquename eq '<name>'`) as the Test identity. It adds `--stage-and-upgrade` only when the solution is already there.
+2. **pac 2.4.1's solution checker writes no report.** It exits 0, but the output folder stays empty (runs 41298256 and 41301746), so `checker_gate.py` fails every PR with "no SARIF report". pac 2.15.1 writes it. The fix: move `PAC_VERSION` from 2.4.1 to 2.15.1, after reading the release notes (A1). The other way out is a second pac install for the checker step alone.
+3. **Optional, for `run_workflow.py`:** once, seconds after an upgrade (run 41304331), a read of a column the upgrade had just added failed with 0x80060888 ("Could not find a property named ..."). The runner could retry its first reads on that error for a short while after the import.
+
+The gate PR would start from `release` at `2709f49` (after Session 57's gate PR 32), with `scripts.sha256` made again last. Plan Appendix A's import step and pac pin would follow at Boroon's word.
+
+Left on the laptop: this session's gate worktree, `.claude/worktrees/session-53-3027-run-workflow-26844f/factory-gates`, detached at `f8bbda9`. Its branch `gate-3027-run-workflow` is merged. A new session should make its own worktree from `release`, not reuse this one. It can be removed with `git -C "<main folder>/factory-gates" worktree remove <that path>`.
+
+Time and tokens, whole session (measured at the end; ADO 3027's body still holds the 40-minute measure above, not updated because Boroon asked for nothing else): active time 0 h 55 min (gaps over 10 minutes not counted), from 26 Nov 12:11 to 26 Nov 15:48 (UTC+11). Tokens: 160,836 output; 27,897,442 processed in all, of which 26,867,794 were cache reads. From 1 local transcript.
+
+Next steps:
+1. Done: gate PR 31 merged and `release` read back; 3027 Done; planning PR 69 merged.
+2. **Boroon decides** whether a gate PR fixes Session 54's two blockers (and whether it carries the optional retry), and gives his own word on the pac move. If yes, a fresh laptop session writes it from `release` at `2709f49`: the import step, pac 2.15.1, tests, the README and the manifest made again last. Then the plan's Appendix A at his word.
+3. DG9 or 2539 runs the Northwind examples through the gate in `factory-test`, once that PR, 3060 and the test user (2541) are in place. Watch the run's first reads, the run-record names, `scenarios.json` and clean-up.
+
+## Session 52, 2026-11-25, branch `claude/session-52-2546-playwright-kit`
+
+ADO 2546, DG7 part 2: the Playwright kit v0. A side session started by "44. Stage 1 - Build - Scenario conventions and Playwright kit" (Session 51, branch `claude/session-51-2546-scenarios`, which writes the conventions, the schema and the YAML examples), when Boroon split 2546 in two on 25 November 2026. On the laptop (desktop app), in its own worktree (`.claude/worktrees/session-51-2546`, from `origin/main` at `dae3155`; the folder keeps the number it was briefed with, before the parent renumbered).
+
+Decisions (Boroon, 25 November 2026, each asked in this session):
+- Download 71 files of `microsoft/power-platform-playwright-samples` at `3233f3e` into the scratchpad (the toolkit's 50, the licence, notice, package files and lockfile, and 17 sample files). Yes, all three sets.
+- Download the 58 npm packages the kit needs, at Microsoft's lockfile versions, checked by sha512, including `playwright-ms-auth` 0.0.19 from one person's npm account. Yes, all 58.
+
+Decision (Boroon, 26 November 2026, asked by the scenario session and passed here by message): **"Yes, on its branch"**, to three edits on this branch, so one pull request carries them with the kit:
+- `staging/factory-manifestos/conventions/locked-scenarios.md`, "UI tests (Playwright)": the canvas class is `CanvasAppRuntimePage`, for a published app, not `CanvasAppPage`, which drives Power Apps Studio for authoring only.
+- The same section gains a bullet: a canvas test also carries the tag `@canvas`, which puts it in the kit's canvas project; every other UI test runs in the model-driven project.
+- **A plan edit:** `docs/sources/plan-v3.1.md`, 5.8's table, the UI row (line 717): `CanvasAppPage` becomes `CanvasAppRuntimePage`.
+
+Done:
+- **The toolkit read in full**, all 50 files, by four reader agents of this session (a quarter each), plus `playwright-ms-auth`'s code by this session: `docs/analysis/playwright-kit-reading-notes.md` (18 findings). The agents' full reports are in the session's shared notes folder on the laptop.
+- **Vendored unchanged** in `staging/factory-gates/playwright/vendor/power-platform-playwright-toolkit/` with the repo's `LICENSE` and `NOTICE.md` (52 files matching GitHub's blob hashes) and our `PROVENANCE.md`. Three rows in `docs/component-register.md`: the toolkit, `playwright-ms-auth`, and the other npm packages.
+- **The kit:** `playwright.lcp.config.ts` (specs from `TEST_SPECS_DIR`, `*.spec.ts` and `*.test.ts`; one worker, no full parallel, one retry in CI, trace on first retry; HTML and JUnit; projects `sign-in`, `model-driven` and `canvas` with storage states `.auth/mda.json` and `.auth/canvas.json`); a lockfile built from Microsoft's with the same sha512 values; helpers in `lib/` (accessible-name selector with no CSS route, run tag and tagged rows deleted after each test, axe-core against `a11y-baseline.json`, keyboard-only journey, sign-in); three Northwind model-driven examples (`ui-order-grid-01`, `ui-order-form-01`, `ui-order-a11y-01`, criteria `@AC-3` to `@AC-5` as stand-ins); nine self-checks with no browser. README in the folder.
+- **Checks with no sign-in, all pass** (scratch copy): `npm ci --ignore-scripts` (58 packages), the type check (vendored toolkit included), `--list` (6 tests in 4 files, also from a folder outside the kit), the self-checks with the gate's own `--reporter=html,junit` (9 passed; JUnit and HTML land in the evidence folder). Two deliberate breaks (no criteria tag, a CSS selector) each failed.
+- **The sign-in variables are settled from the code** (Session 46 finding 5 was not right): `playwright-ms-auth` reads `MS_AUTH_EMAIL`, `MS_AUTH_CREDENTIAL_TYPE`, `MS_AUTH_CREDENTIAL_PROVIDER`, `MS_AUTH_KEYVAULT_ENDPOINT` (a URL) and `MS_AUTH_KEYVAULT_SECRET_NAME`; nothing reads `KEYVAULT_NAME`, `AZURE_KEYVAULT_URL` or `AZURE_CERTIFICATE_NAME`. **The gate step's change is written down** in the kit's README ("The change to the gate step"), for a gate pull request later at Boroon's word; the gate repo is not touched.
+
+Found (reading notes):
+- `playwright-ms-auth` signs in with **Microsoft Edge** (`msedge` channel). GitHub's hosted Ubuntu 24.04 image has Edge 157; a self-hosted runner needs it. It reads the certificate as a Key Vault secret and takes it as a certificate only if the content type is `application/x-pkcs12`. It signs in to Azure through the Azure CLI first, so the job's existing `azure/login` serves.
+- It is one person's package (5 stars), at 0.0.x, though its licence names Microsoft. It runs in the job that holds the Test identity's session. Recorded as a risk; pinned by sha512, no install scripts.
+- With `--reporter=html,junit` on the command line, Playwright drops the config's reporter paths and JUnit would go to standard output. The config now sets `PLAYWRIGHT_JUNIT_OUTPUT_FILE` and `PLAYWRIGHT_HTML_OUTPUT_DIR`, which Playwright reads first.
+- The gate step never installs Playwright's browsers; `npm ci` does not.
+- The toolkit's `saveRecord()` asks for a button named "Save", which also matches "Save & Close", and its model-driven launch waits a fixed 30 seconds each time. `GenUxPage` can delete every app whose name starts with a prefix; specs must never use it.
+- The run tag column `nwind_sampledataoriginalid` is not on Northwind's Orders form, so the kit writes the tag with `Xrm.WebApi` in the signed-in app, as the test user.
+
+Files changed: `staging/factory-gates/playwright/` (new: config, package files, `tsconfig.json`, `.gitignore`, `a11y-baseline.json`, `README.md`, `lib/` 7 files, `kit-tests/kit.check.ts`, 3 example specs, `vendor/` 53 files), `docs/analysis/playwright-kit-reading-notes.md` (new), `docs/component-register.md` (3 rows), `staging/README.md` (the `factory-gates/` row and a rule for the kit), `docs/progress.md`; on 26 November, at Boroon's word above, `staging/factory-manifestos/conventions/locked-scenarios.md` (the canvas class and the `@canvas` bullet) and `docs/sources/plan-v3.1.md` (5.8's UI row), then `CLAUDE.md` (the plan row lists that edit). Not changed: `docs/plans/schedule.md` (2546 is not finished; DG9 is left).
+
+Time and tokens (in 2546's body, rev 10; session `59f19359`, the whole session to 26 November, its four reader agents included, measured before the last commit, `--root` the main folder's project transcripts; it replaces the line measured on 25 November before the first commit): active time 1 h 10 min (gaps over 10 minutes not counted), from 25 Nov 21:02 to 26 Nov 12:25 (UTC+11). Tokens: 214,199 output; 43,280,931 processed in all, of which 41,960,946 were cache reads. From 1 local transcript.
+
+Open items:
+- **For the scenario session (Session 51) and Boroon:** nothing in its draft conventions differs from the kit. Two additions for that file: canvas UI tests carry `@canvas` (the kit's project split), and the UI examples use `@AC-3` to `@AC-5`. Hand-over note in the shared notes folder. **Done 26 November:** `@canvas` and the canvas class are in the conventions, at Boroon's word; the `@AC-3` to `@AC-5` stand-ins need no change (the scenario session).
+- **`CLAUDE.md`'s plan row** now lists this session's plan edit (5.8's UI row, the canvas class), added at Boroon's own word in this session on 26 November 2026.
+- **The gate step change** (kit README): the five variables, `LCP_EVIDENCE_DIR`, `--ignore-scripts`, the browser install, and (proposed) the test user, certificate name, app ID and a `ui` switch from the project's `gate.json` through `project_settings.py`, with that step moved above the Playwright step. A gate pull request at Boroon's word; plan Appendix A's step to match, also at his word.
+- **For 2541 and 3060:** the test user's certificate as a Key Vault certificate in PKCS#12; "Key Vault Secrets User" for the Test identity on that vault or secret; a security role for the test user that can create, read and delete `nwind_orders` rows.
+- **For DG9 (2546 part 2):** sign-in straight at the model-driven app's URL is untested (Microsoft's script goes through the maker portal first); the Save command's accessible name; Ctrl+S in headless Chromium; the axe baseline's first entries; run times against plan 5.8.
+- `playwright-ms-auth` 0.0.20, Playwright 1.65.1 and axe 4.14.1 exist; not taken (A1).
+- `CLAUDE.md`'s `staging/` row still lists only DG1's files; whoever next edits it adds the spec-kit and `playwright/` folders.
+
+Pull request 67 (https://github.com/boroonmahanta/overnight-ai-factory/pull/67), opened 26 November 2026 at Boroon's word, after main (pull requests 65 and 66) was merged into the branch. **Merged by Boroon on 26 November 2026** (`e89db34`). 2546 stays Building, not closed: DG9 (the run in `factory-test`, Fri 27 Nov) is part of it and not done.
+
+Next steps:
+1. Boroon decides the gate step change (kit README), for a gate pull request.
+2. 2739 moves `playwright/` to `factory-gates` with the rest of `staging/`.
+3. DG9 runs the examples in `factory-test` once 2541 and 2447 are done.
 
 ## Session 51, 2026-11-25, branch `claude/session-51-2546-scenarios`
 
@@ -910,7 +914,6 @@ Next steps:
 2. Boroon merges planning PR 60.
 3. Wed 25 Nov, as scheduled: 2451 (spike 0.6), then 2531 on Laptop C.
 
-
 ## Dashboard sync, 2026-11-24, branch `claude/schedule-sync-2026-11-24`
 
 Done:
@@ -1220,6 +1223,7 @@ Next steps:
 1. Done: Boroon merged gate PR 23.
 2. Slice B2 (`merge_danger_combine.py`, `merge_policy.py`), after one real Copilot review output.
 3. Slice C (Thu 26 Nov): `checker_gate.py` (writing `checker-summary.json`), `run_workflow.py`, `parse_verdict.py`, `verdict_gate.py`, and the `check_spec.py` job.
+
 ## Session 40, 2026-11-23, branch `claude/session-40-2538-a2`
 
 ADO 2538, slice A2 (the export-diff plan and four static lints), on the laptop (desktop app), a day before its Tue 24 Nov date. Started from Session 38 as a side session. Planning branch in its own worktree from `main` at `3bce4e9`. Gate branch `export-plan-and-lints` off `release` at `b25cb2f` (gate PR 21 merged), in its own worktree of the gate clone at `factory-gates/` inside this session's worktree (the edit hook allows writes only there); the shared gate clone was not switched. Numbered 40 because Session 39's three branches are the newest.
@@ -1299,6 +1303,7 @@ Next steps:
 1. Done: both merged, the teams made, 3026 Done (23 November 2026).
 2. **Done the same evening: second approvers named** (Boroon, 23 November 2026). Each of the four teams now has a second person besides Boroon, all User accounts: in `AI-Business-Solutions` one person in the platform admins and acceptance owners, and a different person in the merge reviewers, so the scenario writer is not the reviewer; in `GetAI-IP` a third person in the platform admins. Names and accounts are in ADO 2520 and 2521 only (public repo). For 2520, all of whose stopgaps are in `GetAI-IP`: give `ai-factory-platform-admins` there Write on `factory-manifestos` first (no team is on it, and an approval without Write does not count); the `GetAI-IP` approver uses an admin account for now, and a normal one is better (least privilege); the `AI-Business-Solutions` approver is not in `GetAI-IP`, so cannot approve gate PRs unless added. **Later the same evening:** Boroon added that approver to `GetAI-IP` and its platform admins, so that team has two people besides him; and the team got Write on `factory-manifestos` (his portal change did not save, so the session added it with `gh api`, PUT on the team's repo access, `permission=push`, at his word). Checked: both second people have Write on `factory-gates` and `factory-manifestos`. ADO 2520's comments hold the names. This record is **pull request 52** (https://github.com/boroonmahanta/overnight-ai-factory/pull/52), branch `claude/session-39-approver-access`, opened at Boroon's word the same day. Boroon merges.
 3. 2538's gate PR (`static-file-checks`) must make `scripts.sha256` again on top of `3c23ca5` before it merges.
+
 ## Session 38, 2026-11-23, branch `claude/session-38-2538-gate-scripts`
 
 ADO 2538, the remaining Stage 1 gate scripts: started on Mon 23 Nov, a day before its date. On the laptop (desktop app). Planning branch in its own worktree from `main` at `1f848be` (pull request 49). Gate branch `static-file-checks` in a separate worktree of the gate clone, off `release` at `65031e4`, so neither shared checkout was switched. Numbered 38 because Sessions 34 to 37 ran the same day on branches not yet merged here. Session renamed "33. Stage 1 - Build - Remaining gate scripts", at Boroon's word, after "32. Stage 1 - Add CODEOWNERS teams and second approvers in GHE" (Session 39).
@@ -1460,6 +1465,7 @@ Next steps:
 1. DG5 (2544 part 2), Tue 24 or Wed 25 Nov: the spec check script.
 2. Tue 24 Nov: 2538, the remaining gate scripts (now with the `check_spec.py` job).
 3. Thu 26 Nov: 2548's first mining batch, if exports have arrived.
+
 ## Session 34, 2026-11-23, branch `claude/session-34-2509-copilot-pin`
 
 ADO 2509: pin the Copilot CLI install in the gate. On the laptop (desktop app), on its date. Planning branch in its own worktree from `main` at `0e2dab1` (after pull request 46); gate branch `pin-copilot-cli` in a separate worktree of the gate clone, off `release` at `96b6c61`, so neither shared checkout was switched.
