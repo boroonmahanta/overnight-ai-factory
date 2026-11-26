@@ -38,7 +38,7 @@ Next steps:
 - **Spike 0.17 passes for all four tools** (Session 31, 21 November 2026, ADO 2466, DG2; **Done** at Boroon's word). Each tool gave a readable export of a test session with no client data. Copilot CLI's `--share` writes the fullest (Markdown with tool calls, file edits and shell output), and it also exports Copilot app and VS Code chat sessions, because all three share `~/.copilot/session-state/`; it runs on a copy of the session, so the original never changes. Claude Code's `/export` writes plain text, in a live terminal session only. The how-to for engineers and the checklist for removing client data: `docs/plans/spike-0.17/README.md`. Exports go to `Factory session exports` in Boroon's OneDrive, through a "Request files" link he still has to make (Request files works there, Session 32). Their lasting home, a private channel in an internal Factory Team, is ADO 3019 (Building), waiting on the admins and on Boroon making the Team. The Microsoft 365 connector reads it from the laptop and from a cloud session, so mining batches (2548) can run in the cloud; list the folder by its item ID, not its path.
 - **`factory-test` exists** (Session 46, 24 November 2026, ADO 2541, Building): Sandbox, Managed, checker Block, Australia, `https://factory-test.crm6.dynamics.com/`, with the Test identity `getai-nwt-test` (project `nwt`, the Northwind pilot) as its System Administrator application user. The test user and the Key Vault wait on the identity admins and the CSP subscription's owner. Record: `docs/plans/factory-test/README.md`.
 - **The Northwind project repo `AI-Business-Solutions/ai-factory-nwt` exists** (Session 48, 24 November 2026, ADO 3059, Building): private, ruleset `main-protection`, `factory = enabled`, environment `lcp-test`, the three-key subject template, the six token secrets and variables, and the federated credential `ai-factory-nwt-lcp-test` on `getai-nwt-test`. The Northwind solution (canvas apps left out) is in `factory-lane-1` and on the repo's `main` and `integration` (pull request 1, merged by Boroon on 25 November 2026). Gate PR 29, merged by Boroon on 24 November 2026 (`release` at `4ab02ca`, 659 tests), adds `projects/nwt/` and teaches the manifest check global choices and the `_managed.xml` halves.
-- **Spike 0.6 passed, measured in a collector in the job** (Session 55, 26 November 2026, ADO 2451, Building until Boroon says Done; record `docs/plans/spike-0.6/README.md`):
+- **Spike 0.6 passed, measured in a collector in the job** (Session 55, 26 November 2026, ADO 2451, **Done** on 26 November 2026 at Boroon's word; record `docs/plans/spike-0.6/README.md`):
   - Copilot CLI with the job's own token is billed to the organisation that owns the repository, by day, repository and model, and the bill equals the CLI's usage files to six decimal places;
   - an agent's `tools:` list limits its tools, and `--model` beats its `model:`;
   - `COPILOT_OTEL_ENABLED=true` alone loses all telemetry;
@@ -111,7 +111,7 @@ Next steps:
 - **Not read in full.** The files added from the zip were saved but not read in this session: the reports V1 and V2, the runtime and costs note, the eight GitHub and Azure notes, the five Power Platform notes and the one-pager. The five workshop slide images were saved but not viewed. The plan condenses most of them. Read one only when a task needs its detail.
 - **Decisions still waiting on Boroon** (from `docs/analysis/tshirt-sizing.md`): approve the shortlist of skills to read in full before any are adopted (plan section 8.3); decide whether to write a GET AI router skill that routes by size. The sizes themselves are approved, and the ADO field `Custom.WorkSize` is decided (7 November 2026, Session 16).
 - **A second approver is needed by Friday 4 December 2026** (Session 16 schedule). 2520 (undo the stopgaps) and 2521 (apply the rulesets) need a second person and the three CODEOWNERS teams; without them the Stage 1 exit test (2539, Friday 18 December) cannot happen. The dated order is in `docs/plans/schedule.md`.
-- **Spike 0.20 is run** (Session 55, 26 November 2026, ADO 2738, Building; record `docs/plans/spike-0.20/README.md`). Every engine tried landed in one local collector, merged with the night runner's file, and `story_report.py` totals them per story. The desktop app drops `OTEL_RESOURCE_ATTRIBUTES`, so Claude Code's story comes from joining `session.id` to the transcript's branch. Telemetry reads 0.9% to 7.9% above `tools/session_usage.py` because it also counts side calls, so the tool is a floor. VS Code Copilot Chat's token spans were not seen. Left: Application Insights (Azure access, as 3060), managed settings always on (Boroon's admin rights), seven proposed plan edits for Boroon.
+- **Spike 0.20 is run** (Session 55, 26 November 2026, ADO 2738, **Done** on 26 November 2026 at Boroon's word; record `docs/plans/spike-0.20/README.md`). Every engine tried landed in one local collector, merged with the night runner's file, and `story_report.py` totals them per story. The desktop app drops `OTEL_RESOURCE_ATTRIBUTES`, so Claude Code's story comes from joining `session.id` to the transcript's branch. Telemetry reads 0.9% to 7.9% above `tools/session_usage.py` because it also counts side calls, so the tool is a floor. VS Code Copilot Chat's token spans were not seen. Left: Application Insights (Azure access, as 3060), managed settings always on (Boroon's admin rights), seven proposed plan edits for Boroon.
 - **The gate's Copilot steps, from spike 0.6** (Session 55; for whoever next changes `lcp-gate.yml`, as 2539 or 3027 do; `factory-gates` not changed here):
   - `verify-in-test` and `danger` set only `COPILOT_OTEL_ENABLED=true`, which sends to `localhost:4318` and loses every span with exit 0;
   - plan C.2's `lcp-evaluator` has no `shell` in `tools:`, so it could not run `lcp-verify`;
@@ -169,7 +169,7 @@ Done, 2451 (`docs/plans/spike-0.6/`):
   - `COPILOT_OTEL_ENABLED=true` alone sends to `localhost:4318` and loses everything with exit 0;
   - the root span's `nano_aiu` is the sum of its `chat` spans'.
 - **`--max-ai-credits`:** minimum 30; warnings at 50%, 75% and 90%; tools off at 90%; it ends with `ai_credit_soft_cap_exhausted`, exit 1.
-- **ADO 2451:** Building; its body has a Session 55 section; a comment records the pick.
+- **ADO 2451:** its body has a Session 55 section; a comment records the pick. Done at Boroon's word (later the same day).
 
 Done, 2738 (`docs/plans/spike-0.20/`):
 - **One place:** a collector on the laptop (`127.0.0.1:4318`, 04:06 to 04:46 UTC), merged with the night runner's file. `story_report.py` totals per story, engine and session, with the story from `story_id` or from the session's branch in its transcript.
@@ -185,7 +185,7 @@ Done, 2738 (`docs/plans/spike-0.20/`):
   - Boroon's `~/.claude/settings.json` (byte for byte, SHA-256 checked);
   - the collector is stopped;
   - Boroon was asked to take the two VS Code lines out.
-- **ADO 2738:** Building; its body has a Session 55 section.
+- **ADO 2738:** its body has a Session 55 section. Done at Boroon's word (later the same day).
 
 Found along the way:
 - The laptop's Copilot CLI default is Auto, which chose `mai-code-2-flash` (on neither residency list), and it updated itself between two prompts.
@@ -203,7 +203,7 @@ Time and tokens (in 2451's and 2738's bodies; sessions `afa29cde`, the side sess
 
 Open items:
 - **Boroon:**
-  - Done for 2451 and 2738, both at his word;
+  - ~~Done for 2451 and 2738, both at his word~~: both Done in ADO on 26 November 2026, at his word;
   - the plan edits;
   - archive the side session "51. Stage 1 - Spike - Desktop telemetry check (2738)" (it was started for the test).
 - **Boroon:** take the two `github.copilot.chat.otel` lines out of VS Code's user settings, if not already done.
@@ -221,7 +221,8 @@ Later in the session (26 November 2026, after the commit above):
 - **Not touched:** the main checkout's edit, which is another session's.
 
 New next step:
-3. Boroon: decide what to do with the side session's uncommitted entry in the main checkout's `docs/progress.md` (on `main`, which must never be pushed): discard it (`git checkout -- docs/progress.md` there), or move it to a branch. This entry already covers what it records.
+3. ~~Boroon: decide what to do with the side session's uncommitted entry in the main checkout's `docs/progress.md` (on `main`, which must never be pushed): discard it (`git checkout -- docs/progress.md` there), or move it to a branch. This entry already covers what it records.~~ **Done:** discarded at Boroon's word ("Yes, discard it", 26 November 2026), after checking the diff was still only its 17 lines; the untracked `docs/plans/spike-0.17/engineer-how-to.md` there was left alone.
+4. **Done:** 2451 and 2738 moved to Done in ADO at Boroon's word (26 November 2026, 05:09 UTC); the schedule's rows say so.
 
 ## Session 51, 2026-11-25, branch `claude/session-51-2546-scenarios`
 
