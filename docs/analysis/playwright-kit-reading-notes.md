@@ -1,6 +1,6 @@
 # Reading notes: Microsoft's Playwright toolkit and `playwright-ms-auth`
 
-Session 52, 25 November 2026, ADO 2546 (DG7 part 2). The full read that rule 19 and plan 8.3 ask for before the kit vendors third-party code. The kit is `staging/factory-gates/playwright/`; its README says how it uses what is below.
+Session 52, 25 November 2026, ADO 2546 (DG7 part 2). The full read that rule 19 and plan 8.3 ask for before the kit vendors third-party code. The kit was drafted in `staging/factory-gates/playwright/` and is now `playwright/` in `GetAI-IP/factory-gates` (gate PR 32, merged 26 November 2026, ADO 2739); its README says how it uses what is below.
 
 ## What was read, and how
 
