@@ -190,6 +190,21 @@ Next steps:
 2. DG9 records the accessibility baseline on axe 4.12.1.
 3. The week after the exit test: the pin round under the new story.
 
+Closing summary (added at the end of the session, 26 November 2026):
+- **Work completed:** every pinned kit has a row in `docs/component-register.md`, with its pin, where it is pinned, how it is watched, the newest upstream version and whether an update is due; release notes are read in full for each update due; the proposed Dependabot coverage for `factory-gates` is a list; Boroon's three decisions (axe at 4.12.1, pins held through the exit test, a pin-round story) are recorded; 2740 is Done at his word; the pin-round story is written out above. Commits on `claude/intelligent-wright-r9lpw9`: `eece0db` (the register and this entry), `bc38932` (the decisions and the story), `7818f40` (Done, and the kit rows pointed at `main` after pull request 68), and this closing summary. No pull request; no pin moved.
+- **The start message for Session 57 was written in this session's chat**, for Boroon to paste into a new top-level laptop session named "50. Stage 1 - Build - Move staging to GetAI-IP (2739)", or the next free number. What it says, so it does not live only in the chat:
+  - Start from `origin/main` in its own worktree, then merge `origin/claude/intelligent-wright-r9lpw9` into the branch, keeping every session's entry.
+  - Part 1, Session 56's open items, first: 2740 to Done in ADO with its body and time line; create the pin-round story from the spec above, ask Boroon which day in the week of Mon 30 Nov it starts, then date it in ADO and add its schedule row; the four read-backs from `factory-gates` on `release`, read only (Session 53 is the only session that changes it), then confirm or correct the register's actions and Copilot CLI rows and add a row for the gate's Python test packages.
+  - Part 2, 2739: the templates, presets and scenario conventions to `GetAI-IP/factory-manifestos` in one pull request, Spec Kit at 1.4.3; the Playwright kit to `factory-gates` only after Boroon merges Session 53's gate PR (3027), at the register's pins, axe at 4.12.1, the toolkit as the vendored copy at `3233f3e` and never from npm by name, `scripts.sha256` rebuilt last. No version moves; if 2459 found that pac 2.4.1 cannot pack the `Both` layout, ask Boroon first.
+  - Part 3, at the end: correct `CLAUDE.md`'s end step 3 (`tools/session_usage.py` also works in a cloud session) and this file's A1 bullet in "Open items" (point it at 2740, Done, and the pin-round story).
+  - End: one planning pull request from Session 57's branch into `main`, which also carries this session's commits; Boroon merges it.
+
+New next steps, not listed above:
+1. Boroon pastes the Session 57 message into a new top-level laptop session.
+2. Session 57 opens one planning pull request into `main` that carries this branch's commits too. Until then, Session 56's work is only on `claude/intelligent-wright-r9lpw9`.
+3. Whoever runs DG9 for 2546 (Fri 27 Nov) is told that axe stays at 4.12.1 (the register's "A1 first pass" says so), before the baseline is recorded.
+4. For 2740's body, use this closing time line in place of the one above: active time 0 h 23 min (gaps over 10 minutes not counted), from 26 Nov 12:17 to 26 Nov 15:56 (UTC+11). Tokens: 122,809 output; 38,916,753 processed in all, of which 37,784,717 were cache reads. From 1 local transcript(s). Measured before this summary's commit.
+
 ## Session 51, 2026-11-25, branch `claude/session-51-2546-scenarios`
 
 ADO 2546, DG7 part 1: the locked scenario format. On the laptop (desktop app), the documents track, a day after DG7's Tue 24 Nov start. Session renamed "44. Stage 1 - Build - Scenario conventions and Playwright kit", like the others. Planning branch in its own worktree (`.claude/worktrees/session-50-2546`, from `origin/main` at `dae3155`), because other sessions share the folder. First named Session 50; renamed to 51 when it was found that the session "Unblock the gate's static job for 2539" had already logged itself as Session 50 (gate PR 30).
