@@ -249,11 +249,11 @@ Done when: both GHE repos hold the files with tests passing, `staging/` is gone 
 
 ### DG9. Test the kit against `factory-test` (2546, part 2). Monday 14 and Tuesday 15 December. Laptop
 
-Needs first: 2541 (`factory-test` bootstrapped), 2447 (spike 0.11, test user sign-in), 2538 (`run_workflow.py`, for the YAML scenarios).
+Needs first: 2541 (`factory-test` bootstrapped), 2447 (spike 0.11, test user sign-in), 3027 (`run_workflow.py`, for the YAML scenarios; merged in gate PR 31, 26 November 2026).
 
 1. Check that the Northwind Traders sample solution is in `factory-test`. It gets there only through the gate, as a managed import (2459, or a gate run on a pull request to `AI-Business-Solutions/ai-factory-nwt`, ADO 3059), never by a hand-made unmanaged import, which would leave an unmanaged layer under the gate's imports (Boroon, 24 November 2026, ADO 2541, Session 49).
 2. Run the kit's Northwind specs as the certificate test user, headless.
-3. Run the example workflow and Web API scenarios through `run_workflow.py`.
+3. Run the example workflow and Web API scenarios through `run_workflow.py`. **This is the runner's first live run** (Boroon, 26 November 2026, when 3027 moved to Done): until now it has run only against a fake Web API. Check the Web API names it relies on that no spike has read (`flowrun`, `asyncoperation`, `plugintracelog`), the `scenarios.json` it writes, and that no row tagged `lcp-run:` is left behind.
 4. Record run times against plan 5.8's estimates, and any flaky step.
 5. Fix the kit by PR in `factory-gates`.
 
