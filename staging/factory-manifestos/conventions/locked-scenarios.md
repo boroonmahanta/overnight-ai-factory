@@ -45,7 +45,7 @@ The runner, as the Test identity (`getai-<project>-test`) over the Web API:
 1. Checks the file (the schema, then the rules under "What the schema cannot check"). A file that fails is a failed case; the others still run.
 2. Notes the time, then creates the `seed` rows in order, writing the run tag into each `tag_column`.
 3. Does the `trigger`: creates, updates or deletes one row, or posts to the flow's HTTP trigger.
-4. Reads Dataverse every `poll_seconds` until every expectation under `rows` and `plugin_trace` holds. If they do not all hold within `timeout_seconds` (default 300), the case fails.
+4. Reads Dataverse every `poll_seconds` until every expectation under `rows` and `plugin_trace` holds. If they do not all hold within `timeout_seconds` (default 300), the case fails. A `count: 0` expectation must hold at every read after the trigger, so a row appearing fails the case at once; a scenario whose only expectations are `count: 0` waits its whole timeout (3027, Session 53).
 5. If the scenario has `run`: looks for a run of that flow or workflow that started after step 2. A run with another status fails the case. A run that is not there is "unknown" and does not decide anything, because the run history is not complete (plan 5.9).
 6. Cleans up (above). A clean-up that fails does not change the result; it is listed in the evidence, and the sweeper finds the rows later.
 
@@ -156,9 +156,9 @@ For the runner (3027), and for a lint if one is written:
 ## Open points
 
 Untested until DG9 and 3027:
-1. **The HTTP trigger's address.** The scenario names the flow by its ID; how the runner gets the trigger's address as the Test identity is not tried. The flow service refused the lane identity's `run` call (spike 0.14). A row trigger needs no address, so prefer one.
-2. **Where run records are.** A cloud flow's runs are in `flowrun`; a classic workflow's in `asyncoperation`. Northwind's workflow deletes its own succeeded jobs, so its example expects "unknown".
+1. **The HTTP trigger's address.** The scenario names the flow by its ID; how the runner gets the trigger's address as the Test identity is not tried. The flow service refused the lane identity's `run` call (spike 0.14). A row trigger needs no address, so prefer one. **The runner does not build it yet** (3027, Session 53): a `kind: http` scenario fails with the reason.
+2. **Where run records are.** A cloud flow's runs are in `flowrun`; a classic workflow's in `asyncoperation`. Northwind's workflow deletes its own succeeded jobs, so its example expects "unknown". **Settled in the runner** (3027, Session 53): a classic workflow's system job is matched by the trigger's row and the workflow or its activations; a cloud flow's run by the flow and its start time, as `flowrun` has no link to the row. Untested against Dataverse.
 3. **Plug-in trace logging** must be on in `factory-test` before any `plugin_trace` check can pass (2541 or 2459).
 4. **Rows a flow makes** carry no run tag. A test finds them by filter and deletes them; if the run dies first, the sweeper cannot find them.
-5. **Which copy of the schema the gate trusts.** This one moves to `GetAI-IP/factory-manifestos` with the other conventions (D1). The runner in `factory-gates` must enforce the same rules: 3027 decides whether it keeps a hashed copy beside the runner, as the spec check does.
+5. **Which copy of the schema the gate trusts.** This one moves to `GetAI-IP/factory-manifestos` with the other conventions (D1). **Settled** (3027, Session 53): `factory-gates` keeps a byte-identical, hashed copy at `lcp/scenario.schema.json` beside the runner, as the spec check does. Change both copies together.
 6. **The Northwind spec.** The examples' `AC-1` and `AC-2` are stand-ins. The spec written for the Stage 1 exit test (2539) maps the real criteria to these IDs, and the files move to `AI-Business-Solutions/ai-factory-nwt` by pull request.
