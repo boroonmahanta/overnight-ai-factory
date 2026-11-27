@@ -1,0 +1,169 @@
+# Spike 0.11 (plan 11.1, ADO 2447): the factory-test test user signs in by certificate,
+# headless in CI, as the gate's verify-in-test will.
+# Published as .github/workflows/probe.yml in GetAI-IP/signin-probe (private, scratch),
+# next to probe/ (signin_probe.py, check_vars.sh, specs/) and gate/ (the Playwright kit,
+# copied unchanged from GetAI-IP/factory-gates at release 2080a82, with the kit's lines of
+# the gate's scripts.sha256 as gate/scripts.sha256).
+#
+# Modes:
+#   vault    the Test identity signs in to Azure and reads the certificate's secret
+#            (metadata only), then tries two reads its role should not allow. No browser
+#   signin   vault, then the kit's own sign-in project (playwright-ms-auth, certificate,
+#            Key Vault, CI), a check of the storage state (counts only), and one page in
+#            factory-test as the test user
+#
+# Hand start only (workflow_dispatch), and only from main: no pull request code runs
+# (rule 5). One job, as the Test identity only, in environment lcp-test. No secrets: the
+# tenant ID, app ID, URLs and names are repository variables of this scratch repo.
+# Nothing is uploaded: the storage state, the certificate and the sign-in screenshots are
+# secrets or show the signed-in user, so they stay on the runner and are deleted at the end.
+name: signin-probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: vault or signin
+        type: choice
+        options: [vault, signin]
+        default: vault
+      vault_delay:
+        description: minutes to wait between the Azure sign-in and the first Key Vault read (0, or 7 to see whether the OIDC assertion runs out)
+        type: choice
+        options: ["0", "7"]
+        default: "0"
+      debug:
+        description: SYSTEM_DEBUG for playwright-ms-auth (its log lines, never a secret)
+        type: boolean
+        default: true
+
+permissions: {}
+
+concurrency:
+  group: signin-probe
+  cancel-in-progress: false
+
+env:
+  TENANT_ID: ${{ vars.TENANT_ID }}
+  TEST_APP_ID: ${{ vars.TEST_APP_ID }}
+  TEST_URL: ${{ vars.TEST_URL }}               # https://factory-test.crm6.dynamics.com/
+  KEYVAULT: ${{ vars.KEYVAULT }}               # kv-getai-factory-aue
+  TEST_USER: ${{ vars.TEST_USER }}             # factory-test-nwt@getai.com.au
+  TEST_USER_CERT: ${{ vars.TEST_USER_CERT }}   # factory-test-nwt
+  VAULT_DELAY: ${{ inputs.vault_delay }}
+  PROBE_OUT: ${{ github.workspace }}/../signin-probe-out   # outside the checkout; deleted at the end
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    environment: lcp-test
+    timeout-minutes: 30
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Refuse any ref but main
+        run: '[ "$GITHUB_REF" = "refs/heads/main" ] || { echo "::error::run this from main only"; exit 1; }'
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check the variables
+        run: bash probe/check_vars.sh
+
+      # Everything slow comes before the Azure sign-in: the GitHub OIDC token behind it
+      # lasts about 5 minutes (spike 0.14), and Key Vault is read only after it.
+      - name: Check the kit against the gate's hashes
+        if: inputs.mode == 'signin'
+        working-directory: gate
+        run: sha256sum --check --strict --quiet scripts.sha256 && echo "kit matches the gate's scripts.sha256 ($(wc -l < scripts.sha256) files)"
+      # 22.x, not lts/*: lts/* failed on github.com's rate limit on a GHE.com runner (spike 0.6).
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: inputs.mode == 'signin'
+        with:
+          node-version: 22.x
+          package-manager-cache: false   # no npm cache in a job with secrets (setup-node README)
+      - name: Install the kit's pinned packages (lockfile, no install scripts)
+        if: inputs.mode == 'signin'
+        working-directory: gate/playwright
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund --no-update-notifier
+          npx playwright --version
+      - name: Browsers (Playwright's Chromium for the page; Microsoft Edge for playwright-ms-auth)
+        if: inputs.mode == 'signin'
+        working-directory: gate/playwright
+        run: |
+          set -euo pipefail
+          npx playwright install --with-deps chromium
+          if [ -x /opt/microsoft/msedge/msedge ]; then
+            echo "Edge already on the runner image: $(/opt/microsoft/msedge/msedge --version)"
+          else
+            echo "::warning::Edge is not on the runner image; installing it with Playwright"
+            npx playwright install --with-deps msedge
+            /opt/microsoft/msedge/msedge --version
+          fi
+
+      - name: Sign in to Azure as the Test identity (OIDC, no secret)
+        uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
+        with:
+          client-id: ${{ vars.TEST_APP_ID }}
+          tenant-id: ${{ vars.TENANT_ID }}
+          allow-no-subscriptions: true
+      - name: Wait before the first Key Vault read
+        if: inputs.vault_delay != '0'
+        run: sleep $(( VAULT_DELAY * 60 ))
+      - name: Read the certificate's secret as the Test identity (metadata only), and two reads it should not allow
+        run: python3 -I probe/signin_probe.py vault
+
+      # The kit's own sign-in project, as the gate will run it, with the variables
+      # playwright-ms-auth reads (reading notes, point 1). --retries=0 and --trace=off so
+      # no trace (which would hold the session's cookies) is written; list reporter only.
+      - name: Sign in as the test user (the kit's sign-in project; certificate from Key Vault)
+        id: signin
+        if: inputs.mode == 'signin'
+        working-directory: gate/playwright
+        env:
+          CI: "true"
+          SYSTEM_DEBUG: ${{ inputs.debug && 'true' || 'false' }}
+          MS_AUTH_EMAIL: ${{ vars.TEST_USER }}
+          MS_AUTH_CREDENTIAL_TYPE: certificate
+          MS_AUTH_CREDENTIAL_PROVIDER: azure-keyvault
+          MS_AUTH_KEYVAULT_ENDPOINT: https://${{ vars.KEYVAULT }}.vault.azure.net/
+          MS_AUTH_KEYVAULT_SECRET_NAME: ${{ vars.TEST_USER_CERT }}
+          MODEL_DRIVEN_APP_URL: ${{ vars.TEST_URL }}main.aspx
+          TEST_ENV_URL: ${{ vars.TEST_URL }}
+          TEST_SPECS_DIR: ${{ github.workspace }}/probe/specs
+          LCP_EVIDENCE_DIR: ${{ env.PROBE_OUT }}/evidence
+        run: |
+          set -euo pipefail
+          start=$(date +%s)
+          npx playwright test --config playwright.lcp.config.ts --project sign-in \
+            --reporter=list --retries=0 --trace=off
+          echo "sign-in took $(( $(date +%s) - start )) s"
+      - name: Check the storage state (counts and domains only)
+        if: inputs.mode == 'signin' && steps.signin.outcome == 'success'
+        run: python3 -I probe/signin_probe.py state --file gate/playwright/.auth/mda.json
+      - name: One page in factory-test as the test user (stored state, no sign-in)
+        if: inputs.mode == 'signin' && steps.signin.outcome == 'success'
+        working-directory: gate/playwright
+        env:
+          CI: "true"
+          MS_AUTH_EMAIL: ${{ vars.TEST_USER }}
+          TEST_ENV_URL: ${{ vars.TEST_URL }}
+          TEST_SPECS_DIR: ${{ github.workspace }}/probe/specs
+          LCP_EVIDENCE_DIR: ${{ env.PROBE_OUT }}/evidence
+        run: |
+          npx playwright test --config playwright.lcp.config.ts --project model-driven --no-deps \
+            --reporter=list --retries=0 --trace=off
+
+      # Always: delete the storage state, the sign-in screenshots and the evidence folder,
+      # sign out of Azure, then show that nothing is left.
+      - name: Delete the storage state and sign out
+        if: always()
+        run: |
+          rm -rf gate/playwright/.auth gate/playwright/.playwright-ms-auth "$PROBE_OUT"
+          az logout 2>/dev/null || true
+          az account clear 2>/dev/null || true
+          left=$(find gate/playwright -maxdepth 2 \( -name .auth -o -name .playwright-ms-auth \) 2>/dev/null; ls -d "$PROBE_OUT" 2>/dev/null || true)
+          if [ -n "$left" ]; then echo "::error::left behind: $left"; exit 1; fi
+          echo "storage state, screenshots and evidence deleted; Azure signed out"

@@ -67,7 +67,7 @@ Next steps:
 
 - **What the Stage 1 exit test (2539, Fri 27 Nov) still needs** (gathered by Session 59 on 26 November 2026, from Sessions 53 to 58):
   1. **The first-install import** in `verify-in-test`, by a gate PR, at Boroon's word (not written; Session 53's entry). Optional in the same round: the retry on 0x80060888, and the Copilot step fixes from spike 0.6 (below), which Session 55 says are worth doing first.
-  2. **2541 is Done** (27 November 2026, Session 60, at Boroon's word). One value moved to 2447: the admins set the test user's `certificateUserIds`, still empty on 27 November. Then **2447** (spike 0.11, dated Thu 26 Nov, not started; a new session) reads it back and signs in from the vault's certificate.
+  2. **2541 is Done** (27 November 2026, Session 60, at Boroon's word). One value moved to 2447: the admins set the test user's `certificateUserIds`, still empty on 27 November (read back again at 00:54 UTC, Session 61). Then **2447** (spike 0.11, dated Thu 26 Nov) reads it back and signs in from the vault's certificate. **Its probe and workflow are written** (Session 61, `docs/plans/spike-0.11/`); the scratch repo and credential wait on Boroon's word, and its `vault` mode can run before the value is set.
   3. **3060's storage account:** Boroon chooses how long evidence is kept; then the account, its `nwt` container and Storage Blob Data Contributor for `getai-nwt-test`, and `LCP_KEYVAULT` and `EVIDENCE_ACCOUNT` in `ai-factory-nwt`'s `lcp-test` environment (3059).
   4. **The gate's Playwright step:** its fix (the kit README) by its own gate PR, once the test user exists and Boroon picks `gate.json` or caller variables for its values (Session 57).
   5. **DG9 (2546):** the kit and the Northwind scenarios through the gate in `factory-test`, axe at 4.12.1.
@@ -140,6 +140,20 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 61, 2026-11-27, branch `claude/session-61-2447-test-user-signin`
+
+ADO 2447, spike 0.11: the `factory-test` test user signs in by certificate, headless in CI. Named "53. Stage 0 - Spike - Test user sign-in (2447)". On the laptop (desktop app), in its own worktree (`.claude/worktrees/session-61-2447`, from `origin/main` at `c7435f5`, with Session 60's branch merged in: it was not on `main` yet, and this session builds on it). The only session using `factory-test` and `getai-nwt-test` while it runs. **In progress:** this entry is updated at the session's end.
+
+Done so far:
+- **Read `certificateUserIds` back first**, as Session 60's next step 1 says (as Boroon, Graph, `ConsistencyLevel: eventual`, 27 November 2026, 00:54 UTC): still `[]`. So no sign-in was tried. Boroon has a draft message for the admin with the value (`factory-test` README, section 2, step 3).
+- **The probe and its workflow are written and checked locally, at Boroon's word** ("Yes, write them"): `docs/plans/spike-0.11/` (`README.md`, `probe.yml`, `signin_probe.py`, `check_vars.sh`, `specs/ui-signin-probe-01.spec.ts`). Modes `vault` (the role proof, no browser; it does not need `certificateUserIds`) and `signin` (the kit's own `sign-in` project, the state check, one page as the test user). Nothing is uploaded; the state, screenshots and evidence are deleted at the end of the job. The local checks (no sign-in, nothing sent) are in the README: the kit at `release` `2080a82` matches the gate's 72 hashes, `npm ci --ignore-scripts` (58 packages), type check, both `--list`s, and the two probe scripts on fake data.
+- **Read `playwright-ms-auth` 0.0.19's sign-in code** (from the kit's lockfile, in a scratch copy): it counts a sign-in a success once the page is off the sign-in host, and reports a Conditional Access block only by the URL it is stuck on, so the exact error for a block comes from the Entra sign-in log. **Boroon can read that log** (Graph `auditLogs/signIns`, checked 01:05 UTC: no sign-ins for the test user yet).
+- Not touched: the tenant, `getai.ghe.com`, ADO, and the test CA key in `~/factory-test-ca`.
+
+Open items:
+- **For the run, at Boroon's word, each asked before it is made:** the private scratch repo `GetAI-IP/signin-probe` (with the kit copied from `release` `2080a82` and its 72 hash lines, and six repository variables) and the federated credential `signin-probe-lcp-test` on `getai-nwt-test`. Then `vault`; then `signin` once the admins set `certificateUserIds`; then `vault` with `vault_delay: 7`; then the sign-in log.
+- A question for the gate, which the `vault_delay` run settles: `verify-in-test` signs in to Azure long before its Playwright step, and the OIDC token behind it lasts about 5 minutes (spike 0.14).
 
 ## Session 60, 2026-11-27, branch `claude/session-60-2541-test-user`
 
