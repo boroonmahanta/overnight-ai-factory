@@ -1,6 +1,6 @@
 # Spike 0.11: the test user signs in by certificate, headless in CI
 
-Plan section 11.1, row 0.11 (ADO 2447). Session 61, Friday 27 November 2026, on the laptop (desktop app), laptop track B. Dated Thursday 26 November; the last Stage 0 spike the Stage 1 exit test (2539, Friday 27 November) needs.
+Plan section 11.1, row 0.11 (ADO 2447, **Done** on 27 November 2026 at Boroon's word). Session 61, Friday 27 November 2026, on the laptop (desktop app), laptop track B. Dated Thursday 26 November; the last Stage 0 spike the Stage 1 exit test (2539, Friday 27 November) needs. The scratch is deleted and read back gone.
 
 **Result (27 November 2026, runs 41604351 to 41622946, 02:12 to 03:13 UTC): the exit test passes**, with the kit's sign-in step fixed by gate PR 34 (https://getai.ghe.com/GetAI-IP/factory-gates/pull/34, open, for Boroon to merge). In run 41622946, as the Test identity on a `getai.ghe.com` runner, with no secret in any repo:
 
@@ -21,12 +21,12 @@ Each scratch part was made at Boroon's word ("Yes, make both", 27 November 2026)
 
 | Thing | Where | State |
 |---|---|---|
-| `probe.yml` (copy here) | `GetAI-IP/signin-probe` (private, scratch, repo 5474206), `.github/workflows/probe.yml` | Pushed 27 November 2026 (`d3ff2ed`; the workflow last changed in `eca4563`, the repo last pushed `f67fd32`). **Exists** |
-| `signin_probe.py`, `diagnose.cjs`, `check_vars.sh`, `specs/ui-signin-probe-01.spec.ts` (copies here) | Same repo, `probe/` | Probe-only, not gate scripts. **Exist** |
-| The Playwright kit | Same repo, `gate/playwright/`: **the gate's own kit**, copied unchanged from `GetAI-IP/factory-gates` at `release` `2080a82` (gate PR 33), with the kit's 72 lines of the gate's `scripts.sha256` as `gate/scripts.sha256`, for runs 1 to 4; from run 5, the kit from the gate branch `gate-2447-kit-signin` (gate PR 34) with its 73 lines. Every `signin` and `diagnose` run checked every file against them. Not copied here: the gate holds it | **Exists** |
-| Repository variables `TENANT_ID`, `TEST_APP_ID`, `TEST_URL`, `KEYVAULT`, `TEST_USER`, `TEST_USER_CERT` | Same repo. Not secret; kept there so the IDs stay out of this public repo | **Exist** |
-| GitHub environment `lcp-test` | Same repo, made by the first run, no protection rules | **Exists** |
-| Federated credential `signin-probe-lcp-test` | On `getai-nwt-test`, subject `repo:GetAI-IP@801576/signin-probe@5474206:environment:lcp-test` (the immutable subject; `azure/login` printed exactly this subject, and signed in, on every run) | Made 27 November 2026, 02:12 UTC, by `az`. **Exists** |
+| `probe.yml` (copy here) | `GetAI-IP/signin-probe` (private, scratch, repo 5474206), `.github/workflows/probe.yml` | Pushed 27 November 2026 (`d3ff2ed`; the workflow last changed in `eca4563`, the repo last pushed `f67fd32`). **Deleted** |
+| `signin_probe.py`, `diagnose.cjs`, `check_vars.sh`, `specs/ui-signin-probe-01.spec.ts` (copies here) | Same repo, `probe/` | Probe-only, not gate scripts. **Deleted** with the repo |
+| The Playwright kit | Same repo, `gate/playwright/`: **the gate's own kit**, copied unchanged from `GetAI-IP/factory-gates` at `release` `2080a82` (gate PR 33), with the kit's 72 lines of the gate's `scripts.sha256` as `gate/scripts.sha256`, for runs 1 to 4; from run 5, the kit from the gate branch `gate-2447-kit-signin` (gate PR 34) with its 73 lines. Every `signin` and `diagnose` run checked every file against them. Not copied here: the gate holds it | **Deleted** with the repo |
+| Repository variables `TENANT_ID`, `TEST_APP_ID`, `TEST_URL`, `KEYVAULT`, `TEST_USER`, `TEST_USER_CERT` | Same repo. Not secret; kept there so the IDs stay out of this public repo | **Deleted** with the repo |
+| GitHub environment `lcp-test` | Same repo, made by the first run, no protection rules | **Deleted** with the repo |
+| Federated credential `signin-probe-lcp-test` | On `getai-nwt-test`, subject `repo:GetAI-IP@801576/signin-probe@5474206:environment:lcp-test` (the immutable subject; `azure/login` printed exactly this subject, and signed in, on every run) | Made 27 November 2026, 02:12 UTC, by `az`. **Deleted** |
 
 Nothing was made in `factory-test`. The only sign-ins were the test user's own; the one session that existed (run 6) was saved on the runner only and deleted at the end of its job.
 
@@ -123,4 +123,12 @@ Boroon picks the team mailbox for option 2 before sending. Names are in ADO 2541
 
 ## Scratch and clean-up
 
-Still there, now that the exit test has passed, for deletion at Boroon's word and a read-back that they are gone: the repo `GetAI-IP/signin-probe` (with its environment, variables, runs and logs) and the federated credential `signin-probe-lcp-test` on `getai-nwt-test`. Nothing in them is needed later: the probe's copies are here, and the kit is in gate PR 34. Kept for good: `getai-nwt-test`, its role on the secret, `ai-factory-nwt-lcp-test`, the vault, the certificate and the test user. The test CA key in `~/factory-test-ca` was not read, copied or moved by this spike.
+**Deleted on 27 November 2026, at Boroon's word ("Yes, close it out"), and read back gone:**
+
+| Thing | Where | How | Read back |
+|---|---|---|---|
+| Federated credential `signin-probe-lcp-test` | `getai-nwt-test` in Entra | `az ad app federated-credential delete`, 03:39:25 UTC (first, so nothing could sign in from the repo) | `az ad app federated-credential list`: only `ai-factory-nwt-lcp-test` is left (Session 48's, kept). No secret or certificate |
+| Repo `GetAI-IP/signin-probe`, with its environment, variables, runs and logs | `getai.ghe.com` | `gh repo delete`, 03:39:27 UTC, after checking it was the scratch (its description) and no run was in progress | `gh api repos/GetAI-IP/signin-probe`: HTTP 404 |
+| Local copies (the repo's working copy, the kit copies, the fake state files) | The session's scratchpad on the laptop | Deleted | |
+
+Kept for good: `getai-nwt-test`, its Key Vault Secrets User role on the secret, `ai-factory-nwt-lcp-test`, the vault, the certificate and the test user, and its email authentication method. The test CA key in `~/factory-test-ca` was not read, copied or moved by this spike; Boroon destroys it (proposal 4). Every probe file has its copy here; the kit's fix is in gate PR 34.

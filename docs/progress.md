@@ -67,7 +67,7 @@ Next steps:
 
 - **What the Stage 1 exit test (2539, Fri 27 Nov) still needs** (gathered by Session 59 on 26 November 2026, from Sessions 53 to 58):
   1. **The first-install import** in `verify-in-test`, by a gate PR, at Boroon's word (not written; Session 53's entry). Optional in the same round: the retry on 0x80060888, and the Copilot step fixes from spike 0.6 (below), which Session 55 says are worth doing first.
-  2. **2541 is Done** (27 November 2026, Session 60, at Boroon's word). **2447's exit test passed on 27 November** (spike 0.11, Session 61, `docs/plans/spike-0.11/`): the test user signs in by certificate headless in CI, saves a storage state and loads a page in `factory-test`. It needed an email method registered for the user by an identity admin (SSPR) and the kit's sign-in fix, **gate PR 34 (open: Boroon merges it)**. Then the gate's Playwright step needs its own gate PR (item 4).
+  2. **2541 is Done** (27 November 2026, Session 60, at Boroon's word). **2447 is Done** (27 November 2026, at Boroon's word): its exit test passed (spike 0.11, Session 61, `docs/plans/spike-0.11/`): the test user signs in by certificate headless in CI, saves a storage state and loads a page in `factory-test`. It needed an email method registered for the user by an identity admin (SSPR) and the kit's sign-in fix, **gate PR 34 (open: Boroon merges it)**. Then the gate's Playwright step needs its own gate PR (item 4).
   3. **3060's storage account:** Boroon chooses how long evidence is kept; then the account, its `nwt` container and Storage Blob Data Contributor for `getai-nwt-test`, and `LCP_KEYVAULT` and `EVIDENCE_ACCOUNT` in `ai-factory-nwt`'s `lcp-test` environment (3059).
   4. **The gate's Playwright step:** its fix (the kit README) by its own gate PR, once Boroon picks `gate.json` or caller variables for its values (Session 57). Spike 0.11 saw all six of the kit README's variables work, and proposes a second `azure/login` right before the step (Session 61).
   5. **DG9 (2546):** the kit and the Northwind scenarios through the gate in `factory-test`, axe at 4.12.1.
@@ -150,7 +150,7 @@ ADO 2447, spike 0.11: the `factory-test` test user signs in by certificate, head
 Done:
 - **`certificateUserIds`:** `[]` at 00:54 UTC; Boroon said the admin had set it; read back at 02:08 UTC, exactly the README value (the audit log: one "Update user" at 01:00:45 UTC, that field only).
 - **The probe, at Boroon's word** ("Yes, write them"): `docs/plans/spike-0.11/` (`probe.yml` with modes `vault`, `signin`, `diagnose`; `signin_probe.py`; `diagnose.cjs`; `check_vars.sh`; `specs/ui-signin-probe-01.spec.ts`). Nothing is uploaded; the storage state, screenshots and evidence are deleted at the end of every job, and that step passed on every run.
-- **The scratch, at Boroon's word** ("Yes, make both"): the private repo `GetAI-IP/signin-probe` (repo 5474206) and the federated credential `signin-probe-lcp-test` on `getai-nwt-test` (02:12 UTC). **Both still exist.**
+- **The scratch, at Boroon's word** ("Yes, make both"): the private repo `GetAI-IP/signin-probe` (repo 5474206) and the federated credential `signin-probe-lcp-test` on `getai-nwt-test` (02:12 UTC). **Deleted at his word** ("Yes, close it out"): the credential at 03:39:25 UTC, then the repo at 03:39:27 UTC; read back gone (the repo HTTP 404; `getai-nwt-test` holds only `ai-factory-nwt-lcp-test`, no secret or certificate).
 - **Six runs** (41604351 to 41622946, on Ubuntu 26.04 with Edge 157 already installed):
   1. `vault`: pass. Secrets User on the secret is enough; listing the vault and reading the certificate object are refused (HTTP 403). It stayed so in every run.
   2. `signin`, the kit on `release`: fail. `playwright-ms-auth` 0.0.19 never clicks "Use a certificate or smart card": its `isVisible` checks do not wait (Playwright: the timeout "is ignored").
@@ -162,7 +162,7 @@ Done:
 - Records: the spike README (result, six runs, eleven findings, the message, four proposals); `factory-test` README (where it stands, the test user's row, findings 14 and 17 settled, 16 confirmed, 17 and 18 new, the CA key); this file; `docs/plans/schedule.md` (2447's status only, no date moves); `CLAUDE.md` (the spike 0.11, `factory-test` and gate rows); ADO 2447's body; a comment on ADO 2541 (the CA key).
 - Not touched: any tenant policy, `factory-test`'s data, the gate's workflow, and the test CA key in `~/factory-test-ca`.
 
-Decisions (Boroon, 27 November 2026): write the probe and workflow; make the scratch repo and the credential; write the kit's sign-in fix as a gate PR.
+Decisions (Boroon, 27 November 2026): write the probe and workflow; make the scratch repo and the credential; write the kit's sign-in fix as a gate PR; close the spike out (delete the scratch, 2447 to Done).
 
 Files changed: `CLAUDE.md`, `docs/progress.md`, `docs/plans/schedule.md`, `docs/plans/factory-test/README.md`, `docs/plans/spike-0.11/` (new). In `factory-gates`, on branch `gate-2447-kit-signin`: `playwright/lib/sign-in.setup.ts`, `playwright/lib/entra.ts`, `playwright/kit-tests/kit.check.ts`, `playwright/README.md`, `scripts.sha256`.
 
@@ -171,14 +171,12 @@ Open items:
 - **The gate's Playwright step** still passes `KEYVAULT_NAME`: its own gate PR (proposal 2), with the kit README's six variables, now all seen working, and a second `azure/login` right before it. Boroon picks `gate.json` or caller variables. 2539's UI suite needs it.
 - **The test CA key can be destroyed** (proposal 4): Boroon deletes `~/factory-test-ca/factory-test-ca.key`, then its passphrase from his password manager.
 - **Plan 5.3's role** (proposal 3): Key Vault Secrets User on the secret, at Boroon's word.
-- **The scratch:** delete `GetAI-IP/signin-probe` and `signin-probe-lcp-test`, at Boroon's word, and read them back gone.
-- **2447 to Done:** at Boroon's word (the brief).
 
-Next steps: Boroon merges gate PR 34; the scratch is deleted; the gate's Playwright step PR; then 2546's DG9 and 2539.
+Next steps: Boroon merges gate PR 34; the gate's Playwright step PR; then 2546's DG9 and 2539.
 
-ADO 2447: moved from Proposed to Building, with a Session 61 section in its body. Its dates are not moved.
+ADO 2447: Proposed, then Building, then **Done at Boroon's word** (rev 7, 03:40 UTC), with a Session 61 section in its body. Its dates are not moved. ADO 2541: a comment that the test CA key can now be destroyed.
 
-Time and tokens (in 2447's body; session `05ed2ab1`, measured before the last commit, `--root` the main folder's project transcripts): active time 1 h 25 min (gaps over 10 minutes not counted), from 26 Nov 17:08 to 27 Nov 14:21 (UTC+11). Tokens: 177,054 output; 42,872,271 processed in all, of which 42,212,305 were cache reads. From 1 local transcript.
+Time and tokens (in 2447's body; session `05ed2ab1`, measured before the last commit, `--root` the main folder's project transcripts): active time 1 h 29 min (gaps over 10 minutes not counted), from 26 Nov 17:08 to 27 Nov 14:40 (UTC+11). Tokens: 189,510 output; 48,376,125 processed in all, of which 47,681,726 were cache reads. From 1 local transcript.
 
 ## Session 60, 2026-11-27, branch `claude/session-60-2541-test-user`
 

@@ -168,4 +168,4 @@ Names are in ADO 2541. Send at Boroon's word. **Sent by Boroon** (24 November 20
 
 ## Clean-up
 
-Nothing here is scratch: `factory-test`, `getai-nwt-test` and its application user stay for Stage 1 and after, and so do `ai-factory-nwt`, its credential `ai-factory-nwt-lcp-test`, and the `NorthwindTraders` solution in `factory-lane-1` (the lane's starting state for `nwt`). A scratch credential made for spike 0.10 is deleted after that spike.
+Nothing here is scratch: `factory-test`, `getai-nwt-test` and its application user stay for Stage 1 and after, and so do `ai-factory-nwt`, its credential `ai-factory-nwt-lcp-test`, and the `NorthwindTraders` solution in `factory-lane-1` (the lane's starting state for `nwt`). A scratch credential made for spike 0.10 is deleted after that spike. Spike 0.11's scratch credential `signin-probe-lcp-test` on `getai-nwt-test` and its repo `GetAI-IP/signin-probe` were deleted and read back gone on 27 November 2026 (Session 61).
