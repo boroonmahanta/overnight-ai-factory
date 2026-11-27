@@ -11,6 +11,8 @@
 #   signin   vault, then the kit's own sign-in project (playwright-ms-auth, certificate,
 #            Key Vault, CI), a check of the storage state (counts only), and one page in
 #            factory-test as the test user
+#   diagnose vault, then probe/diagnose.cjs: the same sign-in with waits, printing what
+#            Entra shows on each page (accessible names, no URLs). Saves no state
 #
 # Hand start only (workflow_dispatch), and only from main: no pull request code runs
 # (rule 5). One job, as the Test identity only, in environment lcp-test. No secrets: the
@@ -23,9 +25,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: vault or signin
+        description: vault, signin or diagnose
         type: choice
-        options: [vault, signin]
+        options: [vault, signin, diagnose]
         default: vault
       vault_delay:
         description: minutes to wait between the Azure sign-in and the first Key Vault read (0, or 7 to see whether the OIDC assertion runs out)
@@ -73,24 +75,24 @@ jobs:
       # Everything slow comes before the Azure sign-in: the GitHub OIDC token behind it
       # lasts about 5 minutes (spike 0.14), and Key Vault is read only after it.
       - name: Check the kit against the gate's hashes
-        if: inputs.mode == 'signin'
+        if: inputs.mode != 'vault'
         working-directory: gate
         run: sha256sum --check --strict --quiet scripts.sha256 && echo "kit matches the gate's scripts.sha256 ($(wc -l < scripts.sha256) files)"
       # 22.x, not lts/*: lts/* failed on github.com's rate limit on a GHE.com runner (spike 0.6).
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        if: inputs.mode == 'signin'
+        if: inputs.mode != 'vault'
         with:
           node-version: 22.x
           package-manager-cache: false   # no npm cache in a job with secrets (setup-node README)
       - name: Install the kit's pinned packages (lockfile, no install scripts)
-        if: inputs.mode == 'signin'
+        if: inputs.mode != 'vault'
         working-directory: gate/playwright
         run: |
           set -euo pipefail
           npm ci --ignore-scripts --no-audit --no-fund --no-update-notifier
           npx playwright --version
       - name: Browsers (Playwright's Chromium for the page; Microsoft Edge for playwright-ms-auth)
-        if: inputs.mode == 'signin'
+        if: inputs.mode != 'vault'
         working-directory: gate/playwright
         run: |
           set -euo pipefail
@@ -114,6 +116,20 @@ jobs:
         run: sleep $(( VAULT_DELAY * 60 ))
       - name: Read the certificate's secret as the Test identity (metadata only), and two reads it should not allow
         run: python3 -I probe/signin_probe.py vault
+
+      # The same sign-in with waits, printing what Entra shows. No state is saved.
+      - name: Diagnose the sign-in (what Entra shows on each page; no state saved)
+        if: inputs.mode == 'diagnose'
+        working-directory: gate/playwright
+        env:
+          CI: "true"
+          MS_AUTH_EMAIL: ${{ vars.TEST_USER }}
+          MS_AUTH_CREDENTIAL_TYPE: certificate
+          MS_AUTH_CREDENTIAL_PROVIDER: azure-keyvault
+          MS_AUTH_KEYVAULT_ENDPOINT: https://${{ vars.KEYVAULT }}.vault.azure.net/
+          MS_AUTH_KEYVAULT_SECRET_NAME: ${{ vars.TEST_USER_CERT }}
+          MODEL_DRIVEN_APP_URL: ${{ vars.TEST_URL }}main.aspx
+        run: node ../../probe/diagnose.cjs
 
       # The kit's own sign-in project, as the gate will run it, with the variables
       # playwright-ms-auth reads (reading notes, point 1). --retries=0 and --trace=off so
