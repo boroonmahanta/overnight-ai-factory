@@ -162,7 +162,7 @@ Done:
 - Records: the spike README (result, six runs, eleven findings, the message, four proposals); `factory-test` README (where it stands, the test user's row, findings 14 and 17 settled, 16 confirmed, 17 and 18 new, the CA key); this file; `docs/plans/schedule.md` (2447's status only, no date moves); `CLAUDE.md` (the spike 0.11, `factory-test` and gate rows); ADO 2447's body; a comment on ADO 2541 (the CA key).
 - Not touched: any tenant policy, `factory-test`'s data, the gate's workflow, and the test CA key in `~/factory-test-ca`.
 
-Decisions (Boroon, 27 November 2026): write the probe and workflow; make the scratch repo and the credential; write the kit's sign-in fix as a gate PR; close the spike out (delete the scratch, 2447 to Done).
+Decisions (Boroon, 27 November 2026): write the probe and workflow; make the scratch repo and the credential; write the kit's sign-in fix as a gate PR; close the spike out (delete the scratch, 2447 to Done); **the test user's access to Northwind comes from a role in the Northwind solution** ("Role in the solution"), not from a role assigned by hand in `factory-test`.
 
 Files changed: `CLAUDE.md`, `docs/progress.md`, `docs/plans/schedule.md`, `docs/plans/factory-test/README.md`, `docs/plans/spike-0.11/` (new). In `factory-gates`, on branch `gate-2447-kit-signin`: `playwright/lib/sign-in.setup.ts`, `playwright/lib/entra.ts`, `playwright/kit-tests/kit.check.ts`, `playwright/README.md`, `scripts.sha256`.
 
@@ -172,7 +172,15 @@ Open items:
 - **The test CA key can be destroyed** (proposal 4): Boroon deletes `~/factory-test-ca/factory-test-ca.key`, then its passphrase from his password manager.
 - **Plan 5.3's role** (proposal 3): Key Vault Secrets User on the secret, at Boroon's word.
 
-Next steps: the gate's Playwright step PR; the test user's access to Northwind's tables (the kit README's open item 2); then 2546's DG9 and 2539.
+Next steps: the gate's Playwright step PR; the Northwind role (below); then 2546's DG9 and 2539.
+
+**The test user's access to Northwind** (the kit README's open item 2; `factory-test` README, finding 19). Read in `factory-lane-1` as Boroon: Basic User holds none of the 96 privileges on Northwind's 12 user-owned tables, the app `nwind_NorthwindOrdersModeldriven` is shared only with System Administrator and System Customizer, and `NorthwindTraders` 1.0.0.6 holds no security role. Boroon chose a role in the solution. **Draft, not made, for his review:**
+- a business role, "Northwind Orders User", in the root business unit, in `NorthwindTraders`, made in `factory-lane-1` by the Web API with the solution header (live build, plan 5.6), then exported both kinds and unpacked as the lane source, by a pull request to `ai-factory-nwt` (a security role is size L, Merge Danger 6 to 10);
+- `nwind_orders`: Create, Write, Delete, Append at user level; Read and Append To at organisation level (the kit's examples create, save and delete their own tagged orders);
+- the other 11 tables: Read and Append To at organisation level (the Orders form's lookups and views read them); no Create, Write or Delete;
+- no Assign or Share on any table;
+- the app shared with the role (its app roles), so the test user can open it;
+- the test user keeps Basic User and gets this role in `factory-test` after the gate's first managed import of Northwind, which waits on the first-install import fix (2539's list, item 1).
 
 ADO 2447: Proposed, then Building, then **Done at Boroon's word** (rev 7, 03:40 UTC), with a Session 61 section in its body. Its dates are not moved. ADO 2541: a comment that the test CA key can now be destroyed.
 
