@@ -75,7 +75,7 @@ Next steps:
   7. **2548 (mining):** no engineer export has arrived (`Uploads` and `Factory session exports` both empty, 26 November 2026). The D5 cut-off is today: Boroon picks up to 10 of his own sessions to top up, and says whether the how-to and the "Request files" link went to the engineers.
 - **Plan edits waiting on Boroon's word** (proposals, none made): spike 0.10's ten (`docs/plans/spike-0.10/README.md`), spike 0.6's nine and spike 0.20's seven (their READMEs), Session 38's 5.6 and risk 11 (an XML pack drops a component silently), Session 34's Appendix A Copilot install lines (lockfile, not `npm install --global`), and Session 58's role on the test user's certificate (5.3, after 2447 proves it).
 - **Stories only Boroon can move:** 2459 (spike 0.10) stays Building until his word; 3060 holds its vault and certificate but is still Proposed.
-- **Branches left off `main` on purpose** (Session 59): `claude/session-21-progress-dashboard` (its three files come to `main` by Session 60's pull request, at Boroon's word on 27 November 2026; once that is merged, the branch can go), `claude/sharp-wright-1muptp` (an agent-made skills review, kept off `main` per `CLAUDE.md`), and two empty branches from 2 November.
+- **Branches left off `main` on purpose** (Session 59): `claude/session-21-progress-dashboard` (its three files reached `main` by pull request 77, merged by Boroon on 27 November 2026; the branch can be deleted at his word), `claude/sharp-wright-1muptp` (an agent-made skills review, kept off `main` per `CLAUDE.md`), and two empty branches from 2 November.
 - **`run_workflow.py` is written, smallest version that fails closed** (Session 53, 26 November 2026, ADO 3027 **Done** at Boroon's word; DG9 owns its first live run): gate PR 31, https://getai.ghe.com/GetAI-IP/factory-gates/pull/31, from `release` at `5ba13be`, **merged by Boroon on 26 November 2026** (`release` at `f8bbda9`; head `309901b`, `self-test` green, run 41298691). **Read back on `release` the same day:** 778 tests pass (4 skipped by design), `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check` clean, `pending-scripts.txt` 2, the merge's tree the same as the PR's head, both Northwind examples valid with `--check`. Before the merge, locally: 778 tests pass (57 new, 4 skipped by design), `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check` clean, `pending-scripts.txt` down to 2 (`cs-runner/run.mjs`, `run_holdout.py`). Not yet run against Dataverse: the first real run is DG9 or 2539, in `factory-test`, through the gate only. The choices for Boroon are in the gate README, "The locked scenario runner (ADO 3027)". **Next for the gate:** Session 54's two blockers for 2539. **The pac pin is done** (gate PR 33, merged 26 November 2026). **Still waiting on Boroon's word:** the first-install import (add `--stage-and-upgrade` only when the solution is already in Test) and an optional retry in `run_workflow.py` on 0x80060888; Session 53's entry says what each is.
 - **`static`'s last four checks are written, smallest versions that fail closed** (Session 50, 25 November 2026, for ADO 2539): gate PR 30, https://getai.ghe.com/GetAI-IP/factory-gates/pull/30, **merged by Boroon on 25 November 2026** (`release` at `5ba13be`, the tree `self-test` passed in run 41120051). Read back the same day: 721 tests pass (4 skipped by design), `manifest.py verify`, `sha256sum --check --strict` and `make_rulesets.py check` are clean, and `pending-scripts.txt` holds 3 scripts, all `verify-in-test`'s (`run_workflow.py`, `cs-runner/run.mjs`, `run_holdout.py`). 3027's gate PR now starts from `5ba13be`. The choices for Boroon are in the gate README, "The four smallest-version checks (ADO 2539)". Plan Appendix A's "Lints and limits" step matches it, with a 14.4 row (Boroon's word, 25 November 2026).
 - **Done: `factory-manifestos` pull request 1 merged** (Session 23): https://getai.ghe.com/GetAI-IP/factory-manifestos/pull/1, the 50 low-code standards, merged by Boroon on 13 November 2026 (`fd2e268`); 2545 is Done in ADO. The plan now says 50 (5.10, 5.12 and a 14.4 row, edited at Boroon's word, Session 23). Also still open from DG3: Boroon to ask the Get AI Engineer to review the standards (not blocking); `main-protection` there is a second-approver stopgap that 2520 must raise to 1 approval.
@@ -141,7 +141,7 @@ Next steps:
 
 ## Log
 
-## Session 60, 2026-11-27, branch `claude/session-60-progress-snapshot-main`
+## Session 60, 2026-11-27, branches `claude/session-60-progress-snapshot-main` and `claude/session-60-progress-records`
 
 After the morning's dashboard sync (146 stories, 23 of 41 scheduled done, 94 sessions), which still ran the script from `claude/session-21-progress-dashboard`, Boroon asked whether the snapshot should go on `main`, then said "Yes, open the PR". On the laptop (desktop app), in a worktree outside the shared folder, from `origin/main` at `c7435f5`. No gate, tenant or ADO change.
 
@@ -154,9 +154,14 @@ Decisions: the dashboard script lives on `main` (Boroon, 27 November 2026).
 
 Files changed: `tools/progress_snapshot.py` (new), `docs/plans/progress-dashboard.md` (new), `tools/session_usage.py`, `CLAUDE.md`, `docs/progress.md`.
 
-Open items: once the pull request is merged, the daily sync reads `main` on its own (it tries `origin/main` first), and `claude/session-21-progress-dashboard` can be deleted, at Boroon's word. The how-to's line about that fallback branch can then go.
+- **Pull request 77 merged by Boroon on 27 November 2026** (`main` at `483c043`).
+- **Dashboard synced again, from `main`** (at Boroon's word, 27 November 2026, 01:06 UTC): 146 stories, 24 of 41 scheduled done (one more than the morning), 93 sessions. Old snapshot files kept. The session count fell from 94 to 93 between the two runs; not looked into.
 
-Next steps: Boroon reviews and merges the pull request.
+Open items: `claude/session-21-progress-dashboard` can be deleted, at Boroon's word; the how-to's line about that fallback branch, and the scheduled task's fallback, can then go. Why the session count fell by one is not checked.
+
+Next steps: none for this work.
+
+Time and tokens (no story body: this session belongs to no ADO story; session `02fef4e3`, measured before the commit): active time 0 h 16 min (gaps over 10 minutes not counted), from 27 Nov 11:26 to 27 Nov 16:40 (UTC+11). Tokens: 14,551 output; 3,704,110 processed in all, of which 3,385,600 were cache reads. From 1 local transcript.
 
 ## Session 59, 2026-11-26, branch `claude/session-59-records-sync`
 
