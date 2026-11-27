@@ -114,12 +114,59 @@ The test user's Entra sign-in log, read as Boroon (Graph `auditLogs/signIns`, be
 
 Boroon picks the team mailbox for option 2 before sending. Names are in ADO 2541.
 
-## Proposals for Boroon (only the first made, as gate PR 34)
+## Proposals for Boroon (the first two made, as gate PRs 34 and 36)
 
 1. **Done as gate PR 34** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/34, opened 27 November 2026 at Boroon's word, "Yes, write it"; merged by him the same day, `release` at `5826414`), which passed run 6. The proposal as written: **The kit's sign-in, by its own gate PR.** `lib/sign-in.setup.ts` stops calling `playwright-ms-auth`'s `authenticate()` and drives the sign-in itself, with waits, as `diagnose.cjs` does: the package's own Key Vault provider (`CredentialProviderFactory`) and certificate route (`addCertAuthRoute`), the same pages and clicks, then `context.storageState()` to `.auth/mda.json`. It should also fail with the page's heading and any `AADSTS` code when it is stuck on the sign-in host, not only the URL. The other way, moving to `playwright-ms-auth` 0.0.20, needs a full read first (rule 19) and may not fix it.
-2. **The gate's "Locked Playwright suite" step** (`factory-test` README, finding 4; kit README, "The change to the gate step"): the variables in the kit README's proposed step are the right ones, all six seen working here (`MS_AUTH_EMAIL`, `MS_AUTH_CREDENTIAL_TYPE`, `MS_AUTH_CREDENTIAL_PROVIDER`, `MS_AUTH_KEYVAULT_ENDPOINT` as a URL, `MS_AUTH_KEYVAULT_SECRET_NAME`, `MODEL_DRIVEN_APP_URL`), and `KEYVAULT_NAME` goes. Two additions from these runs: a second `azure/login` right before the step (cheap; the gap after the checker and import can pass 7 minutes, finding 6), and `--retries` and `--trace` settings that keep a trace of a signed-in session out of the evidence Blob. Boroon picks `gate.json` or caller variables for the test user, the certificate's name and the app's ID. Its fix is its own gate PR.
+2. **Done as gate PR 36** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/36, Session 62, 27 November 2026; open, for Boroon to merge). Boroon chose `gate.json` for the settings and a lookup of the app's ID in Test after the import. The plan's Appendix A edit for it is below, proposed, not made. The proposal as written: **The gate's "Locked Playwright suite" step** (`factory-test` README, finding 4; kit README, "The change to the gate step"): the variables in the kit README's proposed step are the right ones, all six seen working here (`MS_AUTH_EMAIL`, `MS_AUTH_CREDENTIAL_TYPE`, `MS_AUTH_CREDENTIAL_PROVIDER`, `MS_AUTH_KEYVAULT_ENDPOINT` as a URL, `MS_AUTH_KEYVAULT_SECRET_NAME`, `MODEL_DRIVEN_APP_URL`), and `KEYVAULT_NAME` goes. Two additions from these runs: a second `azure/login` right before the step (cheap; the gap after the checker and import can pass 7 minutes, finding 6), and `--retries` and `--trace` settings that keep a trace of a signed-in session out of the evidence Blob. Boroon picks `gate.json` or caller variables for the test user, the certificate's name and the app's ID. Its fix is its own gate PR.
 3. **Plan 5.3, the Test identity's role on the certificate:** Key Vault Secrets User on the certificate's secret, not Key Vault Certificate User on the certificate (proved, finding above; the certificate object itself is refused with that role, and is not needed).
 4. **The test CA key can now be destroyed** (the full sign-in passed in run 6, the brief's rule). Boroon deletes `~/factory-test-ca/factory-test-ca.key`, then its passphrase from his password manager. Noted in the `factory-test` README and in ADO 2541. After that, a renewal or a second test user needs a new CA, which the admins upload again.
+
+## Plan edit for gate PR 36 (proposed, not made; Session 62)
+
+For Boroon's word, once gate PR 36 is merged. Plan Appendix A's `verify-in-test` (lines 2014 to 2242 as at 27 November 2026) keeps tags, not commit pins, as it does elsewhere. Gate PR 36 has the exact steps; in the plan they would read:
+
+1. **Move the `settings` step** from after the Playwright step to straight after `actions/setup-python@v5`, renamed "Project gate settings (held-out set, Copilot Studio agents, UI suite)", with this comment: the settings say which optional suites the project has and what its UI suite signs in with; they come from its `gate.json`, hashed in the gate repo, so the PR under test cannot change them; read first, so a bad file fails before the checker and the import.
+2. **After "Locked scenarios"**, three steps:
+
+   ```yaml
+      - id: app
+        name: The model-driven app's URL in Test
+        if: steps.settings.outputs.ui == 'true'
+        env:
+          MDA_APP: ${{ steps.settings.outputs.mda_app }}
+        run: python3 -I gate/lcp/app_in_test.py --app "$MDA_APP" --env "$TEST_ENV_URL" --out evidence/app-in-test.json
+      - uses: azure/login@v2              # again: the first sign-in came before the checker and import (spike 0.11)
+        with:
+          client-id: ${{ vars.LCP_TEST_APP_ID }}
+          tenant-id: ${{ vars.TENANT_ID }}
+          allow-no-subscriptions: true
+      - name: Locked Playwright suite (certificate test user)
+        if: steps.settings.outputs.ui == 'true'
+        working-directory: gate/playwright
+        env:
+          MS_AUTH_EMAIL: ${{ steps.settings.outputs.test_user }}
+          MS_AUTH_CREDENTIAL_TYPE: certificate
+          MS_AUTH_CREDENTIAL_PROVIDER: azure-keyvault
+          MS_AUTH_KEYVAULT_ENDPOINT: https://${{ steps.settings.outputs.keyvault }}.vault.azure.net/
+          MS_AUTH_KEYVAULT_SECRET_NAME: ${{ steps.settings.outputs.test_user_cert }}
+          MODEL_DRIVEN_APP_URL: ${{ steps.app.outputs.url }}
+          TEST_SPECS_DIR: ${{ github.workspace }}/pr/tests/acceptance/ui
+          LCP_EVIDENCE_DIR: ${{ github.workspace }}/evidence/playwright
+        run: |
+          set -euo pipefail
+          # fails here when tests/acceptance/ui holds no spec (gate PR 36 has the line)
+          npm ci --ignore-scripts --no-audit --no-fund --no-update-notifier
+          npx playwright install --with-deps chromium
+          npx playwright test --config playwright.lcp.config.ts --reporter=html,junit --trace=off
+   ```
+
+   with the comments gate PR 36 carries: why the app's ID comes from Test (the export holds only the unique name, and the toolkit reads `appid`), why the second sign-in, and why `--trace=off` (a trace of a signed-in session would hold its cookies, and `evidence/` goes to Blob; the retry stays).
+3. **After the verifier sessions**, "Delete the test user's storage state", `if: always()`: deletes `gate/playwright/.auth` and `.playwright-ms-auth`, deletes any `trace.zip` under `evidence/`, and fails if either was there, before the evidence is hashed and copied.
+4. **The job's header comment** gains "the install-or-upgrade import and the Playwright step (ADO 2539)"; the first `azure/login`'s comment loses nothing.
+5. **Section 5.7's trusted-script list** (line 692) gains the app lookup (`app_in_test.py`, run by `verify-in-test` as the Test identity after the import), and the project settings reader's entry says it also holds the UI suite's test user, vault, certificate and app.
+6. **A 14.4 row**, "The Playwright step's settings (2539)": the UI settings are in the project's `gate.json`, not caller variables; the app's ID is looked up in Test after the import; a second Azure sign-in before the suite; `--trace=off`; the storage state deleted after the verifiers (Boroon, 27 November 2026).
+
+Independent of Session 61's proposed edit for the install-or-upgrade import (the `in-test` step before the import, also waiting on his word): the `app` step sits after the import in either form.
 
 ## Scratch and clean-up
 

@@ -68,8 +68,8 @@ Next steps:
 - **What the Stage 1 exit test (2539, Fri 27 Nov) still needs** (gathered by Session 59 on 26 November 2026, from Sessions 53 to 58):
   1. **The first-install import** in `verify-in-test`: **done: gate PR 35** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/35; Session 61, at Boroon's word), merged by him on 27 November 2026 (`release` at `860907a`). `solution_in_test.py` asks Test first, and the import adds `--stage-and-upgrade` only for a solution Test already holds. Optional in the same round: the retry on 0x80060888, and the Copilot step fixes from spike 0.6 (below), which Session 55 says are worth doing first.
   2. **2541 is Done** (27 November 2026, Session 60, at Boroon's word). **2447 is Done** (27 November 2026, at Boroon's word): its exit test passed (spike 0.11, Session 61, `docs/plans/spike-0.11/`): the test user signs in by certificate headless in CI, saves a storage state and loads a page in `factory-test`. It needed an email method registered for the user by an identity admin (SSPR) and the kit's sign-in fix, **gate PR 34 (merged by Boroon on 27 November 2026)**. Then the gate's Playwright step needs its own gate PR (item 4).
-  3. **3060's storage account:** Boroon chooses how long evidence is kept; then the account, its `nwt` container and Storage Blob Data Contributor for `getai-nwt-test`, and `LCP_KEYVAULT` and `EVIDENCE_ACCOUNT` in `ai-factory-nwt`'s `lcp-test` environment (3059).
-  4. **The gate's Playwright step:** its fix (the kit README) by its own gate PR, once Boroon picks `gate.json` or caller variables for its values (Session 57). Spike 0.11 saw all six of the kit README's variables work, and proposes a second `azure/login` right before the step (Session 61).
+  3. **3060's storage account:** Boroon chooses how long evidence is kept; then the account, its `nwt` container and Storage Blob Data Contributor for `getai-nwt-test`, and `EVIDENCE_ACCOUNT` in `ai-factory-nwt`'s `lcp-test` environment (3059). `LCP_KEYVAULT` is no longer needed once gate PR 36 is merged: the vault's name is in `gate.json` (Session 62).
+  4. **The gate's Playwright step: written, gate PR 36** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/36; Session 62, 27 November 2026; `self-test` green; **open, for Boroon to merge**). Boroon chose `gate.json` for its settings and a lookup of the app's ID in Test after the import.
   5. **DG9 (2546):** the kit and the Northwind scenarios through the gate in `factory-test`, axe at 4.12.1.
   6. **2520, 2529 and 2521**, then 2539 itself, on Fri 27 Nov.
   7. **2548 (mining):** no engineer export has arrived (`Uploads` and `Factory session exports` both empty, 26 November 2026). The D5 cut-off is today: Boroon picks up to 10 of his own sessions to top up, and says whether the how-to and the "Request files" link went to the engineers.
@@ -140,6 +140,57 @@ Next steps:
 - **Credit funding: accepted (Boroon, 2 November 2026).** Builds for customers can be made on credits. Settled.
 
 ## Log
+
+## Session 62, 2026-11-27, branch `claude/session-62-gate-playwright-step-adb233`
+
+ADO 2539, the Stage 1 exit test: the gate's "Locked Playwright suite (certificate test user)" step, by its own gate PR (spike 0.11's proposal 2). Started by Session 61 at Boroon's word ("write the Playwright step PR in a new session"). On the laptop (desktop app), in its own worktree, cut from `claude/session-61-2447-test-user-signin` at `bec8902` (Sessions 60 and 61, not on `main` yet), so this branch sits on top of it. The `factory-gates` worktree is inside this session's folder, at `.gate-2539/` (kept out of this repo's git by `.git/info/exclude`), because the app refuses writes to a worktree outside the session's folder; branch `gate-2539-playwright-step`, from `release` at `860907a`.
+
+Done:
+- **Asked Boroon first, one dialog.** Two findings while reading made the app's ID its own question:
+  - Northwind's export holds no app ID: `src/AppModules/nwind_NorthwindOrdersModeldriven/AppModule.xml` on `ai-factory-nwt` `main` (`c1d9a85`) has the unique name only. So Test's ID comes from the import, and `factory-test` has no Northwind yet.
+  - Microsoft's toolkit reads `appid` from the app's URL to build its grid and form URLs, so `main.aspx?appname=` alone, which Microsoft supports, is not enough.
+- **Gate PR 36**, https://getai.ghe.com/GetAI-IP/factory-gates/pull/36, branch `gate-2539-playwright-step`, head `846105b`, into `release`. **`self-test` green (run 41723646); open, for Boroon to merge.** In `verify-in-test`:
+  - the `settings` step moves up, after `setup-python`, before the checker and the import;
+  - `gate.json` gains a required `ui`: `false`, or exactly `test_user`, `keyvault`, `test_user_cert` and `mda_app`, each checked against a narrow pattern;
+  - new `lcp/app_in_test.py`, after the import, only when `ui` is set: asks Test, as the Test identity, for the app by its unique name, and writes `url=<Test URL>/main.aspx?appid=<Test's ID>`. It refuses an app that is missing, unmanaged, inactive, doubled or has no GUID;
+  - a second `azure/login`, the same as the first, straight before the suite;
+  - the suite runs only when `ui` is set, with the six sign-in variables spike 0.11 saw work, plus `TEST_SPECS_DIR` and `LCP_EVIDENCE_DIR`. It fails before any install when `tests/acceptance/ui` holds no spec. It installs with `npm ci --ignore-scripts --no-audit --no-fund --no-update-notifier` and Chromium, and runs with `--trace=off`. `KEYVAULT_NAME` and `LCP_KEYVAULT` go;
+  - "Delete the test user's storage state" comes straight after the verifier sessions, `if: always()`, before the evidence is hashed, copied or uploaded. It also deletes any `trace.zip` in `evidence/`, and fails if either was left;
+  - `projects/nwt/gate.json` holds Northwind's test user, vault, certificate and app.
+- **Why `--trace=off`:** the kit's config keeps a trace on the first retry. A trace records the signed-in session's network, cookies included [inference], into `evidence/`, which goes to Blob for 400 days. The retry stays (plan 5.8).
+- **Found:** `ai-factory-nwt`'s `LCP_TEST_ENV_URL` has no trailing slash, so the kit README's earlier proposal (`${{ vars.LCP_TEST_ENV_URL }}main.aspx`) would have built `...dynamics.commain.aspx`. The script joins them with one slash.
+- **Checks, locally:**
+  - 802 tests pass (12 new, 4 skipped by design);
+  - `manifest.py verify`, `sha256sum --check --strict` (119 files) and `make_rulesets.py check` are clean;
+  - 19 breaks of a copy (10 in the workflow, 9 in the two scripts), each caught by a test.
+- **Read only, nothing changed in any tenant:** the lookup's exact query, once in `factory-lane-1` as Boroon. It answered as the script expects: `statecode` 0, and `ismanaged` false, which the script refuses, as Test holds managed only. The app's ID there is in neither repo. `factory-test` holds no Northwind app yet.
+- **The plan's Appendix A edit, proposed, not made:** `docs/plans/spike-0.11/README.md`, "Plan edit for gate PR 36": the steps, the 5.7 trusted-script list and a 14.4 row.
+- **Records:**
+  - in gate PR 36: the gate README (a new section "The Playwright step (ADO 2539)", the file table, the manifest counts, the `test_workflow.py` bullet) and the kit README ("The gate step", the variable table, `--trace=off`, open item 2's role);
+  - here: this file, `docs/plans/schedule.md` (2539's row and Friday's row, no date moves), the spike 0.11 README and `CLAUDE.md`'s gate row;
+  - ADO 2539: a comment with the PR, the choices, the checks and this session's time and tokens. Its state is not moved (Proposed).
+
+Decisions (Boroon, 27 November 2026, in one dialog):
+- the Playwright step's test user, vault, certificate and app, and whether a project has UI tests, come from the project's `gate.json` ("gate.json (Recommended)");
+- the app's ID is looked up in Test after the import ("Look it up in Test (Recommended)").
+
+Files changed: `CLAUDE.md`, `docs/progress.md`, `docs/plans/schedule.md`, `docs/plans/spike-0.11/README.md`. In `factory-gates`, on branch `gate-2539-playwright-step`: `.github/workflows/lcp-gate.yml`, `lcp/project_settings.py`, `lcp/app_in_test.py` (new), `projects/nwt/gate.json`, `tests/test_project_settings.py`, `tests/test_app_in_test.py` (new), `tests/test_verdict_gate.py`, `tests/test_workflow.py`, `README.md`, `playwright/README.md`, `scripts.sha256`.
+
+Open items:
+- **Gate PR 36, for Boroon to merge.** Hashed files change in it (`lcp/project_settings.py`, `lcp/app_in_test.py`, `playwright/README.md`, `projects/nwt/gate.json`), but `scripts.sha256` changed with them and `self-test` is green, so "regenerate the manifest first" is not needed. If another gate PR merges first, rebase this one and make its manifest again.
+- **`LCP_KEYVAULT`** in `ai-factory-nwt`'s `lcp-test` environment is not needed once PR 36 is merged; not set, and nothing changed there. `EVIDENCE_ACCOUNT` is still needed (3060).
+- **Plan Appendix A**, at Boroon's word (the spike 0.11 README).
+- **Not tested:**
+  - any of it in a gate job (2539's first run);
+  - the app's ID in Test, and whether it equals `factory-lane-1`'s;
+  - whether the Blob copy's `az` session lasts through long verifier sessions (the same 7-minute question; for 3060);
+  - `setup-node` with `lts/*` in `verify-in-test`, which failed on a GHE.com runner in spike 0.6. Its fix goes with spike 0.6's Copilot step fixes, in a later gate PR;
+  - the verifier step still points at `.auth/mda.json` for a project with no UI suite (none yet).
+- The `.gate-2539/` worktree stays until PR 36 is merged; then remove it with `git worktree remove` from the `factory-gates` clone.
+
+Next steps: Boroon merges gate PR 36; then 3060's storage, 2520, 2529 and 2521, then 2539's first gate run on `ai-factory-nwt`. Its import brings the role "Northwind Orders User" and the app into `factory-test`, then Boroon assigns the role to the test user before the UI suite can pass.
+
+Time and tokens (session `6662f51e`, measured before the last commit): active time 0 h 28 min (gaps over 10 minutes not counted, including the wait for Boroon's answer), from 27 Nov 16:30 to 27 Nov 22:37 (UTC+11). Tokens: 88,651 output; 19,554,399 processed in all, of which 18,776,364 were cache reads. From 1 local transcript.
 
 ## Session 61, 2026-11-27, branch `claude/session-61-2447-test-user-signin`
 
