@@ -67,7 +67,7 @@ Next steps:
 
 - **What the Stage 1 exit test (2539, Fri 27 Nov) still needs** (gathered by Session 59 on 26 November 2026, from Sessions 53 to 58):
   1. **The first-install import** in `verify-in-test`, by a gate PR, at Boroon's word (not written; Session 53's entry). Optional in the same round: the retry on 0x80060888, and the Copilot step fixes from spike 0.6 (below), which Session 55 says are worth doing first.
-  2. **2541 is Done** (27 November 2026, Session 60, at Boroon's word). **2447 is Done** (27 November 2026, at Boroon's word): its exit test passed (spike 0.11, Session 61, `docs/plans/spike-0.11/`): the test user signs in by certificate headless in CI, saves a storage state and loads a page in `factory-test`. It needed an email method registered for the user by an identity admin (SSPR) and the kit's sign-in fix, **gate PR 34 (open: Boroon merges it)**. Then the gate's Playwright step needs its own gate PR (item 4).
+  2. **2541 is Done** (27 November 2026, Session 60, at Boroon's word). **2447 is Done** (27 November 2026, at Boroon's word): its exit test passed (spike 0.11, Session 61, `docs/plans/spike-0.11/`): the test user signs in by certificate headless in CI, saves a storage state and loads a page in `factory-test`. It needed an email method registered for the user by an identity admin (SSPR) and the kit's sign-in fix, **gate PR 34 (merged by Boroon on 27 November 2026)**. Then the gate's Playwright step needs its own gate PR (item 4).
   3. **3060's storage account:** Boroon chooses how long evidence is kept; then the account, its `nwt` container and Storage Blob Data Contributor for `getai-nwt-test`, and `LCP_KEYVAULT` and `EVIDENCE_ACCOUNT` in `ai-factory-nwt`'s `lcp-test` environment (3059).
   4. **The gate's Playwright step:** its fix (the kit README) by its own gate PR, once Boroon picks `gate.json` or caller variables for its values (Session 57). Spike 0.11 saw all six of the kit README's variables work, and proposes a second `azure/login` right before the step (Session 61).
   5. **DG9 (2546):** the kit and the Northwind scenarios through the gate in `factory-test`, axe at 4.12.1.
@@ -145,7 +145,7 @@ Next steps:
 
 ADO 2447, spike 0.11: the `factory-test` test user signs in by certificate, headless in CI. Named "53. Stage 0 - Spike - Test user sign-in (2447)". On the laptop (desktop app), in its own worktree (`.claude/worktrees/session-61-2447`, from `origin/main` at `c7435f5`, with Session 60's branch merged in: it was not on `main` yet, and this session builds on it), and a `factory-gates` worktree (`.claude/worktrees/gate-2447-kit-signin`, from `release` at `2080a82`). The only session using `factory-test` and `getai-nwt-test` while it ran. Record: `docs/plans/spike-0.11/README.md`.
 
-**Result: the exit test passes** (run 41622946, 03:12 UTC), with the kit's sign-in step fixed by **gate PR 34** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/34, open, for Boroon to merge). As `getai-nwt-test` on a `getai.ghe.com` runner, with no secret in any repo: it read the certificate's secret with only Key Vault Secrets User on it; signed in as the test user by certificate, headless, with `CI` set, in 36 s, under Conditional Access (multifactor by the issuer rule); saved the storage state (23 cookies); and loaded `main.aspx` in `factory-test` as the test user from it (`WhoAmI`: the test user). Then the state was deleted.
+**Result: the exit test passes** (run 41622946, 03:12 UTC), with the kit's sign-in step fixed by **gate PR 34** (https://getai.ghe.com/GetAI-IP/factory-gates/pull/34, **merged by Boroon on 27 November 2026**, `release` at `5826414`). As `getai-nwt-test` on a `getai.ghe.com` runner, with no secret in any repo: it read the certificate's secret with only Key Vault Secrets User on it; signed in as the test user by certificate, headless, with `CI` set, in 36 s, under Conditional Access (multifactor by the issuer rule); saved the storage state (23 cookies); and loaded `main.aspx` in `factory-test` as the test user from it (`WhoAmI`: the test user). Then the state was deleted.
 
 Done:
 - **`certificateUserIds`:** `[]` at 00:54 UTC; Boroon said the admin had set it; read back at 02:08 UTC, exactly the README value (the audit log: one "Update user" at 01:00:45 UTC, that field only).
@@ -167,12 +167,12 @@ Decisions (Boroon, 27 November 2026): write the probe and workflow; make the scr
 Files changed: `CLAUDE.md`, `docs/progress.md`, `docs/plans/schedule.md`, `docs/plans/factory-test/README.md`, `docs/plans/spike-0.11/` (new). In `factory-gates`, on branch `gate-2447-kit-signin`: `playwright/lib/sign-in.setup.ts`, `playwright/lib/entra.ts`, `playwright/kit-tests/kit.check.ts`, `playwright/README.md`, `scripts.sha256`.
 
 Open items:
-- **Gate PR 34: Boroon merges it.** It changes hashed files, and `scripts.sha256` changed with it; check `self-test` is green first (the "regenerate the manifest first" rule). Whichever other 2539 gate PR merges after it rebases and makes its manifest again.
+- **Gate PR 34: merged by Boroon on 27 November 2026, 03:37 UTC** (`self-test` green, run 41624586; `release` at `5826414`, its tree the same as the tested head `b34abb8`). Whichever other 2539 gate PR comes next rebases on it and makes its manifest again if it changes hashed files.
 - **The gate's Playwright step** still passes `KEYVAULT_NAME`: its own gate PR (proposal 2), with the kit README's six variables, now all seen working, and a second `azure/login` right before it. Boroon picks `gate.json` or caller variables. 2539's UI suite needs it.
 - **The test CA key can be destroyed** (proposal 4): Boroon deletes `~/factory-test-ca/factory-test-ca.key`, then its passphrase from his password manager.
 - **Plan 5.3's role** (proposal 3): Key Vault Secrets User on the secret, at Boroon's word.
 
-Next steps: Boroon merges gate PR 34; the gate's Playwright step PR; then 2546's DG9 and 2539.
+Next steps: the gate's Playwright step PR; the test user's access to Northwind's tables (the kit README's open item 2); then 2546's DG9 and 2539.
 
 ADO 2447: Proposed, then Building, then **Done at Boroon's word** (rev 7, 03:40 UTC), with a Session 61 section in its body. Its dates are not moved. ADO 2541: a comment that the test CA key can now be destroyed.
 
